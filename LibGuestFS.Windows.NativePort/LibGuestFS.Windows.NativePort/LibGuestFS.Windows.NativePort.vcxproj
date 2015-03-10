@@ -68,6 +68,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="main.c" />
+    <ClCompile Include="test-guestfs.c" />
     <ClCompile Include="test-pcre.c" />
     <ClCompile Include="test-xdr.c" />
   </ItemGroup>
