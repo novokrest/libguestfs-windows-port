@@ -20,8 +20,10 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>
+#include <win-unistd.h>
 #include <string.h>
+
+#include <win-port.h>
 
 #include <libxml/tree.h>
 #include <libxml/xpath.h>
@@ -67,7 +69,7 @@ void *
 guestfs___safe_calloc (guestfs_h *g, size_t n, size_t s)
 {
   /* From gnulib's calloc function in xmalloc.c.  */
-  void *p;
+  void *p = NULL;
   /* Test for overflow, since some calloc implementations don't have
      proper overflow checks.  But omit overflow and size-zero tests if
      HAVE_GNU_CALLOC, since GNU calloc catches overflow and never
@@ -89,7 +91,7 @@ guestfs___safe_realloc (guestfs_h *g, void *ptr, size_t nbytes)
 char *
 guestfs___safe_strdup (guestfs_h *g, const char *str)
 {
-  char *s = strdup (str);
+  char *s = _strdup (str);
   if (!s) g->abort_cb ();
   return s;
 }

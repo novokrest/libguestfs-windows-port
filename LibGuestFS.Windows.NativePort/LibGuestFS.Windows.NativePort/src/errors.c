@@ -24,6 +24,8 @@
 #include <string.h>
 #include <errno.h>
 
+#include <win-port.h>
+
 #include "c-ctype.h"
 
 #include "guestfs.h"
@@ -45,7 +47,7 @@ static void
 set_last_error (guestfs_h *g, int errnum, const char *msg)
 {
   free (g->last_error);
-  g->last_error = strdup (msg);
+  g->last_error = _strdup (msg);
   g->last_errnum = errnum;
 }
 
@@ -148,7 +150,7 @@ guestfs___perrorf (guestfs_h *g, const char *fs, ...)
 
   if (err < 0) return;
 
-  strerror_r (errnum, buf, sizeof buf);
+  strerror_s(buf, sizeof(buf), errnum);
 
   msg = safe_realloc (g, msg, strlen (msg) + 2 + strlen (buf) + 1);
   strcat (msg, ": ");
@@ -323,7 +325,7 @@ guestfs___external_command_failed (guestfs_h *g, int status,
                                    const char *cmd_name, const char *extra)
 {
   size_t len = 80 + strlen (cmd_name);
-  char status_string[len];
+  char* status_string = safe_malloc(g, len);
 
   guestfs___exit_status_to_string (status, cmd_name, status_string, len);
 
@@ -348,4 +350,6 @@ guestfs___external_command_failed (guestfs_h *g, int status,
 "See http://libguestfs.org/guestfs-faq.1.html#debugging-libguestfs"),
              cmd_name, extra, status_string);
   }
+
+  free(status_string);
 }

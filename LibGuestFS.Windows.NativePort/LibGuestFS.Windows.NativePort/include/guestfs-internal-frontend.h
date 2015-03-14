@@ -30,6 +30,7 @@
 #ifndef GUESTFS_INTERNAL_FRONTEND_H_
 #define GUESTFS_INTERNAL_FRONTEND_H_
 
+#include <win-gcc-attribute-clean.h>
 #include "guestfs-internal-all.h"
 
 #define _(str) dgettext(PACKAGE, (str))

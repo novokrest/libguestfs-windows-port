@@ -23,7 +23,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <inttypes.h>
-#include <unistd.h>
+#include <win-unistd.h>
 #include <assert.h>
 #include <string.h>
 

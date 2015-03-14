@@ -21,12 +21,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <unistd.h>
+#include <win-unistd.h>
 #include <fcntl.h>
 #include <errno.h>
 #include <sys/types.h>
-#include <sys/wait.h>
+//#include <sys/wait.h>
 #include <libintl.h>
+
+#include <win-port.h>
 
 /* NB: MUST NOT include "guestfs-internal.h" or gnulib headers. */
 #include "guestfs.h"
@@ -74,7 +76,7 @@ guestfs___copy_string_list (char *const *argv)
   ret[n] = NULL;
 
   for (i = 0; i < n; ++i) {
-    ret[i] = strdup (argv[i]);
+    ret[i] = _strdup (argv[i]);
     if (ret[i] == NULL) {
       for (j = 0; j < i; ++j)
         free (ret[j]);
@@ -191,26 +193,26 @@ char *
 guestfs___exit_status_to_string (int status, const char *cmd_name,
                                  char *buffer, size_t buflen)
 {
-  if (WIFEXITED (status)) {
-    if (WEXITSTATUS (status) == 0)
-      snprintf (buffer, buflen, _("%s exited successfully"),
-                cmd_name);
-    else
-      snprintf (buffer, buflen, _("%s exited with error status %d"),
-                cmd_name, WEXITSTATUS (status));
-  }
-  else if (WIFSIGNALED (status)) {
-    snprintf (buffer, buflen, _("%s killed by signal %d (%s)"),
-              cmd_name, WTERMSIG (status), strsignal (WTERMSIG (status)));
-  }
-  else if (WIFSTOPPED (status)) {
-    snprintf (buffer, buflen, _("%s stopped by signal %d (%s)"),
-              cmd_name, WSTOPSIG (status), strsignal (WSTOPSIG (status)));
-  }
-  else {
-    snprintf (buffer, buflen, _("%s exited for an unknown reason (status %d)"),
-              cmd_name, status);
-  }
+  //if (WIFEXITED (status)) {
+  //  if (WEXITSTATUS (status) == 0)
+  //    snprintf (buffer, buflen, _("%s exited successfully"),
+  //              cmd_name);
+  //  else
+  //    snprintf (buffer, buflen, _("%s exited with error status %d"),
+  //              cmd_name, WEXITSTATUS (status));
+  //}
+  //else if (WIFSIGNALED (status)) {
+  //  snprintf (buffer, buflen, _("%s killed by signal %d (%s)"),
+  //            cmd_name, WTERMSIG (status), strsignal (WTERMSIG (status)));
+  //}
+  //else if (WIFSTOPPED (status)) {
+  //  snprintf (buffer, buflen, _("%s stopped by signal %d (%s)"),
+  //            cmd_name, WSTOPSIG (status), strsignal (WSTOPSIG (status)));
+  //}
+  //else {
+  //  snprintf (buffer, buflen, _("%s exited for an unknown reason (status %d)"),
+  //            cmd_name, status);
+  //}
 
   return buffer;
 }
@@ -231,14 +233,14 @@ guestfs___random_string (char *ret, size_t len)
   unsigned char c;
   int saved_errno;
 
-  fd = open ("/dev/urandom", O_RDONLY|O_CLOEXEC);
+  fd = _open("/dev/urandom", O_RDONLY);
   if (fd == -1)
     return -1;
 
   for (i = 0; i < len; ++i) {
-    if (read (fd, &c, 1) != 1) {
+    if (_read (fd, &c, 1) != 1) {
       saved_errno = errno;
-      close (fd);
+      _close (fd);
       errno = saved_errno;
       return -1;
     }
@@ -247,7 +249,7 @@ guestfs___random_string (char *ret, size_t len)
   }
   ret[len] = '\0';
 
-  if (close (fd) == -1)
+  if (_close (fd) == -1)
     return -1;
 
   return 0;

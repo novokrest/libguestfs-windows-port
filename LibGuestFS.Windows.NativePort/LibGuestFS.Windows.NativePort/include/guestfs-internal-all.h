@@ -38,15 +38,15 @@
 #endif
 
 #define STREQ(a,b) (strcmp((a),(b)) == 0)
-#define STRCASEEQ(a,b) (strcasecmp((a),(b)) == 0)
+#define STRCASEEQ(a,b) (_stricmp((a),(b)) == 0)
 #define STRNEQ(a,b) (strcmp((a),(b)) != 0)
-#define STRCASENEQ(a,b) (strcasecmp((a),(b)) != 0)
+#define STRCASENEQ(a,b) (_stricmp((a),(b)) != 0)
 #define STREQLEN(a,b,n) (strncmp((a),(b),(n)) == 0)
-#define STRCASEEQLEN(a,b,n) (strncasecmp((a),(b),(n)) == 0)
+#define STRCASEEQLEN(a,b,n) (_strnicmp((a),(b),(n)) == 0)
 #define STRNEQLEN(a,b,n) (strncmp((a),(b),(n)) != 0)
-#define STRCASENEQLEN(a,b,n) (strncasecmp((a),(b),(n)) != 0)
+#define STRCASENEQLEN(a,b,n) (_strnicmp((a),(b),(n)) != 0)
 #define STRPREFIX(a,b) (strncmp((a),(b),strlen((b))) == 0)
-#define STRCASEPREFIX(a,b) (strncasecmp((a),(b),strlen((b))) == 0)
+#define STRCASEPREFIX(a,b) (_strnicmp((a),(b),strlen((b))) == 0)
 #define STRSUFFIX(a,b) (strlen((a)) >= strlen((b)) && STREQ((a)+strlen((a))-strlen((b)),(b)))
 
 #ifndef SOCK_CLOEXEC
