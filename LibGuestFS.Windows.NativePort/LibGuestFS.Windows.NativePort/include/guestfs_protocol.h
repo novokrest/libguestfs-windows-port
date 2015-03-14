@@ -7,6 +7,8 @@
 #define _GUESTFS_PROTOCOL_H_RPCGEN
 
 //#include <rpc/rpc.h>
+#include <rpc/types.h>
+#include <rpc/xdr.h>
 
 
 #ifdef __cplusplus
