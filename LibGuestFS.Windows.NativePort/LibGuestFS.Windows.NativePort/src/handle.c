@@ -108,11 +108,11 @@ guestfs_create_flags (unsigned flags, ...)
   /* Default is uniprocessor appliance. */
   g->smp = 1;
 
-  g->path = strdup (GUESTFS_DEFAULT_PATH);
+  g->path = _strdup (GUESTFS_DEFAULT_PATH);
   if (!g->path) goto error;
 
 #ifdef QEMU
-  g->hv = strdup (QEMU);
+  g->hv = _strdup (QEMU);
 #else
   /* configure --without-qemu, so set QEMU to something which will
    * definitely fail.  The user is expected to override the hypervisor
@@ -130,7 +130,7 @@ guestfs_create_flags (unsigned flags, ...)
   else
     g->program = strdup (program_invocation_short_name);
 #else
-  g->program = strdup ("");
+  g->program = _strdup ("");
 #endif
   if (!g->program) goto error;
 
