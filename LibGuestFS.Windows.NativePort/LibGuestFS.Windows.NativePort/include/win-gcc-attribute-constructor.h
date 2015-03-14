@@ -24,20 +24,3 @@
    static void f(void)
 
 #endif
-
-static void CCALL finalize(void)
-{
-    printf("finalize\n");
-}
-
-INITIALIZER(initialize)
-{
-    printf("initialize\n");
-    atexit(finalize);
-}
-
-int CCALL main(int argc, const char*const* argv)
-{
-    printf("main\n");
-    return 0;
-}
