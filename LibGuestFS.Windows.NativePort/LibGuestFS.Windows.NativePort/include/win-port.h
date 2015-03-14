@@ -16,4 +16,6 @@ char* getusername();
 /* To free the returned buffer, call the LocalFree function. */
 char* getusid();
 
+FILE* open_memstream(char **ptr, size_t *sizeloc);
+
 #endif /* EXTRA_WIN_H_ */
