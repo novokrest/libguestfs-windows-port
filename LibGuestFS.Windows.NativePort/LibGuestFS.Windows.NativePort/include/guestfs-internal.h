@@ -19,6 +19,8 @@
 #ifndef GUESTFS_INTERNAL_H_
 #define GUESTFS_INTERNAL_H_
 
+#include <win-gcc-attribute-clean.h>
+
 #include <stdbool.h>
 
 #include <libintl.h>
@@ -32,7 +34,7 @@
 #include <libvirt/libvirt.h>
 #endif
 
-#include "hash.h"
+//#include "hash.h"
 
 #include "guestfs-internal-frontend.h"
 
