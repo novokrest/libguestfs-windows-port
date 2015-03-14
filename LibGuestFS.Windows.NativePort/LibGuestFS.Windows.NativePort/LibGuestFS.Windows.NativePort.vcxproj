@@ -78,6 +78,18 @@
     <ClCompile Include="test-pcre.c" />
     <ClCompile Include="test-xdr.c" />
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="include\config.h" />
+    <ClInclude Include="include\gnulib\lib\glthread\lock.h" />
+    <ClInclude Include="include\gnulib\lib\ignore-value.h" />
+    <ClInclude Include="include\guestfs-internal-actions.h" />
+    <ClInclude Include="include\guestfs-internal-all.h" />
+    <ClInclude Include="include\guestfs-internal-frontend-cleanups.h" />
+    <ClInclude Include="include\guestfs-internal-frontend.h" />
+    <ClInclude Include="include\guestfs-internal.h" />
+    <ClInclude Include="include\guestfs.h" />
+    <ClInclude Include="include\guestfs_protocol.h" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

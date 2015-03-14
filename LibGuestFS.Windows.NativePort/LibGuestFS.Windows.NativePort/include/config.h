@@ -2383,7 +2383,7 @@
 #define UNZIP "no"
 
 /* Define if the POSIX multithreading library can be used. */
-#define USE_POSIX_THREADS 1
+//#define USE_POSIX_THREADS 1
 
 /* Define if references to the POSIX multithreading library should be made
    weak. */
