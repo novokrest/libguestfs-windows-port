@@ -19,7 +19,7 @@
 #ifndef XSTRTOL_H_
 # define XSTRTOL_H_ 1
 
-# include <getopt.h>
+//# include <getopt.h>
 # include <inttypes.h>
 
 # ifndef _STRTOL_ERROR
