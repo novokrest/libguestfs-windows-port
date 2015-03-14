@@ -476,7 +476,7 @@
 #define HAVE_ARPA_INET_H 1
 
 /* Define to 1 if '__attribute__((cleanup(...)))' works with this compiler. */
-#define HAVE_ATTRIBUTE_CLEANUP 1
+//#define HAVE_ATTRIBUTE_CLEANUP 1
 
 /* Define to 1 if you have the <attr/xattr.h> header file. */
 #define HAVE_ATTR_XATTR_H 1
@@ -637,7 +637,8 @@
 
 /* Define to 1 if you have the declaration of `program_invocation_short_name',
    and to 0 if you don't. */
-#define HAVE_DECL_PROGRAM_INVOCATION_SHORT_NAME 1
+//#define HAVE_DECL_PROGRAM_INVOCATION_SHORT_NAME 1
+#define HAVE_DECL_PROGRAM_INVOCATION_SHORT_NAME 0
 
 /* Define to 1 if you have the declaration of `setenv', and to 0 if you don't.
    */
@@ -2747,3 +2748,5 @@
 
 /* Define as a macro for copying va_list variables. */
 /* #undef va_copy */
+
+#define GUESTFS_DEFAULT_PATH "C:\Program Files\GuestFS"

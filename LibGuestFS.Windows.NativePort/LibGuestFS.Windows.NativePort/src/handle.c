@@ -20,9 +20,12 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>
+//#include <unistd.h>
+#include <win-unistd.h>
 #include <string.h>
 #include <errno.h>
+
+#include <win-gcc-attribute-constructor.h>
 
 #ifdef HAVE_LIBVIRT
 #include <libvirt/libvirt.h>
@@ -53,10 +56,11 @@ gl_lock_define_initialized (static, init_lock);
  * multiple threads.  Hence this constructor function which is called
  * when libguestfs is first loaded.
  */
-static void init_libguestfs (void) __attribute__((constructor));
+//static void init_libguestfs (void) __attribute__((constructor));
 
-static void
-init_libguestfs (void)
+//static void
+//init_libguestfs (void)
+INITIALIZER(init_libguestfs)
 {
   gl_lock_lock (init_lock);
 

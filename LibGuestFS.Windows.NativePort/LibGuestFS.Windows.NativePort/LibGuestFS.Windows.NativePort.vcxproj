@@ -80,6 +80,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\config.h" />
+    <ClInclude Include="include\win-gcc-attribute-constructor.h" />
     <ClInclude Include="include\gnulib\lib\glthread\lock.h" />
     <ClInclude Include="include\gnulib\lib\ignore-value.h" />
     <ClInclude Include="include\guestfs-internal-actions.h" />
@@ -89,6 +90,7 @@
     <ClInclude Include="include\guestfs-internal.h" />
     <ClInclude Include="include\guestfs.h" />
     <ClInclude Include="include\guestfs_protocol.h" />
+    <ClInclude Include="include\win-unistd.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
