@@ -44,14 +44,14 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>C:\cygwin64\home\novokrestWin\libguestfs-windows-port\LibGuestFS.Windows.NativePort\Dependencies\libxml\iconv\include;C:\cygwin64\home\novokrestWin\libguestfs-windows-port\LibGuestFS.Windows.NativePort\Dependencies\libxml\libxml2\include;C:\cygwin64\home\novokrestWin\libguestfs-windows-port\LibGuestFS.Windows.NativePort\LibGuestFS.Windows.NativePort\include\gnulib;C:\cygwin64\home\novokrestWin\libguestfs-windows-port\LibGuestFS.Windows.NativePort\LibGuestFS.Windows.NativePort\include\gnulib\lib;C:\cygwin64\home\novokrestWin\libguestfs-windows-port\LibGuestFS.Windows.NativePort\LibGuestFS.Windows.NativePort\include;C:\cygwin64\home\novokrestWin\libguestfs-windows-port\LibGuestFS.Windows.NativePort\Dependencies\xdr\include;C:\cygwin64\home\novokrestWin\libguestfs-windows-port\LibGuestFS.Windows.NativePort\Dependencies\pcre\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>USE_WINDOWS_THREADS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\cygwin64\home\novokrestWin\libguestfs-windows-port\LibGuestFS.Windows.NativePort\Dependencies\libintl\include;C:\cygwin64\home\novokrestWin\libguestfs-windows-port\LibGuestFS.Windows.NativePort\Dependencies\libxml\iconv\include;C:\cygwin64\home\novokrestWin\libguestfs-windows-port\LibGuestFS.Windows.NativePort\Dependencies\libxml\libxml2\include;C:\cygwin64\home\novokrestWin\libguestfs-windows-port\LibGuestFS.Windows.NativePort\LibGuestFS.Windows.NativePort\include\gnulib;C:\cygwin64\home\novokrestWin\libguestfs-windows-port\LibGuestFS.Windows.NativePort\LibGuestFS.Windows.NativePort\include\gnulib\lib;C:\cygwin64\home\novokrestWin\libguestfs-windows-port\LibGuestFS.Windows.NativePort\LibGuestFS.Windows.NativePort\include;C:\cygwin64\home\novokrestWin\libguestfs-windows-port\LibGuestFS.Windows.NativePort\Dependencies\xdr\include;C:\cygwin64\home\novokrestWin\libguestfs-windows-port\LibGuestFS.Windows.NativePort\Dependencies\pcre\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>USE_WINDOWS_THREADS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <UndefinePreprocessorDefinitions>USE_POSIX_THREADS;%(UndefinePreprocessorDefinitions)</UndefinePreprocessorDefinitions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>C:\cygwin64\home\novokrestWin\libguestfs-windows-port\LibGuestFS.Windows.NativePort\Dependencies\libxml\libxml2\lib;C:\cygwin64\home\novokrestWin\libguestfs-windows-port\LibGuestFS.Windows.NativePort\Dependencies\xdr\lib;C:\cygwin64\home\novokrestWin\libguestfs-windows-port\LibGuestFS.Windows.NativePort\Dependencies\pcre\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>pcre.lib;xdr.lib;libxml2.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\cygwin64\home\novokrestWin\libguestfs-windows-port\LibGuestFS.Windows.NativePort\Dependencies\libintl\lib;C:\cygwin64\home\novokrestWin\libguestfs-windows-port\LibGuestFS.Windows.NativePort\Dependencies\libxml\libxml2\lib;C:\cygwin64\home\novokrestWin\libguestfs-windows-port\LibGuestFS.Windows.NativePort\Dependencies\xdr\lib;C:\cygwin64\home\novokrestWin\libguestfs-windows-port\LibGuestFS.Windows.NativePort\Dependencies\pcre\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>pcre.lib;xdr.lib;libxml2.lib;libintl.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -74,6 +74,7 @@
     <ClCompile Include="src\gnulib\lib\glthread\threadlib.c" />
     <ClCompile Include="src\handle.c" />
     <ClCompile Include="test-guestfs.c" />
+    <ClCompile Include="test-libintl.c" />
     <ClCompile Include="test-libxml.c" />
     <ClCompile Include="test-pcre.c" />
     <ClCompile Include="test-xdr.c" />
@@ -90,6 +91,7 @@
     <ClInclude Include="include\guestfs-internal.h" />
     <ClInclude Include="include\guestfs.h" />
     <ClInclude Include="include\guestfs_protocol.h" />
+    <ClInclude Include="include\win-gcc-attribute-clean.h" />
     <ClInclude Include="include\win-unistd.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

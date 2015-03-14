@@ -39,6 +39,9 @@
     <ClCompile Include="src\gnulib\lib\glthread\threadlib.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="test-libintl.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\config.h">
@@ -75,6 +78,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\win-unistd.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\win-gcc-attribute-clean.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
