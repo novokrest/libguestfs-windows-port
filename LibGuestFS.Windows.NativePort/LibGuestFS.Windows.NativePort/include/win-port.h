@@ -10,4 +10,10 @@ char* realpath(const char* path, char* resolved_path);
 char* strndup(const char*s, size_t n);
 void* memmem(const void *l, size_t l_len, const void *s, size_t s_len);
 
+/* Returned buffer must be freed by caller */
+char* getusername();
+
+/* To free the returned buffer, call the LocalFree function. */
+char* getusid();
+
 #endif /* EXTRA_WIN_H_ */
