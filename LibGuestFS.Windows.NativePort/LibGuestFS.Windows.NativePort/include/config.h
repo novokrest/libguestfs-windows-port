@@ -2749,4 +2749,4 @@
 /* Define as a macro for copying va_list variables. */
 /* #undef va_copy */
 
-#define GUESTFS_DEFAULT_PATH "C:\Program Files\GuestFS"
+#define GUESTFS_DEFAULT_PATH "C:/Program Files/GuestFS"
