@@ -33,5 +33,11 @@
     <ClCompile Include="test-libxml.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\gnulib\lib\glthread\lock.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gnulib\lib\glthread\threadlib.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
