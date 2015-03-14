@@ -614,6 +614,9 @@ extern void guestfs___error_errno (guestfs_h *g, int errnum, const char *fs, ...
 extern void guestfs___perrorf (guestfs_h *g, const char *fs, ...)
   __attribute__((format (printf,2,3)));
 
+extern void guestfs___perrorf_win(guestfs_h *g, const char *fs, ...);
+extern void guestfs___perrorf_wsa(guestfs_h *g, const char *fs, ...);
+
 extern void guestfs___warning (guestfs_h *g, const char *fs, ...)
   __attribute__((format (printf,2,3)));
 extern void guestfs___debug (guestfs_h *g, const char *fs, ...)
@@ -626,6 +629,8 @@ extern void guestfs___print_BufferOut (FILE *out, const char *buf, size_t buf_si
 
 #define error(g,...) guestfs___error_errno((g),0,__VA_ARGS__)
 #define perrorf guestfs___perrorf
+#define perrorf_win guestfs___perrorf_win
+#define perrorf_wsa guestfs___perrorf_wsa
 #define warning(g,...) guestfs___warning((g),__VA_ARGS__)
 #define debug(g,...) \
   do { if ((g)->verbose) guestfs___debug ((g),__VA_ARGS__); } while (0)

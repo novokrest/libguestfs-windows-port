@@ -25,6 +25,8 @@
 #include <errno.h>
 
 #include <win-port.h>
+#include <WinSock2.h>
+#include <WS2tcpip.h>
 
 #include "c-ctype.h"
 
@@ -162,6 +164,85 @@ guestfs___perrorf (guestfs_h *g, const char *fs, ...)
   set_last_error (g, errnum, msg);
   if (g->error_cb) g->error_cb (g, g->error_cb_data, msg);
 }
+
+static char*
+GetLastErrorStr(int errnum)
+{
+    char* buf = NULL;
+
+    FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM,
+        NULL,
+        errnum,
+        MAKELANGID(LANG_ENGLISH, SUBLANG_DEFAULT),
+        (LPTSTR)&buf,
+        0,
+        NULL);
+
+    return buf;
+}
+
+void
+guestfs___perrorf_win(guestfs_h *g, const char *fs, ...)
+{
+    va_list args;
+    CLEANUP_FREE char *msg = NULL;
+    int errnum = GetLastError();
+    int err;
+    char *buf;
+
+    va_start(args, fs);
+    err = vasprintf(&msg, fs, args);
+    va_end(args);
+
+    if (err < 0) return;
+
+    buf = GetLastErrorStr(errnum);
+
+    msg = safe_realloc(g, msg, strlen(msg) + 2 + strlen(buf) + 1);
+    strcat(msg, ": ");
+    strcat(msg, buf);
+
+    LocalFree(buf);
+
+    /* set_last_error first so that the callback can access the error
+    * message and errno through the handle if it wishes.
+    */
+    set_last_error(g, errnum, msg);
+    if (g->error_cb) g->error_cb(g, g->error_cb_data, msg);
+}
+
+
+void
+guestfs___perrorf_wsa(guestfs_h *g, const char *fs, ...)
+{
+    va_list args;
+    CLEANUP_FREE char *msg = NULL;
+    int errnum = WSAGetLastError();
+    int err;
+    char* buf;
+    int size;
+
+    va_start(args, fs);
+    err = vasprintf(&msg, fs, args);
+    va_end(args);
+
+    if (err < 0) return;
+
+    buf = GetLastErrorStr(errnum);
+
+    msg = safe_realloc(g, msg, strlen(msg) + 2 + strlen(buf) + 1);
+    strcat(msg, ": ");
+    strcat(msg, buf);
+
+    LocalFree(buf);
+
+    /* set_last_error first so that the callback can access the error
+    * message and errno through the handle if it wishes.
+    */
+    set_last_error(g, errnum, msg);
+    if (g->error_cb) g->error_cb(g, g->error_cb_data, msg);
+}
+
 
 void
 guestfs_set_out_of_memory_handler (guestfs_h *g, guestfs_abort_cb cb)
