@@ -27,5 +27,11 @@
     <ClCompile Include="test-guestfs.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\handle.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="test-libxml.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
