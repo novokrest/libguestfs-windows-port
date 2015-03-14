@@ -27,7 +27,7 @@
 
 /* Get ssize_t.  */
 #include <sys/types.h>
-#include <unistd.h>
+#include <win-unistd.h>
 
 #include <errno.h>
 
@@ -41,10 +41,10 @@
 
 #ifdef SAFE_WRITE
 # define safe_rw safe_write
-# define rw write
+# define rw _write
 #else
 # define safe_rw safe_read
-# define rw read
+# define rw _read
 # undef const
 # define const /* empty */
 #endif
