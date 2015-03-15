@@ -1748,7 +1748,7 @@ guestfs_tgz_in (guestfs_h *g,
   }
 
   if (stat (tarball, &progress_stat) == 0 &&
-      (progress_stat.st_mode) && _S_IFREG)
+      (progress_stat.st_mode) & _S_IFREG)
     progress_hint += progress_stat.st_size;
 
   if (guestfs___check_appliance_up (g, "tgz_in") == -1) {
@@ -4113,7 +4113,7 @@ guestfs_txz_in (guestfs_h *g,
   }
 
   if (stat (tarball, &progress_stat) == 0 &&
-      (progress_stat.st_mode && _S_IFREG))
+      (progress_stat.st_mode & _S_IFREG))
     progress_hint += progress_stat.st_size;
 
   if (guestfs___check_appliance_up (g, "txz_in") == -1) {
@@ -5671,7 +5671,7 @@ guestfs_ntfsclone_in (guestfs_h *g,
   }
 
   if (stat (backupfile, &progress_stat) == 0 &&
-      (progress_stat.st_mode && _S_IFREG))
+      (progress_stat.st_mode & _S_IFREG))
     progress_hint += progress_stat.st_size;
 
   if (guestfs___check_appliance_up (g, "ntfsclone_in") == -1) {
@@ -8059,7 +8059,7 @@ guestfs_internal_upload (guestfs_h *g,
   }
 
   if (stat (filename, &progress_stat) == 0 &&
-      (progress_stat.st_mode && _S_IFREG))
+      (progress_stat.st_mode & _S_IFREG))
     progress_hint += progress_stat.st_size;
 
   if (guestfs___check_appliance_up (g, "internal_upload") == -1) {

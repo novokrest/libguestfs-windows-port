@@ -161,7 +161,7 @@ disk_create_raw (guestfs_h *g, const char *filename, int64_t size,
 
   if (stat (filename, &statbuf) == 0) {
     /* Refuse to overwrite char devices. */
-    if (statbuf.st_mode && _S_IFCHR) {
+    if (statbuf.st_mode & _S_IFCHR) {
       error (g, _("refusing to overwrite char device '%s'"), filename);
       return -1;
     }

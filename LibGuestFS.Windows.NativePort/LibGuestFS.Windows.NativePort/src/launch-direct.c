@@ -23,22 +23,25 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <inttypes.h>
-#include <unistd.h>
+#include <win-unistd.h>
 #include <errno.h>
 #include <fcntl.h>
 #include <sys/types.h>
-#include <sys/wait.h>
+//#include <sys/wait.h>
 #include <sys/stat.h>
 #include <signal.h>
-#include <sys/socket.h>
-#include <sys/un.h>
-#include <grp.h>
+//#include <sys/socket.h>
+//#include <sys/un.h>
+//#include <grp.h>
 #include <assert.h>
 #include <string.h>
 
 #include <pcre.h>
 
 #include <libxml/uri.h>
+
+#include <win-gcc-attribute-constructor.h>
+#include <WS2tcpip.h>
 
 #include "cloexec.h"
 #include "ignore-value.h"
@@ -58,8 +61,7 @@ static pcre *re_major_minor;
 static void compile_regexps (void) __attribute__((constructor));
 static void free_regexps (void) __attribute__((destructor));
 
-static void
-compile_regexps (void)
+INITIALIZER(compile_regexps)
 {
   const char *err;
   int offset;
@@ -68,7 +70,7 @@ compile_regexps (void)
   do {                                                                  \
     re = pcre_compile ((pattern), (options), &err, &offset, NULL);      \
     if (re == NULL) {                                                   \
-      ignore_value (write (2, err, strlen (err)));                      \
+      ignore_value (_write (2, err, strlen (err)));                      \
       abort ();                                                         \
     }                                                                   \
   } while (0)
@@ -84,8 +86,8 @@ free_regexps (void)
 
 /* Per-handle data. */
 struct backend_direct_data {
-  pid_t pid;                  /* Qemu PID. */
-  pid_t recoverypid;          /* Recovery process PID. */
+  PROCESS_INFORMATION piQemuProc;                  /* Qemu PID. */
+  PROCESS_INFORMATION piRecoveryProc;              /* Recovery process PID. */
 
   char *qemu_help;            /* Output of qemu -help. */
   char *qemu_version;         /* Output of qemu -version. */
@@ -262,12 +264,13 @@ launch_direct (guestfs_h *g, void *datav, const char *arg)
 {
   struct backend_direct_data *data = datav;
   CLEANUP_FREE_STRINGSBUF DECLARE_STRINGSBUF (cmdline);
-  int daemon_accept_sock = -1, console_sock = -1;
+  SOCKET daemon_accept_sock = INVALID_SOCKET, console_sock = INVALID_SOCKET;
   int r;
   int flags;
   int sv[2];
   char guestfsd_sock[256];
-  struct sockaddr_un addr;
+  struct addrinfo *addr = NULL, hints;
+  char* port = DIRECT_PORT;
   CLEANUP_FREE char *kernel = NULL, *dtb = NULL,
     *initrd = NULL, *appliance = NULL;
   int has_appliance_drive;
@@ -296,7 +299,7 @@ launch_direct (guestfs_h *g, void *datav, const char *arg)
    * which case the user would not get hardware virtualization,
    * although at least shouldn't fail.
    */
-  has_kvm = is_openable (g, "/dev/kvm", O_RDWR|O_CLOEXEC);
+  has_kvm = is_openable (g, "/dev/kvm", O_RDWR);
 
   force_tcg = guestfs___get_backend_setting_bool (g, "force_tcg");
   if (force_tcg == -1)
@@ -312,6 +315,7 @@ launch_direct (guestfs_h *g, void *datav, const char *arg)
   /* Locate and/or build the appliance. */
   if (guestfs___build_appliance (g, &kernel, &dtb, &initrd, &appliance) == -1)
     return -1;
+
   has_appliance_drive = appliance != NULL;
 
   TRACE0 (launch_build_appliance_end);
@@ -328,36 +332,39 @@ launch_direct (guestfs_h *g, void *datav, const char *arg)
   /* Using virtio-serial, we need to create a local Unix domain socket
    * for qemu to connect to.
    */
-  snprintf (guestfsd_sock, sizeof guestfsd_sock, "%s/guestfsd.sock", g->tmpdir);
-  unlink (guestfsd_sock);
+  ZeroMemory(&hints, sizeof(hints));
+  hints.ai_family = AF_INET;
+  hints.ai_socktype = SOCK_STREAM;
+  hints.ai_protocol = IPPROTO_TCP;
+  hints.ai_flags = AI_PASSIVE;
 
-  daemon_accept_sock = socket (AF_UNIX, SOCK_STREAM|SOCK_CLOEXEC, 0);
-  if (daemon_accept_sock == -1) {
-    perrorf (g, "socket");
+  if (getaddrinfo(NULL, port, &hints, &addr) != 0) {
+    perrorf_wsa(g, "getaddrinfo");
     goto cleanup0;
   }
 
-  addr.sun_family = AF_UNIX;
-  strncpy (addr.sun_path, guestfsd_sock, UNIX_PATH_MAX);
-  addr.sun_path[UNIX_PATH_MAX-1] = '\0';
-
-  if (bind (daemon_accept_sock, (struct sockaddr *) &addr,
-            sizeof addr) == -1) {
-    perrorf (g, "bind");
+  daemon_accept_sock = socket(addr->ai_family, addr->ai_socktype, addr->ai_protocol);
+  if (daemon_accept_sock == INVALID_SOCKET) {
+    perrorf_wsa(g, "socket");
     goto cleanup0;
   }
 
-  if (listen (daemon_accept_sock, 1) == -1) {
-    perrorf (g, "listen");
+  if (bind(daemon_accept_sock, addr->ai_addr, addr->ai_addrlen) == SOCKET_ERROR) {
+    perrorf_wsa(g, "bind");
     goto cleanup0;
   }
 
-  if (!g->direct_mode) {
-    if (socketpair (AF_LOCAL, SOCK_STREAM|SOCK_CLOEXEC, 0, sv) == -1) {
-      perrorf (g, "socketpair");
-      goto cleanup0;
-    }
+  if (listen(daemon_accept_sock, 1) == SOCKET_ERROR) {
+    perrorf_wsa(g, "listen");
+    goto cleanup0;
   }
+
+  //if (!g->direct_mode) {
+  //  if (socketpair (AF_LOCAL, SOCK_STREAM|SOCK_CLOEXEC, 0, sv) == -1) {
+  //    perrorf (g, "socketpair");
+  //    goto cleanup0;
+  //  }
+  //}
 
   if (g->verbose)
     guestfs___print_timestamped_message (g, "finished testing qemu features");
@@ -673,149 +680,194 @@ launch_direct (guestfs_h *g, void *datav, const char *arg)
   /* Finish off the command line. */
   guestfs___end_stringsbuf (g, &cmdline);
 
-  r = fork ();
-  if (r == -1) {
-    perrorf (g, "fork");
-    if (!g->direct_mode) {
-      close (sv[0]);
-      close (sv[1]);
-    }
-    goto cleanup0;
-  }
+  DWORD dwFlags;
+  STARTUPINFO siStartInfo;
+  PROCESS_INFORMATION piProcInfo;
 
-  if (r == 0) {			/* Child (qemu). */
-    if (!g->direct_mode) {
-      /* Set up stdin, stdout, stderr. */
-      close (0);
-      close (1);
-      close (sv[0]);
+  ZeroMemory(&siStartInfo, sizeof(STARTUPINFO));
+  ZeroMemory(&piProcInfo, sizeof(PROCESS_INFORMATION));
 
-      /* We set the FD_CLOEXEC flag on the socket above, but now (in
-       * the child) it's safe to unset this flag so qemu can use the
-       * socket.
-       */
-      set_cloexec_flag (sv[1], 0);
+  siStartInfo.cb = sizeof(STARTUPINFO);
+  //siStartInfo.dwFlags |= STARTF_USESTDHANDLES;
 
-      /* Stdin. */
-      if (dup (sv[1]) == -1) {
-      dup_failed:
-        perror ("dup failed");
-        _exit (EXIT_FAILURE);
-      }
-      /* Stdout. */
-      if (dup (sv[1]) == -1)
-        goto dup_failed;
+  char* hv_quoted = safe_malloc(g, strlen(g->hv) + 3);
+  hv_quoted[0] = '\"';
+  strcpy(hv_quoted + 1, g->hv);
+  hv_quoted[strlen(hv_quoted)] = '\"';
 
-      /* Particularly since qemu 0.15, qemu spews all sorts of debug
-       * information on stderr.  It is useful to both capture this and
-       * not confuse casual users, so send stderr to the pipe as well.
-       */
-      close (2);
-      if (dup (sv[1]) == -1)
-        goto dup_failed;
+  char* cmd = guestfs___join_strings(" ", cmdline.argv);
 
-      close (sv[1]);
+  //cmd = "C:/cygwin64/usr/qemu/qemu-system-x86_64.exe" \
+  //    " -m 500" \
+  //    " -no-reboot" \
+  //    " -rtc driftfix=slew" \
+  //    " -no-kvm-pit-reinjection" \
+  //    " -kernel C:/cygwin64/var/tmp/.guestfs-1000/appliance.d/kernel" \
+  //    " -initrd C:/cygwin64/var/tmp/.guestfs-1000/appliance.d/initrd" \
+  //    " -drive file=C:/cygwin64/home/novokrestWin/Master/guest_fs/test_data/appliance.d/disk.img,cache=writeback,format=raw,id=hd0,if=none" \
+  //    " -device virtio-blk-pci,drive=hd0" \
+  //    " -drive file=C:/cygwin64/var/tmp/.guestfs-1000/appliance.d/root,snapshot=on,id=appliance,cache=unsafe,if=none" \
+  //    " -device virtio-blk-pci,drive=appliance" \
+  //    " -device virtio-serial-pci" \
+  //    " -serial stdio" \
+  //    " -chardev socket,host=localhost,port=7777,id=channel0" \
+  //    " -device virtserialport,chardev=channel0,name=org.libguestfs.channel.0" \
+  //    " -append \"panic=1 console=ttyS0 udevtimeout=6000 udev.event-timeout=6000 no_timer_check acpi=off printk.time=1 cgroup_disable=memory root=/dev/vdb selinux=0 guestfs_verbose=1 TERM=xterm\"";
 
-      /* Close any other file descriptors that we don't want to pass
-       * to qemu.  This prevents file descriptors which didn't have
-       * O_CLOEXEC set properly from leaking into the subprocess.  See
-       * RHBZ#1123007.
-       */
-      close_file_descriptors (fd > 2);
-    }
+  CreateProcess(NULL,
+      cmd,
+      NULL,
+      NULL,
+      TRUE,
+      0,
+      NULL,
+      NULL,
+      &siStartInfo,
+      &piProcInfo);
 
-    /* Dump the command line (after setting up stderr above). */
-    if (g->verbose)
-      print_qemu_command_line (g, cmdline.argv);
+  //r = fork ();
+  //if (r == -1) {
+  //  perrorf (g, "fork");
+  //  if (!g->direct_mode) {
+  //    close (sv[0]);
+  //    close (sv[1]);
+  //  }
+  //  goto cleanup0;
+  //}
 
-    /* Put qemu in a new process group. */
-    if (g->pgroup)
-      setpgid (0, 0);
+  //if (r == 0) {			/* Child (qemu). */
+  //  if (!g->direct_mode) {
+  //    /* Set up stdin, stdout, stderr. */
+  //    close (0);
+  //    close (1);
+  //    close (sv[0]);
 
-    setenv ("LC_ALL", "C", 1);
-    setenv ("QEMU_AUDIO_DRV", "none", 1); /* Prevents qemu opening /dev/dsp */
+  //    /* We set the FD_CLOEXEC flag on the socket above, but now (in
+  //     * the child) it's safe to unset this flag so qemu can use the
+  //     * socket.
+  //     */
+  //    set_cloexec_flag (sv[1], 0);
 
-    TRACE0 (launch_run_qemu);
+  //    /* Stdin. */
+  //    if (dup (sv[1]) == -1) {
+  //    dup_failed:
+  //      perror ("dup failed");
+  //      _exit (EXIT_FAILURE);
+  //    }
+  //    /* Stdout. */
+  //    if (dup (sv[1]) == -1)
+  //      goto dup_failed;
 
-    execv (g->hv, cmdline.argv); /* Run qemu. */
-    perror (g->hv);
-    _exit (EXIT_FAILURE);
-  }
+  //    /* Particularly since qemu 0.15, qemu spews all sorts of debug
+  //     * information on stderr.  It is useful to both capture this and
+  //     * not confuse casual users, so send stderr to the pipe as well.
+  //     */
+  //    close (2);
+  //    if (dup (sv[1]) == -1)
+  //      goto dup_failed;
 
-  /* Parent (library). */
-  data->pid = r;
+  //    close (sv[1]);
 
-  /* Fork the recovery process off which will kill qemu if the parent
-   * process fails to do so (eg. if the parent segfaults).
-   */
-  data->recoverypid = -1;
-  if (g->recovery_proc) {
-    r = fork ();
-    if (r == 0) {
-      int i;
-      struct sigaction sa;
-      pid_t qemu_pid = data->pid;
-      pid_t parent_pid = getppid ();
+  //    /* Close any other file descriptors that we don't want to pass
+  //     * to qemu.  This prevents file descriptors which didn't have
+  //     * O_CLOEXEC set properly from leaking into the subprocess.  See
+  //     * RHBZ#1123007.
+  //     */
+  //    close_file_descriptors (fd > 2);
+  //  }
 
-      /* Remove all signal handlers.  See the justification here:
-       * https://www.redhat.com/archives/libvir-list/2008-August/msg00303.html
-       * We don't mask signal handlers yet, so this isn't completely
-       * race-free, but better than not doing it at all.
-       */
-      memset (&sa, 0, sizeof sa);
-      sa.sa_handler = SIG_DFL;
-      sa.sa_flags = 0;
-      sigemptyset (&sa.sa_mask);
-      for (i = 1; i < NSIG; ++i)
-        sigaction (i, &sa, NULL);
+  //  /* Dump the command line (after setting up stderr above). */
+  //  if (g->verbose)
+  //    print_qemu_command_line (g, cmdline.argv);
 
-      /* Close all other file descriptors.  This ensures that we don't
-       * hold open (eg) pipes from the parent process.
-       */
-      close_file_descriptors (1);
+  //  /* Put qemu in a new process group. */
+  //  if (g->pgroup)
+  //    setpgid (0, 0);
 
-      /* It would be nice to be able to put this in the same process
-       * group as qemu (ie. setpgid (0, qemu_pid)).  However this is
-       * not possible because we don't have any guarantee here that
-       * the qemu process has started yet.
-       */
-      if (g->pgroup)
-        setpgid (0, 0);
+  //  setenv ("LC_ALL", "C", 1);
+  //  setenv ("QEMU_AUDIO_DRV", "none", 1); /* Prevents qemu opening /dev/dsp */
 
-      /* Writing to argv is hideously complicated and error prone.  See:
-       * http://git.postgresql.org/gitweb/?p=postgresql.git;a=blob;f=src/backend/utils/misc/ps_status.c;hb=HEAD
-       */
+  //  TRACE0 (launch_run_qemu);
 
-      /* Loop around waiting for one or both of the other processes to
-       * disappear.  It's fair to say this is very hairy.  The PIDs that
-       * we are looking at might be reused by another process.  We are
-       * effectively polling.  Is the cure worse than the disease?
-       */
-      for (;;) {
-        if (kill (qemu_pid, 0) == -1) /* qemu's gone away, we aren't needed */
-          _exit (EXIT_SUCCESS);
-        if (kill (parent_pid, 0) == -1) {
-          /* Parent's gone away, qemu still around, so kill qemu. */
-          kill (qemu_pid, 9);
-          _exit (EXIT_SUCCESS);
-        }
-        sleep (2);
-      }
-    }
+  //  execv (g->hv, cmdline.argv); /* Run qemu. */
+  //  perror (g->hv);
+  //  _exit (EXIT_FAILURE);
+  //}
 
-    /* Don't worry, if the fork failed, this will be -1.  The recovery
-     * process isn't essential.
-     */
-    data->recoverypid = r;
-  }
+  ///* Parent (library). */
+  //data->pid = r;
 
-  if (!g->direct_mode) {
-    /* Close the other end of the socketpair. */
-    close (sv[1]);
+  ///* Fork the recovery process off which will kill qemu if the parent
+  // * process fails to do so (eg. if the parent segfaults).
+  // */
+  //data->recoverypid = -1;
+  //if (g->recovery_proc) {
+  //  r = fork ();
+  //  if (r == 0) {
+  //    int i;
+  //    struct sigaction sa;
+  //    pid_t qemu_pid = data->pid;
+  //    pid_t parent_pid = getppid ();
 
-    console_sock = sv[0];       /* stdin of child */
-    sv[0] = -1;
-  }
+  //    /* Remove all signal handlers.  See the justification here:
+  //     * https://www.redhat.com/archives/libvir-list/2008-August/msg00303.html
+  //     * We don't mask signal handlers yet, so this isn't completely
+  //     * race-free, but better than not doing it at all.
+  //     */
+  //    memset (&sa, 0, sizeof sa);
+  //    sa.sa_handler = SIG_DFL;
+  //    sa.sa_flags = 0;
+  //    sigemptyset (&sa.sa_mask);
+  //    for (i = 1; i < NSIG; ++i)
+  //      sigaction (i, &sa, NULL);
+
+  //    /* Close all other file descriptors.  This ensures that we don't
+  //     * hold open (eg) pipes from the parent process.
+  //     */
+  //    close_file_descriptors (1);
+
+  //    /* It would be nice to be able to put this in the same process
+  //     * group as qemu (ie. setpgid (0, qemu_pid)).  However this is
+  //     * not possible because we don't have any guarantee here that
+  //     * the qemu process has started yet.
+  //     */
+  //    if (g->pgroup)
+  //      setpgid (0, 0);
+
+  //    /* Writing to argv is hideously complicated and error prone.  See:
+  //     * http://git.postgresql.org/gitweb/?p=postgresql.git;a=blob;f=src/backend/utils/misc/ps_status.c;hb=HEAD
+  //     */
+
+  //    /* Loop around waiting for one or both of the other processes to
+  //     * disappear.  It's fair to say this is very hairy.  The PIDs that
+  //     * we are looking at might be reused by another process.  We are
+  //     * effectively polling.  Is the cure worse than the disease?
+  //     */
+  //    for (;;) {
+  //      if (kill (qemu_pid, 0) == -1) /* qemu's gone away, we aren't needed */
+  //        _exit (EXIT_SUCCESS);
+  //      if (kill (parent_pid, 0) == -1) {
+  //        /* Parent's gone away, qemu still around, so kill qemu. */
+  //        kill (qemu_pid, 9);
+  //        _exit (EXIT_SUCCESS);
+  //      }
+  //      sleep (2);
+  //    }
+  //  }
+
+  //  /* Don't worry, if the fork failed, this will be -1.  The recovery
+  //   * process isn't essential.
+  //   */
+  //  data->recoverypid = r;
+  //}
+
+  //if (!g->direct_mode) {
+  //  /* Close the other end of the socketpair. */
+  //  close (sv[1]);
+
+  //  console_sock = sv[0];       /* stdin of child */
+  //  sv[0] = -1;
+  //}
 
   g->state = LAUNCHING;
 
@@ -880,21 +932,24 @@ launch_direct (guestfs_h *g, void *datav, const char *arg)
   return 0;
 
  cleanup1:
-  if (!g->direct_mode && sv[0] >= 0)
-    close (sv[0]);
-  if (data->pid > 0) kill (data->pid, 9);
-  if (data->recoverypid > 0) kill (data->recoverypid, 9);
-  if (data->pid > 0) waitpid (data->pid, NULL, 0);
-  if (data->recoverypid > 0) waitpid (data->recoverypid, NULL, 0);
-  data->pid = 0;
-  data->recoverypid = 0;
-  memset (&g->launch_t, 0, sizeof g->launch_t);
+  //if (!g->direct_mode && sv[0] >= 0)
+  //  close (sv[0]);
+  //if (data->pid > 0) kill (data->pid, 9);
+  //if (data->recoverypid > 0) kill (data->recoverypid, 9);
+  //if (data->pid > 0) waitpid (data->pid, NULL, 0);
+  //if (data->recoverypid > 0) waitpid (data->recoverypid, NULL, 0);
+  //data->pid = 0;
+  //data->recoverypid = 0;
+  //memset (&g->launch_t, 0, sizeof g->launch_t);
 
  cleanup0:
-  if (daemon_accept_sock >= 0)
-    close (daemon_accept_sock);
-  if (console_sock >= 0)
-    close (console_sock);
+  if (addr) {
+    freeaddrinfo(addr);
+  }
+  if (daemon_accept_sock != INVALID_SOCKET)
+    closesocket (daemon_accept_sock);
+  if (console_sock != INVALID_SOCKET)
+    closesocket (console_sock);
   if (g->conn) {
     g->conn->ops->free_connection (g, g->conn);
     g->conn = NULL;
@@ -999,7 +1054,7 @@ test_qemu (guestfs_h *g, struct backend_direct_data *data)
   guestfs___cmd_set_stdout_callback (cmd1, read_all, &data->qemu_help,
                                      CMD_STDOUT_FLAG_WHOLE_BUFFER);
   r = guestfs___cmd_run (cmd1);
-  if (r == -1 || !WIFEXITED (r) || WEXITSTATUS (r) != 0)
+  if (r == -1)
     goto error;
 
   guestfs___cmd_add_arg (cmd2, g->hv);
@@ -1009,7 +1064,7 @@ test_qemu (guestfs_h *g, struct backend_direct_data *data)
   guestfs___cmd_set_stdout_callback (cmd2, read_all, &data->qemu_version,
                                      CMD_STDOUT_FLAG_WHOLE_BUFFER);
   r = guestfs___cmd_run (cmd2);
-  if (r == -1 || !WIFEXITED (r) || WEXITSTATUS (r) != 0)
+  if (r == -1)
     goto error;
 
   parse_qemu_version (g, data);
@@ -1030,7 +1085,7 @@ test_qemu (guestfs_h *g, struct backend_direct_data *data)
   guestfs___cmd_set_stdout_callback (cmd3, read_all, &data->qemu_devices,
                                      CMD_STDOUT_FLAG_WHOLE_BUFFER);
   r = guestfs___cmd_run (cmd3);
-  if (r == -1 || !WIFEXITED (r) || WEXITSTATUS (r) != 0)
+  if (r == -1)
     goto error;
 
   return 0;
@@ -1061,7 +1116,7 @@ parse_qemu_version (guestfs_h *g, struct backend_direct_data *data)
   if (!match2 (g, data->qemu_version, re_major_minor, &major_s, &minor_s)) {
   parse_failed:
     debug (g, "%s: failed to parse qemu version string '%s'",
-           __func__, data->qemu_version);
+           __FUNCTION__, data->qemu_version);
     return;
   }
 
@@ -1131,12 +1186,12 @@ qemu_supports_device (guestfs_h *g, struct backend_direct_data *data,
 static int
 is_openable (guestfs_h *g, const char *path, int flags)
 {
-  int fd = open (path, flags);
+  int fd = _open (path, flags);
   if (fd == -1) {
-    debug (g, "is_openable: %s: %m", path);
+    debug(g, "is_openable: %s: %s", path, strerror(errno));
     return 0;
   }
-  close (fd);
+  _close (fd);
   return 1;
 }
 
@@ -1497,26 +1552,36 @@ shutdown_direct (guestfs_h *g, void *datav, int check_for_errors)
   int status;
 
   /* Signal qemu to shutdown cleanly, and kill the recovery process. */
-  if (data->pid > 0) {
-    debug (g, "sending SIGTERM to process %d", data->pid);
-    kill (data->pid, SIGTERM);
+  if (data->piQemuProc.hProcess != INVALID_HANDLE_VALUE) {
+    debug(g, "terminate process %d", GetProcessId(data->piQemuProc.hProcess));
+    TerminateProcess(data->piQemuProc.hProcess, 0);
   }
-  if (data->recoverypid > 0) kill (data->recoverypid, 9);
+  if (data->piRecoveryProc.hProcess != INVALID_HANDLE_VALUE) {
+    TerminateProcess(data->piRecoveryProc.hProcess, 0);
+  }
 
   /* Wait for subprocess(es) to exit. */
-  if (g->recovery_proc /* RHBZ#998482 */ && data->pid > 0) {
-    if (waitpid (data->pid, &status, 0) == -1) {
-      perrorf (g, "waitpid (qemu)");
+  if (g->recovery_proc /* RHBZ#998482 */ && data->piQemuProc.hProcess != INVALID_HANDLE_VALUE) {
+    if (WaitForSingleObject(data->piQemuProc.hProcess, INFINITE) == WAIT_FAILED) {
+      perrorf_win(g, "WaitForSingleObject: qemu");
       ret = -1;
     }
-    else if (!WIFEXITED (status) || WEXITSTATUS (status) != 0) {
+    else if (!GetExitCodeProcess(data->piQemuProc.hProcess, &status) || status != 0) {
       guestfs___external_command_failed (g, status, g->hv, NULL);
       ret = -1;
     }
   }
-  if (data->recoverypid > 0) waitpid (data->recoverypid, NULL, 0);
+  if (data->piRecoveryProc.hProcess != INVALID_HANDLE_VALUE)
+      if (WaitForSingleObject(data->piRecoveryProc.hProcess, INFINITE) == WAIT_FAILED)
+        perrorf_win(g, "WaitForSingleObject: recovery");
 
-  data->pid = data->recoverypid = 0;
+  if (data->piQemuProc.hProcess != INVALID_HANDLE_VALUE) {
+    CloseHandle(data->piQemuProc.hProcess);
+  }
+  if (data->piRecoveryProc.hProcess != INVALID_HANDLE_VALUE) {
+    CloseHandle(data->piRecoveryProc.hProcess);
+  }
+  data->piQemuProc.hProcess = data->piRecoveryProc.hProcess = INVALID_HANDLE_VALUE;
 
   free (data->qemu_help);
   data->qemu_help = NULL;
@@ -1532,13 +1597,21 @@ static int
 get_pid_direct (guestfs_h *g, void *datav)
 {
   struct backend_direct_data *data = datav;
+  int pid;
 
-  if (data->pid > 0)
-    return data->pid;
+  if (data->piQemuProc.hProcess != INVALID_HANDLE_VALUE) {
+      pid = GetProcessId(data->piQemuProc.hProcess);
+      if (pid == 0) {
+          perrorf_win(g, "GetProcessId");
+          return -1;
+      }
+  }
   else {
     error (g, "get_pid: no qemu subprocess");
     return -1;
   }
+
+  return pid;
 }
 
 /* Maximum number of disks. */
@@ -1563,8 +1636,7 @@ static struct backend_ops backend_direct_ops = {
 };
 
 static void init_backend (void) __attribute__((constructor));
-static void
-init_backend (void)
+INITIALIZER(init_backend)
 {
   guestfs___register_backend ("direct", &backend_direct_ops);
 }

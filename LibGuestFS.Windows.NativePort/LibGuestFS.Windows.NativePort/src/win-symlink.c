@@ -10,10 +10,10 @@ int symlink(const char *path1, const char *path2)
         return -1;
     }
 
-    if (st.st_mode && S_IFREG) {
+    if (st.st_mode & S_IFREG) {
         flags = 0;
     }
-    else if (st.st_mode && S_IFDIR) {
+    else if (st.st_mode & S_IFDIR) {
         flags = SYMBOLIC_LINK_FLAG_DIRECTORY;
     }
     else {

@@ -62,7 +62,7 @@ set_abs_path (guestfs_h *g, const char *tmpdir, char **tmpdir_ret)
     return -1;
   }
 
-  if (!(statbuf.st_mode && S_IFDIR)) {
+  if (!(statbuf.st_mode & S_IFDIR)) {
     error (g, _("temporary directory '%s' is not a directory"), tmpdir);
     return -1;
   }

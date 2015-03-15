@@ -22,15 +22,17 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
-#include <unistd.h>
+#include <win-unistd.h>
 #include <string.h>
 #include <fcntl.h>
 #include <time.h>
 #include <sys/stat.h>
-#include <sys/select.h>
+//#include <sys/select.h>
 #include <sys/types.h>
-#include <sys/wait.h>
-#include <utime.h>
+//#include <sys/wait.h>
+#include <sys/utime.h>
+
+#include <win-port.h>
 
 #include "glthread/lock.h"
 #include "ignore-value.h"
@@ -51,7 +53,7 @@ static int dir_contains_files (const char *dir, ...);
 static int contains_old_style_appliance (guestfs_h *g, const char *path, void *data);
 static int contains_fixed_appliance (guestfs_h *g, const char *path, void *data);
 static int contains_supermin_appliance (guestfs_h *g, const char *path, void *data);
-static int build_supermin_appliance (guestfs_h *g, const char *supermin_path, uid_t uid, char **kernel, char **dtb, char **initrd, char **appliance);
+static int build_supermin_appliance (guestfs_h *g, const char *supermin_path, const char *username, char **kernel, char **dtb, char **initrd, char **appliance);
 static int run_supermin_build (guestfs_h *g, const char *lockfile, const char *appliancedir, const char *supermin_path);
 
 /* Locate or build the appliance.
@@ -127,8 +129,12 @@ build_appliance (guestfs_h *g,
                  char **initrd,
                  char **appliance)
 {
+
+    //kernel = "C:/cygwin64/var/tmp/.guestfs-1000/appliance.d/kernel";
+    //initrd = "C:/cygwin64/var/tmp/.guestfs-1000/appliance.d/initrd";
+    //appliance = "C:/cygwin64/var/tmp/.guestfs-1000/appliance.d/root";
   int r;
-  uid_t uid = geteuid ();
+  char* username = getusername ();
   CLEANUP_FREE char *supermin_path = NULL;
   CLEANUP_FREE char *path = NULL;
 
@@ -139,7 +145,7 @@ build_appliance (guestfs_h *g,
 
   if (r == 1)
     /* Step (2): build supermin appliance. */
-    return build_supermin_appliance (g, supermin_path, uid,
+    return build_supermin_appliance (g, supermin_path, username,
                                      kernel, dtb, initrd, appliance);
 
   /* Step (3). */
@@ -216,9 +222,9 @@ contains_supermin_appliance (guestfs_h *g, const char *path, void *data)
 static int
 build_supermin_appliance (guestfs_h *g,
                           const char *supermin_path,
-                          uid_t uid,
+                          const char *username,
                           char **kernel, char **dtb,
-			  char **initrd, char **appliance)
+                          char **initrd, char **appliance)
 {
   CLEANUP_FREE char *tmpdir = guestfs_get_cachedir (g);
   struct stat statbuf;
@@ -228,27 +234,27 @@ build_supermin_appliance (guestfs_h *g,
    * generate in this function.
    */
   len = strlen (tmpdir) + 128;
-  char cachedir[len];
-  snprintf (cachedir, len, "%s/.guestfs-%d", tmpdir, uid);
-  char lockfile[len];
-  snprintf (lockfile, len, "%s/lock", cachedir);
-  char appliancedir[len];
-  snprintf (appliancedir, len, "%s/appliance.d", cachedir);
+  char *cachedir = safe_malloc(g, len);
+  _snprintf (cachedir, len, "%s/.guestfs-%s", tmpdir, username);
+  char *lockfile = safe_malloc(g, len);
+  _snprintf (lockfile, len, "%s/lock", cachedir);
+  char *appliancedir = safe_malloc(g, len);
+  _snprintf (appliancedir, len, "%s/appliance.d", cachedir);
 
-  ignore_value (mkdir (cachedir, 0755));
-  ignore_value (chmod (cachedir, 0755)); /* RHBZ#921292 */
+  ignore_value (_mkdir (cachedir, S_IWRITE));
+  ignore_value (_chmod (cachedir, S_IWRITE)); /* RHBZ#921292 */
 
   /* See if the cache directory exists and passes some simple checks
    * to make sure it has not been tampered with.
    */
-  if (lstat (cachedir, &statbuf) == -1)
+  if (_stat (cachedir, &statbuf) == -1)
     return 0;
-  if (statbuf.st_uid != uid) {
-    error (g, _("security: cached appliance %s is not owned by UID %d"),
-           cachedir, uid);
-    return -1;
-  }
-  if (!S_ISDIR (statbuf.st_mode)) {
+  //if (statbuf.st_uid != uid) {
+  //  error (g, _("security: cached appliance %s is not owned by UID %d"),
+  //         cachedir, uid);
+  //  return -1;
+  //}
+  if (!(statbuf.st_mode & S_IFDIR)) {
     error (g, _("security: cached appliance %s is not a directory (mode %o)"),
            cachedir, statbuf.st_mode);
     return -1;
@@ -259,7 +265,7 @@ build_supermin_appliance (guestfs_h *g,
     return -1;
   }
 
-  (void) utimes (cachedir, NULL);
+  (void) _utime (cachedir, NULL);
   if (g->verbose)
     guestfs___print_timestamped_message (g, "begin building supermin appliance");
 
@@ -282,19 +288,19 @@ build_supermin_appliance (guestfs_h *g,
 #endif
   *initrd = safe_malloc (g, len);
   *appliance = safe_malloc (g, len);
-  snprintf (*kernel, len, "%s/kernel", appliancedir);
+  _snprintf (*kernel, len, "%s/kernel", appliancedir);
 #ifdef DTB_WILDCARD
-  snprintf (*dtb, len, "%s/dtb", appliancedir);
+  _snprintf (*dtb, len, "%s/dtb", appliancedir);
 #endif
-  snprintf (*initrd, len, "%s/initrd", appliancedir);
-  snprintf (*appliance, len, "%s/root", appliancedir);
+  _snprintf (*initrd, len, "%s/initrd", appliancedir);
+  _snprintf (*appliance, len, "%s/root", appliancedir);
 
   /* Touch the files so they don't get deleted (as they are in /var/tmp). */
-  (void) utimes (*kernel, NULL);
+  (void) _utime (*kernel, NULL);
 #ifdef DTB_WILDCARD
-  (void) utimes (*dtb, NULL);
+  (void) _utime (*dtb, NULL);
 #endif
-  (void) utimes (*initrd, NULL);
+  (void)_utime(*initrd, NULL);
 
   /* Checking backend != "uml" is a big hack.  UML encodes the mtime
    * of the original backing file (in this case, the appliance) in the
@@ -309,9 +315,16 @@ build_supermin_appliance (guestfs_h *g,
    * XXX
    */
   if (STRNEQ (g->backend, "uml"))
-    (void) utimes (*appliance, NULL);
+    (void) _utime (*appliance, NULL);
 
   return 0;
+
+ cleanup:
+  free(cachedir);
+  free(lockfile);
+  free(appliancedir);
+
+  return -1;
 }
 
 /* Run supermin --build and tell it to generate the
@@ -364,7 +377,7 @@ run_supermin_build (guestfs_h *g,
   r = guestfs___cmd_run (cmd);
   if (r == -1)
     return -1;
-  if (!WIFEXITED (r) || WEXITSTATUS (r) != 0) {
+  if (r != 0) {
     guestfs___external_command_failed (g, r, SUPERMIN, NULL);
     return -1;
   }
@@ -436,10 +449,15 @@ dir_contains_file (const char *dir, const char *file)
   size_t dirlen = strlen (dir);
   size_t filelen = strlen (file);
   size_t len = dirlen + filelen + 2;
-  char path[len];
+  char *path;
+  int ret;
 
-  snprintf (path, len, "%s/%s", dir, file);
-  return access (path, F_OK) == 0;
+  path = malloc(len);
+  _snprintf (path, len, "%s/%s", dir, file);
+  ret = access (path, F_OK) == 0;
+  free(path);
+
+  return ret;
 }
 
 /* Returns true iff every listed file is contained in 'dir'. */

@@ -4570,7 +4570,7 @@ guestfs_base64_in (guestfs_h *g,
   }
 
   if (stat (base64file, &progress_stat) == 0 &&
-      (progress_stat.st_mode) && _S_IFREG)
+      (progress_stat.st_mode) & _S_IFREG)
     progress_hint += progress_stat.st_size;
 
   if (guestfs___check_appliance_up (g, "base64_in") == -1) {
