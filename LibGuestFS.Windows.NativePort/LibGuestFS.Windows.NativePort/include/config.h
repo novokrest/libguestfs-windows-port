@@ -2751,3 +2751,4 @@
 
 #define GUESTFS_DEFAULT_PATH "C:/Program Files/GuestFS"
 #define LIBOSINFO_DB_PATH "<datadir>/libosinfo/db"
+#define DIRECT_PORT "7777"
