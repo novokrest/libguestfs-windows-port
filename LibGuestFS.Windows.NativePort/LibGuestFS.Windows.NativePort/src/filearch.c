@@ -22,10 +22,10 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <inttypes.h>
-#include <unistd.h>
+#include <win-unistd.h>
 #include <string.h>
 #include <sys/stat.h>
-#include <sys/wait.h>
+//#include <sys/wait.h>
 
 #include <pcre.h>
 

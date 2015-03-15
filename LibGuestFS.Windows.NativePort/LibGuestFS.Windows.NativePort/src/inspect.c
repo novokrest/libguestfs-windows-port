@@ -22,14 +22,14 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <inttypes.h>
-#include <unistd.h>
+#include <win-unistd.h>
 #include <fcntl.h>
 #include <string.h>
 #include <sys/stat.h>
 #include <errno.h>
 
 #ifdef HAVE_ENDIAN_H
-#include <endian.h>
+//#include <endian.h>
 #endif
 
 #include "guestfs.h"
@@ -138,7 +138,7 @@ guestfs__inspect_get_arch (guestfs_h *g, const char *root)
   if (!fs)
     return NULL;
 
-  return safe_strdup (g, fs->arch ? : "unknown");
+  return safe_strdup(g, fs->arch ? fs->arch : "unknown");
 }
 
 char *
@@ -212,7 +212,7 @@ guestfs__inspect_get_product_name (guestfs_h *g, const char *root)
   if (!fs)
     return NULL;
 
-  return safe_strdup (g, fs->product_name ? : "unknown");
+  return safe_strdup(g, fs->product_name ? fs->product_name : "unknown");
 }
 
 char *
@@ -222,7 +222,7 @@ guestfs__inspect_get_product_variant (guestfs_h *g, const char *root)
   if (!fs)
     return NULL;
 
-  return safe_strdup (g, fs->product_variant ? : "unknown");
+  return safe_strdup(g, fs->product_variant ? fs->product_variant : "unknown");
 }
 
 char *
@@ -469,7 +469,7 @@ guestfs__inspect_get_hostname (guestfs_h *g, const char *root)
   if (!fs)
     return NULL;
 
-  return safe_strdup (g, fs->hostname ? : "unknown");
+  return safe_strdup(g, fs->hostname ? fs->hostname : "unknown");
 }
 
 void
@@ -544,21 +544,21 @@ guestfs___download_to_tmp (guestfs_h *g, struct inspect_fs *fs,
     goto error;
   }
 
-  fd = open (r, O_WRONLY|O_CREAT|O_TRUNC|O_NOCTTY|O_CLOEXEC, 0600);
+  fd = _open (r, O_WRONLY|O_CREAT|O_TRUNC, _S_IWRITE);
   if (fd == -1) {
     perrorf (g, "open: %s", r);
     goto error;
   }
 
-  snprintf (devfd, sizeof devfd, "/dev/fd/%d", fd);
+  _snprintf (devfd, sizeof devfd, "/dev/fd/%d", fd);
 
   if (guestfs_download (g, filename, devfd) == -1) {
     unlink (r);
-    close (fd);
+    _close (fd);
     goto error;
   }
 
-  if (close (fd) == -1) {
+  if (_close (fd) == -1) {
     perrorf (g, "close: %s", r);
     unlink (r);
     goto error;

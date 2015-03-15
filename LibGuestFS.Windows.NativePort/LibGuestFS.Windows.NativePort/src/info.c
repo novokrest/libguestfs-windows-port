@@ -24,12 +24,14 @@
 #include <inttypes.h>
 #include <limits.h>
 #include <fcntl.h>
-#include <unistd.h>
+#include <win-unistd.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <sys/wait.h>
+//#include <sys/wait.h>
 #include <assert.h>
 #include <string.h>
+
+#include <win-port.h>
 
 #if HAVE_YAJL
 #include <yajl/yajl_tree.h>
@@ -551,7 +553,7 @@ old_parser_run_qemu_img_info (guestfs_h *g, const char *filename,
   r = guestfs___cmd_run (cmd);
   if (r == -1)
     return -1;
-  if (!WIFEXITED (r) || WEXITSTATUS (r) != 0) {
+  if (r != 0) {
     guestfs___external_command_failed (g, r, "qemu-img info", filename);
     return -1;
   }

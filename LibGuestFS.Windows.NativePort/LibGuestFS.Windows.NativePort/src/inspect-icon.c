@@ -22,12 +22,12 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <inttypes.h>
-#include <unistd.h>
+#include <win-unistd.h>
 #include <fcntl.h>
 #include <string.h>
 #include <sys/stat.h>
 #include <errno.h>
-#include <sys/wait.h>
+//#include <sys/wait.h>
 
 #include "guestfs.h"
 #include "guestfs-internal.h"
@@ -618,7 +618,7 @@ read_whole_file (guestfs_h *g, const char *filename,
   ssize_t r;
   struct stat statbuf;
 
-  fd = open (filename, O_RDONLY|O_CLOEXEC);
+  fd = _open (filename, O_RDONLY);
   if (fd == -1) {
     perrorf (g, "open: %s", filename);
     return -1;
@@ -626,7 +626,7 @@ read_whole_file (guestfs_h *g, const char *filename,
 
   if (fstat (fd, &statbuf) == -1) {
     perrorf (g, "stat: %s", filename);
-    close (fd);
+    _close (fd);
     return -1;
   }
 
@@ -635,23 +635,23 @@ read_whole_file (guestfs_h *g, const char *filename,
 
   n = 0;
   while (n < size) {
-    r = read (fd, &data[n], size - n);
+    r = _read (fd, &data[n], size - n);
     if (r == -1) {
       perrorf (g, "read: %s", filename);
       free (data);
-      close (fd);
+      _close (fd);
       return -1;
     }
     if (r == 0) {
       error (g, _("read: %s: unexpected end of file"), filename);
       free (data);
-      close (fd);
+      _close (fd);
       return -1;
     }
     n += r;
   }
 
-  if (close (fd) == -1) {
+  if (_close (fd) == -1) {
     perrorf (g, "close: %s", filename);
     free (data);
     return -1;

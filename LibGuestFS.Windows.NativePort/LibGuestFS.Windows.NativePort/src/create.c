@@ -22,12 +22,12 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <inttypes.h>
-#include <unistd.h>
+#include <win-unistd.h>
 #include <fcntl.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <sys/wait.h>
-#include <sys/ioctl.h>
+//#include <sys/wait.h>
+//#include <sys/ioctl.h>
 #include <errno.h>
 #include <string.h>
 
@@ -100,7 +100,7 @@ disk_create_raw_block (guestfs_h *g, const char *filename)
 {
   int fd;
 
-  fd = open (filename, O_WRONLY|O_NOCTTY|O_CLOEXEC, 0666);
+  fd = _open (filename, O_WRONLY, _S_IWRITE);
   if (fd == -1) {
     perrorf (g, _("cannot open block device: %s"), filename);
     return -1;
@@ -120,7 +120,7 @@ disk_create_raw_block (guestfs_h *g, const char *filename)
   }
 #endif
 
-  close (fd);
+  _close (fd);
 
   return 0;
 }
@@ -161,16 +161,16 @@ disk_create_raw (guestfs_h *g, const char *filename, int64_t size,
 
   if (stat (filename, &statbuf) == 0) {
     /* Refuse to overwrite char devices. */
-    if (S_ISCHR (statbuf.st_mode)) {
+    if (statbuf.st_mode && _S_IFCHR) {
       error (g, _("refusing to overwrite char device '%s'"), filename);
       return -1;
     }
     /* Block devices have to be handled specially. */
-    if (S_ISBLK (statbuf.st_mode))
-      return disk_create_raw_block (g, filename);
+    //if (S_ISBLK (statbuf.st_mode))
+    //  return disk_create_raw_block (g, filename);
   }
 
-  fd = open (filename, O_WRONLY|O_CREAT|O_NOCTTY|O_TRUNC|O_CLOEXEC, 0666);
+  fd = _open (filename, O_WRONLY|O_CREAT|O_TRUNC, _S_IWRITE);
   if (fd == -1) {
     perrorf (g, _("cannot create raw file: %s"), filename);
     return -1;
@@ -179,7 +179,7 @@ disk_create_raw (guestfs_h *g, const char *filename, int64_t size,
   if (!allocated) {             /* Sparse file. */
     if (ftruncate (fd, size) == -1) {
       perrorf (g, _("%s: truncate"), filename);
-      close (fd);
+      _close (fd);
       unlink (filename);
       return -1;
     }
@@ -192,7 +192,7 @@ disk_create_raw (guestfs_h *g, const char *filename, int64_t size,
     if (err != 0) {
       errno = err;
       perrorf (g, _("%s: fallocate"), filename);
-      close (fd);
+      _close (fd);
       unlink (filename);
       return -1;
     }
@@ -207,10 +207,10 @@ disk_create_raw (guestfs_h *g, const char *filename, int64_t size,
 
     while (remaining > 0) {
       n = remaining > sizeof buffer ? sizeof buffer : remaining;
-      r = write (fd, buffer, n);
+      r = _write (fd, buffer, n);
       if (r == -1) {
         perrorf (g, _("%s: write"), filename);
-        close (fd);
+        _close (fd);
         unlink (filename);
         return -1;
       }
@@ -219,7 +219,7 @@ disk_create_raw (guestfs_h *g, const char *filename, int64_t size,
 #endif
   }
 
-  if (close (fd) == -1) {
+  if (_close (fd) == -1) {
     perrorf (g, _("%s: close"), filename);
     unlink (filename);
     return -1;
@@ -325,7 +325,7 @@ disk_create_qcow2 (guestfs_h *g, const char *orig_filename, int64_t size,
     guestfs___cmd_add_arg_format (cmd, "%" PRIi64, size);
 
   r = guestfs___cmd_run (cmd);
-  if (!WIFEXITED (r) || WEXITSTATUS (r) != 0) {
+  if (r != 0) {
     guestfs___external_command_failed (g, r, "qemu-img", orig_filename);
     return -1;
   }

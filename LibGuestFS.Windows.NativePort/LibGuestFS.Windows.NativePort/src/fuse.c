@@ -20,10 +20,10 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>
+#include <win-unistd.h>
 #include <errno.h>
 #include <sys/types.h>
-#include <sys/wait.h>
+//#include <sys/wait.h>
 #include <string.h>
 
 #if HAVE_FUSE
@@ -38,10 +38,10 @@
 #include <fuse_lowlevel.h>
 #endif
 
-#include "cloexec.h"
+//#include "cloexec.h"
 #include "glthread/lock.h"
-#include "hash.h"
-#include "hash-pjw.h"
+//#include "hash.h"
+//#include "hash-pjw.h"
 
 #include "guestfs.h"
 #include "guestfs-internal.h"

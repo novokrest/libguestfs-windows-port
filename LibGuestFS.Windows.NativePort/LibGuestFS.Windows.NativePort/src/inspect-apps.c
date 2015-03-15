@@ -22,14 +22,14 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <inttypes.h>
-#include <unistd.h>
+#include <win-unistd.h>
 #include <fcntl.h>
 #include <string.h>
 #include <sys/stat.h>
 #include <errno.h>
 
 #ifdef HAVE_ENDIAN_H
-#include <endian.h>
+//#include <endian.h>
 #endif
 #ifdef HAVE_SYS_ENDIAN_H
 #include <sys/endian.h>
@@ -49,7 +49,7 @@
 
 #include <pcre.h>
 
-#include "xstrtol.h"
+//#include "xstrtol.h"
 
 #include "guestfs.h"
 #include "guestfs-internal.h"
@@ -501,8 +501,8 @@ list_applications_deb (guestfs_h *g, struct inspect_fs *fs)
     }
     else if (STREQ (line, "")) {
       if (installed_flag && name && version && (epoch >= 0))
-        add_application (g, apps, name, "", epoch, version, release ? : "",
-                         arch ? : "", "", "", "", "");
+        add_application(g, apps, name, "", epoch, version, release ? release : "",
+                         arch ? arch : "", "", "", "", "");
       free (name);
       free (version);
       free (release);
@@ -535,14 +535,16 @@ static struct guestfs_application2_list *
 list_applications_windows (guestfs_h *g, struct inspect_fs *fs)
 {
   size_t len = strlen (fs->windows_systemroot) + 64;
-  char software[len];
+  char* software;
   CLEANUP_FREE char *software_path;
   struct guestfs_application2_list *ret = NULL;
 
-  snprintf (software, len, "%s/system32/config/software",
+  software = malloc(len);
+  _snprintf (software, len, "%s/system32/config/software",
             fs->windows_systemroot);
 
   software_path = guestfs_case_sensitive_path (g, software);
+  free(software);
   if (!software_path)
     return NULL;
 
@@ -632,12 +634,12 @@ list_applications_windows_from_path (guestfs_h *g,
           comments = guestfs_hivex_value_utf8 (g, value);
 
         add_application (g, apps, name, display_name, 0,
-                         version ? : "",
+                         version ? version : "",
                          "", "",
-                         install_path ? : "",
-                         publisher ? : "",
-                         url ? : "",
-                         comments ? : "");
+                         install_path ? install_path : "",
+                         publisher ? publisher : "",
+                         url ? url : "",
+                         comments ? comments : "");
       }
     }
   }

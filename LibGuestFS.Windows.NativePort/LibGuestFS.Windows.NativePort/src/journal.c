@@ -23,19 +23,19 @@
 #include <stdint.h>
 #include <inttypes.h>
 #include <string.h>
-#include <unistd.h>
+#include <win-unistd.h>
 #include <fcntl.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 
 #ifdef HAVE_ENDIAN_H
-#include <endian.h>
+#include <win-endian.h>
 #endif
 #ifdef HAVE_SYS_ENDIAN_H
 #include <sys/endian.h>
 #endif
 
-#include "full-read.h"
+//#include "full-read.h"
 
 #include "guestfs.h"
 #include "guestfs-internal.h"
@@ -70,7 +70,7 @@ guestfs__journal_get (guestfs_h *g)
   if (guestfs_internal_journal_get (g, tmpfile) == -1)
     goto err;
 
-  fd = open (tmpfile, O_RDONLY|O_CLOEXEC);
+  fd = _open (tmpfile, O_RDONLY);
   if (fd == -1) {
     perrorf (g, "open: %s", tmpfile);
     goto err;
@@ -97,7 +97,7 @@ guestfs__journal_get (guestfs_h *g)
     goto err;
   }
 
-  if (close (fd) == -1) {
+  if (_close (fd) == -1) {
     perrorf (g, "close: %s", tmpfile);
     goto err;
   }
@@ -153,6 +153,6 @@ guestfs__journal_get (guestfs_h *g)
  err:
   guestfs_free_xattr_list (ret);
   if (fd >= 0)
-    close (fd);
+    _close (fd);
   return NULL;
 }

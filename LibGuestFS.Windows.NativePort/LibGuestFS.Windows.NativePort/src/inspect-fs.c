@@ -22,14 +22,14 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <inttypes.h>
-#include <unistd.h>
+#include <win-unistd.h>
 #include <fcntl.h>
 #include <string.h>
 #include <sys/stat.h>
 #include <errno.h>
 
 #ifdef HAVE_ENDIAN_H
-#include <endian.h>
+//#include <endian.h>
 #endif
 
 #include <pcre.h>
@@ -63,7 +63,7 @@ compile_regexps (void)
   do {                                                                  \
     re = pcre_compile ((pattern), (options), &err, &offset, NULL);      \
     if (re == NULL) {                                                   \
-      ignore_value (write (2, err, strlen (err)));                      \
+      ignore_value (_write (2, err, strlen (err)));                      \
       abort ();                                                         \
     }                                                                   \
   } while (0)

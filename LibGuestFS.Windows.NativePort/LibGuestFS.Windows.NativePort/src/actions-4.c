@@ -3886,7 +3886,7 @@ guestfs_debug_upload (guestfs_h *g,
   }
 
   if (stat (filename, &progress_stat) == 0 &&
-      S_ISREG (progress_stat.st_mode))
+      (progress_stat.st_mode && _S_IFREG))
     progress_hint += progress_stat.st_size;
 
   if (guestfs___check_appliance_up (g, "debug_upload") == -1) {
@@ -5875,7 +5875,7 @@ guestfs_internal_rhbz914931 (guestfs_h *g,
   }
 
   if (stat (filename, &progress_stat) == 0 &&
-      S_ISREG (progress_stat.st_mode))
+      (progress_stat.st_mode && _S_IFREG))
     progress_hint += progress_stat.st_size;
 
   if (guestfs___check_appliance_up (g, "internal_rhbz914931") == -1) {

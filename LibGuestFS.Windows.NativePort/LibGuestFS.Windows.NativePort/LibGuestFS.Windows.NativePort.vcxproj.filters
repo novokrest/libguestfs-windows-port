@@ -42,6 +42,186 @@
     <ClCompile Include="test-libintl.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\errors.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gnulib\lib\c-ctype.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\win-gettimeofday.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\win-memmem.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\win-realpath.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\win-strndup.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\win-vaprintf.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\alloc.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\utils.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\events.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\launch.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\win-getusername.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\win-getusid.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\actions-3.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\errnostring.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\guestfs_protocol.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\actions-support.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\win-open_memstream.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\actions-2.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\proto.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\drives.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\actions-variants.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\actions-0.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\bindtests.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\actions-4.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\inspect.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\libvirt-domain.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\inspect-apps.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\fuse.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\file.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\info.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\libvirt-auth.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tmpdirs.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\journal.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\filearch.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\listfs.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\inspect-fs-windows.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\create.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\canonical-name.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\actions-1.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\inspect-icon.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\actions-5.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\guid.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\actions-6.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\stringsbuf.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\command.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\inspect-fs.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gnulib\lib\xstrtol.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\match.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\errnostring-gperf.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\structs-free.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gnulib\lib\full-read.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gnulib\lib\full-write.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gnulib\lib\safe-read.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gnulib\lib\safe-write.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\inspect-fs-cd.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\win-symlink.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\osinfo.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\inspect-fs-unix.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lpj.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\config.h">
@@ -81,6 +261,42 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\win-gcc-attribute-clean.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\gnulib\lib\c-ctype.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\win-port.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\errnostring.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\gnulib\lib\intprops.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\gnulib\lib\xstrtol.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\gnulib\lib\full-read.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\gnulib\lib\full-write.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\gnulib\lib\safe-read.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\gnulib\lib\safe-write.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\win-dirent.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\win-endian.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\win-check-endian.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

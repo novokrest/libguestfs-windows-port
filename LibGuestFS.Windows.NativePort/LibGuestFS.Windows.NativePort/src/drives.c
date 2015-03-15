@@ -28,10 +28,10 @@
 #include <stdbool.h>
 #include <string.h>
 #include <inttypes.h>
-#include <unistd.h>
+#include <win-unistd.h>
 #include <fcntl.h>
-#include <netdb.h>
-#include <arpa/inet.h>
+//#include <netdb.h>
+//#include <arpa/inet.h>
 #include <assert.h>
 #include <sys/types.h>
 
@@ -85,7 +85,7 @@ compile_regexps (void)
   do {                                                                  \
     re = pcre_compile ((pattern), (options), &err, &offset, NULL);      \
     if (re == NULL) {                                                   \
-      ignore_value (write (2, err, strlen (err)));                      \
+      ignore_value (_write (2, err, strlen (err)));                      \
       abort ();                                                         \
     }                                                                   \
   } while (0)
@@ -540,16 +540,16 @@ drive_to_string (guestfs_h *g, const struct drive *drv)
      drv->src.u.path,
      drv->readonly ? " readonly" : "",
      drv->src.format ? " format=" : "",
-     drv->src.format ? : "",
+     drv->src.format ? drv->src.format : "",
      guestfs___drive_protocol_to_string (drv->src.protocol),
      drv->iface ? " iface=" : "",
-     drv->iface ? : "",
+     drv->iface ? drv->iface : "",
      drv->name ? " name=" : "",
-     drv->name ? : "",
+     drv->name ? drv->name : "",
      drv->disk_label ? " label=" : "",
-     drv->disk_label ? : "",
+     drv->disk_label ? drv->disk_label : "",
      drv->cachemode ? " cache=" : "",
-     drv->cachemode ? : "",
+     drv->cachemode ? drv->cachemode : "",
      drv->discard == discard_disable ? "" :
      drv->discard == discard_enable ? " discard=enable" : " discard=besteffort",
      drv->copyonread ? " copyonread" : "");

@@ -45,13 +45,13 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>C:\cygwin64\home\novokrestWin\libguestfs-windows-port\LibGuestFS.Windows.NativePort\Dependencies\libintl\include;C:\cygwin64\home\novokrestWin\libguestfs-windows-port\LibGuestFS.Windows.NativePort\Dependencies\libxml\iconv\include;C:\cygwin64\home\novokrestWin\libguestfs-windows-port\LibGuestFS.Windows.NativePort\Dependencies\libxml\libxml2\include;C:\cygwin64\home\novokrestWin\libguestfs-windows-port\LibGuestFS.Windows.NativePort\LibGuestFS.Windows.NativePort\include\gnulib;C:\cygwin64\home\novokrestWin\libguestfs-windows-port\LibGuestFS.Windows.NativePort\LibGuestFS.Windows.NativePort\include\gnulib\lib;C:\cygwin64\home\novokrestWin\libguestfs-windows-port\LibGuestFS.Windows.NativePort\LibGuestFS.Windows.NativePort\include;C:\cygwin64\home\novokrestWin\libguestfs-windows-port\LibGuestFS.Windows.NativePort\Dependencies\xdr\include;C:\cygwin64\home\novokrestWin\libguestfs-windows-port\LibGuestFS.Windows.NativePort\Dependencies\pcre\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>USE_WINDOWS_THREADS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>USE_WINDOWS_THREADS;_CRT_SECURE_NO_WARNINGS;GUESTFS_PRIVATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <UndefinePreprocessorDefinitions>USE_POSIX_THREADS;%(UndefinePreprocessorDefinitions)</UndefinePreprocessorDefinitions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>C:\cygwin64\home\novokrestWin\libguestfs-windows-port\LibGuestFS.Windows.NativePort\Dependencies\libintl\lib;C:\cygwin64\home\novokrestWin\libguestfs-windows-port\LibGuestFS.Windows.NativePort\Dependencies\libxml\libxml2\lib;C:\cygwin64\home\novokrestWin\libguestfs-windows-port\LibGuestFS.Windows.NativePort\Dependencies\xdr\lib;C:\cygwin64\home\novokrestWin\libguestfs-windows-port\LibGuestFS.Windows.NativePort\Dependencies\pcre\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>pcre.lib;xdr.lib;libxml2.lib;libintl.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\cygwin64\home\novokrestWin\libguestfs-windows-port\LibGuestFS.Windows.NativePort\Dependencies\libintl\lib;C:\cygwin64\home\novokrestWin\libguestfs-windows-port\LibGuestFS.Windows.NativePort\Dependencies\libxml\iconv\lib;C:\cygwin64\home\novokrestWin\libguestfs-windows-port\LibGuestFS.Windows.NativePort\Dependencies\libxml\libxml2\lib;C:\cygwin64\home\novokrestWin\libguestfs-windows-port\LibGuestFS.Windows.NativePort\Dependencies\xdr\lib;C:\cygwin64\home\novokrestWin\libguestfs-windows-port\LibGuestFS.Windows.NativePort\Dependencies\pcre\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>pcre.lib;xdr.lib;libxml2.lib;iconv.lib;libintl.lib;Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -70,9 +70,69 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="main.c" />
+    <ClCompile Include="src\actions-0.c" />
+    <ClCompile Include="src\actions-1.c" />
+    <ClCompile Include="src\actions-2.c" />
+    <ClCompile Include="src\actions-3.c" />
+    <ClCompile Include="src\actions-4.c" />
+    <ClCompile Include="src\actions-5.c" />
+    <ClCompile Include="src\actions-6.c" />
+    <ClCompile Include="src\actions-support.c" />
+    <ClCompile Include="src\actions-variants.c" />
+    <ClCompile Include="src\alloc.c" />
+    <ClCompile Include="src\bindtests.c" />
+    <ClCompile Include="src\canonical-name.c" />
+    <ClCompile Include="src\command.c" />
+    <ClCompile Include="src\create.c" />
+    <ClCompile Include="src\drives.c" />
+    <ClCompile Include="src\errnostring-gperf.c" />
+    <ClCompile Include="src\errnostring.c" />
+    <ClCompile Include="src\errors.c" />
+    <ClCompile Include="src\events.c" />
+    <ClCompile Include="src\file.c" />
+    <ClCompile Include="src\filearch.c" />
+    <ClCompile Include="src\fuse.c" />
+    <ClCompile Include="src\gnulib\lib\c-ctype.c" />
+    <ClCompile Include="src\gnulib\lib\full-read.c" />
+    <ClCompile Include="src\gnulib\lib\full-write.c" />
     <ClCompile Include="src\gnulib\lib\glthread\lock.c" />
     <ClCompile Include="src\gnulib\lib\glthread\threadlib.c" />
+    <ClCompile Include="src\gnulib\lib\safe-read.c" />
+    <ClCompile Include="src\gnulib\lib\safe-write.c" />
+    <ClCompile Include="src\gnulib\lib\xstrtol.c" />
+    <ClCompile Include="src\guestfs_protocol.c" />
+    <ClCompile Include="src\guid.c" />
     <ClCompile Include="src\handle.c" />
+    <ClCompile Include="src\info.c" />
+    <ClCompile Include="src\inspect-apps.c" />
+    <ClCompile Include="src\inspect-fs-cd.c" />
+    <ClCompile Include="src\inspect-fs-unix.c" />
+    <ClCompile Include="src\inspect-fs-windows.c" />
+    <ClCompile Include="src\inspect-fs.c" />
+    <ClCompile Include="src\inspect-icon.c" />
+    <ClCompile Include="src\inspect.c" />
+    <ClCompile Include="src\journal.c" />
+    <ClCompile Include="src\launch.c" />
+    <ClCompile Include="src\libvirt-auth.c" />
+    <ClCompile Include="src\libvirt-domain.c" />
+    <ClCompile Include="src\listfs.c" />
+    <ClCompile Include="src\lpj.c" />
+    <ClCompile Include="src\match.c" />
+    <ClCompile Include="src\osinfo.c" />
+    <ClCompile Include="src\proto.c" />
+    <ClCompile Include="src\stringsbuf.c" />
+    <ClCompile Include="src\structs-free.c" />
+    <ClCompile Include="src\tmpdirs.c" />
+    <ClCompile Include="src\utils.c" />
+    <ClCompile Include="src\win-gettimeofday.c" />
+    <ClCompile Include="src\win-getusername.c" />
+    <ClCompile Include="src\win-getusid.c" />
+    <ClCompile Include="src\win-memmem.c" />
+    <ClCompile Include="src\win-open_memstream.c" />
+    <ClCompile Include="src\win-realpath.c" />
+    <ClCompile Include="src\win-strndup.c" />
+    <ClCompile Include="src\win-symlink.c" />
+    <ClCompile Include="src\win-vaprintf.c" />
     <ClCompile Include="test-guestfs.c" />
     <ClCompile Include="test-libintl.c" />
     <ClCompile Include="test-libxml.c" />
@@ -81,6 +141,17 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\config.h" />
+    <ClInclude Include="include\errnostring.h" />
+    <ClInclude Include="include\gnulib\lib\c-ctype.h" />
+    <ClInclude Include="include\gnulib\lib\full-read.h" />
+    <ClInclude Include="include\gnulib\lib\full-write.h" />
+    <ClInclude Include="include\gnulib\lib\intprops.h" />
+    <ClInclude Include="include\gnulib\lib\safe-read.h" />
+    <ClInclude Include="include\gnulib\lib\safe-write.h" />
+    <ClInclude Include="include\gnulib\lib\xstrtol.h" />
+    <ClInclude Include="include\win-check-endian.h" />
+    <ClInclude Include="include\win-dirent.h" />
+    <ClInclude Include="include\win-endian.h" />
     <ClInclude Include="include\win-gcc-attribute-constructor.h" />
     <ClInclude Include="include\gnulib\lib\glthread\lock.h" />
     <ClInclude Include="include\gnulib\lib\ignore-value.h" />
@@ -92,6 +163,7 @@
     <ClInclude Include="include\guestfs.h" />
     <ClInclude Include="include\guestfs_protocol.h" />
     <ClInclude Include="include\win-gcc-attribute-clean.h" />
+    <ClInclude Include="include\win-port.h" />
     <ClInclude Include="include\win-unistd.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

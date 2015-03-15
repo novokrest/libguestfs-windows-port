@@ -22,7 +22,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <inttypes.h>
-#include <unistd.h>
+#include <win-unistd.h>
 #include <fcntl.h>
 #include <string.h>
 #include <sys/stat.h>
@@ -30,7 +30,7 @@
 #include <iconv.h>
 
 #ifdef HAVE_ENDIAN_H
-#include <endian.h>
+#include <win-endian.h>
 #endif
 #ifdef HAVE_SYS_ENDIAN_H
 #include <sys/endian.h>
@@ -69,7 +69,7 @@ compile_regexps (void)
   do {                                                                  \
     re = pcre_compile ((pattern), (options), &err, &offset, NULL);      \
     if (re == NULL) {                                                   \
-      ignore_value (write (2, err, strlen (err)));                      \
+      ignore_value (_write (2, err, strlen (err)));                      \
       abort ();                                                         \
     }                                                                   \
   } while (0)
@@ -116,15 +116,15 @@ is_systemroot (guestfs_h *const g, const char *systemroot)
 {
   char path[256];
 
-  snprintf (path, sizeof path, "%s/system32", systemroot);
+  _snprintf (path, sizeof path, "%s/system32", systemroot);
   if (!guestfs___is_dir_nocase (g, path))
     return 0;
 
-  snprintf (path, sizeof path, "%s/system32/config", systemroot);
+  _snprintf (path, sizeof path, "%s/system32/config", systemroot);
   if (!guestfs___is_dir_nocase (g, path))
     return 0;
 
-  snprintf (path, sizeof path, "%s/system32/cmd.exe", systemroot);
+  _snprintf (path, sizeof path, "%s/system32/cmd.exe", systemroot);
   if (!guestfs___is_file_nocase (g, path))
     return 0;
 
@@ -264,11 +264,14 @@ static int
 check_windows_arch (guestfs_h *g, struct inspect_fs *fs)
 {
   size_t len = strlen (fs->windows_systemroot) + 32;
-  char cmd_exe[len];
-  snprintf (cmd_exe, len, "%s/system32/cmd.exe", fs->windows_systemroot);
+  char* cmd_exe;
+
+  cmd_exe = malloc(len);
+  _snprintf (cmd_exe, len, "%s/system32/cmd.exe", fs->windows_systemroot);
 
   /* Should exist because of previous check above in get_windows_systemroot. */
   CLEANUP_FREE char *cmd_exe_path = guestfs_case_sensitive_path (g, cmd_exe);
+  free(cmd_exe);
   if (!cmd_exe_path)
     return -1;
 
@@ -291,11 +294,14 @@ check_windows_software_registry (guestfs_h *g, struct inspect_fs *fs)
   int r;
 
   size_t len = strlen (fs->windows_systemroot) + 64;
-  char software[len];
-  snprintf (software, len, "%s/system32/config/software",
+  char* software;
+
+  software = malloc(len);
+  _snprintf (software, len, "%s/system32/config/software",
             fs->windows_systemroot);
 
   CLEANUP_FREE char *software_path = guestfs_case_sensitive_path (g, software);
+  free(software);
   if (!software_path)
     return -1;
 
@@ -381,11 +387,14 @@ check_windows_system_registry (guestfs_h *g, struct inspect_fs *fs)
 {
   int r;
   size_t len = strlen (fs->windows_systemroot) + 64;
-  char system[len];
-  snprintf (system, len, "%s/system32/config/system",
+  char* system;
+
+  system = malloc(len);
+  _snprintf (system, len, "%s/system32/config/system",
             fs->windows_systemroot);
 
   CLEANUP_FREE char *system_path = guestfs_case_sensitive_path (g, system);
+  free(system);
   if (!system_path)
     return -1;
 

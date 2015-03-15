@@ -22,15 +22,17 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
-#include <unistd.h>
+#include <win-unistd.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <sys/wait.h>
+//#include <sys/wait.h>
 
 #include "glthread/lock.h"
 
 #include "guestfs.h"
 #include "guestfs-internal.h"
+
+#define __func__ __FUNCTION__
 
 /* Calculate host kernel loops_per_jiffy, so that this can be passed
  * to TCG guests (only) using the lpj= kernel parameter, which avoids
@@ -149,7 +151,7 @@ read_lpj_common (guestfs_h *g, const char *func, struct command *cmd)
   r = guestfs___cmd_run (cmd);
   if (r == -1)
     return -1;
-  if (!WIFEXITED (r) || WEXITSTATUS (r) != 0) {
+  if (r != 0) {
     char status_string[80];
 
     debug (g, "%s: %s", func,

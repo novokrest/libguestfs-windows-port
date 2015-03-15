@@ -61,6 +61,8 @@
  * (or use CLEANUP_CMD_CLOSE).
  */
 
+/* https://msdn.microsoft.com/ru-ru/library/edze9h7e.aspx */
+
 #include <config.h>
 
 #include <stdio.h>
@@ -519,10 +521,16 @@ static int
 wait_command (struct command *cmd)
 {
   int status;
+  int exitcode;
 
   status = WaitForSingleObject(cmd->piProcInfo.hProcess, INFINITE);
   if (status == WAIT_FAILED) {
       perrorf_win(cmd->g, "WaitForSingleObject");
+      return -1;
+  }
+
+  if (!GetExitCodeProcess(cmd->piProcInfo.hProcess, &exitcode)) {
+      perrorf_win(cmd->g, "GetExitCodeProcess");
       return -1;
   }
 
@@ -531,7 +539,7 @@ wait_command (struct command *cmd)
   CloseHandle(cmd->piProcInfo.hThread);
   cmd->piProcInfo.hThread = INVALID_HANDLE_VALUE;
 
-  return status;
+  return exitcode;
 }
 
 /* Fork, run the command, loop over the output, and waitpid.

@@ -24,14 +24,14 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <inttypes.h>
-#include <unistd.h>
+#include <win-unistd.h>
 #include <string.h>
 #include <fcntl.h>
 #include <time.h>
 #include <errno.h>
 #include <sys/stat.h>
 #include <sys/types.h>
-#include <sys/wait.h>
+//#include <sys/wait.h>
 #include <assert.h>
 
 #include <rpc/types.h>
@@ -328,7 +328,7 @@ guestfs___send_file (guestfs_h *g, const char *filename)
 
   g->user_cancel = 0;
 
-  fd = open (filename, O_RDONLY|O_CLOEXEC);
+  fd = _open (filename, O_RDONLY);
   if (fd == -1) {
     perrorf (g, "open: %s", filename);
     send_file_cancellation (g);
@@ -339,7 +339,7 @@ guestfs___send_file (guestfs_h *g, const char *filename)
 
   /* Send file in chunked encoding. */
   while (!g->user_cancel) {
-    r = read (fd, buf, sizeof buf);
+    r = _read (fd, buf, sizeof buf);
     if (r == -1 && (errno == EINTR || errno == EAGAIN))
       continue;
     if (r <= 0) break;
@@ -347,7 +347,7 @@ guestfs___send_file (guestfs_h *g, const char *filename)
     if (err < 0) {
       if (err == -2)		/* daemon sent cancellation */
         send_file_cancellation (g);
-      close (fd);
+      _close (fd);
       return err;
     }
   }
@@ -355,7 +355,7 @@ guestfs___send_file (guestfs_h *g, const char *filename)
   if (r == -1) {
     perrorf (g, "read: %s", filename);
     send_file_cancellation (g);
-    close (fd);
+    _close (fd);
     return -1;
   }
 
@@ -363,14 +363,14 @@ guestfs___send_file (guestfs_h *g, const char *filename)
     error (g, _("operation cancelled by user"));
     g->last_errnum = EINTR;
     send_file_cancellation (g);
-    close (fd);
+    _close (fd);
     return -1;
   }
 
   /* End of file, but before we send that, we need to close
    * the file and check for errors.
    */
-  if (close (fd) == -1) {
+  if (_close (fd) == -1) {
     perrorf (g, "close: %s", filename);
     send_file_cancellation (g);
     return -1;
@@ -734,7 +734,7 @@ xwrite (int fd, const void *v_buf, size_t len)
   int r;
 
   while (len > 0) {
-    r = write (fd, buf, len);
+    r = _write (fd, buf, len);
     if (r == -1)
       return -1;
 
@@ -756,7 +756,7 @@ guestfs___recv_file (guestfs_h *g, const char *filename)
 
   g->user_cancel = 0;
 
-  fd = open (filename, O_WRONLY|O_CREAT|O_TRUNC|O_NOCTTY|O_CLOEXEC, 0666);
+  fd = _open (filename, O_WRONLY|O_CREAT|O_TRUNC, _S_IWRITE);
   if (fd == -1) {
     perrorf (g, "open: %s", filename);
     goto cancel;
@@ -769,23 +769,23 @@ guestfs___recv_file (guestfs_h *g, const char *filename)
     if (xwrite (fd, buf, r) == -1) {
       perrorf (g, "%s: write", filename);
       free (buf);
-      close (fd);
+      _close (fd);
       goto cancel;
     }
     free (buf);
 
     if (g->user_cancel) {
-      close (fd);
+      _close (fd);
       goto cancel;
     }
   }
 
   if (r == -1) {
-    close (fd);
+    _close (fd);
     return -1;
   }
 
-  if (close (fd) == -1) {
+  if (_close (fd) == -1) {
     perrorf (g, "close: %s", filename);
     return -1;
   }
@@ -801,7 +801,7 @@ guestfs___recv_file (guestfs_h *g, const char *filename)
   uint32_t flag = GUESTFS_CANCEL_FLAG;
 
   debug (g, "%s: waiting for daemon to acknowledge cancellation",
-         __func__);
+         __FUNCTION__);
 
   xdrmem_create (&xdr, fbuf, sizeof fbuf, XDR_ENCODE);
   xdr_uint32_t (&xdr, &flag);

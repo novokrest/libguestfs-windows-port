@@ -68,7 +68,7 @@ guestfs__internal_test_close_output (guestfs_h *g)
   return 0;
 }
 
-static inline FILE *
+static __inline FILE *
 get_fp (guestfs_h *g)
 {
   if (g->test_fp)
@@ -688,7 +688,7 @@ char *
 guestfs__internal_test_rstring (guestfs_h *g,
                                 const char *val)
 {
-  return strdup (val);
+  return _strdup (val);
 }
 
 /* Test error return. */
@@ -713,7 +713,7 @@ guestfs__internal_test_rstringlist (guestfs_h *g,
   strs = safe_malloc (g, (n+1) * sizeof (char *));
   for (i = 0; i < n; ++i) {
     strs[i] = safe_malloc (g, 16);
-    snprintf (strs[i], 16, "%zu", i);
+    _snprintf (strs[i], 16, "%zu", i);
   }
   strs[n] = NULL;
   return strs;
@@ -788,8 +788,8 @@ guestfs__internal_test_rhashtable (guestfs_h *g,
   for (i = 0; i < n; ++i) {
     strs[i*2] = safe_malloc (g, 16);
     strs[i*2+1] = safe_malloc (g, 16);
-    snprintf (strs[i*2], 16, "%zu", i);
-    snprintf (strs[i*2+1], 16, "%zu", i);
+    _snprintf (strs[i*2], 16, "%zu", i);
+    _snprintf (strs[i*2+1], 16, "%zu", i);
   }
   strs[n*2] = NULL;
   return strs;
@@ -810,7 +810,7 @@ guestfs__internal_test_rbufferout (guestfs_h *g,
                                    size_t *size_r)
 {
   *size_r = strlen (val);
-  return strdup (val);
+  return _strdup (val);
 }
 
 /* Test error return. */

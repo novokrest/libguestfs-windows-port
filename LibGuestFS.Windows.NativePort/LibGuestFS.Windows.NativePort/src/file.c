@@ -23,7 +23,7 @@
 #include <stdint.h>
 #include <inttypes.h>
 #include <fcntl.h>
-#include <unistd.h>
+#include <win-unistd.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <string.h>
@@ -97,7 +97,7 @@ guestfs__read_file (guestfs_h *g, const char *path, size_t *size_r)
   if (guestfs_download (g, path, tmpfile) == -1)
     goto err;
 
-  fd = open (tmpfile, O_RDONLY|O_CLOEXEC);
+  fd = _open (tmpfile, O_RDONLY);
   if (fd == -1) {
     perrorf (g, "open: %s", tmpfile);
     goto err;
@@ -124,7 +124,7 @@ guestfs__read_file (guestfs_h *g, const char *path, size_t *size_r)
 
   ret[size] = '\0';
 
-  if (close (fd) == -1) {
+  if (_close (fd) == -1) {
     perrorf (g, "close: %s", tmpfile);
     goto err;
   }
@@ -138,7 +138,7 @@ guestfs__read_file (guestfs_h *g, const char *path, size_t *size_r)
  err:
   free (ret);
   if (fd >= 0)
-    close (fd);
+    _close (fd);
   return NULL;
 }
 
@@ -187,7 +187,7 @@ guestfs__read_lines (guestfs_h *g, const char *file)
 
   /* Duplicate the strings, and remove the trailing \r characters if any. */
   for (i = 0; ret[i] != NULL; ++i) {
-    ret[i] = strdup (ret[i]);
+    ret[i] = _strdup (ret[i]);
     if (ret[i] == NULL) {
       perrorf (g, "strdup");
       while (i > 0)
@@ -224,7 +224,7 @@ guestfs__find (guestfs_h *g, const char *directory)
   if (guestfs_find0 (g, directory, tmpfile) == -1)
     goto err;
 
-  fd = open (tmpfile, O_RDONLY|O_CLOEXEC);
+  fd = _open (tmpfile, O_RDONLY);
   if (fd == -1) {
     perrorf (g, "open: %s", tmpfile);
     goto err;
@@ -249,7 +249,7 @@ guestfs__find (guestfs_h *g, const char *directory)
     goto err;
   }
 
-  if (close (fd) == -1) {
+  if (_close (fd) == -1) {
     perrorf (g, "close: %s", tmpfile);
     goto err;
   }
@@ -283,7 +283,7 @@ guestfs__find (guestfs_h *g, const char *directory)
    * what the caller is expecting.
    */
   for (i = 0; ret[i] != NULL; ++i) {
-    ret[i] = strdup (ret[i]);
+    ret[i] = _strdup (ret[i]);
     if (ret[i] == NULL) {
       perrorf (g, "strdup");
       while (i > 0)
@@ -299,7 +299,7 @@ guestfs__find (guestfs_h *g, const char *directory)
  err:
   free (ret);
   if (fd >= 0)
-    close (fd);
+    _close (fd);
   return NULL;
 }
 
@@ -326,7 +326,7 @@ write_or_append (guestfs_h *g, const char *path,
   /* Write the content out to a temporary file. */
   tmpfile = safe_asprintf (g, "%s/write%d", g->tmpdir, ++g->unique);
 
-  fd = open (tmpfile, O_WRONLY|O_CREAT|O_NOCTTY|O_CLOEXEC, 0600);
+  fd = _open (tmpfile, O_WRONLY|O_CREAT, _S_IWRITE);
   if (fd == -1) {
     perrorf (g, "open: %s", tmpfile);
     goto err;
@@ -337,7 +337,7 @@ write_or_append (guestfs_h *g, const char *path,
     goto err;
   }
 
-  if (close (fd) == -1) {
+  if (_close (fd) == -1) {
     perrorf (g, "close: %s", tmpfile);
     goto err;
   }
@@ -360,7 +360,7 @@ write_or_append (guestfs_h *g, const char *path,
 
  err:
   if (fd >= 0)
-    close (fd);
+    _close (fd);
   return -1;
 }
 
@@ -526,7 +526,7 @@ guestfs__ls (guestfs_h *g, const char *directory)
   if (guestfs_ls0 (g, directory, tmpfile) == -1)
     goto err;
 
-  fd = open (tmpfile, O_RDONLY|O_CLOEXEC);
+  fd = _open (tmpfile, O_RDONLY);
   if (fd == -1) {
     perrorf (g, "open: %s", tmpfile);
     goto err;
@@ -551,7 +551,7 @@ guestfs__ls (guestfs_h *g, const char *directory)
     goto err;
   }
 
-  if (close (fd) == -1) {
+  if (_close (fd) == -1) {
     perrorf (g, "close: %s", tmpfile);
     goto err;
   }
@@ -584,7 +584,7 @@ guestfs__ls (guestfs_h *g, const char *directory)
    * what the caller is expecting.
    */
   for (i = 0; ret[i] != NULL; ++i) {
-    ret[i] = strdup (ret[i]);
+    ret[i] = _strdup (ret[i]);
     if (ret[i] == NULL) {
       perrorf (g, "strdup");
       while (i > 0)
@@ -600,7 +600,7 @@ guestfs__ls (guestfs_h *g, const char *directory)
  err:
   free (ret);
   if (fd >= 0)
-    close (fd);
+    _close (fd);
   return NULL;
 }
 

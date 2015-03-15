@@ -2654,7 +2654,7 @@ guestfs_upload (guestfs_h *g,
   }
 
   if (stat (filename, &progress_stat) == 0 &&
-      S_ISREG (progress_stat.st_mode))
+      (progress_stat.st_mode && S_IFREG))
     progress_hint += progress_stat.st_size;
 
   if (guestfs___check_appliance_up (g, "upload") == -1) {
@@ -2901,7 +2901,7 @@ guestfs_tar_in_opts_argv (guestfs_h *g,
   }
 
   if (stat (tarfile, &progress_stat) == 0 &&
-      S_ISREG (progress_stat.st_mode))
+      (progress_stat.st_mode && _S_IFREG))
     progress_hint += progress_stat.st_size;
 
   if (guestfs___check_appliance_up (g, "tar_in") == -1) {

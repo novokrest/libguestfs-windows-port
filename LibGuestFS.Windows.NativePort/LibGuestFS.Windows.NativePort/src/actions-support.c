@@ -24,7 +24,9 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
-#include <unistd.h>
+#include <win-unistd.h>
+
+#include <win-port.h>
 
 #include "guestfs.h"
 #include "guestfs-internal.h"

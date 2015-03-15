@@ -50,9 +50,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <unistd.h>
+#include <win-unistd.h>
 #include <errno.h>
-#include <dirent.h>
+#include <win-dirent.h>
 #include <assert.h>
 #include <sys/types.h>
 
@@ -80,7 +80,7 @@ compile_regexps (void)
   do {                                                                  \
     re = pcre_compile ((pattern), (options), &err, &offset, NULL);      \
     if (re == NULL) {                                                   \
-      ignore_value (write (2, err, strlen (err)));                      \
+      ignore_value (_write (2, err, strlen (err)));                      \
       abort ();                                                         \
     }                                                                   \
   } while (0)
@@ -258,7 +258,7 @@ read_osinfo_db_xml (guestfs_h *g, const char *filename)
 {
   const size_t pathname_len =
     strlen (LIBOSINFO_DB_OS_PATH) + strlen (filename) + 2;
-  char pathname[pathname_len];
+  char *pathname;
   CLEANUP_XMLFREEDOC xmlDocPtr doc = NULL;
   CLEANUP_XMLXPATHFREECONTEXT xmlXPathContextPtr xpathCtx = NULL;
   CLEANUP_XMLXPATHFREEOBJECT xmlXPathObjectPtr xpathObj = NULL;
@@ -267,11 +267,13 @@ read_osinfo_db_xml (guestfs_h *g, const char *filename)
   struct osinfo *osinfo;
   size_t i;
 
-  snprintf (pathname, pathname_len, "%s/%s", LIBOSINFO_DB_OS_PATH, filename);
+  pathname = safe_malloc(g, pathname_len);
+  _snprintf (pathname, pathname_len, "%s/%s", LIBOSINFO_DB_OS_PATH, filename);
 
   doc = xmlReadFile (pathname, NULL, XML_PARSE_NONET);
   if (doc == NULL) {
     debug (g, "osinfo: unable to parse XML file %s", pathname);
+    free(pathname);
     return 0;
   }
 
@@ -289,8 +291,11 @@ read_osinfo_db_xml (guestfs_h *g, const char *filename)
   if (xpathObj == NULL) {
     error (g, _("osinfo: %s: unable to evaluate XPath expression"),
            pathname);
+    free(pathname);
     return -1;
   }
+
+  free(pathname);
 
   nodes = xpathObj->nodesetval;
 

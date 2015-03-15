@@ -23,14 +23,16 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <inttypes.h>
-#include <unistd.h>
+#include <win-unistd.h>
 #include <string.h>
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <sys/types.h>
-#include <sys/wait.h>
+//#include <sys/wait.h>
 #include <errno.h>
 #include <assert.h>
+
+#include <win-port.h>
 
 #include "guestfs.h"
 #include "guestfs-internal.h"
@@ -43,7 +45,7 @@ static struct backend {
   const struct backend_ops *ops;
 } *backends = NULL;
 
-static mode_t get_umask (guestfs_h *g);
+static int get_umask (guestfs_h *g);
 
 int
 guestfs__launch (guestfs_h *g)
@@ -66,7 +68,7 @@ guestfs__launch (guestfs_h *g)
    * directory won't be readable but anyone can see it exists if they
    * want. (RHBZ#610880).
    */
-  if (chmod (g->tmpdir, 0755) == -1)
+  if (_chmod (g->tmpdir, _S_IREAD | _S_IWRITE) == -1)
     warning (g, "chmod: %s: %m (ignored)", g->tmpdir);
 
   /* Some common debugging information. */
@@ -75,6 +77,8 @@ guestfs__launch (guestfs_h *g)
       guestfs_version (g);
     struct backend *b;
     CLEANUP_FREE char *backend = guestfs_get_backend (g);
+    char* username;
+    char* usid;
 
     debug (g, "launch: program=%s", g->program);
     debug (g, "launch: version=%"PRIi64".%"PRIi64".%"PRIi64"%s",
@@ -85,8 +89,15 @@ guestfs__launch (guestfs_h *g)
     debug (g, "launch: backend=%s", backend);
 
     debug (g, "launch: tmpdir=%s", g->tmpdir);
-    debug (g, "launch: umask=0%03o", get_umask (g));
-    debug (g, "launch: euid=%d", geteuid ());
+    debug (g, "launch: umask=0x%.4x", get_umask (g));
+
+    username = getusername();
+    debug (g, "launch: username=%s", username);
+    free(username);
+
+    usid = getusid();
+    debug(g, "launch: usid=%s", usid);
+    LocalFree(usid);
   }
 
   /* Launch the appliance. */
@@ -321,12 +332,12 @@ guestfs___appliance_command_line (guestfs_h *g, const char *appliance_dev,
   char lpj_s[64] = "";
 
   if (appliance_dev)
-    snprintf (root, sizeof root, " root=%s", appliance_dev);
+    _snprintf (root, sizeof root, " root=%s", appliance_dev);
 
   if (tcg) {
     int lpj = guestfs___get_lpj (g);
     if (lpj > 0)
-      snprintf (lpj_s, sizeof lpj_s, " lpj=%d", lpj);
+      _snprintf (lpj_s, sizeof lpj_s, " lpj=%d", lpj);
   }
 
   ret = safe_asprintf
@@ -437,30 +448,15 @@ guestfs___get_cpu_model (int kvm)
  * this is only called when g->verbose is true and after g->tmpdir
  * has been created.
  */
-static mode_t
+static int
 get_umask (guestfs_h *g)
 {
-  mode_t ret;
-  int fd;
-  struct stat statbuf;
-  CLEANUP_FREE char *filename = safe_asprintf (g, "%s/umask-check", g->tmpdir);
+    int ret;
 
-  fd = open (filename, O_WRONLY|O_CREAT|O_TRUNC|O_NOCTTY|O_CLOEXEC, 0777);
-  if (fd == -1)
-    return -1;
+    ret = _umask(0);
+    _umask(ret);
 
-  if (fstat (fd, &statbuf) == -1) {
-    close (fd);
-    return -1;
-  }
-
-  close (fd);
-
-  ret = statbuf.st_mode;
-  ret &= 0777;
-  ret = ret ^ 0777;
-
-  return ret;
+    return ret;
 }
 
 /* Register backends in a global list when the library is loaded. */
