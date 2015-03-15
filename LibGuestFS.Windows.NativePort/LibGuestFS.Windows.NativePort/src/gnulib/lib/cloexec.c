@@ -23,7 +23,7 @@
 
 #include <errno.h>
 #include <fcntl.h>
-#include <unistd.h>
+#include <win-unistd.h>
 
 /* Set the 'FD_CLOEXEC' flag of DESC if VALUE is true,
    or clear the flag if VALUE is false.
@@ -79,5 +79,5 @@ set_cloexec_flag (int desc, bool value)
 int
 dup_cloexec (int fd)
 {
-  return fcntl (fd, F_DUPFD_CLOEXEC, 0);
+  //return fcntl (fd, F_DUPFD_CLOEXEC, 0);
 }
