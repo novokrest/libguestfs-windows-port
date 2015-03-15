@@ -24,6 +24,7 @@
 #include <stdbool.h>
 
 #include <libintl.h>
+#undef fprintf
 
 #include <rpc/types.h>
 #include <rpc/xdr.h>
