@@ -23,14 +23,16 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <unistd.h>
+#include <win-unistd.h>
 #include <fcntl.h>
 #include <errno.h>
-#include <poll.h>
+//#include <poll.h>
 #include <sys/stat.h>
-#include <sys/socket.h>
+//#include <sys/socket.h>
 #include <sys/types.h>
 #include <assert.h>
+
+#include <WS2tcpip.h>
 
 #include "guestfs.h"
 #include "guestfs-internal.h"
@@ -38,13 +40,13 @@
 struct connection_socket {
   const struct connection_ops *ops;
 
-  int console_sock;          /* Appliance console (for debug info). */
-  int daemon_sock;           /* Daemon communications socket. */
+  SOCKET console_sock;          /* Appliance console (for debug info). */
+  SOCKET daemon_sock;           /* Daemon communications socket. */
 
   /* Socket for accepting a connection from the daemon.  Only used
    * before and during accept_connection.
    */
-  int daemon_accept_sock;
+  SOCKET daemon_accept_sock;
 };
 
 static int handle_log_message (guestfs_h *g, struct connection_socket *conn);
@@ -53,41 +55,40 @@ static int
 accept_connection (guestfs_h *g, struct connection *connv)
 {
   struct connection_socket *conn = (struct connection_socket *) connv;
-  int sock = -1;
+  int sock = INVALID_SOCKET;
   time_t start_t, now_t;
-  int timeout_ms;
+  struct timeval timeout_ms;
+  u_long ulMode;
 
   time (&start_t);
 
-  if (conn->daemon_accept_sock == -1) {
-    error (g, _("accept_connection called twice"));
+  if (conn->daemon_accept_sock == INVALID_SOCKET) {
+    error(g, _("accept_connection called twice"));
     return -1;
   }
 
-  while (sock == -1) {
-    struct pollfd fds[2];
-    nfds_t nfds = 1;
+  while (sock == INVALID_SOCKET) {
+    fd_set readfds;
+    int nfds = 1;
     int r;
 
-    fds[0].fd = conn->daemon_accept_sock;
-    fds[0].events = POLLIN;
-    fds[0].revents = 0;
+    FD_ZERO(&readfds);
+    FD_SET(conn->daemon_accept_sock, &readfds);
 
-    if (conn->console_sock >= 0) {
-      fds[1].fd = conn->console_sock;
-      fds[1].events = POLLIN;
-      fds[1].revents = 0;
-      nfds++;
+    if (conn->console_sock != INVALID_SOCKET) {
+        FD_SET(conn->console_sock, &readfds);
+        nfds++;
     }
 
     time (&now_t);
-    timeout_ms = 1000 * (APPLIANCE_TIMEOUT - (now_t - start_t));
+    timeout_ms.tv_sec = APPLIANCE_TIMEOUT - (now_t - start_t);
+    timeout_ms.tv_usec = 0;
 
-    r = poll (fds, nfds, timeout_ms);
-    if (r == -1) {
-      if (errno == EINTR || errno == EAGAIN)
+    r = select(0, &readfds, NULL, NULL, &timeout_ms);
+    if (r == SOCKET_ERROR) {
+      if (WSAGetLastError() == WSAEINTR || WSAGetLastError() == WSAEWOULDBLOCK)
         continue;
-      perrorf (g, "accept_connection: poll");
+      perrorf_wsa (g, "accept_connection: poll");
       return -1;
     }
 
@@ -97,19 +98,19 @@ accept_connection (guestfs_h *g, struct connection *connv)
     }
 
     /* Log message? */
-    if (nfds > 1 && (fds[1].revents & POLLIN) != 0) {
+    if (nfds > 1 && FD_ISSET(conn->console_sock, &readfds)) {
       r = handle_log_message (g, conn);
       if (r <= 0)
         return r;
     }
 
     /* Accept on socket? */
-    if ((fds[0].revents & POLLIN) != 0) {
-      sock = accept4 (conn->daemon_accept_sock, NULL, NULL, SOCK_CLOEXEC);
-      if (sock == -1) {
-        if (errno == EINTR || errno == EAGAIN)
+    if (FD_ISSET(conn->daemon_accept_sock, &readfds)) {
+      sock = accept(conn->daemon_accept_sock, NULL, NULL);
+      if (sock == SOCKET_ERROR) {
+        if (WSAGetLastError() == WSAEINTR || WSAGetLastError() == WSAEWOULDBLOCK)
           continue;
-        perrorf (g, "accept_connection: accept");
+        perrorf_wsa (g, "accept_connection: accept");
         return -1;
       }
     }
@@ -118,13 +119,14 @@ accept_connection (guestfs_h *g, struct connection *connv)
   /* Got a connection and accepted it, so update the connection's
    * internal status.
    */
-  close (conn->daemon_accept_sock);
-  conn->daemon_accept_sock = -1;
+  closesocket (conn->daemon_accept_sock);
+  conn->daemon_accept_sock = INVALID_SOCKET;
   conn->daemon_sock = sock;
 
   /* Make sure the new socket is non-blocking. */
-  if (fcntl (conn->daemon_sock, F_SETFL, O_NONBLOCK) == -1) {
-    perrorf (g, "accept_connection: fcntl");
+  ulMode = 1;
+  if (ioctlsocket(conn->daemon_sock, FIONBIO, &ulMode) == SOCKET_ERROR) {
+    perrorf_wsa (g, "accept_connection: fcntl");
     return -1;
   }
 
@@ -138,51 +140,48 @@ read_data (guestfs_h *g, struct connection *connv, void *bufv, size_t len)
   struct connection_socket *conn = (struct connection_socket *) connv;
   size_t original_len = len;
 
-  if (conn->daemon_sock == -1) {
+  if (conn->daemon_sock == INVALID_SOCKET) {
     error (g, _("read_data: socket not connected"));
     return -1;
   }
 
   while (len > 0) {
-    struct pollfd fds[2];
-    nfds_t nfds = 1;
+    fd_set readfds;
+    int nfds = 1;
     int r;
 
-    fds[0].fd = conn->daemon_sock;
-    fds[0].events = POLLIN;
-    fds[0].revents = 0;
+    FD_ZERO(&readfds);
+    FD_SET(conn->daemon_sock, &readfds);
 
-    if (conn->console_sock >= 0) {
-      fds[1].fd = conn->console_sock;
-      fds[1].events = POLLIN;
-      fds[1].revents = 0;
-      nfds++;
+    if (conn->console_sock != INVALID_SOCKET) {
+        FD_SET(conn->console_sock, &readfds);
+        nfds++;
     }
 
-    r = poll (fds, nfds, -1);
-    if (r == -1) {
-      if (errno == EINTR || errno == EAGAIN)
+    r = select(0, &readfds, NULL, NULL, NULL);
+    if (r == SOCKET_ERROR) {
+      if (WSAGetLastError() == WSAEINTR || WSAGetLastError() == WSAEWOULDBLOCK)
         continue;
-      perrorf (g, "read_data: poll");
+      perrorf_wsa (g, "read_data: poll");
       return -1;
     }
 
     /* Log message? */
-    if (nfds > 1 && (fds[1].revents & POLLIN) != 0) {
+    if (nfds > 1 && FD_ISSET(conn->console_sock, &readfds)) {
       r = handle_log_message (g, conn);
       if (r <= 0)
         return r;
     }
 
     /* Read data on daemon socket? */
-    if ((fds[0].revents & POLLIN) != 0) {
-      ssize_t n = read (conn->daemon_sock, buf, len);
-      if (n == -1) {
-        if (errno == EINTR || errno == EAGAIN)
+    if (FD_ISSET(conn->daemon_sock, &readfds)) {
+      int n = recv(conn->daemon_sock, buf, len, 0);
+      if (n == SOCKET_ERROR) {
+        if (WSAGetLastError() == WSAEINTR || WSAGetLastError() == WSAEWOULDBLOCK)
           continue;
-        if (errno == ECONNRESET) /* essentially the same as EOF case */
+        if (WSAGetLastError() == WSAECONNRESET) /* essentially the same as EOF case */
           goto closed;
-        perrorf (g, "read_data: read");
+        perrorf_wsa (g, "read_data: read");
         return -1;
       }
       if (n == 0) {
@@ -210,28 +209,27 @@ static int
 can_read_data (guestfs_h *g, struct connection *connv)
 {
   struct connection_socket *conn = (struct connection_socket *) connv;
-  struct pollfd fd;
+  fd_set readfds;
   int r;
+  struct timeval timeout = { .tv_sec = 0, .tv_usec = 0 };
 
-  if (conn->daemon_sock == -1) {
+  if (conn->daemon_sock == INVALID_SOCKET) {
     error (g, _("can_read_data: socket not connected"));
     return -1;
   }
 
-  fd.fd = conn->daemon_sock;
-  fd.events = POLLIN;
-  fd.revents = 0;
-
- again:
-  r = poll (&fd, 1, 0);
-  if (r == -1) {
-    if (errno == EINTR || errno == EAGAIN)
+again:
+  FD_ZERO(&readfds);
+  FD_SET(conn->daemon_sock, &readfds);
+  r = select(0, &readfds, NULL, NULL, &timeout);
+  if (r == SOCKET_ERROR) {
+    if (WSAGetLastError() == WSAEINTR || WSAGetLastError() == WSAEWOULDBLOCK)
       goto again;
-    perrorf (g, "can_read_data: poll");
+    perrorf_wsa (g, "can_read_data: poll");
     return -1;
   }
 
-  return (fd.revents & POLLIN) != 0 ? 1 : 0;
+  return FD_ISSET(conn->daemon_sock, &readfds) != 0 ? 1 : 0;
 }
 
 static ssize_t
@@ -242,51 +240,49 @@ write_data (guestfs_h *g, struct connection *connv,
   struct connection_socket *conn = (struct connection_socket *) connv;
   size_t original_len = len;
 
-  if (conn->daemon_sock == -1) {
-    error (g, _("write_data: socket not connected"));
+  if (conn->daemon_sock == INVALID_SOCKET) {
+    error(g, _("write_data: socket not connected"));
     return -1;
   }
 
   while (len > 0) {
-    struct pollfd fds[2];
-    nfds_t nfds = 1;
+    fd_set readfds, writefds;
+    int nfds = 1;
     int r;
 
-    fds[0].fd = conn->daemon_sock;
-    fds[0].events = POLLOUT;
-    fds[0].revents = 0;
+    FD_ZERO(&writefds);
+    FD_SET(conn->daemon_sock, &writefds);
 
-    if (conn->console_sock >= 0) {
-      fds[1].fd = conn->console_sock;
-      fds[1].events = POLLIN;
-      fds[1].revents = 0;
-      nfds++;
+    if (conn->console_sock != INVALID_SOCKET) {
+        FD_ZERO(&readfds);
+        FD_SET(conn->console_sock, &readfds);
+        nfds++;
     }
 
-    r = poll (fds, nfds, -1);
-    if (r == -1) {
-      if (errno == EINTR || errno == EAGAIN)
+    r = select(0, &readfds, &writefds, NULL, NULL);
+    if (r == SOCKET_ERROR) {
+      if (WSAGetLastError() == WSAEINTR || WSAGetLastError() == WSAEWOULDBLOCK)
         continue;
-      perrorf (g, "write_data: poll");
+      perrorf_wsa (g, "write_data: poll");
       return -1;
     }
 
     /* Log message? */
-    if (nfds > 1 && (fds[1].revents & POLLIN) != 0) {
+    if (nfds > 1 && FD_ISSET(conn->console_sock, &readfds)) {
       r = handle_log_message (g, conn);
       if (r <= 0)
         return r;
     }
 
     /* Can write data on daemon socket? */
-    if ((fds[0].revents & POLLOUT) != 0) {
-      ssize_t n = write (conn->daemon_sock, buf, len);
-      if (n == -1) {
-        if (errno == EINTR || errno == EAGAIN)
+    if (FD_ISSET(conn->daemon_sock, &writefds)) {
+      int n = send(conn->daemon_sock, buf, len, 0);
+      if (n == SOCKET_ERROR) {
+        if (WSAGetLastError() == WSAEINTR || WSAGetLastError() == WSAEWOULDBLOCK)
           continue;
-        if (errno == EPIPE) /* Disconnected from guest (RHBZ#508713). */
+        if (WSAGetLastError() == WSAECONNRESET) /* Disconnected from guest (RHBZ#508713). */
           return 0;
-        perrorf (g, "write_data: write");
+        perrorf_wsa (g, "write_data: write");
         return -1;
       }
 
@@ -326,17 +322,17 @@ handle_log_message (guestfs_h *g,
    *   based console (not yet implemented) we may be able to remove
    *   this.  XXX"
    */
-  usleep (1000);
+  Sleep(1);
 
-  n = read (conn->console_sock, buf, sizeof buf);
+  n = recv(conn->console_sock, buf, sizeof buf, 0);
   if (n == 0)
     return 0;
 
-  if (n == -1) {
-    if (errno == EINTR || errno == EAGAIN)
+  if (n == SOCKET_ERROR) {
+    if (WSAGetLastError() == WSAEINTR || WSAGetLastError() == WSAEWOULDBLOCK)
       return 1; /* not an error */
 
-    perrorf (g, _("error reading console messages from the appliance"));
+    perrorf_wsa (g, _("error reading console messages from the appliance"));
     return -1;
   }
 
@@ -371,12 +367,12 @@ free_conn_socket (guestfs_h *g, struct connection *connv)
 {
   struct connection_socket *conn = (struct connection_socket *) connv;
 
-  if (conn->console_sock >= 0)
-    close (conn->console_sock);
-  if (conn->daemon_sock >= 0)
-    close (conn->daemon_sock);
-  if (conn->daemon_accept_sock >= 0)
-    close (conn->daemon_accept_sock);
+  if (conn->console_sock != INVALID_SOCKET)
+    closesocket (conn->console_sock);
+  if (conn->daemon_sock != INVALID_SOCKET)
+    closesocket (conn->daemon_sock);
+  if (conn->daemon_accept_sock != INVALID_SOCKET)
+    closesocket (conn->daemon_accept_sock);
 
   free (conn);
 }
@@ -404,17 +400,18 @@ guestfs___new_conn_socket_listening (guestfs_h *g,
                                      int console_sock)
 {
   struct connection_socket *conn;
+  u_long ulMode = 1;
 
-  assert (daemon_accept_sock >= 0);
+  assert (daemon_accept_sock != INVALID_SOCKET);
 
-  if (fcntl (daemon_accept_sock, F_SETFL, O_NONBLOCK) == -1) {
-    perrorf (g, "new_conn_socket_listening: fcntl");
+  if (ioctlsocket(daemon_accept_sock, FIONBIO, &ulMode) == SOCKET_ERROR) {
+    perrorf_wsa(g, "new_conn_socket_listening: fcntl");
     return NULL;
   }
 
-  if (console_sock >= 0) {
-    if (fcntl (console_sock, F_SETFL, O_NONBLOCK) == -1) {
-      perrorf (g, "new_conn_socket_listening: fcntl");
+  if (console_sock != INVALID_SOCKET) {
+    if (ioctlsocket(console_sock, FIONBIO, &ulMode) == SOCKET_ERROR) {
+      perrorf_wsa(g, "new_conn_socket_listening: fcntl");
       return NULL;
     }
   }
@@ -426,7 +423,7 @@ guestfs___new_conn_socket_listening (guestfs_h *g,
 
   /* Set the internal state. */
   conn->console_sock = console_sock;
-  conn->daemon_sock = -1;
+  conn->daemon_sock = INVALID_SOCKET;
   conn->daemon_accept_sock = daemon_accept_sock;
 
   return (struct connection *) conn;
@@ -443,20 +440,22 @@ guestfs___new_conn_socket_connected (guestfs_h *g,
                                      int console_sock)
 {
   struct connection_socket *conn;
+  u_long ulMode = 1;
 
-  assert (daemon_sock >= 0);
+  assert(daemon_sock != INVALID_SOCKET);
 
-  if (fcntl (daemon_sock, F_SETFL, O_NONBLOCK) == -1) {
-    perrorf (g, "new_conn_socket_connected: fcntl");
+  if (ioctlsocket(daemon_sock, FIONBIO, &ulMode) == SOCKET_ERROR) {
+    perrorf_wsa(g, "new_conn_socket_connected: ioctlsocket");
     return NULL;
   }
 
-  if (console_sock >= 0) {
-    if (fcntl (console_sock, F_SETFL, O_NONBLOCK) == -1) {
-      perrorf (g, "new_conn_socket_connected: fcntl");
+  if (console_sock != INVALID_SOCKET) {
+    if (ioctlsocket(console_sock, FIONBIO, &ulMode) == SOCKET_ERROR) {
+      perrorf_wsa(g, "new_conn_socket_connected: ioctlsocket");
       return NULL;
     }
   }
+
 
   conn = safe_malloc (g, sizeof *conn);
 
@@ -466,7 +465,7 @@ guestfs___new_conn_socket_connected (guestfs_h *g,
   /* Set the internal state. */
   conn->console_sock = console_sock;
   conn->daemon_sock = daemon_sock;
-  conn->daemon_accept_sock = -1;
+  conn->daemon_accept_sock = INVALID_SOCKET;
 
   return (struct connection *) conn;
 }
