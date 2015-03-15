@@ -18,4 +18,6 @@ char* getusid();
 
 FILE* open_memstream(char **ptr, size_t *sizeloc);
 
+int symlink(const char *path1, const char *path2);
+
 #endif /* EXTRA_WIN_H_ */
