@@ -141,28 +141,28 @@ guestfs_create_flags (unsigned flags, ...)
     }
   }
 
-//  if (!(flags & GUESTFS_CREATE_NO_ENVIRONMENT))
-//    ignore_value (guestfs_parse_environment (g));
-//
-//  if (!(flags & GUESTFS_CREATE_NO_CLOSE_ON_EXIT)) {
-//    g->close_on_exit = true;
-//
-//    /* Link the handles onto a global list. */
-//    gl_lock_lock (handles_lock);
-//    g->next = handles;
-//    handles = g;
-//    if (!atexit_handler_set) {
-//      atexit (close_handles);
-//      atexit_handler_set = 1;
-//    }
-//    gl_lock_unlock (handles_lock);
-//  }
-//
-//  debug (g, "create: flags = %u, handle = %p, program = %s",
-//         flags, g, g->program);
-//
-//  return g;
-//
+  if (!(flags & GUESTFS_CREATE_NO_ENVIRONMENT))
+    ignore_value (guestfs_parse_environment (g));
+
+  if (!(flags & GUESTFS_CREATE_NO_CLOSE_ON_EXIT)) {
+    g->close_on_exit = true;
+
+    /* Link the handles onto a global list. */
+    gl_lock_lock (handles_lock);
+    g->next = handles;
+    handles = g;
+    if (!atexit_handler_set) {
+      atexit (close_handles);
+      atexit_handler_set = 1;
+    }
+    gl_lock_unlock (handles_lock);
+  }
+
+  debug (g, "create: flags = %u, handle = %p, program = %s",
+         flags, g, g->program);
+
+  return g;
+
  error:
   guestfs___free_string_list (g->backend_settings);
   free (g->backend);
