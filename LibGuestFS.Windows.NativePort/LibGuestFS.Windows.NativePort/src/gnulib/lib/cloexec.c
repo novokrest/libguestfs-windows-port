@@ -76,6 +76,9 @@ set_cloexec_flag (int desc, bool value)
    prior to exec or spawn.  Returns -1 and sets errno if FD could not
    be duplicated.  */
 
+/*
+ * https://android.googlesource.com/platform/external/bison/+/4a73bbb278e3218a935804313073cab198ae0d03/lib/fcntl.c
+*/
 int
 dup_cloexec (int fd)
 {
