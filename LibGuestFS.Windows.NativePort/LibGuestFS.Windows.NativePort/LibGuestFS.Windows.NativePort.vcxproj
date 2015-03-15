@@ -69,6 +69,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="main-dll.c" />
     <ClCompile Include="main.c" />
     <ClCompile Include="src\actions-0.c" />
     <ClCompile Include="src\actions-1.c" />
@@ -80,9 +81,11 @@
     <ClCompile Include="src\actions-support.c" />
     <ClCompile Include="src\actions-variants.c" />
     <ClCompile Include="src\alloc.c" />
+    <ClCompile Include="src\appliance.c" />
     <ClCompile Include="src\bindtests.c" />
     <ClCompile Include="src\canonical-name.c" />
     <ClCompile Include="src\command.c" />
+    <ClCompile Include="src\conn-socket.c" />
     <ClCompile Include="src\create.c" />
     <ClCompile Include="src\drives.c" />
     <ClCompile Include="src\errnostring-gperf.c" />
@@ -93,6 +96,7 @@
     <ClCompile Include="src\filearch.c" />
     <ClCompile Include="src\fuse.c" />
     <ClCompile Include="src\gnulib\lib\c-ctype.c" />
+    <ClCompile Include="src\gnulib\lib\cloexec.c" />
     <ClCompile Include="src\gnulib\lib\full-read.c" />
     <ClCompile Include="src\gnulib\lib\full-write.c" />
     <ClCompile Include="src\gnulib\lib\glthread\lock.c" />
@@ -112,6 +116,7 @@
     <ClCompile Include="src\inspect-icon.c" />
     <ClCompile Include="src\inspect.c" />
     <ClCompile Include="src\journal.c" />
+    <ClCompile Include="src\launch-direct.c" />
     <ClCompile Include="src\launch.c" />
     <ClCompile Include="src\libvirt-auth.c" />
     <ClCompile Include="src\libvirt-domain.c" />
@@ -143,6 +148,7 @@
     <ClInclude Include="include\config.h" />
     <ClInclude Include="include\errnostring.h" />
     <ClInclude Include="include\gnulib\lib\c-ctype.h" />
+    <ClInclude Include="include\gnulib\lib\cloexec.h" />
     <ClInclude Include="include\gnulib\lib\full-read.h" />
     <ClInclude Include="include\gnulib\lib\full-write.h" />
     <ClInclude Include="include\gnulib\lib\intprops.h" />

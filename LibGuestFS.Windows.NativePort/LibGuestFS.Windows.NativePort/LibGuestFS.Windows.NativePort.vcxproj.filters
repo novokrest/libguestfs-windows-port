@@ -222,6 +222,21 @@
     <ClCompile Include="src\lpj.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\gnulib\lib\cloexec.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\launch-direct.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\conn-socket.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="main-dll.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\appliance.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\config.h">
@@ -297,6 +312,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\win-check-endian.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\gnulib\lib\cloexec.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
