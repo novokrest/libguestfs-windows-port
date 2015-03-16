@@ -86,14 +86,14 @@ guestfs__journal_get (guestfs_h *g)
   size = statbuf.st_size;
   buf = malloc (size+1);
   if (!buf) {
-    perrorf (g, "malloc: %zu bytes", size);
+    perrorf (g, "malloc: %Iu bytes", size);
     goto err;
   }
   eobuf = &buf[size];
   *eobuf = '\0';                /* Makes strchr etc safe. */
 
   if (full_read (fd, buf, size) != size) {
-    perrorf (g, "full-read: %s: %zu bytes", tmpfile, size);
+    perrorf (g, "full-read: %s: %Iu bytes", tmpfile, size);
     goto err;
   }
 
@@ -117,7 +117,7 @@ guestfs__journal_get (guestfs_h *g)
     if (i+8 > size) {
       error (g, "invalid data from guestfs_internal_journal_get: "
              "truncated: "
-             "size=%zu, i=%zu", size, i);
+             "size=%Iu, i=%Iu", size, i);
       goto err;
     }
     memcpy(&len, &buf[i], sizeof(len));
@@ -127,14 +127,14 @@ guestfs__journal_get (guestfs_h *g)
     if (eofield > eobuf) {
       error (g, "invalid data from guestfs_internal_journal_get: "
              "length field is too large: "
-             "size=%zu, i=%zu, len=%" PRIu64, size, i, len);
+             "size=%Iu, i=%Iu, len=%" PRIu64, size, i, len);
       goto err;
     }
     p = strchr (&buf[i], '=');
     if (!p || p >= eofield) {
       error (g, "invalid data from guestfs_internal_journal_get: "
              "no '=' found separating field name and data: "
-             "size=%zu, i=%zu, p=%p", size, i, p);
+             "size=%Iu, i=%Iu, p=%p", size, i, p);
       goto err;
     }
     *p = '\0';
