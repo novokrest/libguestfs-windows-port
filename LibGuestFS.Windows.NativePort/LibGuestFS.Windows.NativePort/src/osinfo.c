@@ -59,6 +59,8 @@
 #include <libxml/parser.h>
 #include <libxml/xpath.h>
 
+#include <win-gcc-attribute-constructor.h>
+
 #include "ignore-value.h"
 #include "glthread/lock.h"
 
@@ -70,8 +72,7 @@ static pcre *re_major_minor;
 static void compile_regexps (void) __attribute__((constructor));
 static void free_regexps (void) __attribute__((destructor));
 
-static void
-compile_regexps (void)
+INITIALIZER(compile_regexps_osinfo)
 {
   const char *err;
   int offset;
@@ -155,7 +156,7 @@ guestfs___osinfo_map (guestfs_h *g, const struct guestfs_isoinfo *isoinfo,
         continue;
     }
 
-    debug (g, "osinfo: mapped disk to database entry %zu", i);
+    debug (g, "osinfo: mapped disk to database entry %Iu", i);
 
     if (osinfo_ret)
       *osinfo_ret = &osinfo_db[i];
