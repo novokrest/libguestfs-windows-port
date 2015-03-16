@@ -190,7 +190,7 @@ read_data (guestfs_h *g, struct connection *connv, void *bufv, size_t len)
          * messages in the console socket buffer in the kernel.  Read
          * them out here.
          */
-        if (g->verbose && conn->console_sock >= 0) {
+        if (g->verbose && conn->console_sock != INVALID_SOCKET) {
           while (handle_log_message (g, conn) == 1)
             ;
         }
