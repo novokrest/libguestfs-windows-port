@@ -537,7 +537,7 @@ launch_direct (guestfs_h *g, void *datav, const char *arg)
        * the if=... at the end.
        */
       param = safe_asprintf
-        (g, "file=%s%s,cache=%s%s%s%s%s%s%s,id=hd%zu",
+        (g, "file=%s%s,cache=%s%s%s%s%s%s%s,id=hd%u",
          escaped_file,
          drv->readonly ? ",snapshot=on" : "",
          drv->cachemode ? drv->cachemode : "writeback",
@@ -553,7 +553,7 @@ launch_direct (guestfs_h *g, void *datav, const char *arg)
       /* Writable qcow2 overlay on top of read-only drive. */
       escaped_file = qemu_escape_param (g, drv->overlay);
       param = safe_asprintf
-        (g, "file=%s,cache=unsafe,format=qcow2%s%s,id=hd%zu",
+        (g, "file=%s,cache=unsafe,format=qcow2%s%s,id=hd%u",
          escaped_file,
          drv->disk_label ? ",serial=" : "",
          drv->disk_label ? drv->disk_label : "",
@@ -579,14 +579,14 @@ launch_direct (guestfs_h *g, void *datav, const char *arg)
       ADD_CMDLINE ("-drive");
       ADD_CMDLINE_PRINTF ("%s,if=none" /* sic */, param);
       ADD_CMDLINE ("-device");
-      ADD_CMDLINE_PRINTF ("scsi-hd,drive=hd%zu", i);
+      ADD_CMDLINE_PRINTF ("scsi-hd,drive=hd%u", i);
     }
     else {
     virtio_blk:
       ADD_CMDLINE ("-drive");
       ADD_CMDLINE_PRINTF ("%s,if=none" /* sic */, param);
       ADD_CMDLINE ("-device");
-      ADD_CMDLINE_PRINTF (VIRTIO_BLK ",drive=hd%zu", i);
+      ADD_CMDLINE_PRINTF (VIRTIO_BLK ",drive=hd%u", i);
     }
   }
 
@@ -639,7 +639,7 @@ launch_direct (guestfs_h *g, void *datav, const char *arg)
 
   /* Set up virtio-serial for the communications channel. */
   ADD_CMDLINE ("-chardev");
-  ADD_CMDLINE_PRINTF ("socket,path=%s,id=channel0", guestfsd_sock);
+  ADD_CMDLINE_PRINTF ("socket,host=localhost,port=%s,id=channel0", port);
   ADD_CMDLINE ("-device");
   ADD_CMDLINE ("virtserialport,chardev=channel0,name=org.libguestfs.channel.0");
 
@@ -713,6 +713,24 @@ launch_direct (guestfs_h *g, void *datav, const char *arg)
   //    " -chardev socket,host=localhost,port=7777,id=channel0" \
   //    " -device virtserialport,chardev=channel0,name=org.libguestfs.channel.0" \
   //    " -append \"panic=1 console=ttyS0 udevtimeout=6000 udev.event-timeout=6000 no_timer_check acpi=off printk.time=1 cgroup_disable=memory root=/dev/vdb selinux=0 guestfs_verbose=1 TERM=xterm\"";
+
+  cmd = "C:/cygwin64/usr/qemu/qemu-system-x86_64.exe" \
+      " -m 500" \
+      " -no-reboot" \
+      " -rtc driftfix=slew" \
+      " -no-kvm-pit-reinjection" \
+      " -kernel C:/GuestFS/appliance/kernel " \
+      " -initrd C:/GuestFS/appliance/initrd " \
+      " -drive file=C:/GuestFS/disk.img,cache=writeback,format=raw,id=hd0,if=none" \
+      " -device virtio-blk-pci,drive=hd0" \
+      " -drive file=C:/GuestFS/appliance/root,snapshot=on,id=appliance,cache=unsafe,if=none" \
+      " -device virtio-blk-pci,drive=appliance" \
+      " -device virtio-serial-pci" \
+      " -serial stdio" \
+      " -chardev socket,host=localhost,port=7777,id=channel0" \
+      " -device virtserialport,chardev=channel0,name=org.libguestfs.channel.0" \
+      " -append \"panic=1 console=ttyS0 udevtimeout=6000 udev.event-timeout=6000 no_timer_check acpi=off printk.time=1 cgroup_disable=memory root=/dev/vdb selinux=0 guestfs_verbose=1 TERM=xterm\"";
+
 
   CreateProcess(NULL,
       cmd,
@@ -1164,7 +1182,7 @@ qemu_supports (guestfs_h *g, struct backend_direct_data *data,
   if (option == NULL)
     return 1;
 
-  return strstr (data->qemu_help, option) != NULL;
+  return data->qemu_help ? strstr (data->qemu_help, option) != NULL : 0;
 }
 
 /* Test if device is supported by qemu (currently just greps the -device ?
@@ -1179,7 +1197,7 @@ qemu_supports_device (guestfs_h *g, struct backend_direct_data *data,
       return -1;
   }
 
-  return strstr (data->qemu_devices, device_name) != NULL;
+  return data->qemu_devices ? strstr(data->qemu_devices, device_name) != NULL : 0;
 }
 
 /* Check if a file can be opened. */
