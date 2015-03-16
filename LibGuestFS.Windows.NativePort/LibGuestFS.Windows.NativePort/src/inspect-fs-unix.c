@@ -34,11 +34,13 @@
 
 #include <pcre.h>
 
+#include <win-gcc-attribute-constructor.h>
+
 #include "c-ctype.h"
 #include "ignore-value.h"
 #include "xstrtol.h"
-//#include "hash.h"
-//#include "hash-pjw.h"
+#include "hash.h"
+#include "hash-pjw.h"
 
 #include "guestfs.h"
 #include "guestfs-internal.h"
@@ -83,8 +85,7 @@ static pcre *re_hurd_dev;
 static void compile_regexps (void) __attribute__((constructor));
 static void free_regexps (void) __attribute__((destructor));
 
-static void
-compile_regexps (void)
+INITIALIZER(compile_regexps_inspect_unix)
 {
   const char *err;
   int offset;
@@ -182,8 +183,8 @@ static int check_hostname_freebsd (guestfs_h *g, struct inspect_fs *fs);
 static int check_fstab (guestfs_h *g, struct inspect_fs *fs);
 static int add_fstab_entry (guestfs_h *g, struct inspect_fs *fs,
                             const char *mountable, const char *mp);
-//static char *resolve_fstab_device (guestfs_h *g, const char *spec,
-//                                   Hash_table *md_map);
+static char *resolve_fstab_device (guestfs_h *g, const char *spec,
+                                   Hash_table *md_map);
 static int inspect_with_augeas (guestfs_h *g, struct inspect_fs *fs, const char **configfiles, int (*f) (guestfs_h *, struct inspect_fs *));
 static int is_partition (guestfs_h *g, const char *partition);
 
@@ -209,8 +210,8 @@ static size_t mdadm_app_hash(const void *x, size_t table_size);
 static bool mdadm_app_cmp(const void *x, const void *y);
 static void mdadm_app_free(void *x);
 
-//static ssize_t map_app_md_devices (guestfs_h *g, Hash_table **map);
-//static int map_md_devices(guestfs_h *g, Hash_table **map);
+static ssize_t map_app_md_devices (guestfs_h *g, Hash_table **map);
+static int map_md_devices(guestfs_h *g, Hash_table **map);
 
 /* Set fs->product_name to the first line of the release file. */
 static int
@@ -1011,113 +1012,111 @@ check_hostname_freebsd (guestfs_h *g, struct inspect_fs *fs)
 static int
 check_fstab (guestfs_h *g, struct inspect_fs *fs)
 {
-  //CLEANUP_FREE_STRING_LIST char **entries = NULL;
-  //char **entry;
-  //char augpath[256];
-  //CLEANUP_HASH_FREE Hash_table *md_map = NULL;
+  CLEANUP_FREE_STRING_LIST char **entries = NULL;
+  char **entry;
+  char augpath[256];
+  CLEANUP_HASH_FREE Hash_table *md_map = NULL;
 
-  ///* Generate a map of MD device paths listed in /etc/mdadm.conf to MD device
-  // * paths in the guestfs appliance */
-  //if (map_md_devices (g, &md_map) == -1) return -1;
+  /* Generate a map of MD device paths listed in /etc/mdadm.conf to MD device
+   * paths in the guestfs appliance */
+  if (map_md_devices (g, &md_map) == -1) return -1;
 
-  //entries = guestfs_aug_match (g, "/files/etc/fstab/*[label() != '#comment']");
-  //if (entries == NULL)
-  //  return -1;
+  entries = guestfs_aug_match (g, "/files/etc/fstab/*[label() != '#comment']");
+  if (entries == NULL)
+    return -1;
 
-  //for (entry = entries; *entry != NULL; entry++) {
-  //  CLEANUP_FREE char *spec = NULL;
-  //  CLEANUP_FREE char *mp = NULL;
-  //  CLEANUP_FREE char *mountable = NULL;
-  //  CLEANUP_FREE char *vfstype = NULL;
+  for (entry = entries; *entry != NULL; entry++) {
+    CLEANUP_FREE char *spec = NULL;
+    CLEANUP_FREE char *mp = NULL;
+    CLEANUP_FREE char *mountable = NULL;
+    CLEANUP_FREE char *vfstype = NULL;
 
-  //  snprintf (augpath, sizeof augpath, "%s/spec", *entry);
-  //  spec = guestfs_aug_get (g, augpath);
-  //  if (spec == NULL)
-  //    return -1;
+    _snprintf (augpath, sizeof augpath, "%s/spec", *entry);
+    spec = guestfs_aug_get (g, augpath);
+    if (spec == NULL)
+      return -1;
 
-  //  /* Ignore /dev/fd (floppy disks) (RHBZ#642929) and CD-ROM drives.
-  //   *
-  //   * /dev/iso9660/FREEBSD_INSTALL can be found in FreeBSDs installation
-  //   * discs.
-  //   */
-  //  if ((STRPREFIX (spec, "/dev/fd") && c_isdigit (spec[7])) ||
-  //      STREQ (spec, "/dev/floppy") ||
-  //      STREQ (spec, "/dev/cdrom") ||
-  //      STRPREFIX (spec, "/dev/iso9660/"))
-  //    continue;
+    /* Ignore /dev/fd (floppy disks) (RHBZ#642929) and CD-ROM drives.
+     *
+     * /dev/iso9660/FREEBSD_INSTALL can be found in FreeBSDs installation
+     * discs.
+     */
+    if ((STRPREFIX (spec, "/dev/fd") && c_isdigit (spec[7])) ||
+        STREQ (spec, "/dev/floppy") ||
+        STREQ (spec, "/dev/cdrom") ||
+        STRPREFIX (spec, "/dev/iso9660/"))
+      continue;
 
-  //  snprintf (augpath, sizeof augpath, "%s/file", *entry);
-  //  mp = guestfs_aug_get (g, augpath);
-  //  if (mp == NULL)
-  //    return -1;
+    _snprintf (augpath, sizeof augpath, "%s/file", *entry);
+    mp = guestfs_aug_get (g, augpath);
+    if (mp == NULL)
+      return -1;
 
-  //  /* Ignore certain mountpoints. */
-  //  if (STRPREFIX (mp, "/dev/") ||
-  //      STREQ (mp, "/dev") ||
-  //      STRPREFIX (mp, "/media/") ||
-  //      STRPREFIX (mp, "/proc/") ||
-  //      STREQ (mp, "/proc") ||
-  //      STRPREFIX (mp, "/selinux/") ||
-  //      STREQ (mp, "/selinux") ||
-  //      STRPREFIX (mp, "/sys/") ||
-  //      STREQ (mp, "/sys"))
-  //    continue;
+    /* Ignore certain mountpoints. */
+    if (STRPREFIX (mp, "/dev/") ||
+        STREQ (mp, "/dev") ||
+        STRPREFIX (mp, "/media/") ||
+        STRPREFIX (mp, "/proc/") ||
+        STREQ (mp, "/proc") ||
+        STRPREFIX (mp, "/selinux/") ||
+        STREQ (mp, "/selinux") ||
+        STRPREFIX (mp, "/sys/") ||
+        STREQ (mp, "/sys"))
+      continue;
 
-  //  /* Resolve UUID= and LABEL= to the actual device. */
-  //  if (STRPREFIX (spec, "UUID="))
-  //    mountable = guestfs_findfs_uuid (g, &spec[5]);
-  //  else if (STRPREFIX (spec, "LABEL="))
-  //    mountable = guestfs_findfs_label (g, &spec[6]);
-  //  /* Ignore "/.swap" (Pardus) and pseudo-devices like "tmpfs". */
-  //  else if (STREQ (spec, "/dev/root"))
-  //    /* Resolve /dev/root to the current device. */
-  //    mountable = safe_strdup (g, fs->mountable);
-  //  else if (STRPREFIX (spec, "/dev/"))
-  //    /* Resolve guest block device names. */
-  //    mountable = resolve_fstab_device (g, spec, md_map);
+    /* Resolve UUID= and LABEL= to the actual device. */
+    if (STRPREFIX (spec, "UUID="))
+      mountable = guestfs_findfs_uuid (g, &spec[5]);
+    else if (STRPREFIX (spec, "LABEL="))
+      mountable = guestfs_findfs_label (g, &spec[6]);
+    /* Ignore "/.swap" (Pardus) and pseudo-devices like "tmpfs". */
+    else if (STREQ (spec, "/dev/root"))
+      /* Resolve /dev/root to the current device. */
+      mountable = safe_strdup (g, fs->mountable);
+    else if (STRPREFIX (spec, "/dev/"))
+      /* Resolve guest block device names. */
+      mountable = resolve_fstab_device (g, spec, md_map);
 
-  //  /* If we haven't resolved the device successfully by this point,
-  //   * we don't care, just ignore it.
-  //   */
-  //  if (mountable == NULL)
-  //    continue;
+    /* If we haven't resolved the device successfully by this point,
+     * we don't care, just ignore it.
+     */
+    if (mountable == NULL)
+      continue;
 
-  //  snprintf (augpath, sizeof augpath, "%s/vfstype", *entry);
-  //  vfstype = guestfs_aug_get (g, augpath);
-  //  if (vfstype == NULL) return -1;
+    _snprintf (augpath, sizeof augpath, "%s/vfstype", *entry);
+    vfstype = guestfs_aug_get (g, augpath);
+    if (vfstype == NULL) return -1;
 
-  //  if (STREQ (vfstype, "btrfs")) {
-  //    char **opt;
+    if (STREQ (vfstype, "btrfs")) {
+      char **opt;
 
-  //    snprintf (augpath, sizeof augpath, "%s/opt", *entry);
-  //    CLEANUP_FREE_STRING_LIST char **opts = guestfs_aug_match (g, augpath);
-  //    if (opts == NULL) return -1;
+      _snprintf (augpath, sizeof augpath, "%s/opt", *entry);
+      CLEANUP_FREE_STRING_LIST char **opts = guestfs_aug_match (g, augpath);
+      if (opts == NULL) return -1;
 
-  //    for (opt = opts; *opt; opt++) {
-  //      CLEANUP_FREE char *optname = guestfs_aug_get (g, augpath);
-  //      if (optname == NULL) return -1;
+      for (opt = opts; *opt; opt++) {
+        CLEANUP_FREE char *optname = guestfs_aug_get (g, augpath);
+        if (optname == NULL) return -1;
 
-  //      if (STREQ (optname, "subvol")) {
-  //        CLEANUP_FREE char *subvol = NULL;
-  //        char *new;
+        if (STREQ (optname, "subvol")) {
+          CLEANUP_FREE char *subvol = NULL;
+          char *new;
 
-  //        snprintf (augpath, sizeof augpath, "%s/value", *opt);
-  //        subvol = guestfs_aug_get (g, augpath);
-  //        if (subvol == NULL) return -1;
+          _snprintf (augpath, sizeof augpath, "%s/value", *opt);
+          subvol = guestfs_aug_get (g, augpath);
+          if (subvol == NULL) return -1;
 
-  //        new = safe_asprintf (g, "btrfsvol:%s/%s", mountable, subvol);
-  //        free (mountable);
-  //        mountable = new;
-  //      }
-  //    }
-  //  }
+          new = safe_asprintf (g, "btrfsvol:%s/%s", mountable, subvol);
+          free (mountable);
+          mountable = new;
+        }
+      }
+    }
 
-  //  if  (add_fstab_entry (g, fs, mountable, mp) == -1) return -1;
-  //}
+    if  (add_fstab_entry (g, fs, mountable, mp) == -1) return -1;
+  }
 
-  //return 0;
-
-  return -1;
+  return 0;
 }
 
 /* Add a filesystem and possibly a mountpoint entry for
@@ -1230,73 +1229,73 @@ parse_uuid (const char *str, uint32_t *uuid)
 }
 
 /* Create a mapping of uuids to appliance md device names */
-//static ssize_t
-//map_app_md_devices (guestfs_h *g, Hash_table **map)
-//{
-//  CLEANUP_FREE_STRING_LIST char **mds = NULL;
-//  size_t n = 0;
-//  char **md;
-//
-//  /* A hash mapping uuids to md device names */
-//  *map = hash_initialize(16, NULL, uuid_hash, uuid_cmp, md_uuid_free);
-//  if (*map == NULL) g->abort_cb();
-//
-//  mds = guestfs_list_md_devices(g);
-//  if (mds == NULL) goto error;
-//
-//  for (md = mds; *md != NULL; md++) {
-//    char **i;
-//    CLEANUP_FREE_STRING_LIST char **detail = guestfs_md_detail (g, *md);
-//    if (detail == NULL) goto error;
-//
-//    /* Iterate over keys until we find uuid */
-//    for (i = detail; *i != NULL; i += 2) {
-//      if (STREQ(*i, "uuid")) break;
-//    }
-//
-//    /* We found it */
-//    if (*i) {
-//      md_uuid *entry;
-//
-//      /* Next item is the uuid value */
-//      i++;
-//
-//      entry = safe_malloc(g, sizeof(md_uuid));
-//      entry->path = safe_strdup(g, *md);
-//
-//      if (parse_uuid(*i, entry->uuid) == -1) {
-//        /* Invalid UUID is weird, but not fatal. */
-//        debug(g, "inspect-os: guestfs_md_detail returned invalid "
-//                 "uuid for %s: %s", *md, *i);
-//        md_uuid_free(entry);
-//        continue;
-//      }
-//
-//      const void *matched = NULL;
-//      switch (hash_insert_if_absent(*map, entry, &matched)) {
-//        case -1:
-//          g->abort_cb();
-//
-//        case 0:
-//          /* Duplicate uuid in for md device is weird, but not fatal. */
-//          debug(g, "inspect-os: md devices %s and %s have the same uuid",
-//                ((md_uuid *)matched)->path, entry->path);
-//          md_uuid_free(entry);
-//          break;
-//
-//        default:
-//          n++;
-//      }
-//    }
-//  }
-//
-//  return n;
-//
-//error:
-//  hash_free (*map); *map = NULL;
-//
-//  return -1;
-//}
+static ssize_t
+map_app_md_devices (guestfs_h *g, Hash_table **map)
+{
+  CLEANUP_FREE_STRING_LIST char **mds = NULL;
+  size_t n = 0;
+  char **md;
+
+  /* A hash mapping uuids to md device names */
+  *map = hash_initialize(16, NULL, uuid_hash, uuid_cmp, md_uuid_free);
+  if (*map == NULL) g->abort_cb();
+
+  mds = guestfs_list_md_devices(g);
+  if (mds == NULL) goto error;
+
+  for (md = mds; *md != NULL; md++) {
+    char **i;
+    CLEANUP_FREE_STRING_LIST char **detail = guestfs_md_detail (g, *md);
+    if (detail == NULL) goto error;
+
+    /* Iterate over keys until we find uuid */
+    for (i = detail; *i != NULL; i += 2) {
+      if (STREQ(*i, "uuid")) break;
+    }
+
+    /* We found it */
+    if (*i) {
+      md_uuid *entry;
+
+      /* Next item is the uuid value */
+      i++;
+
+      entry = safe_malloc(g, sizeof(md_uuid));
+      entry->path = safe_strdup(g, *md);
+
+      if (parse_uuid(*i, entry->uuid) == -1) {
+        /* Invalid UUID is weird, but not fatal. */
+        debug(g, "inspect-os: guestfs_md_detail returned invalid "
+                 "uuid for %s: %s", *md, *i);
+        md_uuid_free(entry);
+        continue;
+      }
+
+      const void *matched = NULL;
+      switch (hash_insert_if_absent(*map, entry, &matched)) {
+        case -1:
+          g->abort_cb();
+
+        case 0:
+          /* Duplicate uuid in for md device is weird, but not fatal. */
+          debug(g, "inspect-os: md devices %s and %s have the same uuid",
+                ((md_uuid *)matched)->path, entry->path);
+          md_uuid_free(entry);
+          break;
+
+        default:
+          n++;
+      }
+    }
+  }
+
+  return n;
+
+error:
+  hash_free (*map); *map = NULL;
+
+  return -1;
+}
 
 static size_t
 mdadm_app_hash(const void *x, size_t table_size)
@@ -1325,93 +1324,93 @@ mdadm_app_free(void *x)
 
 /* Get a map of md device names in mdadm.conf to their device names in the
  * appliance */
-//static int
-//map_md_devices(guestfs_h *g, Hash_table **map)
-//{
-//  CLEANUP_HASH_FREE Hash_table *app_map = NULL;
-//  CLEANUP_FREE_STRING_LIST char **matches = NULL;
-//  ssize_t n_app_md_devices;
-//
-//  *map = NULL;
-//
-//  /* Get a map of md device uuids to their device names in the appliance */
-//  n_app_md_devices = map_app_md_devices (g, &app_map);
-//  if (n_app_md_devices == -1) goto error;
-//
-//  /* Nothing to do if there are no md devices */
-//  if (n_app_md_devices == 0)
-//    return 0;
-//
-//  /* Get all arrays listed in mdadm.conf */
-//  matches = guestfs_aug_match(g, "/files/etc/mdadm.conf/array");
-//  if (!matches) goto error;
-//
-//  /* Log a debug message if we've got md devices, but nothing in mdadm.conf */
-//  if (matches[0] == NULL) {
-//    debug(g, "Appliance has MD devices, but augeas returned no array matches "
-//             "in mdadm.conf");
-//    return 0;
-//  }
-//
-//  *map = hash_initialize(16, NULL, mdadm_app_hash, mdadm_app_cmp,
-//                                   mdadm_app_free);
-//  if (!*map) g->abort_cb();
-//
-//  for (char **m = matches; *m != NULL; m++) {
-//    /* Get device name and uuid for each array */
-//    CLEANUP_FREE char *dev_path = safe_asprintf (g, "%s/devicename", *m);
-//    char *dev = guestfs_aug_get (g, dev_path);
-//    if (!dev) goto error;
-//
-//    CLEANUP_FREE char *uuid_path = safe_asprintf (g, "%s/uuid", *m);
-//    CLEANUP_FREE char *uuid = guestfs_aug_get (g, uuid_path);
-//    if (!uuid) {
-//      free (dev);
-//      continue;
-//    }
-//
-//    /* Parse the uuid into an md_uuid structure so we can look it up in the
-//     * uuid->appliance device map */
-//    md_uuid mdadm;
-//    mdadm.path = dev;
-//    if (parse_uuid(uuid, mdadm.uuid) == -1) {
-//      /* Invalid uuid. Weird, but not fatal. */
-//      debug(g, "inspect-os: mdadm.conf contains invalid uuid for %s: %s",
-//            dev, uuid);
-//      free (dev);
-//      continue;
-//    }
-//
-//    /* If there's a corresponding uuid in the appliance, create a new
-//     * entry in the transitive map */
-//    md_uuid *app = hash_lookup(app_map, &mdadm);
-//    if (app) {
-//      mdadm_app *entry = safe_malloc(g, sizeof(mdadm_app));
-//      entry->mdadm = dev;
-//      entry->app = safe_strdup(g, app->path);
-//
-//      switch (hash_insert_if_absent(*map, entry, NULL)) {
-//        case -1:
-//          g->abort_cb();
-//
-//        case 0:
-//          /* Duplicate uuid in for md device is weird, but not fatal. */
-//          debug(g, "inspect-os: mdadm.conf contains multiple entries for %s",
-//                app->path);
-//          mdadm_app_free(entry);
-//          continue;
-//      }
-//    } else
-//      free (dev);
-//  }
-//
-//  return 0;
-//
-//error:
-//  if (*map) hash_free (*map);
-//
-//  return -1;
-//}
+static int
+map_md_devices(guestfs_h *g, Hash_table **map)
+{
+  CLEANUP_HASH_FREE Hash_table *app_map = NULL;
+  CLEANUP_FREE_STRING_LIST char **matches = NULL;
+  ssize_t n_app_md_devices;
+
+  *map = NULL;
+
+  /* Get a map of md device uuids to their device names in the appliance */
+  n_app_md_devices = map_app_md_devices (g, &app_map);
+  if (n_app_md_devices == -1) goto error;
+
+  /* Nothing to do if there are no md devices */
+  if (n_app_md_devices == 0)
+    return 0;
+
+  /* Get all arrays listed in mdadm.conf */
+  matches = guestfs_aug_match(g, "/files/etc/mdadm.conf/array");
+  if (!matches) goto error;
+
+  /* Log a debug message if we've got md devices, but nothing in mdadm.conf */
+  if (matches[0] == NULL) {
+    debug(g, "Appliance has MD devices, but augeas returned no array matches "
+             "in mdadm.conf");
+    return 0;
+  }
+
+  *map = hash_initialize(16, NULL, mdadm_app_hash, mdadm_app_cmp,
+                                   mdadm_app_free);
+  if (!*map) g->abort_cb();
+
+  for (char **m = matches; *m != NULL; m++) {
+    /* Get device name and uuid for each array */
+    CLEANUP_FREE char *dev_path = safe_asprintf (g, "%s/devicename", *m);
+    char *dev = guestfs_aug_get (g, dev_path);
+    if (!dev) goto error;
+
+    CLEANUP_FREE char *uuid_path = safe_asprintf (g, "%s/uuid", *m);
+    CLEANUP_FREE char *uuid = guestfs_aug_get (g, uuid_path);
+    if (!uuid) {
+      free (dev);
+      continue;
+    }
+
+    /* Parse the uuid into an md_uuid structure so we can look it up in the
+     * uuid->appliance device map */
+    md_uuid mdadm;
+    mdadm.path = dev;
+    if (parse_uuid(uuid, mdadm.uuid) == -1) {
+      /* Invalid uuid. Weird, but not fatal. */
+      debug(g, "inspect-os: mdadm.conf contains invalid uuid for %s: %s",
+            dev, uuid);
+      free (dev);
+      continue;
+    }
+
+    /* If there's a corresponding uuid in the appliance, create a new
+     * entry in the transitive map */
+    md_uuid *app = hash_lookup(app_map, &mdadm);
+    if (app) {
+      mdadm_app *entry = safe_malloc(g, sizeof(mdadm_app));
+      entry->mdadm = dev;
+      entry->app = safe_strdup(g, app->path);
+
+      switch (hash_insert_if_absent(*map, entry, NULL)) {
+        case -1:
+          g->abort_cb();
+
+        case 0:
+          /* Duplicate uuid in for md device is weird, but not fatal. */
+          debug(g, "inspect-os: mdadm.conf contains multiple entries for %s",
+                app->path);
+          mdadm_app_free(entry);
+          continue;
+      }
+    } else
+      free (dev);
+  }
+
+  return 0;
+
+error:
+  if (*map) hash_free (*map);
+
+  return -1;
+}
 
 static int
 resolve_fstab_device_xdev (guestfs_h *g, const char *type, const char *disk,
@@ -1558,114 +1557,114 @@ resolve_fstab_device_diskbyid (guestfs_h *g, const char *part,
  * the real VM, which is a reasonable assumption to make.  Return
  * anything we don't recognize unchanged.
  */
-//static char *
-//resolve_fstab_device (guestfs_h *g, const char *spec, Hash_table *md_map)
-//{
-//  char *device = NULL;
-//  char *type, *slice, *disk, *part;
-//  int r;
-//
-//  if (STRPREFIX (spec, "/dev/mapper/") && guestfs_exists (g, spec) > 0) {
-//    /* LVM2 does some strange munging on /dev/mapper paths for VGs and
-//     * LVs which contain '-' character:
-//     *
-//     * ><fs> lvcreate LV--test VG--test 32
-//     * ><fs> debug ls /dev/mapper
-//     * VG----test-LV----test
-//     *
-//     * This makes it impossible to reverse those paths directly, so
-//     * we have implemented lvm_canonical_lv_name in the daemon.
-//     */
-//    device = guestfs_lvm_canonical_lv_name (g, spec);
-//  }
-//  else if (match3 (g, spec, re_xdev, &type, &disk, &part)) {
-//    r = resolve_fstab_device_xdev (g, type, disk, part, &device);
-//    free (type);
-//    free (disk);
-//    free (part);
-//    if (r == -1)
-//      return NULL;
-//  }
-//  else if (match2 (g, spec, re_cciss, &disk, &part)) {
-//    r = resolve_fstab_device_cciss (g, disk, part, &device);
-//    free (disk);
-//    free (part);
-//    if (r == -1)
-//      return NULL;
-//  }
-//  else if (md_map && (disk = match1 (g, spec, re_mdN)) != NULL) {
-//    mdadm_app entry;
-//    entry.mdadm = disk;
-//
-//    mdadm_app *app = hash_lookup (md_map, &entry);
-//    if (app) device = safe_strdup (g, app->app);
-//
-//    free (disk);
-//  }
-//  else if (match3 (g, spec, re_freebsd_gpt, &type, &disk, &part)) {
-//    /* If the FreeBSD disk contains GPT partitions, the translation to Linux
-//     * device names is straight forward. Partitions on a virtio disk are
-//     * prefixed with vtbd. IDE hard drives used to be prefixed with ad and now
-//     * are with ada.
-//     */
-//    int disk_i = guestfs___parse_unsigned_int (g, disk);
-//    int part_i = guestfs___parse_unsigned_int (g, part);
-//    free (type);
-//    free (disk);
-//    free (part);
-//
-//    if (disk_i != -1 && disk_i <= 26 && part_i > 0 && part_i <= 128)
-//      device = safe_asprintf (g, "/dev/sd%c%d", disk_i + 'a', part_i);
-//  }
-//  else if (match4 (g, spec, re_freebsd_mbr, &type, &disk, &slice, &part)) {
-//    /* FreeBSD disks are organized quite differently.  See:
-//     * http://www.freebsd.org/doc/handbook/disk-organization.html
-//     * FreeBSD "partitions" are exposed as quasi-extended partitions
-//     * numbered from 5 in Linux.  I have no idea what happens when you
-//     * have multiple "slices" (the FreeBSD term for MBR partitions).
-//     */
-//    int disk_i = guestfs___parse_unsigned_int (g, disk);
-//    int slice_i = guestfs___parse_unsigned_int (g, slice);
-//    int part_i = part[0] - 'a' /* counting from 0 */;
-//    free (type);
-//    free (disk);
-//    free (slice);
-//    free (part);
-//
-//    if (disk_i != -1 && disk_i <= 26 &&
-//        slice_i > 0 && slice_i <= 1 /* > 4 .. see comment above */ &&
-//        part_i >= 0 && part_i < 26) {
-//      device = safe_asprintf (g, "/dev/sd%c%d", disk_i + 'a', part_i + 5);
-//    }
-//  }
-//  else if ((part = match1 (g, spec, re_diskbyid)) != NULL) {
-//    r = resolve_fstab_device_diskbyid (g, part, &device);
-//    free (part);
-//    if (r == -1)
-//      return NULL;
-//  }
-//  else if (match3 (g, spec, re_hurd_dev, &type, &disk, &part)) {
-//    /* Hurd disk devices are like /dev/hdNsM, where hdN is the
-//     * N-th disk and M is the M-th partition on that disk.
-//     * Turn the disk number into a letter-based identifier, so
-//     * we can resolve it easily.
-//     */
-//    int disk_i = guestfs___parse_unsigned_int (g, disk);
-//    const char disk_as_letter[2] = { disk_i + 'a', 0 };
-//    r = resolve_fstab_device_xdev (g, type, disk_as_letter, part, &device);
-//    free (type);
-//    free (disk);
-//    free (part);
-//    if (r == -1)
-//      return NULL;
-//  }
-//
-//  /* Didn't match device pattern, return original spec unchanged. */
-//  if (device == NULL)
-//    device = safe_strdup (g, spec);
-//
-//  return device;
-//}
+static char *
+resolve_fstab_device (guestfs_h *g, const char *spec, Hash_table *md_map)
+{
+  char *device = NULL;
+  char *type, *slice, *disk, *part;
+  int r;
+
+  if (STRPREFIX (spec, "/dev/mapper/") && guestfs_exists (g, spec) > 0) {
+    /* LVM2 does some strange munging on /dev/mapper paths for VGs and
+     * LVs which contain '-' character:
+     *
+     * ><fs> lvcreate LV--test VG--test 32
+     * ><fs> debug ls /dev/mapper
+     * VG----test-LV----test
+     *
+     * This makes it impossible to reverse those paths directly, so
+     * we have implemented lvm_canonical_lv_name in the daemon.
+     */
+    device = guestfs_lvm_canonical_lv_name (g, spec);
+  }
+  else if (match3 (g, spec, re_xdev, &type, &disk, &part)) {
+    r = resolve_fstab_device_xdev (g, type, disk, part, &device);
+    free (type);
+    free (disk);
+    free (part);
+    if (r == -1)
+      return NULL;
+  }
+  else if (match2 (g, spec, re_cciss, &disk, &part)) {
+    r = resolve_fstab_device_cciss (g, disk, part, &device);
+    free (disk);
+    free (part);
+    if (r == -1)
+      return NULL;
+  }
+  else if (md_map && (disk = match1 (g, spec, re_mdN)) != NULL) {
+    mdadm_app entry;
+    entry.mdadm = disk;
+
+    mdadm_app *app = hash_lookup (md_map, &entry);
+    if (app) device = safe_strdup (g, app->app);
+
+    free (disk);
+  }
+  else if (match3 (g, spec, re_freebsd_gpt, &type, &disk, &part)) {
+    /* If the FreeBSD disk contains GPT partitions, the translation to Linux
+     * device names is straight forward. Partitions on a virtio disk are
+     * prefixed with vtbd. IDE hard drives used to be prefixed with ad and now
+     * are with ada.
+     */
+    int disk_i = guestfs___parse_unsigned_int (g, disk);
+    int part_i = guestfs___parse_unsigned_int (g, part);
+    free (type);
+    free (disk);
+    free (part);
+
+    if (disk_i != -1 && disk_i <= 26 && part_i > 0 && part_i <= 128)
+      device = safe_asprintf (g, "/dev/sd%c%d", disk_i + 'a', part_i);
+  }
+  else if (match4 (g, spec, re_freebsd_mbr, &type, &disk, &slice, &part)) {
+    /* FreeBSD disks are organized quite differently.  See:
+     * http://www.freebsd.org/doc/handbook/disk-organization.html
+     * FreeBSD "partitions" are exposed as quasi-extended partitions
+     * numbered from 5 in Linux.  I have no idea what happens when you
+     * have multiple "slices" (the FreeBSD term for MBR partitions).
+     */
+    int disk_i = guestfs___parse_unsigned_int (g, disk);
+    int slice_i = guestfs___parse_unsigned_int (g, slice);
+    int part_i = part[0] - 'a' /* counting from 0 */;
+    free (type);
+    free (disk);
+    free (slice);
+    free (part);
+
+    if (disk_i != -1 && disk_i <= 26 &&
+        slice_i > 0 && slice_i <= 1 /* > 4 .. see comment above */ &&
+        part_i >= 0 && part_i < 26) {
+      device = safe_asprintf (g, "/dev/sd%c%d", disk_i + 'a', part_i + 5);
+    }
+  }
+  else if ((part = match1 (g, spec, re_diskbyid)) != NULL) {
+    r = resolve_fstab_device_diskbyid (g, part, &device);
+    free (part);
+    if (r == -1)
+      return NULL;
+  }
+  else if (match3 (g, spec, re_hurd_dev, &type, &disk, &part)) {
+    /* Hurd disk devices are like /dev/hdNsM, where hdN is the
+     * N-th disk and M is the M-th partition on that disk.
+     * Turn the disk number into a letter-based identifier, so
+     * we can resolve it easily.
+     */
+    int disk_i = guestfs___parse_unsigned_int (g, disk);
+    const char disk_as_letter[2] = { disk_i + 'a', 0 };
+    r = resolve_fstab_device_xdev (g, type, disk_as_letter, part, &device);
+    free (type);
+    free (disk);
+    free (part);
+    if (r == -1)
+      return NULL;
+  }
+
+  /* Didn't match device pattern, return original spec unchanged. */
+  if (device == NULL)
+    device = safe_strdup (g, spec);
+
+  return device;
+}
 
 static char *make_augeas_path_expression (guestfs_h *g, const char **configfiles);
 
