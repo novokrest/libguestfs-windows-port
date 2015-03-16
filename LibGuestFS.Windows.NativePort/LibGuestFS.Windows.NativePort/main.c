@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <time.h>
 
 #include <Windows.h>
 
@@ -30,6 +31,7 @@ lib_close()
 
 int main(int args, char* argv[])
 {
+    time_t t_start, t_end;
     if (lib_init() == -1) {
         printf("Some error occured while libs initialization\n");
         return 1;
@@ -40,7 +42,11 @@ int main(int args, char* argv[])
     test_libxml();
     test_libintl();
 
+    time(&t_start);
     test_guestfs();
+    time(&t_end);
+
+    printf("time: %f\n", difftime(t_start, t_end)); /* 86-90 seconds */
 
     return 0;
 }
