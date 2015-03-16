@@ -2234,7 +2234,7 @@
 /* #undef PAMCUT */
 
 /* Character that separates path elements in search paths */
-#define PATH_SEPARATOR ":"
+#define PATH_SEPARATOR ";"
 
 /* Name of pbmtext program. */
 /* #undef PBMTEXT */
@@ -2749,7 +2749,7 @@
 /* Define as a macro for copying va_list variables. */
 /* #undef va_copy */
 
-#define GUESTFS_DEFAULT_PATH "C:/Program Files/GuestFS"
+#define GUESTFS_DEFAULT_PATH "C:/GuestFS"
 #define LIBOSINFO_DB_PATH "<datadir>/libosinfo/db"
 #define DIRECT_PORT "7777"
 #define DEFAULT_TMP_PATH GUESTFS_DEFAULT_PATH "/tmp"
