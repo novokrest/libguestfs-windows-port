@@ -97,7 +97,7 @@ guestfs__read_file (guestfs_h *g, const char *path, size_t *size_r)
   if (guestfs_download (g, path, tmpfile) == -1)
     goto err;
 
-  fd = _open (tmpfile, O_RDONLY);
+  fd = _open (tmpfile, O_RDONLY | O_BINARY);
   if (fd == -1) {
     perrorf (g, "open: %s", tmpfile);
     goto err;
@@ -113,12 +113,12 @@ guestfs__read_file (guestfs_h *g, const char *path, size_t *size_r)
   size = statbuf.st_size;
   ret = malloc (size + 1);
   if (!ret) {
-    perrorf (g, "malloc: %zu bytes", size + 1);
+    perrorf (g, "malloc: %Iu bytes", size + 1);
     goto err;
   }
 
   if (full_read (fd, ret, size) != size) {
-    perrorf (g, "full-read: %s: %zu bytes", tmpfile, size + 1);
+    perrorf (g, "full-read: %s: %Iu bytes", tmpfile, size + 1);
     goto err;
   }
 
@@ -240,12 +240,12 @@ guestfs__find (guestfs_h *g, const char *directory)
   size = statbuf.st_size;
   buf = malloc (size);
   if (!buf) {
-    perrorf (g, "malloc: %zu bytes", size);
+    perrorf (g, "malloc: %Iu bytes", size);
     goto err;
   }
 
   if (full_read (fd, buf, size) != size) {
-    perrorf (g, "full-read: %s: %zu bytes", tmpfile, size);
+    perrorf (g, "full-read: %s: %Iu bytes", tmpfile, size);
     goto err;
   }
 
@@ -542,12 +542,12 @@ guestfs__ls (guestfs_h *g, const char *directory)
   size = statbuf.st_size;
   buf = malloc (size);
   if (!buf) {
-    perrorf (g, "malloc: %zu bytes", size);
+    perrorf (g, "malloc: %Iu bytes", size);
     goto err;
   }
 
   if (full_read (fd, buf, size) != size) {
-    perrorf (g, "full-read: %s: %zu bytes", tmpfile, size);
+    perrorf (g, "full-read: %s: %Iu bytes", tmpfile, size);
     goto err;
   }
 
