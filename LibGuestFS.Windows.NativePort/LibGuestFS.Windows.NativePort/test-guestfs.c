@@ -107,7 +107,7 @@ test_guestfs()
     }
     printf("backend is direct\n");
 
-    const char* disk_image_path = "C:/cygwin64/home/novokrestWin/Master/guest_fs/test_data/appliance.d/disk.img";
+    const char* disk_image_path = "C:/GuestFS/disk.img";
     if (!check_file_exists(disk_image_path)) {
         printf("disk_image doesn't exist: %s\n", disk_image_path);
         exit(EXIT_FAILURE);
