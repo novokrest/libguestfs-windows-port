@@ -53,6 +53,7 @@ static int dir_contains_files (const char *dir, ...);
 static int contains_old_style_appliance (guestfs_h *g, const char *path, void *data);
 static int contains_fixed_appliance (guestfs_h *g, const char *path, void *data);
 static int contains_supermin_appliance (guestfs_h *g, const char *path, void *data);
+static int contains_ready_appliance(guestfs_h *g, const char *path, void *data);
 static int build_supermin_appliance (guestfs_h *g, const char *supermin_path, const char *username, char **kernel, char **dtb, char **initrd, char **appliance);
 static int run_supermin_build (guestfs_h *g, const char *lockfile, const char *appliancedir, const char *supermin_path);
 
@@ -129,14 +130,11 @@ build_appliance (guestfs_h *g,
                  char **initrd,
                  char **appliance)
 {
-
-    //kernel = "C:/cygwin64/var/tmp/.guestfs-1000/appliance.d/kernel";
-    //initrd = "C:/cygwin64/var/tmp/.guestfs-1000/appliance.d/initrd";
-    //appliance = "C:/cygwin64/var/tmp/.guestfs-1000/appliance.d/root";
   int r;
   char* username = getusername ();
   CLEANUP_FREE char *supermin_path = NULL;
   CLEANUP_FREE char *path = NULL;
+  CLEANUP_FREE char *appliance_path = NULL;
 
   /* Step (1). */
   r = find_path (g, contains_supermin_appliance, NULL, &supermin_path);
@@ -188,6 +186,36 @@ build_appliance (guestfs_h *g,
     return 0;
   }
 
+  /* Step (5): Windows */
+  r = find_path(g, contains_ready_appliance, NULL, &path);
+  if (r == -1) {
+      return -1;
+  }
+
+  if (r == 1) {
+    size_t len = strlen(path) + 9 /* appliance */ + 2;
+    appliance_path = safe_malloc(g, len);
+    sprintf(appliance_path, "%s/appliance", path);
+
+    if (dir_contains_files(appliance_path, "kernel", "initrd", "root", NULL)) {
+        *kernel = safe_malloc(g, len + 6 /* "kernel" */ + 2);
+        *initrd = safe_malloc(g, len + 6 /* "initrd" */ + 2);
+        *appliance = safe_malloc(g, len + 4 /* "root" */ + 2);
+        sprintf(*kernel, "%s/kernel", appliance_path);
+        sprintf(*initrd, "%s/initrd", appliance_path);
+        sprintf(*appliance, "%s/root", appliance_path);
+
+        /* The dtb file may or may not exist in the fixed appliance. */
+        if (dir_contains_file(appliance_path, "dtb")) {
+            *dtb = safe_malloc(g, len + 3 /* "dtb" */ + 2);
+            sprintf(*dtb, "%s/dtb", appliance_path);
+        }
+        else
+            *dtb = NULL;
+        return 0;
+    }
+  }
+
   error (g, _("cannot find any suitable libguestfs supermin, fixed or old-style appliance on LIBGUESTFS_PATH (search path: %s)"),
          g->path);
   return -1;
@@ -211,6 +239,12 @@ static int
 contains_supermin_appliance (guestfs_h *g, const char *path, void *data)
 {
   return dir_contains_files (path, "supermin.d", NULL);
+}
+
+static int
+contains_ready_appliance(guestfs_h *g, const char *path, void *data)
+{
+    return dir_contains_files(path, "appliance", NULL);
 }
 
 /* Build supermin appliance from supermin_path to $TMPDIR/.guestfs-$UID.
@@ -259,11 +293,11 @@ build_supermin_appliance (guestfs_h *g,
            cachedir, statbuf.st_mode);
     return -1;
   }
-  if ((statbuf.st_mode & 0022) != 0) {
-    error (g, _("security: cached appliance %s is writable by group or other (mode %o)"),
-           cachedir, statbuf.st_mode);
-    return -1;
-  }
+  //if ((statbuf.st_mode & 0022) != 0) {
+  //  error (g, _("security: cached appliance %s is writable by group or other (mode %o)"),
+  //         cachedir, statbuf.st_mode);
+  //  return -1;
+  //}
 
   (void) _utime (cachedir, NULL);
   if (g->verbose)
