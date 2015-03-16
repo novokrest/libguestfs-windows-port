@@ -342,7 +342,7 @@ guestfs___print_BufferIn (FILE *out, const char *buf, size_t buf_size)
 
   if (orig_size > buf_size)
     fprintf (out,
-             _("<truncated, original size %zu bytes>"), orig_size);
+             _("<truncated, original size %Iu bytes>"), orig_size);
 }
 
 void
