@@ -97,17 +97,17 @@ print_strings (guestfs_h *g, char *const *argv)
 static void
 fill_lvm_pv (guestfs_h *g, struct guestfs_lvm_pv *pv, size_t i)
 {
-  pv->pv_name = safe_asprintf (g, "pv%zu", i);
+  pv->pv_name = safe_asprintf (g, "pv%Iu", i);
   memcpy (pv->pv_uuid, "12345678901234567890123456789012", 32);
   pv->pv_fmt = safe_strdup (g, "unknown");
   pv->pv_size = i;
   pv->dev_size = i;
   pv->pv_free = i;
   pv->pv_used = i;
-  pv->pv_attr = safe_asprintf (g, "attr%zu", i);
+  pv->pv_attr = safe_asprintf (g, "attr%Iu", i);
   pv->pv_pe_count = i;
   pv->pv_pe_alloc_count = i;
-  pv->pv_tags = safe_asprintf (g, "tag%zu", i);
+  pv->pv_tags = safe_asprintf (g, "tag%Iu", i);
   pv->pe_start = i;
   pv->pv_mda_count = i;
   pv->pv_mda_free = i;
@@ -706,14 +706,14 @@ guestfs__internal_test_rstringlist (guestfs_h *g,
 {
   char **strs;
   size_t n, i;
-  if (sscanf (val, "%zu", &n) != 1) {
+  if (sscanf (val, "%Iu", &n) != 1) {
     error (g, "%s: expecting int argument", "internal_test_rstringlist");
     return NULL;
   }
   strs = safe_malloc (g, (n+1) * sizeof (char *));
   for (i = 0; i < n; ++i) {
     strs[i] = safe_malloc (g, 16);
-    _snprintf (strs[i], 16, "%zu", i);
+    _snprintf (strs[i], 16, "%Iu", i);
   }
   strs[n] = NULL;
   return strs;
@@ -780,7 +780,7 @@ guestfs__internal_test_rhashtable (guestfs_h *g,
 {
   char **strs;
   size_t n, i;
-  if (sscanf (val, "%zu", &n) != 1) {
+  if (sscanf (val, "%Iu", &n) != 1) {
     error (g, "%s: expecting int argument", "internal_test_rhashtable");
     return NULL;
   }
@@ -788,8 +788,8 @@ guestfs__internal_test_rhashtable (guestfs_h *g,
   for (i = 0; i < n; ++i) {
     strs[i*2] = safe_malloc (g, 16);
     strs[i*2+1] = safe_malloc (g, 16);
-    _snprintf (strs[i*2], 16, "%zu", i);
-    _snprintf (strs[i*2+1], 16, "%zu", i);
+    _snprintf (strs[i*2], 16, "%Iu", i);
+    _snprintf (strs[i*2+1], 16, "%Iu", i);
   }
   strs[n*2] = NULL;
   return strs;
