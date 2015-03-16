@@ -38,6 +38,8 @@
 
 #include <pcre.h>
 
+#include <win-gcc-attribute-constructor.h>
+
 #include "c-ctype.h"
 #include "ignore-value.h"
 #include "xstrtol.h"
@@ -59,8 +61,7 @@ static pcre *re_boot_ini_os;
 static void compile_regexps (void) __attribute__((constructor));
 static void free_regexps (void) __attribute__((destructor));
 
-static void
-compile_regexps (void)
+INITIALIZER(compile_regexps_inspect_windows)
 {
   const char *err;
   int offset;
