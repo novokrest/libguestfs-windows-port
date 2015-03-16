@@ -369,7 +369,7 @@ mount_local_readlink (const char *path, char *buf, size_t size)
   int free_it = 0;
   size_t len;
   DECL_G ();
-  DEBUG_CALL ("%s, %p, %zu", path, buf, size);
+  DEBUG_CALL ("%s, %p, %Iu", path, buf, size);
 
   r = rlc_lookup (g, path);
   if (!r) {
@@ -646,7 +646,7 @@ mount_local_read (const char *path, char *buf, size_t size, off_t offset,
   size_t rsize;
   const size_t limit = 2 * 1024 * 1024;
   DECL_G ();
-  DEBUG_CALL ("%s, %p, %zu, %ld", path, buf, size, (long) offset);
+  DEBUG_CALL ("%s, %p, %Iu, %ld", path, buf, size, (long) offset);
 
   /* The guestfs protocol limits size to somewhere over 2MB.  We just
    * reduce the requested size here accordingly and push the problem
@@ -678,7 +678,7 @@ mount_local_write (const char *path, const char *buf, size_t size,
   const size_t limit = 2 * 1024 * 1024;
   int r;
   DECL_G ();
-  DEBUG_CALL ("%s, %p, %zu, %ld", path, buf, size, (long) offset);
+  DEBUG_CALL ("%s, %p, %Iu, %ld", path, buf, size, (long) offset);
 
   if (g->ml_read_only) return -EROFS;
 
@@ -755,7 +755,7 @@ mount_local_setxattr (const char *path, const char *name, const char *value,
 {
   int r;
   DECL_G ();
-  DEBUG_CALL ("%s, %s, %p, %zu", path, name, value, size);
+  DEBUG_CALL ("%s, %s, %p, %Iu", path, name, value, size);
 
   if (g->ml_read_only) return -EROFS;
 
@@ -782,7 +782,7 @@ mount_local_getxattr (const char *path, const char *name, char *value,
   ssize_t r;
   size_t i, sz;
   DECL_G ();
-  DEBUG_CALL ("%s, %s, %p, %zu", path, name, value, size);
+  DEBUG_CALL ("%s, %s, %p, %Iu", path, name, value, size);
 
   xattrs = xac_lookup (g, path);
   if (xattrs == NULL) {
@@ -842,7 +842,7 @@ mount_local_listxattr (const char *path, char *list, size_t size)
   size_t i;
   ssize_t r;
   DECL_G ();
-  DEBUG_CALL ("%s, %p, %zu", path, list, size);
+  DEBUG_CALL ("%s, %p, %Iu", path, list, size);
 
   xattrs = xac_lookup (g, path);
   if (xattrs == NULL) {
