@@ -21,3 +21,4 @@ mingw:
 	has dirent.h?
 	has endian.h?
 
+%zu => %Iu
