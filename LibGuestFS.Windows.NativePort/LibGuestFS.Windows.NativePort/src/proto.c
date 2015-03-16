@@ -430,7 +430,7 @@ send_file_chunk (guestfs_h *g, int cancel, const char *buf, size_t buflen)
   chunk.data.data_val = (char *) buf;
 
   if (!xdr_guestfs_chunk (&xdr, &chunk)) {
-    error (g, _("xdr_guestfs_chunk failed (buf = %p, buflen = %zu)"),
+    error (g, _("xdr_guestfs_chunk failed (buf = %p, buflen = %Iu)"),
            buf, buflen);
     xdr_destroy (&xdr);
     return -1;
