@@ -250,11 +250,12 @@ write_data (guestfs_h *g, struct connection *connv,
     int nfds = 1;
     int r;
 
+    FD_ZERO(&readfds);
     FD_ZERO(&writefds);
+
     FD_SET(conn->daemon_sock, &writefds);
 
     if (conn->console_sock != INVALID_SOCKET) {
-        FD_ZERO(&readfds);
         FD_SET(conn->console_sock, &readfds);
         nfds++;
     }
@@ -263,7 +264,7 @@ write_data (guestfs_h *g, struct connection *connv,
     if (r == SOCKET_ERROR) {
       if (WSAGetLastError() == WSAEINTR || WSAGetLastError() == WSAEWOULDBLOCK)
         continue;
-      perrorf_wsa (g, "write_data: poll");
+      perrorf_wsa (g, "write_data: select");
       return -1;
     }
 
