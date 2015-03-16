@@ -92,7 +92,7 @@ guestfs__launch (guestfs_h *g)
     debug (g, "launch: umask=0x%.4x", get_umask (g));
 
     username = getusername();
-    debug (g, "launch: username=%s", username);
+    debug (g, "launch: username: %s", username);
     free(username);
 
     usid = getusid();
