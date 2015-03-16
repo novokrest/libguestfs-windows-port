@@ -35,7 +35,7 @@
 #include <libvirt/libvirt.h>
 #endif
 
-//#include "hash.h"
+#include "hash.h"
 
 #include "guestfs-internal-frontend.h"
 
