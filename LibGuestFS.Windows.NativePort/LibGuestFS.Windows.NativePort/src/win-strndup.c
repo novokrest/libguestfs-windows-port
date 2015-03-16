@@ -17,7 +17,7 @@ strndup(const char*s, size_t n)
     }
 
     result = (char*)malloc(len + 1);
-    if (!!result) {
+    if (!result) {
         return NULL;
     }
 
