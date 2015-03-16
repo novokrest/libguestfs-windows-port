@@ -1,0 +1,23 @@
+open
+close
+strdup
+write
+read
+snprintf
+strcmpcase
+strncmpcase
+_S_IFREG
+utimes -> _utime
+
+generated:
+S_ISREG (progress_stat.st_mode))
+
+create.c:
+S_ISBLK
+
+!WIFEXITED (r) || WEXITSTATUS (r) 
+
+mingw: 
+	has dirent.h?
+	has endian.h?
+
