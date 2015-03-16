@@ -74,11 +74,12 @@
       <AdditionalIncludeDirectories>C:\cygwin64\home\novokrestWin\libguestfs-windows-port\LibGuestFS.Windows.NativePort\Dependencies\libintl\include;C:\cygwin64\home\novokrestWin\libguestfs-windows-port\LibGuestFS.Windows.NativePort\Dependencies\libxml\iconv\include;C:\cygwin64\home\novokrestWin\libguestfs-windows-port\LibGuestFS.Windows.NativePort\Dependencies\libxml\libxml2\include;C:\cygwin64\home\novokrestWin\libguestfs-windows-port\LibGuestFS.Windows.NativePort\LibGuestFS.Windows.NativePort\include\gnulib;C:\cygwin64\home\novokrestWin\libguestfs-windows-port\LibGuestFS.Windows.NativePort\LibGuestFS.Windows.NativePort\include\gnulib\lib;C:\cygwin64\home\novokrestWin\libguestfs-windows-port\LibGuestFS.Windows.NativePort\LibGuestFS.Windows.NativePort\include;C:\cygwin64\home\novokrestWin\libguestfs-windows-port\LibGuestFS.Windows.NativePort\Dependencies\xdr\include;C:\cygwin64\home\novokrestWin\libguestfs-windows-port\LibGuestFS.Windows.NativePort\Dependencies\pcre\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>USE_WINDOWS_THREADS;_CRT_SECURE_NO_WARNINGS;GUESTFS_PRIVATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <UndefinePreprocessorDefinitions>USE_POSIX_THREADS;%(UndefinePreprocessorDefinitions)</UndefinePreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>C:\cygwin64\home\novokrestWin\libguestfs-windows-port\LibGuestFS.Windows.NativePort\Dependencies\libintl\lib;C:\cygwin64\home\novokrestWin\libguestfs-windows-port\LibGuestFS.Windows.NativePort\Dependencies\libxml\iconv\lib;C:\cygwin64\home\novokrestWin\libguestfs-windows-port\LibGuestFS.Windows.NativePort\Dependencies\libxml\libxml2\lib;C:\cygwin64\home\novokrestWin\libguestfs-windows-port\LibGuestFS.Windows.NativePort\Dependencies\xdr\lib;C:\cygwin64\home\novokrestWin\libguestfs-windows-port\LibGuestFS.Windows.NativePort\Dependencies\pcre\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>pcre.lib;xdr.lib;libxml2.lib;iconv.lib;libintl.lib;Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>pcre.lib;libportablexdr.a;libxml2.lib;libintl.lib;iconv.lib;Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -151,12 +152,15 @@
     <ClCompile Include="src\file.c" />
     <ClCompile Include="src\filearch.c" />
     <ClCompile Include="src\fuse.c" />
+    <ClCompile Include="src\gnulib\lib\bitrotate.c" />
     <ClCompile Include="src\gnulib\lib\c-ctype.c" />
     <ClCompile Include="src\gnulib\lib\cloexec.c" />
     <ClCompile Include="src\gnulib\lib\full-read.c" />
     <ClCompile Include="src\gnulib\lib\full-write.c" />
     <ClCompile Include="src\gnulib\lib\glthread\lock.c" />
     <ClCompile Include="src\gnulib\lib\glthread\threadlib.c" />
+    <ClCompile Include="src\gnulib\lib\hash-pjw.c" />
+    <ClCompile Include="src\gnulib\lib\hash.c" />
     <ClCompile Include="src\gnulib\lib\safe-read.c" />
     <ClCompile Include="src\gnulib\lib\safe-write.c" />
     <ClCompile Include="src\gnulib\lib\xstrtol.c" />
@@ -203,13 +207,17 @@
   <ItemGroup>
     <ClInclude Include="include\config.h" />
     <ClInclude Include="include\errnostring.h" />
+    <ClInclude Include="include\gnulib\lib\bitrotate.h" />
     <ClInclude Include="include\gnulib\lib\c-ctype.h" />
     <ClInclude Include="include\gnulib\lib\cloexec.h" />
     <ClInclude Include="include\gnulib\lib\full-read.h" />
     <ClInclude Include="include\gnulib\lib\full-write.h" />
+    <ClInclude Include="include\gnulib\lib\hash-pjw.h" />
+    <ClInclude Include="include\gnulib\lib\hash.h" />
     <ClInclude Include="include\gnulib\lib\intprops.h" />
     <ClInclude Include="include\gnulib\lib\safe-read.h" />
     <ClInclude Include="include\gnulib\lib\safe-write.h" />
+    <ClInclude Include="include\gnulib\lib\xalloc-oversized.h" />
     <ClInclude Include="include\gnulib\lib\xstrtol.h" />
     <ClInclude Include="include\win-check-endian.h" />
     <ClInclude Include="include\win-dirent.h" />

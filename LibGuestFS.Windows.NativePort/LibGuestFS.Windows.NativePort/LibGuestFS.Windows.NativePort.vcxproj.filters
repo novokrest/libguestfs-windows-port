@@ -237,6 +237,15 @@
     <ClCompile Include="src\appliance.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\gnulib\lib\hash.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gnulib\lib\bitrotate.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gnulib\lib\hash-pjw.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\config.h">
@@ -315,6 +324,18 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\gnulib\lib\cloexec.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\gnulib\lib\hash.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\gnulib\lib\xalloc-oversized.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\gnulib\lib\bitrotate.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\gnulib\lib\hash-pjw.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
