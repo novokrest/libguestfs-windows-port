@@ -61,7 +61,7 @@ static pcre *re_major_minor;
 static void compile_regexps (void) __attribute__((constructor));
 static void free_regexps (void) __attribute__((destructor));
 
-INITIALIZER(compile_regexps)
+INITIALIZER(compile_regexps_launch_direct)
 {
   const char *err;
   int offset;
