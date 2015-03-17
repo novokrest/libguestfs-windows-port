@@ -132,7 +132,7 @@ test_guestfs()
     }
     printf("backend is direct\n");
 
-    const char* disk_image_path = "C:/GuestFS/disk.img";
+    const char* disk_image_path = "C:/GuestFS/appliance/disk.img";
     if (!check_file_exists(disk_image_path)) {
         printf("disk_image doesn't exist: %s\n", disk_image_path);
         exit(EXIT_FAILURE);
@@ -160,8 +160,6 @@ test_guestfs()
     }
     time(ts + ts_cur++);
 
-    //read_file(g, "/home/novokrestdeb/123.txt");
-
     download_file(g, "/home/novokrestdeb/test/bigfile", "bigfile");
     time(ts + ts_cur++);
 
@@ -170,6 +168,7 @@ test_guestfs()
     //    sprintf(buf, "/home/novokrestdeb/test/%u", i);
     //    read_file(g, buf);
     //}
+    download_file(g, "/home/novokrestdeb/test/1", "smallfile");
     time(ts + ts_cur++);
 
     printf("guestfs_close()...\n");
@@ -181,6 +180,6 @@ test_guestfs()
     for (int i = 1; i < ts_cur; ++i) {
         fprintf(freport,"%s: %f\n", ts_titles[i], difftime(ts[i], ts[i - 1]));
     }
-    fprintf(freport, "total_time: %d\n", difftime(ts[ts_cur - 1], ts[0]));
+    fprintf(freport, "total_time: %f\n", difftime(ts[ts_cur - 1], ts[0]));
     fprintf(freport, "%s\n", REPORT_DELIMITER);
 }
