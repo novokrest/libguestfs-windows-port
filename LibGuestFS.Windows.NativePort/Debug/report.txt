@@ -40,3 +40,43 @@ t_smalls_readed: 0.000000
 t_closed: 1.000000
 total_time: 52.000000
 =======================
+=======================
+t_created: 0.000000
+t_drive_added: 0.000000
+t_launched: 42.000000
+t_mounted: 49.000000
+t_big_readed: 92.000000
+t_smalls_readed: 0.000000
+t_closed: 2.000000
+total_time: 185.000000
+=======================
+=======================
+t_created: 0.000000
+t_drive_added: 0.000000
+t_launched: 21.000000
+t_mounted: 8.000000
+t_big_readed: 23.000000
+t_smalls_readed: 0.000000
+t_closed: 0.000000
+total_time: 52.000000
+=======================
+=======================
+t_created: 0.000000
+t_drive_added: 0.000000
+t_launched: 19.000000
+t_mounted: 9.000000
+t_big_readed: 36.000000
+t_smalls_readed: 0.000000
+t_closed: 1.000000
+total_time: 65.000000
+=======================
+=======================
+t_created: 0.000000
+t_drive_added: 0.000000
+t_launched: 35.000000
+t_mounted: 18.000000
+t_big_readed: 51.000000
+t_smalls_readed: 0.000000
+t_closed: 1.000000
+total_time: 105.000000
+=======================
