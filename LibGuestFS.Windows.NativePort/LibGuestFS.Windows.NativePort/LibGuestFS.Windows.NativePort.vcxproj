@@ -80,6 +80,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>C:\cygwin64\home\novokrestWin\libguestfs-windows-port\LibGuestFS.Windows.NativePort\Dependencies\libintl\lib;C:\cygwin64\home\novokrestWin\libguestfs-windows-port\LibGuestFS.Windows.NativePort\Dependencies\libxml\iconv\lib;C:\cygwin64\home\novokrestWin\libguestfs-windows-port\LibGuestFS.Windows.NativePort\Dependencies\libxml\libxml2\lib;C:\cygwin64\home\novokrestWin\libguestfs-windows-port\LibGuestFS.Windows.NativePort\Dependencies\xdr\lib;C:\cygwin64\home\novokrestWin\libguestfs-windows-port\LibGuestFS.Windows.NativePort\Dependencies\pcre\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>pcre.lib;libportablexdr.a;libxml2.lib;libintl.lib;iconv.lib;Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <HeapReserveSize>1000000000</HeapReserveSize>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
