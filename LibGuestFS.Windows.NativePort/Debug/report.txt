@@ -1,0 +1,12 @@
+=======================
+previous results: read 1 small file: 86-90 second
+=======================
+=======================
+t_created: 0.000000
+t_drive_added: 1.000000
+t_launched: 45.000000
+t_mounted: 45.000000
+t_big_readed: 29.000000
+t_smalls_readed: 0.000000
+t_closed: 1.000000
+=======================
