@@ -10,3 +10,33 @@ t_big_readed: 29.000000
 t_smalls_readed: 0.000000
 t_closed: 1.000000
 =======================
+=======================
+t_created: 0.000000
+t_drive_added: 0.000000
+t_launched: 30.000000
+t_mounted: 16.000000
+t_big_readed: 25.000000
+t_smalls_readed: 0.000000
+t_closed: 2.000000
+total_time: 73.000000
+=======================
+=======================
+t_created: 0.000000
+t_drive_added: 0.000000
+t_launched: 32.000000
+t_mounted: 11.000000
+t_big_readed: 48.000000
+t_smalls_readed: 0.000000
+t_closed: 1.000000
+total_time: 92.000000
+=======================
+=======================
+t_created: 0.000000
+t_drive_added: 0.000000
+t_launched: 20.000000
+t_mounted: 11.000000
+t_big_readed: 20.000000
+t_smalls_readed: 0.000000
+t_closed: 1.000000
+total_time: 52.000000
+=======================
