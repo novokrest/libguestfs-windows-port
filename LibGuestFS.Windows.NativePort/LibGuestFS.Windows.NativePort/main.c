@@ -46,7 +46,7 @@ int main(int args, char* argv[])
     test_guestfs();
     time(&t_end);
 
-    printf("time: %f\n", difftime(t_start, t_end)); /* 86-90 seconds */
+    printf("time: %f\n", difftime(t_end, t_start)); /* 86-90 seconds */
 
     return 0;
 }
