@@ -1,8 +1,14 @@
 #include <stdlib.h>
+#include <stdio.h>
 #include <stdbool.h>
 #include <sys/stat.h>
+#include <string.h>
+#include <time.h>
 
 #include <guestfs.h>
+
+static const char * REPORT_FILENAME = "report.txt";
+static const char * REPORT_DELIMITER = "=======================";
 
 bool check_file_exists(const char* filename)
 {
@@ -68,23 +74,42 @@ int mount_disks(guestfs_h* gfs)
 int read_file(guestfs_h* gfs, char const* remote_file_path)
 {
     size_t fsize;
-    char* file_content = guestfs_read_file(gfs, remote_file_path, &fsize);
+    char *file_content;
+
+    printf("READ '%s'\n", remote_file_path);
+    file_content = guestfs_read_file(gfs, remote_file_path, &fsize);
     if (!file_content) {
         printf("ERROR: read file='%s'\n", remote_file_path);
         return 1;
     }
-    printf("file's content: %s\n", file_content);
+    //printf("file's content: %s\n", file_content);
     free(file_content);
 
+    return 0;
+}
+
+int download_file(guestfs_h *g, const char *remote_filepath, const char *filepath)
+{
+    if (guestfs_download(g, remote_filepath, filepath) == -1) {
+        printf("ERROR: guestfs_download()\n");
+        return -1;
+    }
+    printf("File has been downloaded to '%s'\n", filepath);
     return 0;
 }
 
 void
 test_guestfs()
 {
+    char* ts_titles[] = { "t_start", "t_created", "t_drive_added", "t_launched", "t_mounted", "t_big_readed", "t_smalls_readed", "t_closed", "t_end" };
+    time_t ts[sizeof(ts_titles)];
+    int ts_cur = 0;
     guestfs_h *g;
 
+    time(ts + ts_cur++);
+
     g = guestfs_create();
+    time(ts + ts_cur++);
     if (g == NULL) {
         printf("ERROR: guestfs_create()\n");
         exit(EXIT_FAILURE);
@@ -120,18 +145,42 @@ test_guestfs()
         printf("ERROR occurred during guestfs_add_drive_opts\n");
         exit(EXIT_FAILURE);
     }
+    time(ts + ts_cur++);
 
     printf("guestfs_launch()...\n");
     if (guestfs_launch(g) == -1) {
         printf("ERROR occurred during guestfs_launch()\n");
         exit(EXIT_FAILURE);
     }
+    time(ts + ts_cur++);
 
-    if (mount_disks(g) == 0) {
-        printf("read_file()...\n");
-        read_file(g, "/home/novokrestdeb/123.txt");
+    if (mount_disks(g) == -1) {
+        printf("ERROR occurred during mount_disks()\n");
+        exit(EXIT_FAILURE);
     }
+    time(ts + ts_cur++);
+
+    //read_file(g, "/home/novokrestdeb/123.txt");
+
+    download_file(g, "/home/novokrestdeb/test/bigfile", "bigfile");
+    time(ts + ts_cur++);
+
+    //for (size_t i = 0; i < 10000; ++i) {
+    //    char buf[50];
+    //    sprintf(buf, "/home/novokrestdeb/test/%u", i);
+    //    read_file(g, buf);
+    //}
+    time(ts + ts_cur++);
 
     printf("guestfs_close()...\n");
     guestfs_close(g);
+    time(ts + ts_cur++);
+
+    FILE* freport = fopen(REPORT_FILENAME, "a");
+    fprintf(freport, "%s\n", REPORT_DELIMITER);
+    for (int i = 1; i < ts_cur; ++i) {
+        fprintf(freport,"%s: %f\n", ts_titles[i], difftime(ts[i], ts[i - 1]));
+    }
+    fprintf(freport, "total_time: %d\n", difftime(ts[ts_cur - 1], ts[0]));
+    fprintf(freport, "%s\n", REPORT_DELIMITER);
 }
