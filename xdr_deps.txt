@@ -1,0 +1,14 @@
+src/actions-0.c: *   generator/ *.ml +
+src/actions-1.c: *   generator/ *.ml +
+src/actions-2.c: *   generator/ *.ml +
+src/actions-3.c: *   generator/ *.ml +
+src/actions-4.c: *   generator/ *.ml +
+src/actions-5.c: *   generator/ *.ml +
+src/actions-6.c: *   generator/ *.ml +
+
+src/proto.c
+src/structs-free.c: *   generator/ *.ml +
+
+src/guestfs_protocol.x: *   generator/ *.ml +
+src/guestfs_protocol.h
+src/guestfs_protocol.c
