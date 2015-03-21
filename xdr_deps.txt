@@ -12,3 +12,11 @@ src/structs-free.c: *   generator/ *.ml +
 src/guestfs_protocol.x: *   generator/ *.ml +
 src/guestfs_protocol.h
 src/guestfs_protocol.c
+
+daemon/proto.c
+daemon/guestfsd.c
+daemon/stubs.c +
+
+src/guestfs-internal.h
+src/guestfs_protocol.h
+/daemon/guestfs_protocol.h
