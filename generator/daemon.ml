@@ -495,7 +495,7 @@ cleanup_free_mountable (mountable_t *mountable)
             pr "  %s__pack (NULL, lenret, bufret);\n" name;
             pr "  reply (bufret, lenret);\n";
             pr "  free (bufret);\n";
-            pr "  free (r);\n"
+            pr "  free (r);\n";
             pr "  //xdr_free ((xdrproc_t) xdr_guestfs_%s_ret, (char *) &ret);\n"
               name
         | RBufferOut n ->
@@ -504,7 +504,7 @@ cleanup_free_mountable (mountable_t *mountable)
             pr "  size_t lenret;\n";
             pr "  %s__init (&ret);\n" name;
             pr "  ret.%s = r;\n" n;
-            pr "  ret.n_%s = size;\n" n n;
+            pr "  ret.n_%s = size;\n" n;
             pr "  lenret = %s__get_packed_size (&ret);\n" name;
             pr "  bufret = malloc (lenret);\n";
             pr "  %s__pack (NULL, lenret, bufret);\n" name;
@@ -679,7 +679,7 @@ cleanup_free_mountable (mountable_t *mountable)
         pr "    }\n";
         pr "\n";
         pr "    /* Allocate some space to store this next entry. */\n";
-        pr "    newp = realloc (ret->vals,\n" typ;
+        pr "    newp = realloc (ret->vals,\n";
         pr "		    sizeof (GuestfsIntLvm%s) * (i+1));\n" camel_typ;
         pr "    if (newp == NULL) {\n";
         pr "      reply_with_perror (\"realloc\");\n";
