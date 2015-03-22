@@ -1,0 +1,14 @@
+package example;
+
+message ListDevices {
+    required int32 id = 1;
+    required string name = 2;
+    required bytes data = 3;
+    repeated int32 array = 4;
+}
+
+enum DeviceType {
+    FILE = 1;
+    DEV = 2;
+    NO_TYPE = 5;
+}
