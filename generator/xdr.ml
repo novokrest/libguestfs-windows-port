@@ -49,8 +49,8 @@ let generate_xdr () =
   pr "/* Internal structures. */\n";
   pr "\n";
   List.iter (
-    fun { s_name = typ; s_cols = cols } ->
-        pr "message guestfs_int_%s {\n" typ;
+    fun { s_camel_name = typ; s_cols = cols } ->
+        pr "message GuestfsInt%s {\n" typ;
         List.iteri (fun id col ->
                       match col with
                        | name, FChar -> pr "  required int32 %s = %d;\n" name (id + 1)
@@ -65,8 +65,8 @@ let generate_xdr () =
                    ) cols;
         pr "}\n";
         pr "\n";
-        pr "message guestfs_int_%s_list {\n" typ;
-        pr "  repeated guestfs_int_%s vals = 1;" typ;
+        pr "message GuestfsInt%sList {\n" typ;
+        pr "  repeated GuestfsInt%s vals = 1;" typ;
         pr "}\n";
         pr "\n";
   ) structs;
@@ -74,8 +74,8 @@ let generate_xdr () =
   pr "/* Function arguments and return values. */\n";
   pr "\n";
   List.iter (
-    fun { name = shortname; style = ret, args, optargs } ->
-      let name = "guestfs_" ^ shortname in
+    fun { camel_name = shortname; style = ret, args, optargs } ->
+      let name = "Guestfs" ^ shortname in
 
       (* Ordinary arguments and optional arguments are concatenated
        * together in the ProtoBuf args message.  The optargs_bitmask field
@@ -89,7 +89,7 @@ let generate_xdr () =
       (match args_passed_to_daemon with
       | [] -> ()
       | args ->
-        pr "message %s_args {\n" name;
+        pr "message %sArgs {\n" name;
         List.iteri (
           fun id argt ->
             match argt with
@@ -111,48 +111,48 @@ let generate_xdr () =
       (match ret with
        | RErr -> ()
        | RInt n ->
-           pr "message %s_ret {\n" name;
+           pr "message %sRet {\n" name;
            pr "  required int32 %s = 1;\n" n;
            pr "}\n\n"
        | RInt64 n ->
-           pr "message %s_ret {\n" name;
+           pr "message %sRet {\n" name;
            pr "  required int64 %s = 1;\n" n;
            pr "}\n\n"
        | RBool n ->
-           pr "message %s_ret {\n" name;
+           pr "message %sRet {\n" name;
            pr "  required bool %s = 1;\n" n;
            pr "}\n\n"
        | RConstString _ | RConstOptString _ ->
            failwithf "RConstString|RConstOptString cannot be used by daemon functions"
        | RString n ->
-           pr "message %s_ret {\n" name;
+           pr "message %sRet {\n" name;
            pr "  required string %s = 1;\n" n;
            pr "}\n\n"
        | RStringList n ->
-           pr "message %s_ret {\n" name;
+           pr "message %sRet {\n" name;
            pr "  repeated string %s = 1;\n" n;
            pr "}\n\n"
        | RStruct (n, typ) ->
-           pr "message %s_ret {\n" name;
-           pr "  required guestfs_int_%s %s = 1;\n" typ n;
+           pr "message %sRet {\n" name;
+           pr "  required GuestfsInt%s %s = 1;\n" (camel_name_of_struct typ) n;
            pr "}\n\n"
        | RStructList (n, typ) ->
-           pr "message %s_ret {\n" name;
-           pr "  required guestfs_int_%s_list %s = 1;\n" typ n;
+           pr "message %sRet {\n" name;
+           pr "  required GuestfsInt%sList %s = 1;\n" (camel_name_of_struct typ) n;
            pr "}\n\n"
        | RHashtable n ->
-           pr "message %s_ret {\n" name;
+           pr "message %sRet {\n" name;
            pr "  repeated bytes %s = 1;\n" n;
            pr "}\n\n"
        | RBufferOut n ->
-           pr "message %s_ret {\n" name;
+           pr "message %sRet {\n" name;
            pr "  required bytes %s = 1;\n" n;
            pr "}\n\n"
       );
   ) daemon_functions;
 
   pr "/* Table of procedure numbers. */\n";
-  pr "enum guestfs_procedure {\n";
+  pr "enum GuestfsProcedure {\n";
   let rec loop = function
     | [] -> ()
     | { proc_nr = None } :: _ -> assert false
@@ -198,12 +198,12 @@ let generate_xdr () =
   pr "}\n\n"; (* End of GUESTFS_CONST *)
 
   pr "\
-enum guestfs_message_direction {
+enum GuestfsMessageDirection {
   GUESTFS_DIRECTION_CALL = 0;         /* client -> daemon */
   GUESTFS_DIRECTION_REPLY = 1;        /* daemon -> client */
 }
 
-enum guestfs_message_status {
+enum GuestfsMessageStatus {
   GUESTFS_STATUS_OK = 0;
   GUESTFS_STATUS_ERROR = 1;
 }
@@ -211,24 +211,24 @@ enum guestfs_message_status {
 ";
 
   pr "\
-message guestfs_message_error {
+message GuestfsMessageError {
   required string errno_string = 1;           /* errno eg. \"EINVAL\", empty string
                                                  if errno not available */
   required string error_message = 2;
 }
 
-message guestfs_message_header {
+message GuestfsMessageHeader {
   required uint32 prog = 1;                         /* GUESTFS_PROGRAM */
   required uint32 vers = 2;                         /* GUESTFS_PROTOCOL_VERSION */
-  required guestfs_procedure proc = 3;              /* GUESTFS_PROC_x */
-  required guestfs_message_direction direction = 4;
+  required GuestfsProcedure proc = 3;              /* GUESTFS_PROC_x */
+  required GuestfsMessageDirection direction = 4;
   required uint32 serial = 5;                       /* message serial number */
   required uint64 progress_hint = 6;                /* upload hint for progress bar */
   required uint64 optargs_bitmask = 7;              /* bitmask for optional args */
-  required guestfs_message_status status = 8;
+  required GuestfsMessageStatus status = 8;
 }
 
-message guestfs_chunk {
+message GuestfsChunk {
   required int32 cancel = 1;     /* if non-zero, transfer is cancelled */
   /* data size is 0 bytes if the transfer has finished successfully */
   required bytes data = 2;
@@ -249,8 +249,8 @@ message guestfs_chunk {
  * message is laid out precisely in this way.  So if you change
  * this then you'd better change that function as well.
  */
-message guestfs_progress {
-  required guestfs_procedure proc = 1;          /* @0:  GUESTFS_PROC_x */
+message GuestfsProgress {
+  required GuestfsProcedure proc = 1;          /* @0:  GUESTFS_PROC_x */
   required uint32 serial = 2;                   /* @4:  message serial number */
   required uint64 position = 3;                 /* @8:  0 <= position <= total */
   required uint64 total = 4;                    /* @16: total size of operation */
