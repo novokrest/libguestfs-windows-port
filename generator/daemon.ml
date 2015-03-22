@@ -37,7 +37,7 @@ let generate_daemon_actions_h () =
   pr "#define GUESTFSD_ACTIONS_H\n";
   pr "\n";
 
-  pr "#include \"guestfs_protocol.h\"\n";
+  pr "#include \"guestfs_protocol.pb-c.h\"\n";
   pr "#include \"daemon.h\"\n";
   pr "\n";
 
@@ -82,12 +82,10 @@ and generate_daemon_actions () =
 #include <string.h>
 #include <inttypes.h>
 #include <errno.h>
-#include <rpc/types.h>
-#include <rpc/xdr.h>
 
 #include \"daemon.h\"
 #include \"c-ctype.h\"
-#include \"guestfs_protocol.h\"
+#include \"guestfs_protocol.pb-c.h\"
 #include \"actions.h\"
 #include \"optgroups.h\"
 
