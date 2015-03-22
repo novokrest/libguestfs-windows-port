@@ -83,8 +83,8 @@ Run it from the top source directory using the command
   (* Read the API versions file. *)
   load_api_versions "src/api-support/added";
 
-  output_to "src/guestfs_protocol.x" generate_xdr;
-  output_to "src/guestfs.h" generate_guestfs_h;
+  output_to "src/guestfs_protocol.proto" generate_xdr;
+(*output_to "src/guestfs.h" generate_guestfs_h;
   output_to "src/guestfs-internal-actions.h" generate_internal_actions_h;
   output_to "src/guestfs-internal-frontend-cleanups.h"
     generate_internal_frontend_cleanups_h;
@@ -212,7 +212,7 @@ Run it from the top source directory using the command
   output_to "customize/customize_cmdline.mli" generate_customize_cmdline_mli;
   output_to "customize/customize_cmdline.ml" generate_customize_cmdline_ml;
   output_to "customize/customize-synopsis.pod" generate_customize_synopsis_pod;
-  output_to "customize/customize-options.pod" generate_customize_options_pod;
+  output_to "customize/customize-options.pod" generate_customize_options_pod;*)
 
   (* Generate the list of files generated -- last. *)
   printf "generated %d lines of code\n" (get_lines_generated ());
