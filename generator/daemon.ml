@@ -218,10 +218,10 @@ cleanup_free_mountable (mountable_t *mountable)
 ";
 
   List.iter (
-    fun { name = name; style = ret, args, optargs; optional = optional } ->
+    fun { name = name; style = ret, args, optargs; optional = optional; camel_name = camel_name } ->
       (* Generate server-side stubs. *)
       pr "static void\n";
-      pr "%s_stub (XDR *xdr_in)\n" name;
+      pr "%s_stub (char const *data, size_t datalen)\n" name;
       pr "{\n";
       (match ret with
        | RErr | RInt _ -> pr "  int r;\n"
@@ -231,8 +231,8 @@ cleanup_free_mountable (mountable_t *mountable)
            failwithf "RConstString|RConstOptString cannot be used by daemon functions"
        | RString _ -> pr "  char *r;\n"
        | RStringList _ | RHashtable _ -> pr "  char **r;\n"
-       | RStruct (_, typ) -> pr "  guestfs_int_%s *r;\n" typ
-       | RStructList (_, typ) -> pr "  guestfs_int_%s_list *r;\n" typ
+       | RStruct (_, typ) -> pr "  GuestfsInt%s *r;\n" (camel_name_of_struct typ)
+       | RStructList (_, typ) -> pr "  GuestfsInt%sList *r;\n" (camel_name_of_struct typ)
        | RBufferOut _ ->
            pr "  size_t size = 1;\n";
            pr "  char *r;\n"
@@ -243,7 +243,7 @@ cleanup_free_mountable (mountable_t *mountable)
         List.filter (function FileIn _ | FileOut _ -> false | _ -> true)
           args_passed_to_daemon in
       if args_passed_to_daemon <> [] then (
-        pr "  struct guestfs_%s_args args;\n" name;
+        pr "  struct Guestfs%sArgs *args;\n" camel_name;
         List.iter (
           function
           | Device n | Dev_or_Path n ->
@@ -313,14 +313,14 @@ cleanup_free_mountable (mountable_t *mountable)
       if args_passed_to_daemon <> [] then (
         pr "  memset (&args, 0, sizeof args);\n";
         pr "\n";
-        pr "  if (!xdr_guestfs_%s_args (xdr_in, &args)) {\n" name;
+        pr "  if (!(args = %s_args__unpack (NULL, datalen, (const uint8_t *)data))) {\n" name;
         if is_filein then
           pr "    cancel_receive ();\n";
         pr "    reply_with_error (\"daemon failed to decode procedure arguments\");\n";
         pr "    goto done;\n";
         pr "  }\n";
         let pr_args n =
-          pr "  %s = args.%s;\n" n n
+          pr "  %s = args->%s;\n" n n
         in
         List.iter (
           function
@@ -329,50 +329,50 @@ cleanup_free_mountable (mountable_t *mountable)
               pr "  ABS_PATH (%s, %s, goto done);\n"
                 n (if is_filein then "cancel_receive ()" else "");
           | Device n ->
-              pr "  RESOLVE_DEVICE (args.%s, %s, %s, goto done);\n"
+              pr "  RESOLVE_DEVICE (args->%s, %s, %s, goto done);\n"
                 n n (if is_filein then "cancel_receive ()" else "");
           | Mountable n ->
-              pr "  RESOLVE_MOUNTABLE (args.%s, %s, %s, goto done);\n"
+              pr "  RESOLVE_MOUNTABLE (args->%s, %s, %s, goto done);\n"
                 n n (if is_filein then "cancel_receive ()" else "");
           | Dev_or_Path n ->
-              pr "  REQUIRE_ROOT_OR_RESOLVE_DEVICE (args.%s, %s, %s, goto done);\n"
+              pr "  REQUIRE_ROOT_OR_RESOLVE_DEVICE (args->%s, %s, %s, goto done);\n"
                 n n (if is_filein then "cancel_receive ()" else "");
           | Mountable_or_Path n ->
-              pr "  REQUIRE_ROOT_OR_RESOLVE_MOUNTABLE (args.%s, %s, %s, goto done);\n"
+              pr "  REQUIRE_ROOT_OR_RESOLVE_MOUNTABLE (args->%s, %s, %s, goto done);\n"
                 n n (if is_filein then "cancel_receive ()" else "");
           | String n | Key n | GUID n -> pr_args n
-          | OptString n -> pr "  %s = args.%s ? *args.%s : NULL;\n" n n n
+          | OptString n -> pr "  %s = args->%s ? *args->%s : NULL;\n" n n n
           | StringList n ->
             pr "  /* Ugly, but safe and avoids copying the strings. */\n";
-            pr "  %s = realloc (args.%s.%s_val,\n" n n n;
-            pr "                sizeof (char *) * (args.%s.%s_len+1));\n" n n;
+            pr "  %s = realloc (args->%s.%s_val,\n" n n n;
+            pr "                sizeof (char *) * (args->%s.%s_len+1));\n" n n;
             pr "  if (%s == NULL) {\n" n;
             if is_filein then
               pr "    cancel_receive ();\n";
             pr "    reply_with_perror (\"realloc\");\n";
             pr "    goto done;\n";
             pr "  }\n";
-            pr "  %s[args.%s.%s_len] = NULL;\n" n n n;
-            pr "  args.%s.%s_val = %s;\n" n n n
+            pr "  %s[args->%s.%s_len] = NULL;\n" n n n;
+            pr "  args->%s.%s_val = %s;\n" n n n
           | DeviceList n ->
             pr "  /* Copy the string list and apply device name translation\n";
             pr "   * to each one.\n";
             pr "   */\n";
-            pr "  %s = calloc (args.%s.%s_len+1, sizeof (char *));\n" n n n;
+            pr "  %s = calloc (args->%s.%s_len+1, sizeof (char *));\n" n n n;
             pr "  {\n";
             pr "    size_t i;\n";
-            pr "    for (i = 0; i < args.%s.%s_len; ++i)\n" n n;
-            pr "      RESOLVE_DEVICE (args.%s.%s_val[i], %s[i],\n" n n n;
+            pr "    for (i = 0; i < args->%s.%s_len; ++i)\n" n n;
+            pr "      RESOLVE_DEVICE (args->%s.%s_val[i], %s[i],\n" n n n;
             pr "                      %s, goto done);\n"
               (if is_filein then "cancel_receive ()" else "");
             pr "    %s[i] = NULL;\n" n;
             pr "  }\n"
-          | Bool n -> pr "  %s = args.%s;\n" n n
-          | Int n -> pr "  %s = args.%s;\n" n n
-          | Int64 n -> pr "  %s = args.%s;\n" n n
+          | Bool n -> pr "  %s = args->%s;\n" n n
+          | Int n -> pr "  %s = args->%s;\n" n n
+          | Int64 n -> pr "  %s = args->%s;\n" n n
           | BufferIn n ->
-              pr "  %s = args.%s.%s_val;\n" n n n;
-              pr "  %s_size = args.%s.%s_len;\n" n n n
+              pr "  %s = args->%s.%s_val;\n" n n n;
+              pr "  %s_size = args->%s.%s_len;\n" n n n
           | FileIn _ | FileOut _ | Pointer _ -> assert false
         ) args_passed_to_daemon;
         pr "\n"
@@ -433,47 +433,83 @@ cleanup_free_mountable (mountable_t *mountable)
         match ret with
         | RErr -> pr "  reply (NULL, NULL);\n"
         | RInt n | RInt64 n | RBool n ->
-            pr "  struct guestfs_%s_ret ret;\n" name;
+            pr "  struct Guestfs%sRet ret;\n" camel_name;
+            pr "  char *bufret;\n";
+            pr "  size_t lenret;\n";
+            pr "  %s__init (&ret);\n" name;
             pr "  ret.%s = r;\n" n;
-            pr "  reply ((xdrproc_t) &xdr_guestfs_%s_ret, (char *) &ret);\n"
-              name
+            pr "  lenret = %s__get_packed_size (&ret);\n" name;
+            pr "  bufret = malloc (lenret);\n";
+            pr "  %s__pack (NULL, lenret, bufret);\n" name;
+            pr "  reply (bufret, lenret);\n";
+            pr "  free (bufret);\n"
         | RConstString _ | RConstOptString _ ->
             failwithf "RConstString|RConstOptString cannot be used by daemon functions"
         | RString n ->
-            pr "  struct guestfs_%s_ret ret;\n" name;
+            pr "  struct Guestfs%sRet ret;\n" camel_name;
+            pr "  char *bufret;\n";
+            pr "  size_t lenret;\n";
+            pr "  %s__init (&ret);\n" name;
             pr "  ret.%s = r;\n" n;
-            pr "  reply ((xdrproc_t) &xdr_guestfs_%s_ret, (char *) &ret);\n"
-              name;
+            pr "  lenret = %s__get_packed_size (&ret);\n" name;
+            pr "  bufret = malloc (lenret);\n";
+            pr "  %s__pack (NULL, lenret, bufret);\n" name;
+            pr "  reply (bufret, lenret);\n";
+            pr "  free (bufret);\n";
             pr "  free (r);\n"
         | RStringList n | RHashtable n ->
-            pr "  struct guestfs_%s_ret ret;\n" name;
-            pr "  ret.%s.%s_len = count_strings (r);\n" n n;
-            pr "  ret.%s.%s_val = r;\n" n n;
-            pr "  reply ((xdrproc_t) &xdr_guestfs_%s_ret, (char *) &ret);\n"
-              name;
+            pr "  struct Guestfs%sRet ret;\n" camel_name;
+            pr "  char *bufret;\n";
+            pr "  size_t lenret;\n";
+            pr "  %s__init (&ret);\n" name;
+            pr "  ret.n_%s = count_strings (r);\n" n;
+            pr "  ret.%s = r;\n" n;
+            pr "  lenret = %s__get_packed_size (&ret);\n" name;
+            pr "  bufret = malloc (lenret);\n";
+            pr "  %s__pack (NULL, lenret, bufret);\n" name;
+            pr "  reply (bufret, lenret);\n";
+            pr "  free (bufret);\n";
             pr "  free_strings (r);\n"
         | RStruct (n, _) ->
-            pr "  struct guestfs_%s_ret ret;\n" name;
+            pr "  struct Guestfs%sRet ret;\n" camel_name;
+            pr "  char *bufret;\n";
+            pr "  size_t lenret;\n";
+            pr "  %s__init (&ret);\n" name;
             pr "  ret.%s = *r;\n" n;
+            pr "  lenret = %s__get_packed_size (&ret);\n" name;
+            pr "  bufret = malloc (lenret);\n";
+            pr "  %s__pack (NULL, lenret, bufret);\n" name;
+            pr "  reply (bufret, lenret);\n";
+            pr "  free (bufret);\n";
             pr "  free (r);\n";
-            pr "  reply ((xdrproc_t) xdr_guestfs_%s_ret, (char *) &ret);\n"
-              name;
-            pr "  xdr_free ((xdrproc_t) xdr_guestfs_%s_ret, (char *) &ret);\n"
+            pr "  //xdr_free ((xdrproc_t) xdr_guestfs_%s_ret, (char *) &ret);\n"
               name
         | RStructList (n, _) ->
-            pr "  struct guestfs_%s_ret ret;\n" name;
+            pr "  struct Guestfs%sRet ret;\n" camel_name;
+            pr "  char *bufret;\n";
+            pr "  size_t lenret;\n";
+            pr "  %s__init (&ret);\n" name;
             pr "  ret.%s = *r;\n" n;
-            pr "  free (r);\n";
-            pr "  reply ((xdrproc_t) xdr_guestfs_%s_ret, (char *) &ret);\n"
-              name;
-            pr "  xdr_free ((xdrproc_t) xdr_guestfs_%s_ret, (char *) &ret);\n"
+            pr "  lenret = %s__get_packed_size (&ret);\n" name;
+            pr "  bufret = malloc (lenret);\n";
+            pr "  %s__pack (NULL, lenret, bufret);\n" name;
+            pr "  reply (bufret, lenret);\n";
+            pr "  free (bufret);\n";
+            pr "  free (r);\n"
+            pr "  //xdr_free ((xdrproc_t) xdr_guestfs_%s_ret, (char *) &ret);\n"
               name
         | RBufferOut n ->
-            pr "  struct guestfs_%s_ret ret;\n" name;
+            pr "  struct Guestfs%sRet ret;\n" camel_name;
+            pr "  char *bufret;\n";
+            pr "  size_t lenret;\n";
+            pr "  %s__init (&ret);\n" name;
             pr "  ret.%s.%s_val = r;\n" n n;
             pr "  ret.%s.%s_len = size;\n" n n;
-            pr "  reply ((xdrproc_t) &xdr_guestfs_%s_ret, (char *) &ret);\n"
-              name;
+            pr "  lenret = %s__get_packed_size (&ret);\n" name;
+            pr "  bufret = malloc (lenret);\n";
+            pr "  %s__pack (NULL, lenret, bufret);\n" name;
+            pr "  reply (bufret, lenret);\n";
+            pr "  free (bufret);\n";
             pr "  free (r);\n"
       );
 
@@ -482,8 +518,8 @@ cleanup_free_mountable (mountable_t *mountable)
       (match args_passed_to_daemon with
        | [] -> ()
        | _ ->
-           pr "  xdr_free ((xdrproc_t) xdr_guestfs_%s_args, (char *) &args);\n"
-             name
+           pr "  %s__free_unpacked(Guestfs%sArgs, NULL);\n"
+             name camel_name
       );
       pr "done_no_free:\n";
       pr "  return;\n";
@@ -491,14 +527,14 @@ cleanup_free_mountable (mountable_t *mountable)
   ) daemon_functions;
 
   (* Dispatch function. *)
-  pr "void dispatch_incoming_message (XDR *xdr_in)\n";
+  pr "void dispatch_incoming_message (const char *data, size_t datalen)\n";
   pr "{\n";
   pr "  switch (proc_nr) {\n";
 
   List.iter (
     fun { name = name } ->
       pr "    case GUESTFS_PROC_%s:\n" (String.uppercase name);
-      pr "      %s_stub (xdr_in);\n" name;
+      pr "      %s_stub (data, datalen);\n" name;
       pr "      break;\n"
   ) daemon_functions;
 
