@@ -9184,7 +9184,7 @@ mount tags is returned." };
     name = "mount_9p";
     style = RErr, [String "mounttag"; String "mountpoint"], [OString "options"];
     proc_nr = Some 286;
-    camel_name = "Mount9P";
+    camel_name = "Mount9p";
     shortdesc = "mount 9p filesystem";
     longdesc = "\
 Mount the virtio-9p filesystem with the tag C<mounttag> on the
@@ -9432,7 +9432,7 @@ moving functions." };
     name = "tune2fs";
     style = RErr, [Device "device"], [OBool "force"; OInt "maxmountcount"; OInt "mountcount"; OString "errorbehavior"; OInt64 "group"; OInt "intervalbetweenchecks"; OInt "reservedblockspercentage"; OString "lastmounteddirectory"; OInt64 "reservedblockscount"; OInt64 "user"];
     proc_nr = Some 298;
-    camel_name = "Tune2FS";
+    camel_name = "Tune2Fs";
     tests = [
       InitScratchFS, Always, TestResult (
         [["tune2fs"; "/dev/sdb1"; "false"; "0"; ""; "NOARG"; ""; "0"; ""; "NOARG"; ""; ""];
