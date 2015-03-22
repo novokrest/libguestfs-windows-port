@@ -84,7 +84,7 @@ Run it from the top source directory using the command
   load_api_versions "src/api-support/added";
 
   output_to "src/guestfs_protocol.proto" generate_xdr;
-(*output_to "src/guestfs.h" generate_guestfs_h;
+  output_to "src/guestfs.h" generate_guestfs_h;
   output_to "src/guestfs-internal-actions.h" generate_internal_actions_h;
   output_to "src/guestfs-internal-frontend-cleanups.h"
     generate_internal_frontend_cleanups_h;
@@ -116,103 +116,6 @@ Run it from the top source directory using the command
   output_to "daemon/optgroups.c" generate_daemon_optgroups_c;
   output_to "daemon/optgroups.h" generate_daemon_optgroups_h;
   output_to "tests/c-api/tests.c" generate_c_api_tests;
-  output_to "fish/cmds-gperf.gperf" generate_fish_cmds_gperf;
-  output_to "fish/cmds.c" generate_fish_cmds;
-  output_to "fish/completion.c" generate_fish_completion;
-  output_to "fish/event-names.c" generate_fish_event_names;
-  output_to "fish/fish-cmds.h" generate_fish_cmds_h;
-  output_to "fish/guestfish-commands.pod" generate_fish_commands_pod;
-  output_to "fish/guestfish-actions.pod" generate_fish_actions_pod;
-  output_to "fish/prepopts.c" generate_fish_prep_options_c;
-  output_to "fish/prepopts.h" generate_fish_prep_options_h;
-  output_to "fish/guestfish-prepopts.pod" generate_fish_prep_options_pod;
-  output_to "ocaml/guestfs.mli" generate_ocaml_mli;
-  output_to "ocaml/guestfs.ml" generate_ocaml_ml;
-  output_to "ocaml/guestfs-c-actions.c" generate_ocaml_c;
-  output_to "ocaml/bindtests.ml" generate_ocaml_bindtests;
-  output_to "perl/Guestfs.xs" generate_perl_xs;
-  output_to "perl/lib/Sys/Guestfs.pm" generate_perl_pm;
-  output_to "perl/bindtests.pl" generate_perl_bindtests;
-  output_to "python/guestfs-py.c" generate_python_c;
-  output_to "python/guestfs.py" generate_python_py;
-  output_to "python/bindtests.py" generate_python_bindtests;
-  output_to "ruby/ext/guestfs/_guestfs.c" generate_ruby_c;
-  output_to "ruby/bindtests.rb" generate_ruby_bindtests;
-  output_to "java/com/redhat/et/libguestfs/GuestFS.java" generate_java_java;
-
-  List.iter (
-    fun { s_name = typ; s_camel_name = jtyp } ->
-      let cols = cols_of_struct typ in
-      let filename = sprintf "java/com/redhat/et/libguestfs/%s.java" jtyp in
-      output_to filename (generate_java_struct jtyp cols)
-  ) external_structs;
-  delete_except_generated
-    ~skip:["java/com/redhat/et/libguestfs/LibGuestFSException.java";
-           "java/com/redhat/et/libguestfs/EventCallback.java"]
-    "java/com/redhat/et/libguestfs/*.java";
-
-  output_to "java/Makefile.inc" generate_java_makefile_inc;
-  output_to "java/com_redhat_et_libguestfs_GuestFS.c" generate_java_c;
-  output_to "java/com/redhat/et/libguestfs/.gitignore" generate_java_gitignore;
-  output_to "java/Bindtests.java" generate_java_bindtests;
-  output_to "haskell/Guestfs.hs" generate_haskell_hs;
-  output_to "haskell/Bindtests.hs" generate_haskell_bindtests;
-  output_to "csharp/Libguestfs.cs" generate_csharp;
-  output_to "php/extension/php_guestfs_php.h" generate_php_h;
-  output_to "php/extension/guestfs_php.c" generate_php_c;
-  output_to "erlang/guestfs.erl" generate_erlang_erl;
-  output_to "erlang/erl-guestfs.c" generate_erlang_c;
-  output_to ~perm:0o555 "erlang/bindtests.erl" generate_erlang_bindtests;
-  output_to "lua/lua-guestfs.c" generate_lua_c;
-  output_to "lua/bindtests.lua" generate_lua_bindtests;
-  output_to "golang/src/libguestfs.org/guestfs/guestfs.go" generate_golang_go;
-  output_to "golang/bindtests.go" generate_golang_bindtests;
-
-  output_to "gobject/bindtests.js" generate_gobject_js_bindtests;
-  output_to "gobject/Makefile.inc" generate_gobject_makefile;
-  output_to "gobject/include/guestfs-gobject.h" generate_gobject_header;
-  output_to "gobject/docs/guestfs-title.sgml" generate_gobject_doc_title;
-
-  List.iter (
-    fun { s_name = typ; s_cols = cols } ->
-      let short = sprintf "struct-%s" typ in
-      let filename =
-        sprintf "gobject/include/guestfs-gobject/%s.h" short in
-      output_to filename (generate_gobject_struct_header short typ cols);
-      let filename = sprintf "gobject/src/%s.c" short in
-      output_to filename (generate_gobject_struct_source short typ cols)
-  ) external_structs;
-  delete_except_generated "gobject/include/guestfs-gobject/struct-*.h";
-  delete_except_generated "gobject/src/struct-*.c";
-
-  List.iter (
-    function
-    | ({ name = name; style = (_, _, (_::_ as optargs)) } as f) ->
-      let short = sprintf "optargs-%s" name in
-      let filename =
-        sprintf "gobject/include/guestfs-gobject/%s.h" short in
-      output_to filename
-        (generate_gobject_optargs_header short name optargs f);
-      let filename = sprintf "gobject/src/%s.c" short in
-      output_to filename
-        (generate_gobject_optargs_source short name optargs f)
-    | { style = _, _, [] } -> ()
-  ) external_functions_sorted;
-  delete_except_generated "gobject/include/guestfs-gobject/optargs-*.h";
-  delete_except_generated "gobject/src/optargs-*.c";
-
-  output_to "gobject/include/guestfs-gobject/tristate.h"
-    generate_gobject_tristate_header;
-  output_to "gobject/src/tristate.c" generate_gobject_tristate_source;
-
-  output_to "gobject/include/guestfs-gobject/session.h"
-    generate_gobject_session_header;
-  output_to "gobject/src/session.c" generate_gobject_session_source;
-
-  output_to "customize/customize_cmdline.mli" generate_customize_cmdline_mli;
-  output_to "customize/customize_cmdline.ml" generate_customize_cmdline_ml;
-  output_to "customize/customize-synopsis.pod" generate_customize_synopsis_pod;
-  output_to "customize/customize-options.pod" generate_customize_options_pod;*)
 
   (* Generate the list of files generated -- last. *)
   printf "generated %d lines of code\n" (get_lines_generated ());
