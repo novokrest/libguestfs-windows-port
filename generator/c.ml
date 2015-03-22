@@ -875,13 +875,12 @@ and generate_client_structs_free () =
   pr "\n";
 
   List.iter (
-    fun { s_name = typ } ->
+    fun { s_name = typ; s_camel_name = camel_typ } ->
       pr "GUESTFS_DLL_PUBLIC void\n";
       pr "guestfs_free_%s (struct guestfs_%s *x)\n" typ typ;
       pr "{\n";
       pr "  if (x) {\n";
-      pr "    xdr_free ((xdrproc_t) xdr_guestfs_int_%s, (char *) x);\n" typ;
-      pr "    free (x);\n";
+      pr "    %s__free_unpacked(x, NULL);\n" typ;
       pr "  }\n";
       pr "}\n";
       pr "\n";
@@ -890,9 +889,7 @@ and generate_client_structs_free () =
       pr "guestfs_free_%s_list (struct guestfs_%s_list *x)\n" typ typ;
       pr "{\n";
       pr "  if (x) {\n";
-      pr "    xdr_free ((xdrproc_t) xdr_guestfs_int_%s_list, (char *) x);\n"
-        typ;
-      pr "    free (x);\n";
+      pr "    %s__free_unpacked(x, NULL);\n" typ;
       pr "  }\n";
       pr "}\n";
       pr "\n";
