@@ -45,47 +45,29 @@ let generate_xdr () =
   pr " * to libguestfs and may change at any time.\n";
   pr " */\n";
   pr "\n";
-  pr "%%#include <config.h>\n";
-  pr "\n";
-
-  pr "/* This has to be defined to get around a limitation in Mac OS X's rpcgen. */\n";
-  pr "#if HAVE_XDR_U_INT64_T\n";
-  pr "#define uint64_t u_int64_t\n";
-  pr "%%#if HAVE_XDR_UINT64_T\n";
-  pr "%%#define xdr_u_int64_t xdr_uint64_t\n";
-  pr "%%#define u_int64_t uint64_t\n";
-  pr "%%#endif\n";
-  pr "#else\n";
-  pr "%%#if HAVE_XDR_U_INT64_T\n";
-  pr "%%#define xdr_uint64_t xdr_u_int64_t\n";
-  pr "%%#define uint64_t u_int64_t\n";
-  pr "%%#endif\n";
-  pr "#endif\n";
-  pr "\n";
-
-  pr "/* This has to be defined to get around a limitation in Sun's rpcgen. */\n";
-  pr "typedef string guestfs_str<>;\n";
-  pr "\n";
 
   pr "/* Internal structures. */\n";
   pr "\n";
   List.iter (
     fun { s_name = typ; s_cols = cols } ->
-        pr "struct guestfs_int_%s {\n" typ;
-        List.iter (function
-                   | name, FChar -> pr "  char %s;\n" name
-                   | name, FString -> pr "  string %s<>;\n" name
-                   | name, FBuffer -> pr "  opaque %s<>;\n" name
-                   | name, FUUID -> pr "  opaque %s[32];\n" name
-                   | name, FInt32 -> pr "  int %s;\n" name
-                   | name, FUInt32 -> pr "  unsigned int %s;\n" name
-                   | name, (FInt64|FBytes) -> pr "  int64_t %s;\n" name
-                   | name, FUInt64 -> pr "  uint64_t %s;\n" name
-                   | name, FOptPercent -> pr "  float %s;\n" name
-                  ) cols;
-        pr "};\n";
+        pr "message guestfs_int_%s {\n" typ;
+        List.iteri (fun id col ->
+                      match col with
+                       | name, FChar -> pr "  required int32 %s = %d;\n" name (id + 1)
+                       | name, FString -> pr "  required string %s = %d;\n" name (id + 1)
+                       | name, FBuffer -> pr "  required bytes %s = %d;\n" name (id + 1)
+                       | name, FUUID -> pr "  required bytes %s = %d;\n" name (id + 1)
+                       | name, FInt32 -> pr "  required int32 %s = %d;\n" name (id + 1)
+                       | name, FUInt32 -> pr "  required uint32 %s = %d;\n" name (id + 1)
+                       | name, (FInt64|FBytes) -> pr "  required int64 %s = %d;\n" name (id + 1)
+                       | name, FUInt64 -> pr "  required uint64 %s = %d;\n" name (id + 1)
+                       | name, FOptPercent -> pr "  required float %s = %d;\n" name (id + 1)
+                   ) cols;
+        pr "}\n";
         pr "\n";
-        pr "typedef struct guestfs_int_%s guestfs_int_%s_list<>;\n" typ typ;
+        pr "message guestfs_int_%s_list {\n" typ;
+        pr "  repeated guestfs_int_%s vals = 1;" typ;
+        pr "}\n";
         pr "\n";
   ) structs;
 
@@ -96,7 +78,7 @@ let generate_xdr () =
       let name = "guestfs_" ^ shortname in
 
       (* Ordinary arguments and optional arguments are concatenated
-       * together in the XDR args struct.  The optargs_bitmask field
+       * together in the ProtoBuf args message.  The optargs_bitmask field
        * in the header controls which optional arguments are
        * meaningful.  FileIn/FileOut parameters are ignored here.
        *)
@@ -107,64 +89,65 @@ let generate_xdr () =
       (match args_passed_to_daemon with
       | [] -> ()
       | args ->
-        pr "struct %s_args {\n" name;
-        List.iter (
-          function
-          | Pathname n | Device n | Mountable n | Dev_or_Path n
-          | Mountable_or_Path n | String n
-          | Key n | GUID n ->
-            pr "  string %s<>;\n" n
-          | OptString n -> pr "  guestfs_str *%s;\n" n
-          | StringList n | DeviceList n -> pr "  guestfs_str %s<>;\n" n
-          | Bool n -> pr "  bool %s;\n" n
-          | Int n -> pr "  int %s;\n" n
-          | Int64 n -> pr "  int64_t %s;\n" n
-          | BufferIn n ->
-            pr "  opaque %s<>;\n" n
-          | FileIn _ | FileOut _ | Pointer _ -> assert false
+        pr "message %s_args {\n" name;
+        List.iteri (
+          fun id argt ->
+            match argt with
+             | Pathname n | Device n | Mountable n | Dev_or_Path n
+             | Mountable_or_Path n | String n
+             | Key n | GUID n ->
+               pr "  required string %s = %d;\n" n (id + 1)
+             | OptString n -> pr "  repeated string %s = %d;\n" n (id + 1)
+             | StringList n | DeviceList n -> pr "  repeated string %s = %d;\n" n (id + 1)
+             | Bool n -> pr "  required bool %s = %d;\n" n (id + 1)
+             | Int n -> pr "  required int32 %s = %d;\n" n (id + 1)
+             | Int64 n -> pr "  required int64 %s = %d;\n" n (id + 1)
+             | BufferIn n ->
+               pr "  required bytes %s = %d;\n" n (id + 1)
+             | FileIn _ | FileOut _ | Pointer _ -> assert false
         ) args;
-        pr "};\n\n"
+        pr "}\n\n"
       );
       (match ret with
        | RErr -> ()
        | RInt n ->
-           pr "struct %s_ret {\n" name;
-           pr "  int %s;\n" n;
-           pr "};\n\n"
+           pr "message %s_ret {\n" name;
+           pr "  required int32 %s = 1;\n" n;
+           pr "}\n\n"
        | RInt64 n ->
-           pr "struct %s_ret {\n" name;
-           pr "  int64_t %s;\n" n;
-           pr "};\n\n"
+           pr "message %s_ret {\n" name;
+           pr "  required int64 %s = 1;\n" n;
+           pr "}\n\n"
        | RBool n ->
-           pr "struct %s_ret {\n" name;
-           pr "  bool %s;\n" n;
-           pr "};\n\n"
+           pr "message %s_ret {\n" name;
+           pr "  required bool %s = 1;\n" n;
+           pr "}\n\n"
        | RConstString _ | RConstOptString _ ->
            failwithf "RConstString|RConstOptString cannot be used by daemon functions"
        | RString n ->
-           pr "struct %s_ret {\n" name;
-           pr "  string %s<>;\n" n;
-           pr "};\n\n"
+           pr "message %s_ret {\n" name;
+           pr "  required string %s = 1;\n" n;
+           pr "}\n\n"
        | RStringList n ->
-           pr "struct %s_ret {\n" name;
-           pr "  guestfs_str %s<>;\n" n;
-           pr "};\n\n"
+           pr "message %s_ret {\n" name;
+           pr "  repeated string %s = 1;\n" n;
+           pr "}\n\n"
        | RStruct (n, typ) ->
-           pr "struct %s_ret {\n" name;
-           pr "  guestfs_int_%s %s;\n" typ n;
-           pr "};\n\n"
+           pr "message %s_ret {\n" name;
+           pr "  required guestfs_int_%s %s = 1;\n" typ n;
+           pr "}\n\n"
        | RStructList (n, typ) ->
-           pr "struct %s_ret {\n" name;
-           pr "  guestfs_int_%s_list %s;\n" typ n;
-           pr "};\n\n"
+           pr "message %s_ret {\n" name;
+           pr "  required guestfs_int_%s_list %s = 1;\n" typ n;
+           pr "}\n\n"
        | RHashtable n ->
-           pr "struct %s_ret {\n" name;
-           pr "  guestfs_str %s<>;\n" n;
-           pr "};\n\n"
+           pr "message %s_ret {\n" name;
+           pr "  repeated bytes %s = 1;\n" n;
+           pr "}\n\n"
        | RBufferOut n ->
-           pr "struct %s_ret {\n" name;
-           pr "  opaque %s<>;\n" n;
-           pr "};\n\n"
+           pr "message %s_ret {\n" name;
+           pr "  required bytes %s = 1;\n" n;
+           pr "}\n\n"
       );
   ) daemon_functions;
 
@@ -173,17 +156,32 @@ let generate_xdr () =
   let rec loop = function
     | [] -> ()
     | { proc_nr = None } :: _ -> assert false
-    | { name = shortname; proc_nr = Some proc_nr } :: [] ->
-      pr "  GUESTFS_PROC_%s = %d\n" (String.uppercase shortname) proc_nr
     | { name = shortname; proc_nr = Some proc_nr } :: rest ->
-      pr "  GUESTFS_PROC_%s = %d,\n" (String.uppercase shortname) proc_nr;
+      pr "  GUESTFS_PROC_%s = %d;\n" (String.uppercase shortname) proc_nr;
       loop rest
   in
   loop daemon_functions;
-  pr "};\n";
+  pr "}\n";
   pr "\n";
 
-  pr "const GUESTFS_MAX_PROC_NR = %d;\n" max_proc_nr;
+  (* Message header, etc. *)
+  pr "enum GUESTFS_CONST {\n";
+  
+  pr "\  
+  GUESTFS_PROGRAM = 0x2000F5F5;
+  GUESTFS_PROTOCOL_VERSION = 4;
+  GUESTFS_MAX_CHUNK_SIZE = 8192;
+
+/* These constants must be larger than any possible message length. */
+  GUESTFS_LAUNCH_FLAG = 0x75f55ff5;
+  GUESTFS_CANCEL_FLAG = 0x7fffeeee;
+  GUESTFS_PROGRESS_FLAG = 0x7fff5555;
+
+";
+  pr "  GUESTFS_ERROR_LEN = %d;\n" (64 * 1024);
+  pr "\n";
+  
+  pr "  GUESTFS_MAX_PROC_NR = %d;\n" max_proc_nr;
   pr "\n";
 
   pr "/* The remote procedure call protocol. */\n";
@@ -194,59 +192,47 @@ let generate_xdr () =
    * the protocol a lot simpler, and (b) provides a bound on the size
    * of the daemon which operates in limited memory space.
    *)
-  pr "const GUESTFS_MESSAGE_MAX = %d;\n" (4 * 1024 * 1024);
+  pr "  GUESTFS_MESSAGE_MAX = %d;\n" (4 * 1024 * 1024);
   pr "\n";
+  
+  pr "}\n\n"; (* End of GUESTFS_CONST *)
 
-  (* Message header, etc. *)
   pr "\
-const GUESTFS_PROGRAM = 0x2000F5F5;
-const GUESTFS_PROTOCOL_VERSION = 4;
-
-/* These constants must be larger than any possible message length. */
-const GUESTFS_LAUNCH_FLAG = 0xf5f55ff5;
-const GUESTFS_CANCEL_FLAG = 0xffffeeee;
-const GUESTFS_PROGRESS_FLAG = 0xffff5555;
-
 enum guestfs_message_direction {
-  GUESTFS_DIRECTION_CALL = 0,        /* client -> daemon */
-  GUESTFS_DIRECTION_REPLY = 1        /* daemon -> client */
-};
+  GUESTFS_DIRECTION_CALL = 0;         /* client -> daemon */
+  GUESTFS_DIRECTION_REPLY = 1;        /* daemon -> client */
+}
 
 enum guestfs_message_status {
-  GUESTFS_STATUS_OK = 0,
-  GUESTFS_STATUS_ERROR = 1
-};
+  GUESTFS_STATUS_OK = 0;
+  GUESTFS_STATUS_ERROR = 1;
+}
 
 ";
 
-  pr "const GUESTFS_ERROR_LEN = %d;\n" (64 * 1024);
-  pr "\n";
-
   pr "\
-struct guestfs_message_error {
-  string errno_string<32>;           /* errno eg. \"EINVAL\", empty string
-                                        if errno not available */
-  string error_message<GUESTFS_ERROR_LEN>;
-};
+message guestfs_message_error {
+  required string errno_string = 1;           /* errno eg. \"EINVAL\", empty string
+                                                 if errno not available */
+  required string error_message = 2;
+}
 
-struct guestfs_message_header {
-  unsigned prog;                     /* GUESTFS_PROGRAM */
-  unsigned vers;                     /* GUESTFS_PROTOCOL_VERSION */
-  guestfs_procedure proc;            /* GUESTFS_PROC_x */
-  guestfs_message_direction direction;
-  unsigned serial;                   /* message serial number */
-  uint64_t progress_hint;            /* upload hint for progress bar */
-  uint64_t optargs_bitmask;          /* bitmask for optional args */
-  guestfs_message_status status;
-};
+message guestfs_message_header {
+  required uint32 prog = 1;                         /* GUESTFS_PROGRAM */
+  required uint32 vers = 2;                         /* GUESTFS_PROTOCOL_VERSION */
+  required guestfs_procedure proc = 3;              /* GUESTFS_PROC_x */
+  required guestfs_message_direction direction = 4;
+  required uint32 serial = 5;                       /* message serial number */
+  required uint64 progress_hint = 6;                /* upload hint for progress bar */
+  required uint64 optargs_bitmask = 7;              /* bitmask for optional args */
+  required guestfs_message_status status = 8;
+}
 
-const GUESTFS_MAX_CHUNK_SIZE = 8192;
-
-struct guestfs_chunk {
-  int cancel;			     /* if non-zero, transfer is cancelled */
+message guestfs_chunk {
+  required int32 cancel = 1;     /* if non-zero, transfer is cancelled */
   /* data size is 0 bytes if the transfer has finished successfully */
-  opaque data<GUESTFS_MAX_CHUNK_SIZE>;
-};
+  required bytes data = 2;
+}
 
 /* Progress notifications.  Daemon self-limits these messages to
  * at most one per second.  The daemon can send these messages
@@ -263,11 +249,11 @@ struct guestfs_chunk {
  * message is laid out precisely in this way.  So if you change
  * this then you'd better change that function as well.
  */
-struct guestfs_progress {
-  guestfs_procedure proc;            /* @0:  GUESTFS_PROC_x */
-  unsigned serial;                   /* @4:  message serial number */
-  uint64_t position;                 /* @8:  0 <= position <= total */
-  uint64_t total;                    /* @16: total size of operation */
-                                     /* @24: size of structure */
-};
+message guestfs_progress {
+  required guestfs_procedure proc = 1;          /* @0:  GUESTFS_PROC_x */
+  required uint32 serial = 2;                   /* @4:  message serial number */
+  required uint64 position = 3;                 /* @8:  0 <= position <= total */
+  required uint64 total = 4;                    /* @16: total size of operation */
+                                                /* @24: size of structure */
+}
 "
