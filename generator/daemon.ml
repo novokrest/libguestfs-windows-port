@@ -503,8 +503,8 @@ cleanup_free_mountable (mountable_t *mountable)
             pr "  char *bufret;\n";
             pr "  size_t lenret;\n";
             pr "  %s__init (&ret);\n" name;
-            pr "  ret.%s.%s_val = r;\n" n n;
-            pr "  ret.%s.%s_len = size;\n" n n;
+            pr "  ret.%s = r;\n" n;
+            pr "  ret.n_%s = size;\n" n n;
             pr "  lenret = %s__get_packed_size (&ret);\n" name;
             pr "  bufret = malloc (lenret);\n";
             pr "  %s__pack (NULL, lenret, bufret);\n" name;
@@ -550,12 +550,12 @@ cleanup_free_mountable (mountable_t *mountable)
    *)
   List.iter (
     function
-    | typ, cols ->
+    | typ, camel_typ, cols ->
         pr "static const char *lvm_%s_cols = \"%s\";\n"
           typ (String.concat "," (List.map fst cols));
         pr "\n";
 
-        pr "static int lvm_tokenize_%s (char *str, guestfs_int_lvm_%s *r)\n" typ typ;
+        pr "static int lvm_tokenize_%s (char *str, GuestfsIntLvm%s *r)\n" typ camel_typ;
         pr "{\n";
         pr "  char *tok, *p, *next;\n";
         pr "  size_t i, j;\n";
@@ -628,13 +628,13 @@ cleanup_free_mountable (mountable_t *mountable)
         pr "}\n";
         pr "\n";
 
-        pr "guestfs_int_lvm_%s_list *\n" typ;
+        pr "GuestfsIntLvm%sList *\n" camel_typ;
         pr "parse_command_line_%ss (void)\n" typ;
         pr "{\n";
         pr "  char *out, *err;\n";
         pr "  char *p, *pend;\n";
         pr "  int r, i;\n";
-        pr "  guestfs_int_lvm_%s_list *ret;\n" typ;
+        pr "  GuestfsIntLvm%sList *ret;\n" camel_typ;
         pr "  void *newp;\n";
         pr "\n";
         pr "  ret = malloc (sizeof *ret);\n";
@@ -643,8 +643,8 @@ cleanup_free_mountable (mountable_t *mountable)
         pr "    return NULL;\n";
         pr "  }\n";
         pr "\n";
-        pr "  ret->guestfs_int_lvm_%s_list_len = 0;\n" typ;
-        pr "  ret->guestfs_int_lvm_%s_list_val = NULL;\n" typ;
+        pr "  ret->n_vals = 0;\n";
+        pr "  ret->vals = NULL;\n";
         pr "\n";
         pr "  r = command (&out, &err,\n";
         pr "	       \"lvm\", \"%ss\",\n" typ;
@@ -679,22 +679,22 @@ cleanup_free_mountable (mountable_t *mountable)
         pr "    }\n";
         pr "\n";
         pr "    /* Allocate some space to store this next entry. */\n";
-        pr "    newp = realloc (ret->guestfs_int_lvm_%s_list_val,\n" typ;
-        pr "		    sizeof (guestfs_int_lvm_%s) * (i+1));\n" typ;
+        pr "    newp = realloc (ret->vals,\n" typ;
+        pr "		    sizeof (GuestfsIntLvm%s) * (i+1));\n" camel_typ;
         pr "    if (newp == NULL) {\n";
         pr "      reply_with_perror (\"realloc\");\n";
-        pr "      free (ret->guestfs_int_lvm_%s_list_val);\n" typ;
+        pr "      free (ret->vals);\n";
         pr "      free (ret);\n";
         pr "      free (out);\n";
         pr "      return NULL;\n";
         pr "    }\n";
-        pr "    ret->guestfs_int_lvm_%s_list_val = newp;\n" typ;
+        pr "    ret->vals = newp;\n";
         pr "\n";
         pr "    /* Tokenize the next entry. */\n";
-        pr "    r = lvm_tokenize_%s (p, &ret->guestfs_int_lvm_%s_list_val[i]);\n" typ typ;
+        pr "    r = lvm_tokenize_%s (p, &ret->vals[i]);\n" typ;
         pr "    if (r == -1) {\n";
         pr "      reply_with_error (\"failed to parse output of '%ss' command\");\n" typ;
-        pr "      free (ret->guestfs_int_lvm_%s_list_val);\n" typ;
+        pr "      free (ret->vals);\n";
         pr "      free (ret);\n";
         pr "      free (out);\n";
         pr "      return NULL;\n";
@@ -704,13 +704,13 @@ cleanup_free_mountable (mountable_t *mountable)
         pr "    p = pend;\n";
         pr "  }\n";
         pr "\n";
-        pr "  ret->guestfs_int_lvm_%s_list_len = i;\n" typ;
+        pr "  ret->n_vals = i;\n";
         pr "\n";
         pr "  free (out);\n";
         pr "  return ret;\n";
         pr "}\n"
 
-  ) ["pv", lvm_pv_cols; "vg", lvm_vg_cols; "lv", lvm_lv_cols]
+  ) ["pv", "Pv", lvm_pv_cols; "vg", "Vg", lvm_vg_cols; "lv", "Lv", lvm_lv_cols]
 
 (* Generate a list of function names, for debugging in the daemon.. *)
 and generate_daemon_names () =
