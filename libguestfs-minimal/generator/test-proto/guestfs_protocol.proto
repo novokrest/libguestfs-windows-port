@@ -2029,7 +2029,7 @@ message GuestfsList9pRet {
   repeated string mounttags = 1;
 }
 
-message GuestfsMount9PArgs {
+message GuestfsMount9pArgs {
   required string mounttag = 1;
   required string mountpoint = 2;
   required string options = 3;
@@ -2111,7 +2111,7 @@ message GuestfsCopyFileToFileArgs {
   required bool sparse = 6;
 }
 
-message GuestfsTune2FSArgs {
+message GuestfsTune2FsArgs {
   required string device = 1;
   required bool force = 2;
   required int32 maxmountcount = 3;
