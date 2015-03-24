@@ -8,7 +8,8 @@ GUESTFS_HEADERS = \
   guestfs-internal-all.h \
   guestfs-internal-frontend.h \
   guestfs-internal-frontend-cleanups.h \
-  guestfs_protocol.pb-c.h
+  guestfs_protocol.pb-c.h \
+  guestfs_protocol_typedefs.h
 
 GUESTFS_SOURCES = \
   actions-0.c \
