@@ -101,7 +101,7 @@ sources = \
 	types.ml \
 	utils.ml \
 	utils.mli \
-	xdr.ml
+	protobuf.ml
 
 
 # In build dependency order.
@@ -118,7 +118,7 @@ objects = \
 	docstrings.cmo \
 	checks.cmo \
 	c.cmo \
-	xdr.cmo \
+	protobuf.cmo \
 	daemon.cmo \
 	tests_c_api.cmo \
 	fish.cmo \
