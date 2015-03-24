@@ -36,7 +36,7 @@ open Structs
  *
  * This header is NOT exported to clients, but see also generate_structs_h.
  *)
-let generate_xdr () =
+let generate_protobuf () =
   generate_header ~emacs_mode:"c" CStyle LGPLv2plus;
 
   pr "/* This file defines the protocol used between the library and\n";
