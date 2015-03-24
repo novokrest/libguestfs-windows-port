@@ -533,7 +533,7 @@ cleanup_free_mountable (mountable_t *mountable)
 
   List.iter (
     fun { name = name } ->
-      pr "    case GUESTFS_PROC_%s:\n" (String.uppercase name);
+      pr "    case GUESTFS_PROCEDURE__GUESTFS_PROC_%s:\n" (String.uppercase name);
       pr "      %s_stub (data, datalen);\n" name;
       pr "      break;\n"
   ) daemon_functions;

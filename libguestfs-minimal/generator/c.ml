@@ -593,8 +593,8 @@ extern GUESTFS_DLL_PUBLIC void *guestfs_next_private (guestfs_h *g, const char *
    * in-memory format as the XDR structures that we use on the wire to
    * the daemon.  The reason for creating copies of these structures
    * here is just so we don't have to export the whole of
-   * guestfs_protocol.h (which includes much unrelated and
-   * XDR-dependent stuff that we don't want to be public, or required
+   * guestfs_protocol.pb-c.h (which includes much unrelated and
+   * ProtoBuf-dependent stuff that we don't want to be public, or required
    * by clients).
    *
    * To reiterate, we will pass these structures to and from the client
@@ -864,7 +864,7 @@ and generate_client_structs_free () =
 
 #include \"guestfs.h\"
 #include \"guestfs-internal.h\"
-#include \"guestfs_protocol.h\"
+#include \"guestfs_protocol.pb-c.h\"
 
 ";
 
@@ -1223,7 +1223,7 @@ and generate_client_actions hash () =
 #include \"guestfs.h\"
 #include \"guestfs-internal.h\"
 #include \"guestfs-internal-actions.h\"
-#include \"guestfs_protocol.h\"
+#include \"guestfs_protocol.pb-c.h\"
 #include \"errnostring.h\"
 
 ";

@@ -49,8 +49,8 @@ let generate_xdr () =
   pr "/* Internal structures. */\n";
   pr "\n";
   List.iter (
-    fun { s_camel_name = typ; s_cols = cols } ->
-        pr "message GuestfsInt%s {\n" typ;
+    fun { s_name = typ; s_cols = cols } ->
+        pr "message GuestfsInt%s {\n" (camel_name_of_struct typ);
         List.iteri (fun id col ->
                       match col with
                        | name, FChar -> pr "  required int32 %s = %d;\n" name (id + 1)
@@ -65,8 +65,8 @@ let generate_xdr () =
                    ) cols;
         pr "}\n";
         pr "\n";
-        pr "message GuestfsInt%sList {\n" typ;
-        pr "  repeated GuestfsInt%s vals = 1;" typ;
+        pr "message GuestfsInt%sList {\n" (camel_name_of_struct typ);
+        pr "  repeated GuestfsInt%s vals = 1;" (camel_name_of_struct typ);
         pr "}\n";
         pr "\n";
   ) structs;
@@ -97,7 +97,7 @@ let generate_xdr () =
              | Mountable_or_Path n | String n
              | Key n | GUID n ->
                pr "  required string %s = %d;\n" n (id + 1)
-             | OptString n -> pr "  repeated string %s = %d;\n" n (id + 1)
+             | OptString n -> pr "  required string %s = %d;\n" n (id + 1)
              | StringList n | DeviceList n -> pr "  repeated string %s = %d;\n" n (id + 1)
              | Bool n -> pr "  required bool %s = %d;\n" n (id + 1)
              | Int n -> pr "  required int32 %s = %d;\n" n (id + 1)
@@ -165,7 +165,7 @@ let generate_xdr () =
   pr "\n";
 
   (* Message header, etc. *)
-  pr "enum GUESTFS_CONST {\n";
+  pr "enum GuestfsConst {\n";
   
   pr "\  
   GUESTFS_PROGRAM = 0x2000F5F5;

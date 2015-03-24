@@ -83,7 +83,8 @@ Run it from the top source directory using the command
   (* Read the API versions file. *)
   load_api_versions "src/api-support/added";
 
-  output_to "src/guestfs_protocol.proto" generate_xdr;
+  output_to "src/guestfs_protocol.proto" generate_protobuf;
+  output_to "src/guestfs_protocol_typedefs.h" generate_protobuf_typedefs;
   output_to "src/guestfs.h" generate_guestfs_h;
   output_to "src/guestfs-internal-actions.h" generate_internal_actions_h;
   output_to "src/guestfs-internal-frontend-cleanups.h"
@@ -115,7 +116,7 @@ Run it from the top source directory using the command
   output_to "daemon/names.c" generate_daemon_names;
   output_to "daemon/optgroups.c" generate_daemon_optgroups_c;
   output_to "daemon/optgroups.h" generate_daemon_optgroups_h;
-  output_to "tests/c-api/tests.c" generate_c_api_tests;
+  (*output_to "tests/c-api/tests.c" generate_c_api_tests;*)
 
   (* Generate the list of files generated -- last. *)
   printf "generated %d lines of code\n" (get_lines_generated ());

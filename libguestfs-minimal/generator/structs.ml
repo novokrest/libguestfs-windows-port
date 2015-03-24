@@ -115,11 +115,11 @@ let structs = [
 
   (* LVM PVs, VGs, LVs. *)
   { defaults with
-    s_name = "lvm_pv"; s_cols = lvm_pv_cols; s_camel_name = "PV" };
+    s_name = "lvm_pv"; s_cols = lvm_pv_cols; s_camel_name = "Pv" };
   { defaults with
-    s_name = "lvm_vg"; s_cols = lvm_vg_cols; s_camel_name = "VG" };
+    s_name = "lvm_vg"; s_cols = lvm_vg_cols; s_camel_name = "Vg" };
   { defaults with
-    s_name = "lvm_lv"; s_cols = lvm_lv_cols; s_camel_name = "LV" };
+    s_name = "lvm_lv"; s_cols = lvm_lv_cols; s_camel_name = "Lv" };
 
   (* Column names and types from stat structures.
    * NB. Can't use things like 'st_atime' because glibc header files
