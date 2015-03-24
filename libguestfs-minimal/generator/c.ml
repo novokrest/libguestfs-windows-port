@@ -865,6 +865,7 @@ and generate_client_structs_free () =
 #include \"guestfs.h\"
 #include \"guestfs-internal.h\"
 #include \"guestfs_protocol.pb-c.h\"
+#include \"guestfs_protocol_typedefs.h\"
 
 ";
 
@@ -1224,6 +1225,7 @@ and generate_client_actions hash () =
 #include \"guestfs-internal.h\"
 #include \"guestfs-internal-actions.h\"
 #include \"guestfs_protocol.pb-c.h\"
+#include \"guestfs_protocol_typedefs.h\"
 #include \"errnostring.h\"
 
 ";

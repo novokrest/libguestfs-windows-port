@@ -93,6 +93,8 @@ sources = \
 	pr.mli \
 	prepopts.ml \
 	prepopts.mli \
+	protobuf.ml \
+	protobuf_typedefs.ml \
 	python.ml \
 	ruby.ml \
 	structs.ml \
@@ -100,8 +102,7 @@ sources = \
 	tests_c_api.ml \
 	types.ml \
 	utils.ml \
-	utils.mli \
-	protobuf.ml
+	utils.mli 
 
 
 # In build dependency order.
@@ -119,6 +120,7 @@ objects = \
 	checks.cmo \
 	c.cmo \
 	protobuf.cmo \
+	protobuf_typedefs.cmo \
 	daemon.cmo \
 	tests_c_api.cmo \
 	fish.cmo \

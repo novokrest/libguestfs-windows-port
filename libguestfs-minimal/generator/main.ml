@@ -28,7 +28,8 @@ open Api_versions
 open Types
 
 open C
-open Xdr
+open Protobuf
+open Protobuf_typedefs
 open Daemon
 open Tests_c_api
 open Fish

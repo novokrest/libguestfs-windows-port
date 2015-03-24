@@ -43,8 +43,8 @@ let generate_protobuf_typedefs () =
   pr "\n";
   List.iter (
     fun { s_name = name; s_camel_name = camel_name } ->
-        pr "typedef GuestfsInt%s guestfs_int_%s;\n" s_camel_name camel_name;
-        pr "typedef GuestfsInt%sList guestfs_int_%s_list;\n" s_camel_name camel_name;
+        pr "typedef GuestfsInt%s guestfs_int_%s;\n" camel_name name;
+        pr "typedef GuestfsInt%sList guestfs_int_%s_list;\n" camel_name name;
         pr "\n";
   ) structs;
 

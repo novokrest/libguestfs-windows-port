@@ -38,6 +38,7 @@ let generate_daemon_actions_h () =
   pr "\n";
 
   pr "#include \"guestfs_protocol.pb-c.h\"\n";
+  pr "#include \"guestfs_protocol_typedefs.h\"\n";
   pr "#include \"daemon.h\"\n";
   pr "\n";
 
@@ -86,6 +87,7 @@ and generate_daemon_actions () =
 #include \"daemon.h\"
 #include \"c-ctype.h\"
 #include \"guestfs_protocol.pb-c.h\"
+#include \"guestfs_protocol_typedefs.h\"
 #include \"actions.h\"
 #include \"optgroups.h\"
 
