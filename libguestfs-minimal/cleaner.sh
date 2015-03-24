@@ -1,4 +1,8 @@
 #!/bin/bash
 
 make clean
-rm *~
+rm -f *~
+cd generator && ./cleaner.sh 
+cd ..
+cd src && ./cleaner.sh 
+cd ..
