@@ -1799,7 +1799,7 @@ and generate_client_actions hash () =
         (String.uppercase name);
       pr "                           progress_hint, %s,\n"
         (if optargs <> [] then "optargs->bitmask" else "0");
-      pr "                           (xdrproc_t) xdr_guestfs_%s_args, (char *) &args);\n"
+      pr "                           (protobuf_proc_pack) guestfs_%s_args__pack, (char *) &args);\n"
         name;
     );
     pr "  if (serial == -1) {\n";
@@ -1837,7 +1837,7 @@ and generate_client_actions hash () =
     if not has_ret then
       pr "NULL, NULL"
     else
-      pr "(xdrproc_t) xdr_guestfs_%s_ret, (char *) &ret" name;
+      pr "(protobuf_proc_unpack) guestfs_%s_ret__unpack, (char *) &ret" name;
     pr ");\n";
 
     pr "  if (r == -1) {\n";

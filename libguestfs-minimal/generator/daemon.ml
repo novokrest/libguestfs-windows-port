@@ -493,9 +493,7 @@ cleanup_free_mountable (mountable_t *mountable)
             pr "  %s__pack (NULL, lenret, bufret);\n" name;
             pr "  reply (bufret, lenret);\n";
             pr "  free (bufret);\n";
-            pr "  free (r);\n";
-            pr "  //xdr_free ((xdrproc_t) xdr_guestfs_%s_ret, (char *) &ret);\n"
-              name
+            pr "  free (r);\n"
         | RBufferOut n ->
             pr "  struct Guestfs%sRet ret;\n" camel_name;
             pr "  char *bufret;\n";
