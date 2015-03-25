@@ -140,4 +140,6 @@ typedef GuestfsMessageHeader guestfs_message_header;
 typedef GuestfsChunk guestfs_chunk;
 
 typedef GuestfsProgress guestfs_progress;
+
+typedef GuestfsFlagMessage guestfs_flag_message;
 "

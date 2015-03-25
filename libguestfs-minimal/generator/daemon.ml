@@ -233,8 +233,8 @@ cleanup_free_mountable (mountable_t *mountable)
            failwithf "RConstString|RConstOptString cannot be used by daemon functions"
        | RString _ -> pr "  char *r;\n"
        | RStringList _ | RHashtable _ -> pr "  char **r;\n"
-       | RStruct (_, typ) -> pr "  GuestfsInt%s *r;\n" (camel_name_of_struct typ)
-       | RStructList (_, typ) -> pr "  GuestfsInt%sList *r;\n" (camel_name_of_struct typ)
+       | RStruct (_, typ) -> pr "  guestfs_int_%s *r;\n" typ
+       | RStructList (_, typ) -> pr "  guestfs_int_%s_list *r;\n" typ
        | RBufferOut _ ->
            pr "  size_t size = 1;\n";
            pr "  char *r;\n"
@@ -245,7 +245,7 @@ cleanup_free_mountable (mountable_t *mountable)
         List.filter (function FileIn _ | FileOut _ -> false | _ -> true)
           args_passed_to_daemon in
       if args_passed_to_daemon <> [] then (
-        pr "  struct Guestfs%sArgs *args;\n" camel_name;
+        pr "  struct guestfs_%s_args *args;\n" name;
         List.iter (
           function
           | Device n | Dev_or_Path n ->
@@ -279,7 +279,7 @@ cleanup_free_mountable (mountable_t *mountable)
         pr "  /* The caller should have checked before calling this. */\n";
         pr "  if (! optgroup_%s_available ()) {\n" group;
         if is_filein then
-          pr "    cancel_receive ();\n";
+        pr "    cancel_receive ();\n";
         pr "    reply_with_unavailable_feature (\"%s\");\n" group;
         pr "    goto done_no_free;\n";
         pr "  }\n";
@@ -313,14 +313,12 @@ cleanup_free_mountable (mountable_t *mountable)
 
       (* Decode arguments. *)
       if args_passed_to_daemon <> [] then (
-        pr "  memset (&args, 0, sizeof args);\n";
-        pr "\n";
         pr "  if (!(args = %s_args__unpack (NULL, datalen, (const uint8_t *)data))) {\n" name;
         if is_filein then
           pr "    cancel_receive ();\n";
-        pr "    reply_with_error (\"daemon failed to decode procedure arguments\");\n";
-        pr "    goto done;\n";
-        pr "  }\n";
+          pr "    reply_with_error (\"daemon failed to decode procedure arguments\");\n";
+          pr "    goto done;\n";
+          pr "  }\n";
         let pr_args n =
           pr "  %s = args->%s;\n" n n
         in
@@ -346,25 +344,25 @@ cleanup_free_mountable (mountable_t *mountable)
           | OptString n -> pr "  %s = args->%s ? *args->%s : NULL;\n" n n n
           | StringList n ->
             pr "  /* Ugly, but safe and avoids copying the strings. */\n";
-            pr "  %s = realloc (args->%s.%s_val,\n" n n n;
-            pr "                sizeof (char *) * (args->%s.%s_len+1));\n" n n;
+            pr "  %s = realloc (args->%s,\n" n n;
+            pr "                sizeof (char *) * (args->n_%s+1));\n" n;
             pr "  if (%s == NULL) {\n" n;
             if is_filein then
               pr "    cancel_receive ();\n";
             pr "    reply_with_perror (\"realloc\");\n";
             pr "    goto done;\n";
             pr "  }\n";
-            pr "  %s[args->%s.%s_len] = NULL;\n" n n n;
-            pr "  args->%s.%s_val = %s;\n" n n n
+            pr "  %s[args->n_%s] = NULL;\n" n n;
+            pr "  args->%s = %s;\n" n n
           | DeviceList n ->
             pr "  /* Copy the string list and apply device name translation\n";
             pr "   * to each one.\n";
             pr "   */\n";
-            pr "  %s = calloc (args->%s.%s_len+1, sizeof (char *));\n" n n n;
+            pr "  %s = calloc (args->n_%s+1, sizeof (char *));\n" n n;
             pr "  {\n";
             pr "    size_t i;\n";
-            pr "    for (i = 0; i < args->%s.%s_len; ++i)\n" n n;
-            pr "      RESOLVE_DEVICE (args->%s.%s_val[i], %s[i],\n" n n n;
+            pr "    for (i = 0; i < args->n_%s; ++i)\n" n;
+            pr "      RESOLVE_DEVICE (args->%s[i], %s[i],\n" n n;
             pr "                      %s, goto done);\n"
               (if is_filein then "cancel_receive ()" else "");
             pr "    %s[i] = NULL;\n" n;
@@ -373,8 +371,8 @@ cleanup_free_mountable (mountable_t *mountable)
           | Int n -> pr "  %s = args->%s;\n" n n
           | Int64 n -> pr "  %s = args->%s;\n" n n
           | BufferIn n ->
-              pr "  %s = args->%s.%s_val;\n" n n n;
-              pr "  %s_size = args->%s.%s_len;\n" n n n
+              pr "  %s = args->%s.data;\n" n n;
+              pr "  %s_size = args->%s.len;\n" n n
           | FileIn _ | FileOut _ | Pointer _ -> assert false
         ) args_passed_to_daemon;
         pr "\n"
@@ -435,7 +433,7 @@ cleanup_free_mountable (mountable_t *mountable)
         match ret with
         | RErr -> pr "  reply (NULL, NULL);\n"
         | RInt n | RInt64 n | RBool n ->
-            pr "  struct Guestfs%sRet ret;\n" camel_name;
+            pr "  guestfs_%s_ret ret;\n" camel_name;
             pr "  char *bufret;\n";
             pr "  size_t lenret;\n";
             pr "  %s__init (&ret);\n" name;
@@ -448,7 +446,7 @@ cleanup_free_mountable (mountable_t *mountable)
         | RConstString _ | RConstOptString _ ->
             failwithf "RConstString|RConstOptString cannot be used by daemon functions"
         | RString n ->
-            pr "  struct Guestfs%sRet ret;\n" camel_name;
+            pr "  guestfs_%s_ret ret;\n" camel_name;
             pr "  char *bufret;\n";
             pr "  size_t lenret;\n";
             pr "  %s__init (&ret);\n" name;
@@ -460,7 +458,7 @@ cleanup_free_mountable (mountable_t *mountable)
             pr "  free (bufret);\n";
             pr "  free (r);\n"
         | RStringList n | RHashtable n ->
-            pr "  struct Guestfs%sRet ret;\n" camel_name;
+            pr "  guestfs_%s_ret ret;\n" camel_name;
             pr "  char *bufret;\n";
             pr "  size_t lenret;\n";
             pr "  %s__init (&ret);\n" name;
@@ -473,25 +471,23 @@ cleanup_free_mountable (mountable_t *mountable)
             pr "  free (bufret);\n";
             pr "  free_strings (r);\n"
         | RStruct (n, _) ->
-            pr "  struct Guestfs%sRet ret;\n" camel_name;
+            pr "  guestfs_%s_ret ret;\n" name;
             pr "  char *bufret;\n";
             pr "  size_t lenret;\n";
             pr "  %s__init (&ret);\n" name;
-            pr "  ret.%s = *r;\n" n;
+            pr "  ret.%s = r;\n" n;
             pr "  lenret = %s__get_packed_size (&ret);\n" name;
             pr "  bufret = malloc (lenret);\n";
             pr "  %s__pack (NULL, lenret, bufret);\n" name;
             pr "  reply (bufret, lenret);\n";
             pr "  free (bufret);\n";
-            pr "  free (r);\n";
-            pr "  //xdr_free ((xdrproc_t) xdr_guestfs_%s_ret, (char *) &ret);\n"
-              name
+            pr "  free (r);\n"
         | RStructList (n, _) ->
-            pr "  struct Guestfs%sRet ret;\n" camel_name;
+            pr "  guestfs_%s_ret ret;\n" name;
             pr "  char *bufret;\n";
             pr "  size_t lenret;\n";
             pr "  %s__init (&ret);\n" name;
-            pr "  ret.%s = *r;\n" n;
+            pr "  ret.%s = r;\n" n;
             pr "  lenret = %s__get_packed_size (&ret);\n" name;
             pr "  bufret = malloc (lenret);\n";
             pr "  %s__pack (NULL, lenret, bufret);\n" name;
@@ -505,8 +501,8 @@ cleanup_free_mountable (mountable_t *mountable)
             pr "  char *bufret;\n";
             pr "  size_t lenret;\n";
             pr "  %s__init (&ret);\n" name;
-            pr "  ret.%s = r;\n" n;
-            pr "  ret.n_%s = size;\n" n;
+            pr "  ret.%s.data = r;\n" n;
+            pr "  ret.%s.len = size;\n" n;
             pr "  lenret = %s__get_packed_size (&ret);\n" name;
             pr "  bufret = malloc (lenret);\n";
             pr "  %s__pack (NULL, lenret, bufret);\n" name;
@@ -520,8 +516,7 @@ cleanup_free_mountable (mountable_t *mountable)
       (match args_passed_to_daemon with
        | [] -> ()
        | _ ->
-           pr "  %s__free_unpacked(Guestfs%sArgs, NULL);\n"
-             name camel_name
+           pr "  free (bufret);\n";
       );
       pr "done_no_free:\n";
       pr "  return;\n";
@@ -535,7 +530,7 @@ cleanup_free_mountable (mountable_t *mountable)
 
   List.iter (
     fun { name = name } ->
-      pr "    case GUESTFS_PROCEDURE__GUESTFS_PROC_%s:\n" (String.uppercase name);
+      pr "    case GUESTFS_PROC_%s:\n" (String.uppercase name);
       pr "      %s_stub (data, datalen);\n" name;
       pr "      break;\n"
   ) daemon_functions;
@@ -552,12 +547,12 @@ cleanup_free_mountable (mountable_t *mountable)
    *)
   List.iter (
     function
-    | typ, camel_typ, cols ->
+    | typ, cols ->
         pr "static const char *lvm_%s_cols = \"%s\";\n"
           typ (String.concat "," (List.map fst cols));
         pr "\n";
 
-        pr "static int lvm_tokenize_%s (char *str, GuestfsIntLvm%s *r)\n" typ camel_typ;
+        pr "static int lvm_tokenize_%s (char *str, guestfs_int_lvm_%s *r)\n" typ typ;
         pr "{\n";
         pr "  char *tok, *p, *next;\n";
         pr "  size_t i, j;\n";
@@ -630,13 +625,13 @@ cleanup_free_mountable (mountable_t *mountable)
         pr "}\n";
         pr "\n";
 
-        pr "GuestfsIntLvm%sList *\n" camel_typ;
+        pr "guestfs_int_lvm_%s_list *\n" typ;
         pr "parse_command_line_%ss (void)\n" typ;
         pr "{\n";
         pr "  char *out, *err;\n";
         pr "  char *p, *pend;\n";
-        pr "  int r, i;\n";
-        pr "  GuestfsIntLvm%sList *ret;\n" camel_typ;
+        pr "  int r, i, j;\n";
+        pr "  guestfs_int_lvm_%s_list *ret;\n" typ;
         pr "  void *newp;\n";
         pr "\n";
         pr "  ret = malloc (sizeof *ret);\n";
@@ -646,7 +641,7 @@ cleanup_free_mountable (mountable_t *mountable)
         pr "  }\n";
         pr "\n";
         pr "  ret->n_vals = 0;\n";
-        pr "  ret->vals = NULL;\n";
+        pr "  ret->val = NULL;\n";
         pr "\n";
         pr "  r = command (&out, &err,\n";
         pr "	       \"lvm\", \"%ss\",\n" typ;
@@ -682,7 +677,7 @@ cleanup_free_mountable (mountable_t *mountable)
         pr "\n";
         pr "    /* Allocate some space to store this next entry. */\n";
         pr "    newp = realloc (ret->vals,\n";
-        pr "		    sizeof (GuestfsIntLvm%s) * (i+1));\n" camel_typ;
+        pr "		    sizeof (guestfs_int_lvm_%s *) * (i+1));\n" typ;
         pr "    if (newp == NULL) {\n";
         pr "      reply_with_perror (\"realloc\");\n";
         pr "      free (ret->vals);\n";
@@ -693,9 +688,13 @@ cleanup_free_mountable (mountable_t *mountable)
         pr "    ret->vals = newp;\n";
         pr "\n";
         pr "    /* Tokenize the next entry. */\n";
-        pr "    r = lvm_tokenize_%s (p, &ret->vals[i]);\n" typ;
+        pr "    ret->vals[i] = malloc (sizeof (guestfs_int_lvm_%s))" typ;
+        pr "    guestfs_int_lvm_%s__init (ret->vals[i]);" typ;
+        pr "    r = lvm_tokenize_%s (p, ret->vals[i]);\n" typ;
         pr "    if (r == -1) {\n";
         pr "      reply_with_error (\"failed to parse output of '%ss' command\");\n" typ;
+        pr "      for (j = 0; j < i; ++j)\n";
+        pr "        free (ret->vals[i])";
         pr "      free (ret->vals);\n";
         pr "      free (ret);\n";
         pr "      free (out);\n";
@@ -712,7 +711,7 @@ cleanup_free_mountable (mountable_t *mountable)
         pr "  return ret;\n";
         pr "}\n"
 
-  ) ["pv", "Pv", lvm_pv_cols; "vg", "Vg", lvm_vg_cols; "lv", "Lv", lvm_lv_cols]
+  ) ["pv", lvm_pv_cols; "vg", lvm_vg_cols; "lv", lvm_lv_cols]
 
 (* Generate a list of function names, for debugging in the daemon.. *)
 and generate_daemon_names () =

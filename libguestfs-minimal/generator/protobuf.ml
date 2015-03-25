@@ -218,14 +218,14 @@ message GuestfsMessageError {
 }
 
 message GuestfsMessageHeader {
-  required uint32 prog = 1;                         /* GUESTFS_PROGRAM */
-  required uint32 vers = 2;                         /* GUESTFS_PROTOCOL_VERSION */
-  required GuestfsProcedure proc = 3;              /* GUESTFS_PROC_x */
-  required GuestfsMessageDirection direction = 4;
-  required uint32 serial = 5;                       /* message serial number */
-  required uint64 progress_hint = 6;                /* upload hint for progress bar */
-  required uint64 optargs_bitmask = 7;              /* bitmask for optional args */
-  required GuestfsMessageStatus status = 8;
+  required fixed32 prog = 1;                         /* GUESTFS_PROGRAM */
+  required fixed32 vers = 2;                         /* GUESTFS_PROTOCOL_VERSION */
+  required sfixed32 proc = 3;                        /* GUESTFS_PROC_x */
+  required sfixed32 direction = 4;
+  required fixed32 serial = 5;                       /* message serial number */
+  required fixed64 progress_hint = 6;                /* upload hint for progress bar */
+  required fixed64 optargs_bitmask = 7;              /* bitmask for optional args */
+  required sfixed32 status = 8;
 }
 
 message GuestfsChunk {
@@ -250,10 +250,14 @@ message GuestfsChunk {
  * this then you'd better change that function as well.
  */
 message GuestfsProgress {
-  required GuestfsProcedure proc = 1;          /* @0:  GUESTFS_PROC_x */
-  required uint32 serial = 2;                   /* @4:  message serial number */
-  required uint64 position = 3;                 /* @8:  0 <= position <= total */
-  required uint64 total = 4;                    /* @16: total size of operation */
-                                                /* @24: size of structure */
+  required sfixed32 proc = 1;                    /* @0:  GUESTFS_PROC_x */
+  required fixed32 serial = 2;                   /* @4:  message serial number */
+  required fixed64 position = 3;                 /* @8:  0 <= position <= total */
+  required fixed64 total = 4;                    /* @16: total size of operation */
+                                                 /* @24: size of structure */
+}
+
+message GuestfsFlagMessage {
+  required fixed32 val = 1;
 }
 "
