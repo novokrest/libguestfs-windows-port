@@ -693,8 +693,10 @@ extern void guestfs___free_stringsbuf (struct stringsbuf *sb);
 extern void guestfs___cleanup_free_stringsbuf (struct stringsbuf *sb);
 
 /* proto.c */
-extern int guestfs___send (guestfs_h *g, int proc_nr, uint64_t progress_hint, uint64_t optargs_bitmask, xdrproc_t xdrp, char *args);
-extern int guestfs___recv (guestfs_h *g, const char *fn, struct guestfs_message_header *hdr, struct guestfs_message_error *err, xdrproc_t xdrp, char *ret);
+typedef size_t (*protobuf_proc_pack) (ProtobufCMessage *message, uint8_t *out);
+typedef void (*protobuf_proc_unpack) (ProtobufCAllocator *allocator, size_t len, const uint8_t *data);
+extern int guestfs___send (guestfs_h *g, int proc_nr, uint64_t progress_hint, uint64_t optargs_bitmask, protobuf_proc_pack pb_pack, char *args);
+extern int guestfs___recv (guestfs_h *g, const char *fn, struct guestfs_message_header *hdr, struct guestfs_message_error *err, protobuf_proc_unpack pb_unpack, ProtobufCMessage **ret);
 extern int guestfs___recv_discard (guestfs_h *g, const char *fn);
 extern int guestfs___send_file (guestfs_h *g, const char *filename);
 extern int guestfs___recv_file (guestfs_h *g, const char *filename);
