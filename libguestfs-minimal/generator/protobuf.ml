@@ -142,7 +142,7 @@ let generate_protobuf () =
            pr "}\n\n"
        | RHashtable n ->
            pr "message %sRet {\n" name;
-           pr "  repeated bytes %s = 1;\n" n;
+           pr "  repeated string %s = 1;\n" n;
            pr "}\n\n"
        | RBufferOut n ->
            pr "message %sRet {\n" name;

@@ -142,4 +142,7 @@ typedef GuestfsChunk guestfs_chunk;
 typedef GuestfsProgress guestfs_progress;
 
 typedef GuestfsFlagMessage guestfs_flag_message;
+
+typedef size_t (*protobuf_proc_pack) (ProtobufCMessage *message, uint8_t *out);
+typedef void (*protobuf_proc_unpack) (ProtobufCAllocator *allocator, size_t len, const uint8_t *data);
 "
