@@ -3865,26 +3865,26 @@ command." };
 Create a directory named C<path>." };
 
   { defaults with
-    name = "mkdir_p";
+    name = "mkdir_pp";
     style = RErr, [Pathname "path"], [];
     proc_nr = Some 33;
     tests = [
       InitScratchFS, Always, TestResultTrue
-        [["mkdir_p"; "/mkdir_p/foo/bar"];
+        [["mkdir_pp"; "/mkdir_p/foo/bar"];
          ["is_dir"; "/mkdir_p/foo/bar"; ""]], [];
       InitScratchFS, Always, TestResultTrue
-        [["mkdir_p"; "/mkdir_p2/foo/bar"];
+        [["mkdir_pp"; "/mkdir_p2/foo/bar"];
          ["is_dir"; "/mkdir_p2/foo"; ""]], [];
       InitScratchFS, Always, TestResultTrue
-        [["mkdir_p"; "/mkdir_p3/foo/bar"];
+        [["mkdir_pp"; "/mkdir_p3/foo/bar"];
          ["is_dir"; "/mkdir_p3"; ""]], [];
       (* Regression tests for RHBZ#503133: *)
       InitScratchFS, Always, TestRun
         [["mkdir"; "/mkdir_p4"];
-         ["mkdir_p"; "/mkdir_p4"]], [];
+         ["mkdir_pp"; "/mkdir_p4"]], [];
       InitScratchFS, Always, TestLastFail
         [["touch"; "/mkdir_p5"];
-         ["mkdir_p"; "/mkdir_p5"]], []
+         ["mkdir_pp"; "/mkdir_p5"]], []
     ];
     shortdesc = "create a directory and parents";
     longdesc = "\
@@ -4444,12 +4444,12 @@ C<path> should be a file or directory in the mounted file system
 This is the same as the C<statvfs(2)> system call." };
 
   { defaults with
-    name = "tune2fs_l";
+    name = "tune2fsl";
     style = RHashtable "superblock", [Device "device"], [];
     proc_nr = Some 55;
     tests = [
       InitScratchFS, Always, TestResult (
-        [["tune2fs_l"; "/dev/sdb1"]],
+        [["tune2fsl"; "/dev/sdb1"]],
         "check_hash (ret, \"Filesystem magic number\", \"0xEF53\") == 0 && "^
           "check_hash (ret, \"Filesystem OS type\", \"Linux\") == 0"), [];
     ];
@@ -5239,7 +5239,7 @@ This copies a file from C<src> to C<dest> where C<dest> is
 either a destination filename or destination directory." };
 
   { defaults with
-    name = "cp_a";
+    name = "cp_aa";
     style = RErr, [Pathname "src"; Pathname "dest"], [];
     proc_nr = Some 88;
     tests = [
@@ -5247,7 +5247,7 @@ either a destination filename or destination directory." };
         [["mkdir"; "/cp_a1"];
          ["mkdir"; "/cp_a2"];
          ["write"; "/cp_a1/file"; "file content"];
-         ["cp_a"; "/cp_a1"; "/cp_a2"];
+         ["cp_aa"; "/cp_a1"; "/cp_a2"];
          ["cat"; "/cp_a2/cp_a1/file"]], "file content"), []
     ];
     shortdesc = "copy a file or directory recursively";
@@ -5384,17 +5384,17 @@ parsing untrusted files.  These are mitigated in the current
 version of libguestfs, but see L<guestfs(3)/CVE-2014-8484>." };
 
   { defaults with
-    name = "strings_e";
+    name = "strings_ee";
     style = RStringList "stringsout", [String "encoding"; Pathname "path"], [];
     proc_nr = Some 95;
     protocol_limit_warning = true;
     tests = [
       InitISOFS, Always, TestResult (
-        [["strings_e"; "b"; "/known-5"]],
+        [["strings_ee"; "b"; "/known-5"]],
         "is_string_list (ret, 0)"), [];
       InitScratchFS, Always, TestResult (
         [["write"; "/strings_e"; "\000h\000e\000l\000l\000o\000\n\000w\000o\000r\000l\000d\000\n"];
-         ["strings_e"; "b"; "/strings_e"]],
+         ["strings_ee"; "b"; "/strings_e"]],
         "is_string_list (ret, 2, \"hello\", \"world\")"), []
     ];
     shortdesc = "print the printable strings in a file";
@@ -5504,7 +5504,7 @@ This resizes (expands or shrinks) an existing LVM physical
 volume to match the new size of the underlying device." };
 
   { defaults with
-    name = "sfdisk_N";
+    name = "sfdisk_nn";
     style = RErr, [Device "device"; Int "partnum";
                    Int "cyls"; Int "heads"; Int "sectors";
                    String "line"], [];
@@ -5521,7 +5521,7 @@ pass C<0> for the cyls/heads/sectors parameters.
 See also: C<guestfs_part_add>" };
 
   { defaults with
-    name = "sfdisk_l";
+    name = "sfdiskl";
     style = RString "partitions", [Device "device"], [];
     proc_nr = Some 100;
     deprecated_by = Some "part_list";
@@ -5633,7 +5633,7 @@ the underlying device.
 See also L<guestfs(3)/RESIZE2FS ERRORS>." };
 
   { defaults with
-    name = "e2fsck_f";
+    name = "e2fsck_ff";
     style = RErr, [Device "device"], [];
     proc_nr = Some 108;
     deprecated_by = Some "e2fsck";
@@ -5656,7 +5656,7 @@ even if the filesystem appears to be clean (I<-f>)." };
 Sleep for C<secs> seconds." };
 
   { defaults with
-    name = "ntfs_3g_probe";
+    name = "ntfs3gprobe";
     style = RInt "status", [Bool "rw"; Device "device"], [];
     proc_nr = Some 110;
     optional = Some "ntfs3g";
@@ -5664,11 +5664,11 @@ Sleep for C<secs> seconds." };
       InitNone, Always, TestResult (
         [["part_disk"; "/dev/sda"; "mbr"];
          ["mkfs"; "ntfs"; "/dev/sda1"; ""; "NOARG"; ""; ""];
-         ["ntfs_3g_probe"; "true"; "/dev/sda1"]], "ret == 0"), [];
+         ["ntfs3gprobe"; "true"; "/dev/sda1"]], "ret == 0"), [];
       InitNone, Always, TestResult (
         [["part_disk"; "/dev/sda"; "mbr"];
          ["mkfs"; "ext2"; "/dev/sda1"; ""; "NOARG"; ""; ""];
-         ["ntfs_3g_probe"; "true"; "/dev/sda1"]], "ret == 12"), []
+         ["ntfs3gprobe"; "true"; "/dev/sda1"]], "ret == 12"), []
     ];
     shortdesc = "probe NTFS volume";
     longdesc = "\
@@ -5856,15 +5856,15 @@ directory and its contents after use.
 See also: L<mkdtemp(3)>" };
 
   { defaults with
-    name = "wc_l";
+    name = "wcl";
     style = RInt "lines", [Pathname "path"], [];
     proc_nr = Some 118;
     tests = [
       InitISOFS, Always, TestResult (
-        [["wc_l"; "/10klines"]], "ret == 10000"), [];
+        [["wcl"; "/10klines"]], "ret == 10000"), [];
       (* Test for RHBZ#579608, absolute symbolic links. *)
       InitISOFS, Always, TestResult (
-        [["wc_l"; "/abssymlink"]], "ret == 10000"), []
+        [["wcl"; "/abssymlink"]], "ret == 10000"), []
     ];
     shortdesc = "count lines in a file";
     longdesc = "\
@@ -5872,12 +5872,12 @@ This command counts the lines in a file, using the
 C<wc -l> external command." };
 
   { defaults with
-    name = "wc_w";
+    name = "wcw";
     style = RInt "words", [Pathname "path"], [];
     proc_nr = Some 119;
     tests = [
       InitISOFS, Always, TestResult (
-        [["wc_w"; "/10klines"]], "ret == 10000"), []
+        [["wcw"; "/10klines"]], "ret == 10000"), []
     ];
     shortdesc = "count words in a file";
     longdesc = "\
@@ -5885,12 +5885,12 @@ This command counts the words in a file, using the
 C<wc -w> external command." };
 
   { defaults with
-    name = "wc_c";
+    name = "wcc";
     style = RInt "chars", [Pathname "path"], [];
     proc_nr = Some 120;
     tests = [
       InitISOFS, Always, TestResult (
-        [["wc_c"; "/100kallspaces"]], "ret == 102400"), []
+        [["wcc"; "/100kallspaces"]], "ret == 102400"), []
     ];
     shortdesc = "count characters in a file";
     longdesc = "\
@@ -5917,19 +5917,19 @@ This command returns up to the first 10 lines of a file as
 a list of strings." };
 
   { defaults with
-    name = "head_n";
+    name = "head_nn";
     style = RStringList "lines", [Int "nrlines"; Pathname "path"], [];
     proc_nr = Some 122;
     protocol_limit_warning = true;
     tests = [
       InitISOFS, Always, TestResult (
-        [["head_n"; "3"; "/10klines"]],
+        [["head_nn"; "3"; "/10klines"]],
         "is_string_list (ret, 3, \"0abcdefghijklmnopqrstuvwxyz\", \"1abcdefghijklmnopqrstuvwxyz\", \"2abcdefghijklmnopqrstuvwxyz\")"), [];
       InitISOFS, Always, TestResult (
-        [["head_n"; "-9997"; "/10klines"]],
+        [["head_nn"; "-9997"; "/10klines"]],
         "is_string_list (ret, 3, \"0abcdefghijklmnopqrstuvwxyz\", \"1abcdefghijklmnopqrstuvwxyz\", \"2abcdefghijklmnopqrstuvwxyz\")"), [];
       InitISOFS, Always, TestResult (
-        [["head_n"; "0"; "/10klines"]],
+        [["head_nn"; "0"; "/10klines"]],
         "is_string_list (ret, 0)"), []
     ];
     shortdesc = "return first N lines of a file";
@@ -5958,19 +5958,19 @@ This command returns up to the last 10 lines of a file as
 a list of strings." };
 
   { defaults with
-    name = "tail_n";
+    name = "tail_nn";
     style = RStringList "lines", [Int "nrlines"; Pathname "path"], [];
     proc_nr = Some 124;
     protocol_limit_warning = true;
     tests = [
       InitISOFS, Always, TestResult (
-        [["tail_n"; "3"; "/10klines"]],
+        [["tail_nn"; "3"; "/10klines"]],
         "is_string_list (ret, 3, \"9997abcdefghijklmnopqrstuvwxyz\", \"9998abcdefghijklmnopqrstuvwxyz\", \"9999abcdefghijklmnopqrstuvwxyz\")"), [];
       InitISOFS, Always, TestResult (
-        [["tail_n"; "-9998"; "/10klines"]],
+        [["tail_nn"; "-9998"; "/10klines"]],
         "is_string_list (ret, 3, \"9997abcdefghijklmnopqrstuvwxyz\", \"9998abcdefghijklmnopqrstuvwxyz\", \"9999abcdefghijklmnopqrstuvwxyz\")"), [];
       InitISOFS, Always, TestResult (
-        [["tail_n"; "0"; "/10klines"]],
+        [["tail_nn"; "0"; "/10klines"]],
         "is_string_list (ret, 0)"), []
     ];
     shortdesc = "return last N lines of a file";
@@ -5997,7 +5997,7 @@ is I<not> intended that you try to parse the output string.
 Use C<guestfs_statvfs> from programs." };
 
   { defaults with
-    name = "df_h";
+    name = "dfh";
     style = RString "output", [], [];
     proc_nr = Some 126;
     test_excuse = "tricky to test because it depends on the exact format of the 'df' command and other imponderables";
@@ -6089,14 +6089,14 @@ The option arguments C<label> and C<uuid> allow you to set the
 label and/or UUID of the new swap partition." };
 
   { defaults with
-    name = "mkswap_L";
+    name = "mkswap_ll";
     style = RErr, [String "label"; Device "device"], [];
     proc_nr = Some 131;
     deprecated_by = Some "mkswap";
     tests = [
       InitEmpty, Always, TestRun (
         [["part_disk"; "/dev/sda"; "mbr"];
-         ["mkswap_L"; "hello"; "/dev/sda1"]]), []
+         ["mkswap_ll"; "hello"; "/dev/sda1"]]), []
     ];
     shortdesc = "create a swap partition with a label";
     longdesc = "\
@@ -6107,7 +6107,7 @@ Note that you cannot attach a swap label to a block device
 a limitation of the kernel or swap tools." };
 
   { defaults with
-    name = "mkswap_U";
+    name = "mkswap_uu";
     style = RErr, [String "uuid"; Device "device"], [];
     proc_nr = Some 132;
     deprecated_by = Some "mkswap";
@@ -6116,7 +6116,7 @@ a limitation of the kernel or swap tools." };
       (let uuid = uuidgen () in [
         InitEmpty, Always, TestRun (
           [["part_disk"; "/dev/sda"; "mbr"];
-           ["mkswap_U"; uuid; "/dev/sda1"]]), []
+           ["mkswap_uu"; uuid; "/dev/sda1"]]), []
       ]);
     shortdesc = "create a swap partition with an explicit UUID";
     longdesc = "\
@@ -6178,13 +6178,13 @@ C<guestfs_mknod>.
 The mode actually set is affected by the umask." };
 
   { defaults with
-    name = "mknod_b";
+    name = "mknod_bb";
     style = RErr, [Int "mode"; Int "devmajor"; Int "devminor"; Pathname "path"], [];
     proc_nr = Some 135;
     optional = Some "mknod";
     tests = [
       InitScratchFS, Always, TestResult (
-        [["mknod_b"; "0o777"; "99"; "66"; "/mknod_b"];
+        [["mknod_bb"; "0o777"; "99"; "66"; "/mknod_b"];
          ["stat"; "/mknod_b"]],
         "S_ISBLK (ret->mode) && (ret->mode & 0777) == 0755"), []
     ];
@@ -6197,13 +6197,13 @@ It is just a convenient wrapper around C<guestfs_mknod>.
 The mode actually set is affected by the umask." };
 
   { defaults with
-    name = "mknod_c";
+    name = "mknod_cc";
     style = RErr, [Int "mode"; Int "devmajor"; Int "devminor"; Pathname "path"], [];
     proc_nr = Some 136;
     optional = Some "mknod";
     tests = [
       InitScratchFS, Always, TestResult (
-        [["mknod_c"; "0o777"; "99"; "66"; "/mknod_c"];
+        [["mknod_cc"; "0o777"; "99"; "66"; "/mknod_c"];
          ["stat"; "/mknod_c"]],
         "S_ISCHR (ret->mode) && (ret->mode & 0777) == 0755"), []
     ];
@@ -6305,7 +6305,7 @@ get a simple list of names, use C<guestfs_ls>.  To get a printable
 directory for human consumption, use C<guestfs_ll>." };
 
   { defaults with
-    name = "sfdiskM";
+    name = "sfdiskm";
     style = RErr, [Device "device"; StringList "lines"], [];
     proc_nr = Some 139;
     deprecated_by = Some "part_add";
@@ -6767,16 +6767,16 @@ returned path has no C<.>, C<..> or symbolic link path elements." };
 This command creates a hard link using the C<ln> command." };
 
   { defaults with
-    name = "ln_f";
+    name = "lnf";
     style = RErr, [String "target"; Pathname "linkname"], [];
     proc_nr = Some 165;
     tests = [
       InitScratchFS, Always, TestResult (
-        [["mkdir"; "/ln_f"];
-         ["touch"; "/ln_f/a"];
-         ["touch"; "/ln_f/b"];
-         ["ln_f"; "/ln_f/a"; "/ln_f/b"];
-         ["stat"; "/ln_f/b"]], "ret->nlink == 2"), []
+        [["mkdir"; "/lnf"];
+         ["touch"; "/lnf/a"];
+         ["touch"; "/lnf/b"];
+         ["lnf"; "/lnf/a"; "/lnf/b"];
+         ["stat"; "/lnf/b"]], "ret->nlink == 2"), []
     ];
     shortdesc = "create a hard link";
     longdesc = "\
@@ -6784,15 +6784,15 @@ This command creates a hard link using the C<ln -f> command.
 The I<-f> option removes the link (C<linkname>) if it exists already." };
 
   { defaults with
-    name = "ln_s";
+    name = "lns";
     style = RErr, [String "target"; Pathname "linkname"], [];
     proc_nr = Some 166;
     tests = [
       InitScratchFS, Always, TestResult (
-        [["mkdir"; "/ln_s"];
-         ["touch"; "/ln_s/a"];
-         ["ln_s"; "a"; "/ln_s/b"];
-         ["lstat"; "/ln_s/b"]],
+        [["mkdir"; "/lns"];
+         ["touch"; "/lns/a"];
+         ["lns"; "a"; "/lns/b"];
+         ["lstat"; "/lns/b"]],
         "S_ISLNK (ret->mode) && (ret->mode & 0777) == 0777"), []
     ];
     shortdesc = "create a symbolic link";
@@ -7120,29 +7120,29 @@ See the documentation about SELINUX in L<guestfs(3)>,
 and C<guestfs_setcon>" };
 
   { defaults with
-    name = "mkfs_b";
+    name = "mkfs_bb";
     style = RErr, [String "fstype"; Int "blocksize"; Device "device"], [];
     proc_nr = Some 187;
     deprecated_by = Some "mkfs";
     tests = [
       InitEmpty, Always, TestResultString (
         [["part_disk"; "/dev/sda"; "mbr"];
-         ["mkfs_b"; "ext2"; "4096"; "/dev/sda1"];
+         ["mkfs_bb"; "ext2"; "4096"; "/dev/sda1"];
          ["mount"; "/dev/sda1"; "/"];
          ["write"; "/new"; "new file contents"];
          ["cat"; "/new"]], "new file contents"), [];
       InitEmpty, Always, TestRun (
         [["part_disk"; "/dev/sda"; "mbr"];
-         ["mkfs_b"; "vfat"; "32768"; "/dev/sda1"]]), [];
+         ["mkfs_bb"; "vfat"; "32768"; "/dev/sda1"]]), [];
       InitEmpty, Always, TestLastFail (
         [["part_disk"; "/dev/sda"; "mbr"];
-         ["mkfs_b"; "vfat"; "32769"; "/dev/sda1"]]), [];
+         ["mkfs_bb"; "vfat"; "32769"; "/dev/sda1"]]), [];
       InitEmpty, Always, TestLastFail (
         [["part_disk"; "/dev/sda"; "mbr"];
-         ["mkfs_b"; "vfat"; "33280"; "/dev/sda1"]]), [];
+         ["mkfs_bb"; "vfat"; "33280"; "/dev/sda1"]]), [];
       InitEmpty, IfAvailable "ntfsprogs", TestRun (
         [["part_disk"; "/dev/sda"; "mbr"];
-         ["mkfs_b"; "ntfs"; "32768"; "/dev/sda1"]]), []
+         ["mkfs_bb"; "ntfs"; "32768"; "/dev/sda1"]]), []
     ];
     shortdesc = "make a filesystem with block size";
     longdesc = "\
@@ -7178,7 +7178,7 @@ to the command:
  mke2fs -O journal_dev -b blocksize device" };
 
   { defaults with
-    name = "mke2journal_L";
+    name = "mke2journal_ll";
     style = RErr, [Int "blocksize"; String "label"; Device "device"], [];
     proc_nr = Some 189;
     deprecated_by = Some "mke2fs";
@@ -7187,7 +7187,7 @@ to the command:
         [["part_init"; "/dev/sda"; "mbr"];
          ["part_add"; "/dev/sda"; "p"; "64"; "204799"];
          ["part_add"; "/dev/sda"; "p"; "204800"; "-64"];
-         ["mke2journal_L"; "4096"; "JOURNAL"; "/dev/sda1"];
+         ["mke2journal_ll"; "4096"; "JOURNAL"; "/dev/sda1"];
          ["mke2fs_JL"; "ext2"; "4096"; "/dev/sda2"; "JOURNAL"];
          ["mount"; "/dev/sda2"; "/"];
          ["write"; "/new"; "new file contents"];
@@ -7198,7 +7198,7 @@ to the command:
 This creates an ext2 external journal on C<device> with label C<label>." };
 
   { defaults with
-    name = "mke2journal_U";
+    name = "mke2journal_uu";
     style = RErr, [Int "blocksize"; String "uuid"; Device "device"], [];
     proc_nr = Some 190;
     deprecated_by = Some "mke2fs";
@@ -7209,7 +7209,7 @@ This creates an ext2 external journal on C<device> with label C<label>." };
           [["part_init"; "/dev/sda"; "mbr"];
            ["part_add"; "/dev/sda"; "p"; "64"; "204799"];
            ["part_add"; "/dev/sda"; "p"; "204800"; "-64"];
-           ["mke2journal_U"; "4096"; uuid; "/dev/sda1"];
+           ["mke2journal_uu"; "4096"; uuid; "/dev/sda1"];
            ["mke2fs_JU"; "ext2"; "4096"; "/dev/sda2"; uuid];
            ["mount"; "/dev/sda2"; "/"];
            ["write"; "/new"; "new file contents"];
@@ -7220,7 +7220,7 @@ This creates an ext2 external journal on C<device> with label C<label>." };
 This creates an ext2 external journal on C<device> with UUID C<uuid>." };
 
   { defaults with
-    name = "mke2fs_J";
+    name = "mke2fs_jj";
     style = RErr, [String "fstype"; Int "blocksize"; Device "device"; Device "journal"], [];
     proc_nr = Some 191;
     deprecated_by = Some "mke2fs";
@@ -7235,7 +7235,7 @@ to the command:
 See also C<guestfs_mke2journal>." };
 
   { defaults with
-    name = "mke2fs_JL";
+    name = "mke2fs_jl";
     style = RErr, [String "fstype"; Int "blocksize"; Device "device"; String "label"], [];
     proc_nr = Some 192;
     deprecated_by = Some "mke2fs";
@@ -7247,7 +7247,7 @@ an external journal on the journal labeled C<label>.
 See also C<guestfs_mke2journal_L>." };
 
   { defaults with
-    name = "mke2fs_JU";
+    name = "mke2fs_ju";
     style = RErr, [String "fstype"; Int "blocksize"; Device "device"; String "uuid"], [];
     proc_nr = Some 193;
     deprecated_by = Some "mke2fs";
@@ -9109,7 +9109,7 @@ is no extended attribute named C<name>, this returns an error.
 See also: C<guestfs_lgetxattrs>, C<guestfs_getxattr>, L<attr(5)>." };
 
   { defaults with
-    name = "resize2fs_M";
+    name = "resize2fsm";
     style = RErr, [Device "device"], [];
     proc_nr = Some 281;
     shortdesc = "resize an ext2, ext3 or ext4 filesystem to the minimum size";
@@ -9172,7 +9172,7 @@ This returns true iff the device exists and contains all zero bytes.
 Note that for large devices this can take a long time to run." };
 
   { defaults with
-    name = "list_9p";
+    name = "list9p";
     style = RStringList "mounttags", [], [];
     proc_nr = Some 285;
     shortdesc = "list 9p filesystems";
@@ -9181,7 +9181,7 @@ List all 9p filesystems attached to the guest.  A list of
 mount tags is returned." };
 
   { defaults with
-    name = "mount_9p";
+    name = "mount9p";
     style = RErr, [String "mounttag"; String "mountpoint"], [OString "options"];
     proc_nr = Some 286;
     camel_name = "Mount9p";
@@ -9214,7 +9214,7 @@ volumes." };
     style = RErr, [Device "device"], [OInt64 "size"; OBool "force"];
     once_had_no_optargs = true;
     proc_nr = Some 288;
-    optional = Some "ntfsprogs"; camel_name = "NTFSResizeOpts";
+    optional = Some "ntfsprogs"; camel_name = "NTFSResize";
     shortdesc = "resize an NTFS filesystem";
     longdesc = "\
 This command resizes an NTFS filesystem, expanding or
@@ -9249,7 +9249,7 @@ See also L<ntfsresize(8)>." };
     name = "btrfs_filesystem_resize";
     style = RErr, [Pathname "mountpoint"], [OInt64 "size"];
     proc_nr = Some 289;
-    optional = Some "btrfs"; camel_name = "BTRFSFilesystemResize";
+    optional = Some "btrfs"; camel_name = "BtrfsFilesystemResize";
     shortdesc = "resize a btrfs filesystem";
     longdesc = "\
 This command resizes a btrfs filesystem.
@@ -9432,7 +9432,7 @@ moving functions." };
     name = "tune2fs";
     style = RErr, [Device "device"], [OBool "force"; OInt "maxmountcount"; OInt "mountcount"; OString "errorbehavior"; OInt64 "group"; OInt "intervalbetweenchecks"; OInt "reservedblockspercentage"; OString "lastmounteddirectory"; OInt64 "reservedblockscount"; OInt64 "user"];
     proc_nr = Some 298;
-    camel_name = "Tune2Fs";
+    camel_name = "Tune2fs";
     tests = [
       InitScratchFS, Always, TestResult (
         [["tune2fs"; "/dev/sdb1"; "false"; "0"; ""; "NOARG"; ""; "0"; ""; "NOARG"; ""; ""];
@@ -9534,7 +9534,7 @@ works, see the L<tune2fs(8)> man page." };
     name = "md_create";
     style = RErr, [String "name"; DeviceList "devices"], [OInt64 "missingbitmap"; OInt "nrdevices"; OInt "spare"; OInt64 "chunk"; OString "level"];
     proc_nr = Some 299;
-    optional = Some "mdadm"; camel_name = "MDCreate";
+    optional = Some "mdadm"; camel_name = "MdCreate";
     shortdesc = "create a Linux md (RAID) device";
     longdesc = "\
 Create a Linux md (RAID) device named C<name> on the devices
@@ -10233,7 +10233,7 @@ See C<guestfs_get_e2generation>." };
     name = "btrfs_subvolume_snapshot";
     style = RErr, [Pathname "source"; Pathname "dest"], [];
     proc_nr = Some 322;
-    optional = Some "btrfs"; camel_name = "BTRFSSubvolumeSnapshot";
+    optional = Some "btrfs"; camel_name = "BtrfsSubvolumeSnapshot";
     tests = [
       InitPartition, Always, TestRun (
         [["mkfs_btrfs"; "/dev/sda1"; ""; ""; "NOARG"; ""; "NOARG"; "NOARG"; ""; ""];
@@ -10254,7 +10254,7 @@ of the snapshot, in the form C</path/to/dest/name>." };
     name = "btrfs_subvolume_delete";
     style = RErr, [Pathname "subvolume"], [];
     proc_nr = Some 323;
-    optional = Some "btrfs"; camel_name = "BTRFSSubvolumeDelete";
+    optional = Some "btrfs"; camel_name = "BtrfsSubvolumeDelete";
     tests = [
       InitPartition, Always, TestRun (
         [["mkfs_btrfs"; "/dev/sda1"; ""; ""; "NOARG"; ""; "NOARG"; "NOARG"; ""; ""];
@@ -10270,7 +10270,7 @@ Delete the named btrfs subvolume or snapshot." };
     name = "btrfs_subvolume_create";
     style = RErr, [Pathname "dest"], [];
     proc_nr = Some 324;
-    optional = Some "btrfs"; camel_name = "BTRFSSubvolumeCreate";
+    optional = Some "btrfs"; camel_name = "BtrfsSubvolumeCreate";
     shortdesc = "create a btrfs subvolume";
     longdesc = "\
 Create a btrfs subvolume.  The C<dest> argument is the destination
@@ -10280,7 +10280,7 @@ directory and the name of the subvolume, in the form C</path/to/dest/name>." };
     name = "btrfs_subvolume_list";
     style = RStructList ("subvolumes", "btrfssubvolume"), [Mountable_or_Path "fs"], [];
     proc_nr = Some 325;
-    optional = Some "btrfs"; camel_name = "BTRFSSubvolumeList";
+    optional = Some "btrfs"; camel_name = "BtrfsSubvolumeList";
     test_excuse = "tested in tests/btrfs";
     shortdesc = "list btrfs snapshots and subvolumes";
     longdesc = "\
@@ -10291,7 +10291,7 @@ which is mounted at C<fs>." };
     name = "btrfs_subvolume_set_default";
     style = RErr, [Int64 "id"; Pathname "fs"], [];
     proc_nr = Some 326;
-    optional = Some "btrfs"; camel_name = "BTRFSSubvolumeSetDefault";
+    optional = Some "btrfs"; camel_name = "BtrfsSubvolumeSetDefault";
     test_excuse = "tested in tests/btrfs";
     shortdesc = "set default btrfs subvolume";
     longdesc = "\
@@ -10303,7 +10303,7 @@ get a list of subvolumes." };
     name = "btrfs_filesystem_sync";
     style = RErr, [Pathname "fs"], [];
     proc_nr = Some 327;
-    optional = Some "btrfs"; camel_name = "BTRFSFilesystemSync";
+    optional = Some "btrfs"; camel_name = "BtrfsFilesystemSync";
     tests = [
       InitPartition, Always, TestRun (
         [["mkfs_btrfs"; "/dev/sda1"; ""; ""; "NOARG"; ""; "NOARG"; "NOARG"; ""; ""];
@@ -10320,7 +10320,7 @@ Force sync on the btrfs filesystem mounted at C<fs>." };
     name = "btrfs_filesystem_balance";
     style = RErr, [Pathname "fs"], [];
     proc_nr = Some 328;
-    optional = Some "btrfs"; camel_name = "BTRFSFilesystemBalance";
+    optional = Some "btrfs"; camel_name = "BtrfsFilesystemBalance";
     shortdesc = "balance a btrfs filesystem";
     longdesc = "\
 Balance the chunks in the btrfs filesystem mounted at C<fs>
@@ -10330,7 +10330,7 @@ across the underlying devices." };
     name = "btrfs_device_add";
     style = RErr, [DeviceList "devices"; Pathname "fs"], [];
     proc_nr = Some 329;
-    optional = Some "btrfs"; camel_name = "BTRFSDeviceAdd";
+    optional = Some "btrfs"; camel_name = "BtrfsDeviceAdd";
     test_excuse = "test disk isn't large enough to test this thoroughly, so there is an external test in 'tests/btrfs' directory";
     shortdesc = "add devices to a btrfs filesystem";
     longdesc = "\
@@ -10341,7 +10341,7 @@ mounted at C<fs>.  If C<devices> is an empty list, this does nothing." };
     name = "btrfs_device_delete";
     style = RErr, [DeviceList "devices"; Pathname "fs"], [];
     proc_nr = Some 330;
-    optional = Some "btrfs"; camel_name = "BTRFSDeviceDelete";
+    optional = Some "btrfs"; camel_name = "BtrfsDeviceDelete";
     test_excuse = "test disk isn't large enough to test this thoroughly, so there is an external test in 'tests/btrfs' directory.";
     shortdesc = "remove devices from a btrfs filesystem";
     longdesc = "\
@@ -10961,20 +10961,20 @@ The returned status indicates whether filesystem corruption was
 detected (returns C<1>) or was not detected (returns C<0>)." };
 
   { defaults with
-    name = "rm_f";
+    name = "rm_ff";
     style = RErr, [Pathname "path"], [];
     proc_nr = Some 367;
     tests = [
       InitScratchFS, Always, TestResultFalse
         [["mkdir"; "/rm_f"];
          ["touch"; "/rm_f/foo"];
-         ["rm_f"; "/rm_f/foo"];
-         ["rm_f"; "/rm_f/not_exists"];
+         ["rm_ff"; "/rm_f/foo"];
+         ["rm_ff"; "/rm_f/not_exists"];
          ["exists"; "/rm_f/foo"]], [];
       InitScratchFS, Always, TestLastFail
         [["mkdir"; "/rm_f2"];
          ["mkdir"; "/rm_f2/foo"];
-         ["rm_f"; "/rm_f2/foo"]], []
+         ["rm_ff"; "/rm_f2/foo"]], []
     ];
     shortdesc = "remove a file ignoring errors";
     longdesc = "\
@@ -11635,7 +11635,7 @@ about the contents of this file, see L<extlinux(1)>.
 See also C<guestfs_syslinux>." };
 
   { defaults with
-    name = "cp_r";
+    name = "cp_rr";
     style = RErr, [Pathname "src"; Pathname "dest"], [];
     proc_nr = Some 401;
     tests = [
@@ -11643,7 +11643,7 @@ See also C<guestfs_syslinux>." };
         [["mkdir"; "/cp_r1"];
          ["mkdir"; "/cp_r2"];
          ["write"; "/cp_r1/file"; "file content"];
-         ["cp_r"; "/cp_r1"; "/cp_r2"];
+         ["cp_rr"; "/cp_r1"; "/cp_r2"];
          ["cat"; "/cp_r2/cp_r1/file"]], "file content"), []
     ];
     shortdesc = "copy a file or directory recursively";
@@ -11799,7 +11799,7 @@ See also C<guestfs_journal_get_data_threshold>." };
 
   { defaults with
     name = "aug_setm";
-    style = RInt "nodes", [String "base"; OptString "sub"; String "val"], [];
+    style = RInt "nodes", [String "basee"; OptString "sub"; String "val"], [];
     proc_nr = Some 411;
     tests = [
       InitBasicFS, Always, TestResultString (
