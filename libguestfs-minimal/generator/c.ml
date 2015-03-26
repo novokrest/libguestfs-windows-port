@@ -441,6 +441,8 @@ extern \"C\" {
 #include <stdint.h>
 #include <stdarg.h>
 
+#include \"guestfs_protocol.pb-c.h\"
+
 #if defined(__GNUC__) && !defined(GUESTFS_GCC_VERSION)
 # define GUESTFS_GCC_VERSION \\
     (__GNUC__ * 10000 + __GNUC_MINOR__ * 100 + __GNUC_PATCHLEVEL__)
@@ -590,7 +592,7 @@ extern GUESTFS_DLL_PUBLIC void *guestfs_next_private (guestfs_h *g, const char *
 ";
 
   (* The structures are carefully written to have exactly the same
-   * in-memory format as the XDR structures that we use on the wire to
+   * in-memory format as the Protobuf structures that we use on the wire to
    * the daemon.  The reason for creating copies of these structures
    * here is just so we don't have to export the whole of
    * guestfs_protocol.pb-c.h (which includes much unrelated and
@@ -871,7 +873,7 @@ and generate_client_structs_free () =
 ";
 
   pr "/* Structure-freeing functions.  These rely on the fact that the\n";
-  pr " * structure format is identical to the XDR format.  See note in\n";
+  pr " * structure format is identical to the Protobuf format.  See note in\n";
   pr " * generator.ml.\n";
   pr " */\n";
   pr "\n";
@@ -1665,7 +1667,7 @@ and generate_client_actions hash () =
         args in
     (match args_passed_to_daemon, optargs with
     | [], [] -> ()
-    | _, _ -> pr "  struct guestfs_%s_args args;\n" name
+    | _, _ -> pr "  guestfs_%s_args args;\n" name
     );
 
     pr "  guestfs_message_header hdr;\n";
@@ -1679,7 +1681,7 @@ and generate_client_actions hash () =
       | RBool _ | RString _ | RStringList _
       | RStruct _ | RStructList _
       | RHashtable _ | RBufferOut _ ->
-        pr "  struct guestfs_int_%s_ret *ret;\n" name;
+        pr "  guestfs_%s_ret *ret;\n" name;
         true in
 
     pr "  int serial;\n";
@@ -1746,8 +1748,8 @@ and generate_client_actions hash () =
         | OptString n ->
           pr "  args.%s = %s ? (char **) &%s : NULL;\n" n n n
         | StringList n | DeviceList n ->
-          pr "  args.%s.%s_val = (char **) %s;\n" n n n;
-          pr "  for (args.%s.%s_len = 0; %s[args.%s.%s_len]; args.%s.%s_len++) ;\n" n n n n n n n;
+          pr "  args.%s = (char **) %s;\n" n n;
+          pr "  for (args.n_%s = 0; %s[args.n_%s]; args.n_%s++) ;\n" n n n n;
         | Bool n ->
           pr "  args.%s = %s;\n" n n
         | Int n ->
@@ -1762,8 +1764,8 @@ and generate_client_actions hash () =
             name;
           pr "    return %s;\n" (string_of_errcode errcode);
           pr "  }\n";
-          pr "  args.%s.%s_val = (char *) %s;\n" n n n;
-          pr "  args.%s.%s_len = %s_size;\n" n n n
+          pr "  args.%s.data = (char *) %s;\n" n n;
+          pr "  args.%s.len = %s_size;\n" n n
         | FileIn _ | FileOut _ | Pointer _ -> assert false
       ) args_passed_to_daemon;
 
@@ -1786,11 +1788,11 @@ and generate_client_actions hash () =
             pr "    args.%s = (char *) \"\";\n" n;
             pr "  }\n";
           | OStringList n ->
-            pr "    args.%s.%s_val = (char **) optargs->%s;\n" n n n;
-            pr "    for (args.%s.%s_len = 0; optargs->%s[args.%s.%s_len]; args.%s.%s_len++) ;\n" n n n n n n n;
+            pr "    args.%s = (char **) optargs->%s;\n" n n;
+            pr "    for (args.n_%s = 0; optargs->%s[args.n_%s]; args.n_%s++) ;\n" n n n n;
             pr "  } else {\n";
-            pr "    args.%s.%s_len = 0;\n" n n;
-            pr "    args.%s.%s_val = NULL;\n" n n;
+            pr "    args.n_%s = 0;\n" n;
+            pr "    args.%s = NULL;\n" n;
             pr "  }\n";
           )
       ) optargs;
@@ -1831,13 +1833,13 @@ and generate_client_actions hash () =
     if !need_read_reply_label then pr " read_reply:\n";
     pr "  memset (&hdr, 0, sizeof hdr);\n";
     pr "  memset (&err, 0, sizeof err);\n";
-    if has_ret then pr "  memset (&ret, 0, sizeof ret);\n";
+    (*if has_ret then pr "  memset (&ret, 0, sizeof ret);\n";*)
     pr "\n";
     pr "  r = guestfs___recv (g, \"%s\", &hdr, &err,\n        " name;
     if not has_ret then
       pr "NULL, NULL"
     else
-      pr "(protobuf_proc_unpack) guestfs_%s_ret__unpack, (char *) &ret" name;
+      pr "(protobuf_proc_unpack) guestfs_%s_ret__unpack, (ProtobufCMessage **) &ret" name;
     pr ");\n";
 
     pr "  if (r == -1) {\n";
@@ -1888,38 +1890,38 @@ and generate_client_actions hash () =
     | RErr ->
       pr "  ret_v = 0;\n"
     | RInt n | RInt64 n | RBool n ->
-      pr "  ret_v = ret.%s;\n" n
+      pr "  ret_v = ret->%s;\n" n
     | RConstString _ | RConstOptString _ ->
       failwithf "RConstString|RConstOptString cannot be used by daemon functions"
     | RString n ->
-      pr "  ret_v = ret.%s; /* caller will free */\n" n
+      pr "  ret_v = ret->%s; /* caller will free */\n" n
     | RStringList n | RHashtable n ->
       pr "  /* caller will free this, but we need to add a NULL entry */\n";
-      pr "  ret.%s.%s_val =\n" n n;
-      pr "    safe_realloc (g, ret.%s.%s_val,\n" n n;
-      pr "                  sizeof (char *) * (ret.%s.%s_len + 1));\n"
-        n n;
-      pr "  ret.%s.%s_val[ret.%s.%s_len] = NULL;\n" n n n n;
-      pr "  ret_v = ret.%s.%s_val;\n" n n
+      pr "  ret->%s =\n" n;
+      pr "    safe_realloc (g, ret->%s,\n" n;
+      pr "                  sizeof (char *) * (ret->n_%s + 1));\n"
+        n;
+      pr "  ret->%s[ret->n_%s] = NULL;\n" n n;
+      pr "  ret_v = ret->%s;\n" n
     | RStruct (n, _) ->
       pr "  /* caller will free this */\n";
-      pr "  ret_v = safe_memdup (g, &ret.%s, sizeof (ret.%s));\n" n n
+      pr "  ret_v = safe_memdup (g, ret->%s, sizeof (*(ret->%s)));\n" n n
     | RStructList (n, _) ->
       pr "  /* caller will free this */\n";
-      pr "  ret_v = safe_memdup (g, &ret.%s, sizeof (ret.%s));\n" n n
+      pr "  ret_v = safe_memdup (g, ret->%s, sizeof (*(ret->%s)));\n" n n
     | RBufferOut n ->
       pr "  /* RBufferOut is tricky: If the buffer is zero-length, then\n";
       pr "   * _val might be NULL here.  To make the API saner for\n";
       pr "   * callers, we turn this case into a unique pointer (using\n";
       pr "   * malloc(1)).\n";
       pr "   */\n";
-      pr "  if (ret.%s.%s_len > 0) {\n" n n;
-      pr "    *size_r = ret.%s.%s_len;\n" n n;
-      pr "    ret_v = ret.%s.%s_val; /* caller will free */\n" n n;
+      pr "  if (ret->%s.len > 0) {\n" n;
+      pr "    *size_r = ret->%s.len;\n" n;
+      pr "    ret_v = ret->%s.data; /* caller will free */\n" n;
       pr "  } else {\n";
-      pr "    free (ret.%s.%s_val);\n" n n;
+      pr "    free (ret->%s.data);\n" n;
       pr "    char *p = safe_malloc (g, 1);\n";
-      pr "    *size_r = ret.%s.%s_len;\n" n n;
+      pr "    *size_r = ret->%s.len;\n" n;
       pr "    ret_v = p;\n";
       pr "  }\n";
     );
