@@ -29,7 +29,8 @@
 #include <sys/inotify.h>
 #endif
 
-#include "guestfs_protocol.h"
+#include "guestfs_protocol.pb-c.h"
+#include "guestfs_protocol_typedefs.h"
 #include "daemon.h"
 #include "actions.h"
 #include "optgroups.h"
@@ -297,8 +298,9 @@ do_inotify_read (void)
   return ret;
 
  error:
-  xdr_free ((xdrproc_t) xdr_guestfs_int_inotify_event_list, (char *) ret);
-  free (ret);
+  guestfs_int_inotify_event_list__free_unpacked ((guestfs_int_inotify_event_list*) ret, NULL);
+  //xdr_free ((xdrproc_t) xdr_guestfs_int_inotify_event_list, (char *) ret);
+  //free (ret);
   return NULL;
 }
 
@@ -347,8 +349,9 @@ do_inotify_files (void)
         fprintf (fp, "%s\n", name);
     }
 
-    xdr_free ((xdrproc_t) xdr_guestfs_int_inotify_event_list, (char *) events);
-    free (events);
+    guestfs_int_inotify_event_list__free_unpacked ((guestfs_int_inotify_event_list*) events, NULL);
+    //xdr_free ((xdrproc_t) xdr_guestfs_int_inotify_event_list, (char *) events);
+    //free (events);
   }
 
   pclose (fp);

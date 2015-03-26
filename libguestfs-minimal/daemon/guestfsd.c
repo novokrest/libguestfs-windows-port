@@ -26,8 +26,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-#include <rpc/types.h>
-#include <rpc/xdr.h>
 #include <getopt.h>
 #include <sys/param.h>
 #include <sys/types.h>
@@ -327,18 +325,18 @@ main (int argc, char *argv[])
   /* Send the magic length message which indicates that
    * userspace is up inside the guest.
    */
-  char lenbuf[4];
-  XDR xdr;
+  char lenbuf[FLAG_MESSAGE_SIZE];
+  guestfs_flag_message flagmsg;
   uint32_t len = GUESTFS_LAUNCH_FLAG;
-  xdrmem_create (&xdr, lenbuf, sizeof lenbuf, XDR_ENCODE);
-  xdr_u_int (&xdr, &len);
+  
+  flagmsg = GUESTFS_FLAG_MESSAGE__INIT;
+  flagmsg.val = len;
+  assert (guestfs_flag_message__pack (&flagmsg, lenbuf) == FLAG_MESSAGE_SIZE);
 
   if (xwrite (sock, lenbuf, sizeof lenbuf) == -1) {
     perror ("xwrite");
     exit (EXIT_FAILURE);
   }
-
-  xdr_destroy (&xdr);
 
   /* Enter the main loop, reading and performing actions. */
   main_loop (sock);

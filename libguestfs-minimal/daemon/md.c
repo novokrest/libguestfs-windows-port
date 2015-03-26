@@ -516,7 +516,8 @@ do_md_stat (const char *md)
 
   if (fclose (fp) == EOF) {
     reply_with_perror ("fclose: %s", "/proc/mdstat");
-    xdr_free ((xdrproc_t) xdr_guestfs_int_mdstat_list, (char *) ret);
+    guestfs_int_mdstat_list__free_unpacked ((guestfs_int_mdstat_list*) ret, NULL);
+    //xdr_free ((xdrproc_t) xdr_guestfs_int_mdstat_list, (char *) ret);
     return NULL;
   }
 
