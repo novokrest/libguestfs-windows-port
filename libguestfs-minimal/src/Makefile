@@ -73,7 +73,7 @@ GUESTFS_SOURCES = \
 top_srcdir = ..
 gnulib = $(top_srcdir)/gnulib/lib
 CC = gcc
-CFLAGS = -I. -I$(top_srcdir) -I$(gnulib)
+CFLAGS = -I. -I$(top_srcdir) -I$(gnulib) -w -DGUESTFS_PRIVATE=1
 PROTOC = protoc-c
 GUESTFS_OBJECTS = $(GUESTFS_SOURCES:.c=.o)
 GUESTFS_LIBRARY = guestfs
