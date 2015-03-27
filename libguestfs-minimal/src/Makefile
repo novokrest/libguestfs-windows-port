@@ -50,14 +50,10 @@ GUESTFS_CFLAGS = \
 	$(PROTOBUF_CFLAGS)
 
 GUESTFS_LIBS = \
-	liberrnostring.la \
-	libprotocol.la \
-	libutils.la \
 	$(PCRE_LIBS) $(MAGIC_LIBS) \
 	$(LIBVIRT_LIBS) $(LIBXML2_LIBS) \
 	$(SELINUX_LIBS) \
 	$(YAJL_LIBS) \
-	../gnulib/lib/libgnu.la \
 	$(GETADDRINFO_LIB) \
 	$(HOSTENT_LIB) \
 	$(INET_NTOP_LIB) \
@@ -69,14 +65,16 @@ GUESTFS_LIBS = \
 	$(SERVENT_LIB) \
 	$(PROTOBUF_LIB)
 
-GUESTFS_SOURCES = \
+GUESTFS_INCLUDE = \
 	guestfs.h \
 	guestfs-internal.h \
 	guestfs-internal-all.h \
 	guestfs-internal-frontend.h \
 	guestfs-internal-frontend-cleanups.h \
 	guestfs_protocol.pb-c.h \
-	guestfs_protocol_typedefs.h \
+	guestfs_protocol_typedefs.h
+
+GUESTFS_SOURCES = \
 	actions-0.c \
 	actions-1.c \
 	actions-2.c \
@@ -130,8 +128,7 @@ GUESTFS_SOURCES = \
 	structs-compare.c \
 	structs-copy.c \
 	structs-free.c \
-	tmpdirs.c \
-	libguestfs.syms
+	tmpdirs.c 
 
 ERRNOSTRING_SOURCES = \
 	errnostring-gperf.c \
