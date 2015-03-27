@@ -3,7 +3,7 @@
  *   generator/ *.ml
  * ANY CHANGES YOU MAKE TO THIS FILE WILL BE LOST.
  *
- * Copyright (C) 2009-2014 Red Hat Inc.
+ * Copyright (C) 2009-2015 Red Hat Inc.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -30,7 +30,8 @@
 #include "guestfs.h"
 #include "guestfs-internal.h"
 #include "guestfs-internal-actions.h"
-#include "guestfs_protocol.h"
+#include "guestfs_protocol.pb-c.h"
+#include "guestfs_protocol_typedefs.h"
 
 int
 guestfs__internal_test_set_output (guestfs_h *g, const char *filename)
@@ -98,7 +99,7 @@ static void
 fill_lvm_pv (guestfs_h *g, struct guestfs_lvm_pv *pv, size_t i)
 {
   pv->pv_name = safe_asprintf (g, "pv%zu", i);
-  memcpy (pv->pv_uuid, "12345678901234567890123456789012", 32);
+  memcpy (pv->pv_uuid.data, "12345678901234567890123456789012", 32);
   pv->pv_fmt = safe_strdup (g, "unknown");
   pv->pv_size = i;
   pv->dev_size = i;
@@ -758,10 +759,13 @@ guestfs__internal_test_rstructlist (guestfs_h *g,
     return NULL;
   }
   r = safe_malloc (g, sizeof *r);
-  r->len = len;
-  r->val = safe_malloc (g, r->len * sizeof (*r->val));
-  for (size_t i = 0; i < r->len; i++)
-    fill_lvm_pv (g, &r->val[i], i);
+  r->n_vals = len;
+  r->vals = safe_malloc (g, r->n_vals * sizeof (*r->vals));
+  for (size_t i = 0; i < r->n_vals; i++) {
+    r->vals[i] = safe_malloc (g, sizeof (*r->vals[i]));
+    guestfs_int_lvm_pv__init (r->vals[i]);
+    fill_lvm_pv (g, r->vals[i], i);
+  }
   return r;
 }
 

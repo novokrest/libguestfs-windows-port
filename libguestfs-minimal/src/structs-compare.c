@@ -3,7 +3,7 @@
  *   generator/ *.ml
  * ANY CHANGES YOU MAKE TO THIS FILE WILL BE LOST.
  *
- * Copyright (C) 2009-2014 Red Hat Inc.
+ * Copyright (C) 2009-2015 Red Hat Inc.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -45,14 +45,14 @@ guestfs_compare_int_bool (const struct guestfs_int_bool *s1, const struct guestf
 GUESTFS_DLL_PUBLIC int
 guestfs_compare_int_bool_list (const struct guestfs_int_bool_list *s1, const struct guestfs_int_bool_list *s2)
 {
-  if (s1->len < s2->len) return -1;
-  else if (s1->len > s2->len) return 1;
+  if (s1->n_vals < s2->n_vals) return -1;
+  else if (s1->n_vals > s2->n_vals) return 1;
   else {
     size_t i;
     int r;
 
     for (i = 0; i < s1->len; ++i) {
-      r = guestfs_compare_int_bool (&s1->val[i], &s2->val[i]);
+      r = guestfs_compare_int_bool (s1->vals[i], s2->vals[i]);
       if (r != 0) return r;
     }
     return 0;
@@ -66,7 +66,7 @@ guestfs_compare_lvm_pv (const struct guestfs_lvm_pv *s1, const struct guestfs_lv
 
   r = strcmp (s1->pv_name, s2->pv_name);
   if (r != 0) return r;
-  r = memcmp (s1->pv_uuid, s2->pv_uuid, 32 * sizeof (char));
+  r = memcmp (s1->pv_uuid.data, s2->pv_uuid.data, 32 * sizeof (char));
   if (r != 0) return r;
   r = strcmp (s1->pv_fmt, s2->pv_fmt);
   if (r != 0) return r;
@@ -98,14 +98,14 @@ guestfs_compare_lvm_pv (const struct guestfs_lvm_pv *s1, const struct guestfs_lv
 GUESTFS_DLL_PUBLIC int
 guestfs_compare_lvm_pv_list (const struct guestfs_lvm_pv_list *s1, const struct guestfs_lvm_pv_list *s2)
 {
-  if (s1->len < s2->len) return -1;
-  else if (s1->len > s2->len) return 1;
+  if (s1->n_vals < s2->n_vals) return -1;
+  else if (s1->n_vals > s2->n_vals) return 1;
   else {
     size_t i;
     int r;
 
     for (i = 0; i < s1->len; ++i) {
-      r = guestfs_compare_lvm_pv (&s1->val[i], &s2->val[i]);
+      r = guestfs_compare_lvm_pv (s1->vals[i], s2->vals[i]);
       if (r != 0) return r;
     }
     return 0;
@@ -119,7 +119,7 @@ guestfs_compare_lvm_vg (const struct guestfs_lvm_vg *s1, const struct guestfs_lv
 
   r = strcmp (s1->vg_name, s2->vg_name);
   if (r != 0) return r;
-  r = memcmp (s1->vg_uuid, s2->vg_uuid, 32 * sizeof (char));
+  r = memcmp (s1->vg_uuid.data, s2->vg_uuid.data, 32 * sizeof (char));
   if (r != 0) return r;
   r = strcmp (s1->vg_fmt, s2->vg_fmt);
   if (r != 0) return r;
@@ -161,14 +161,14 @@ guestfs_compare_lvm_vg (const struct guestfs_lvm_vg *s1, const struct guestfs_lv
 GUESTFS_DLL_PUBLIC int
 guestfs_compare_lvm_vg_list (const struct guestfs_lvm_vg_list *s1, const struct guestfs_lvm_vg_list *s2)
 {
-  if (s1->len < s2->len) return -1;
-  else if (s1->len > s2->len) return 1;
+  if (s1->n_vals < s2->n_vals) return -1;
+  else if (s1->n_vals > s2->n_vals) return 1;
   else {
     size_t i;
     int r;
 
     for (i = 0; i < s1->len; ++i) {
-      r = guestfs_compare_lvm_vg (&s1->val[i], &s2->val[i]);
+      r = guestfs_compare_lvm_vg (s1->vals[i], s2->vals[i]);
       if (r != 0) return r;
     }
     return 0;
@@ -182,7 +182,7 @@ guestfs_compare_lvm_lv (const struct guestfs_lvm_lv *s1, const struct guestfs_lv
 
   r = strcmp (s1->lv_name, s2->lv_name);
   if (r != 0) return r;
-  r = memcmp (s1->lv_uuid, s2->lv_uuid, 32 * sizeof (char));
+  r = memcmp (s1->lv_uuid.data, s2->lv_uuid.data, 32 * sizeof (char));
   if (r != 0) return r;
   r = strcmp (s1->lv_attr, s2->lv_attr);
   if (r != 0) return r;
@@ -218,14 +218,14 @@ guestfs_compare_lvm_lv (const struct guestfs_lvm_lv *s1, const struct guestfs_lv
 GUESTFS_DLL_PUBLIC int
 guestfs_compare_lvm_lv_list (const struct guestfs_lvm_lv_list *s1, const struct guestfs_lvm_lv_list *s2)
 {
-  if (s1->len < s2->len) return -1;
-  else if (s1->len > s2->len) return 1;
+  if (s1->n_vals < s2->n_vals) return -1;
+  else if (s1->n_vals > s2->n_vals) return 1;
   else {
     size_t i;
     int r;
 
     for (i = 0; i < s1->len; ++i) {
-      r = guestfs_compare_lvm_lv (&s1->val[i], &s2->val[i]);
+      r = guestfs_compare_lvm_lv (s1->vals[i], s2->vals[i]);
       if (r != 0) return r;
     }
     return 0;
@@ -267,14 +267,14 @@ guestfs_compare_stat (const struct guestfs_stat *s1, const struct guestfs_stat *
 GUESTFS_DLL_PUBLIC int
 guestfs_compare_stat_list (const struct guestfs_stat_list *s1, const struct guestfs_stat_list *s2)
 {
-  if (s1->len < s2->len) return -1;
-  else if (s1->len > s2->len) return 1;
+  if (s1->n_vals < s2->n_vals) return -1;
+  else if (s1->n_vals > s2->n_vals) return 1;
   else {
     size_t i;
     int r;
 
     for (i = 0; i < s1->len; ++i) {
-      r = guestfs_compare_stat (&s1->val[i], &s2->val[i]);
+      r = guestfs_compare_stat (s1->vals[i], s2->vals[i]);
       if (r != 0) return r;
     }
     return 0;
@@ -334,14 +334,14 @@ guestfs_compare_statns (const struct guestfs_statns *s1, const struct guestfs_st
 GUESTFS_DLL_PUBLIC int
 guestfs_compare_statns_list (const struct guestfs_statns_list *s1, const struct guestfs_statns_list *s2)
 {
-  if (s1->len < s2->len) return -1;
-  else if (s1->len > s2->len) return 1;
+  if (s1->n_vals < s2->n_vals) return -1;
+  else if (s1->n_vals > s2->n_vals) return 1;
   else {
     size_t i;
     int r;
 
     for (i = 0; i < s1->len; ++i) {
-      r = guestfs_compare_statns (&s1->val[i], &s2->val[i]);
+      r = guestfs_compare_statns (s1->vals[i], s2->vals[i]);
       if (r != 0) return r;
     }
     return 0;
@@ -379,14 +379,14 @@ guestfs_compare_statvfs (const struct guestfs_statvfs *s1, const struct guestfs_
 GUESTFS_DLL_PUBLIC int
 guestfs_compare_statvfs_list (const struct guestfs_statvfs_list *s1, const struct guestfs_statvfs_list *s2)
 {
-  if (s1->len < s2->len) return -1;
-  else if (s1->len > s2->len) return 1;
+  if (s1->n_vals < s2->n_vals) return -1;
+  else if (s1->n_vals > s2->n_vals) return 1;
   else {
     size_t i;
     int r;
 
     for (i = 0; i < s1->len; ++i) {
-      r = guestfs_compare_statvfs (&s1->val[i], &s2->val[i]);
+      r = guestfs_compare_statvfs (s1->vals[i], s2->vals[i]);
       if (r != 0) return r;
     }
     return 0;
@@ -410,14 +410,14 @@ guestfs_compare_dirent (const struct guestfs_dirent *s1, const struct guestfs_di
 GUESTFS_DLL_PUBLIC int
 guestfs_compare_dirent_list (const struct guestfs_dirent_list *s1, const struct guestfs_dirent_list *s2)
 {
-  if (s1->len < s2->len) return -1;
-  else if (s1->len > s2->len) return 1;
+  if (s1->n_vals < s2->n_vals) return -1;
+  else if (s1->n_vals > s2->n_vals) return 1;
   else {
     size_t i;
     int r;
 
     for (i = 0; i < s1->len; ++i) {
-      r = guestfs_compare_dirent (&s1->val[i], &s2->val[i]);
+      r = guestfs_compare_dirent (s1->vals[i], s2->vals[i]);
       if (r != 0) return r;
     }
     return 0;
@@ -443,14 +443,14 @@ guestfs_compare_version (const struct guestfs_version *s1, const struct guestfs_
 GUESTFS_DLL_PUBLIC int
 guestfs_compare_version_list (const struct guestfs_version_list *s1, const struct guestfs_version_list *s2)
 {
-  if (s1->len < s2->len) return -1;
-  else if (s1->len > s2->len) return 1;
+  if (s1->n_vals < s2->n_vals) return -1;
+  else if (s1->n_vals > s2->n_vals) return 1;
   else {
     size_t i;
     int r;
 
     for (i = 0; i < s1->len; ++i) {
-      r = guestfs_compare_version (&s1->val[i], &s2->val[i]);
+      r = guestfs_compare_version (s1->vals[i], s2->vals[i]);
       if (r != 0) return r;
     }
     return 0;
@@ -464,10 +464,10 @@ guestfs_compare_xattr (const struct guestfs_xattr *s1, const struct guestfs_xatt
 
   r = strcmp (s1->attrname, s2->attrname);
   if (r != 0) return r;
-  if (s1->attrval_len < s2->attrval_len) return -1;
-  else if (s1->attrval_len > s2->attrval_len) return 1;
+  if (s1->attrval.len < s2->attrval.len) return -1;
+  else if (s1->attrval.len > s2->attrval.len) return 1;
   else {
-    r = memcmp (s1->attrval, s2->attrval, s1->attrval_len);
+    r = memcmp (s1->attrval.data, s2->attrval.data, s1->attrval.len);
     if (r != 0) return r;
   }
   return 0;
@@ -476,14 +476,14 @@ guestfs_compare_xattr (const struct guestfs_xattr *s1, const struct guestfs_xatt
 GUESTFS_DLL_PUBLIC int
 guestfs_compare_xattr_list (const struct guestfs_xattr_list *s1, const struct guestfs_xattr_list *s2)
 {
-  if (s1->len < s2->len) return -1;
-  else if (s1->len > s2->len) return 1;
+  if (s1->n_vals < s2->n_vals) return -1;
+  else if (s1->n_vals > s2->n_vals) return 1;
   else {
     size_t i;
     int r;
 
     for (i = 0; i < s1->len; ++i) {
-      r = guestfs_compare_xattr (&s1->val[i], &s2->val[i]);
+      r = guestfs_compare_xattr (s1->vals[i], s2->vals[i]);
       if (r != 0) return r;
     }
     return 0;
@@ -509,14 +509,14 @@ guestfs_compare_inotify_event (const struct guestfs_inotify_event *s1, const str
 GUESTFS_DLL_PUBLIC int
 guestfs_compare_inotify_event_list (const struct guestfs_inotify_event_list *s1, const struct guestfs_inotify_event_list *s2)
 {
-  if (s1->len < s2->len) return -1;
-  else if (s1->len > s2->len) return 1;
+  if (s1->n_vals < s2->n_vals) return -1;
+  else if (s1->n_vals > s2->n_vals) return 1;
   else {
     size_t i;
     int r;
 
     for (i = 0; i < s1->len; ++i) {
-      r = guestfs_compare_inotify_event (&s1->val[i], &s2->val[i]);
+      r = guestfs_compare_inotify_event (s1->vals[i], s2->vals[i]);
       if (r != 0) return r;
     }
     return 0;
@@ -540,14 +540,14 @@ guestfs_compare_partition (const struct guestfs_partition *s1, const struct gues
 GUESTFS_DLL_PUBLIC int
 guestfs_compare_partition_list (const struct guestfs_partition_list *s1, const struct guestfs_partition_list *s2)
 {
-  if (s1->len < s2->len) return -1;
-  else if (s1->len > s2->len) return 1;
+  if (s1->n_vals < s2->n_vals) return -1;
+  else if (s1->n_vals > s2->n_vals) return 1;
   else {
     size_t i;
     int r;
 
     for (i = 0; i < s1->len; ++i) {
-      r = guestfs_compare_partition (&s1->val[i], &s2->val[i]);
+      r = guestfs_compare_partition (s1->vals[i], s2->vals[i]);
       if (r != 0) return r;
     }
     return 0;
@@ -589,14 +589,14 @@ guestfs_compare_application (const struct guestfs_application *s1, const struct 
 GUESTFS_DLL_PUBLIC int
 guestfs_compare_application_list (const struct guestfs_application_list *s1, const struct guestfs_application_list *s2)
 {
-  if (s1->len < s2->len) return -1;
-  else if (s1->len > s2->len) return 1;
+  if (s1->n_vals < s2->n_vals) return -1;
+  else if (s1->n_vals > s2->n_vals) return 1;
   else {
     size_t i;
     int r;
 
     for (i = 0; i < s1->len; ++i) {
-      r = guestfs_compare_application (&s1->val[i], &s2->val[i]);
+      r = guestfs_compare_application (s1->vals[i], s2->vals[i]);
       if (r != 0) return r;
     }
     return 0;
@@ -648,14 +648,14 @@ guestfs_compare_application2 (const struct guestfs_application2 *s1, const struc
 GUESTFS_DLL_PUBLIC int
 guestfs_compare_application2_list (const struct guestfs_application2_list *s1, const struct guestfs_application2_list *s2)
 {
-  if (s1->len < s2->len) return -1;
-  else if (s1->len > s2->len) return 1;
+  if (s1->n_vals < s2->n_vals) return -1;
+  else if (s1->n_vals > s2->n_vals) return 1;
   else {
     size_t i;
     int r;
 
     for (i = 0; i < s1->len; ++i) {
-      r = guestfs_compare_application2 (&s1->val[i], &s2->val[i]);
+      r = guestfs_compare_application2 (s1->vals[i], s2->vals[i]);
       if (r != 0) return r;
     }
     return 0;
@@ -707,14 +707,14 @@ guestfs_compare_isoinfo (const struct guestfs_isoinfo *s1, const struct guestfs_
 GUESTFS_DLL_PUBLIC int
 guestfs_compare_isoinfo_list (const struct guestfs_isoinfo_list *s1, const struct guestfs_isoinfo_list *s2)
 {
-  if (s1->len < s2->len) return -1;
-  else if (s1->len > s2->len) return 1;
+  if (s1->n_vals < s2->n_vals) return -1;
+  else if (s1->n_vals > s2->n_vals) return 1;
   else {
     size_t i;
     int r;
 
     for (i = 0; i < s1->len; ++i) {
-      r = guestfs_compare_isoinfo (&s1->val[i], &s2->val[i]);
+      r = guestfs_compare_isoinfo (s1->vals[i], s2->vals[i]);
       if (r != 0) return r;
     }
     return 0;
@@ -738,14 +738,14 @@ guestfs_compare_mdstat (const struct guestfs_mdstat *s1, const struct guestfs_md
 GUESTFS_DLL_PUBLIC int
 guestfs_compare_mdstat_list (const struct guestfs_mdstat_list *s1, const struct guestfs_mdstat_list *s2)
 {
-  if (s1->len < s2->len) return -1;
-  else if (s1->len > s2->len) return 1;
+  if (s1->n_vals < s2->n_vals) return -1;
+  else if (s1->n_vals > s2->n_vals) return 1;
   else {
     size_t i;
     int r;
 
     for (i = 0; i < s1->len; ++i) {
-      r = guestfs_compare_mdstat (&s1->val[i], &s2->val[i]);
+      r = guestfs_compare_mdstat (s1->vals[i], s2->vals[i]);
       if (r != 0) return r;
     }
     return 0;
@@ -769,14 +769,14 @@ guestfs_compare_btrfssubvolume (const struct guestfs_btrfssubvolume *s1, const s
 GUESTFS_DLL_PUBLIC int
 guestfs_compare_btrfssubvolume_list (const struct guestfs_btrfssubvolume_list *s1, const struct guestfs_btrfssubvolume_list *s2)
 {
-  if (s1->len < s2->len) return -1;
-  else if (s1->len > s2->len) return 1;
+  if (s1->n_vals < s2->n_vals) return -1;
+  else if (s1->n_vals > s2->n_vals) return 1;
   else {
     size_t i;
     int r;
 
     for (i = 0; i < s1->len; ++i) {
-      r = guestfs_compare_btrfssubvolume (&s1->val[i], &s2->val[i]);
+      r = guestfs_compare_btrfssubvolume (s1->vals[i], s2->vals[i]);
       if (r != 0) return r;
     }
     return 0;
@@ -844,14 +844,14 @@ guestfs_compare_xfsinfo (const struct guestfs_xfsinfo *s1, const struct guestfs_
 GUESTFS_DLL_PUBLIC int
 guestfs_compare_xfsinfo_list (const struct guestfs_xfsinfo_list *s1, const struct guestfs_xfsinfo_list *s2)
 {
-  if (s1->len < s2->len) return -1;
-  else if (s1->len > s2->len) return 1;
+  if (s1->n_vals < s2->n_vals) return -1;
+  else if (s1->n_vals > s2->n_vals) return 1;
   else {
     size_t i;
     int r;
 
     for (i = 0; i < s1->len; ++i) {
-      r = guestfs_compare_xfsinfo (&s1->val[i], &s2->val[i]);
+      r = guestfs_compare_xfsinfo (s1->vals[i], s2->vals[i]);
       if (r != 0) return r;
     }
     return 0;
@@ -877,14 +877,14 @@ guestfs_compare_utsname (const struct guestfs_utsname *s1, const struct guestfs_
 GUESTFS_DLL_PUBLIC int
 guestfs_compare_utsname_list (const struct guestfs_utsname_list *s1, const struct guestfs_utsname_list *s2)
 {
-  if (s1->len < s2->len) return -1;
-  else if (s1->len > s2->len) return 1;
+  if (s1->n_vals < s2->n_vals) return -1;
+  else if (s1->n_vals > s2->n_vals) return 1;
   else {
     size_t i;
     int r;
 
     for (i = 0; i < s1->len; ++i) {
-      r = guestfs_compare_utsname (&s1->val[i], &s2->val[i]);
+      r = guestfs_compare_utsname (s1->vals[i], s2->vals[i]);
       if (r != 0) return r;
     }
     return 0;
@@ -902,14 +902,14 @@ guestfs_compare_hivex_node (const struct guestfs_hivex_node *s1, const struct gu
 GUESTFS_DLL_PUBLIC int
 guestfs_compare_hivex_node_list (const struct guestfs_hivex_node_list *s1, const struct guestfs_hivex_node_list *s2)
 {
-  if (s1->len < s2->len) return -1;
-  else if (s1->len > s2->len) return 1;
+  if (s1->n_vals < s2->n_vals) return -1;
+  else if (s1->n_vals > s2->n_vals) return 1;
   else {
     size_t i;
     int r;
 
     for (i = 0; i < s1->len; ++i) {
-      r = guestfs_compare_hivex_node (&s1->val[i], &s2->val[i]);
+      r = guestfs_compare_hivex_node (s1->vals[i], s2->vals[i]);
       if (r != 0) return r;
     }
     return 0;
@@ -927,14 +927,14 @@ guestfs_compare_hivex_value (const struct guestfs_hivex_value *s1, const struct 
 GUESTFS_DLL_PUBLIC int
 guestfs_compare_hivex_value_list (const struct guestfs_hivex_value_list *s1, const struct guestfs_hivex_value_list *s2)
 {
-  if (s1->len < s2->len) return -1;
-  else if (s1->len > s2->len) return 1;
+  if (s1->n_vals < s2->n_vals) return -1;
+  else if (s1->n_vals > s2->n_vals) return 1;
   else {
     size_t i;
     int r;
 
     for (i = 0; i < s1->len; ++i) {
-      r = guestfs_compare_hivex_value (&s1->val[i], &s2->val[i]);
+      r = guestfs_compare_hivex_value (s1->vals[i], s2->vals[i]);
       if (r != 0) return r;
     }
     return 0;
@@ -958,14 +958,14 @@ guestfs_compare_internal_mountable (const struct guestfs_internal_mountable *s1,
 GUESTFS_DLL_PUBLIC int
 guestfs_compare_internal_mountable_list (const struct guestfs_internal_mountable_list *s1, const struct guestfs_internal_mountable_list *s2)
 {
-  if (s1->len < s2->len) return -1;
-  else if (s1->len > s2->len) return 1;
+  if (s1->n_vals < s2->n_vals) return -1;
+  else if (s1->n_vals > s2->n_vals) return 1;
   else {
     size_t i;
     int r;
 
     for (i = 0; i < s1->len; ++i) {
-      r = guestfs_compare_internal_mountable (&s1->val[i], &s2->val[i]);
+      r = guestfs_compare_internal_mountable (s1->vals[i], s2->vals[i]);
       if (r != 0) return r;
     }
     return 0;

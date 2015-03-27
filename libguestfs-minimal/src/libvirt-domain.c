@@ -36,7 +36,8 @@
 #include "guestfs.h"
 #include "guestfs-internal.h"
 #include "guestfs-internal-actions.h"
-#include "guestfs_protocol.h"
+#include "guestfs_protocol.pb-c.h"
+#include "guestfs_protocol_typedefs.h"
 
 #if defined(HAVE_LIBVIRT)
 

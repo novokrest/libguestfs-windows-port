@@ -1,0 +1,1639 @@
+/* libguestfs generated file -*- c -*-
+ * WARNING: THIS FILE IS GENERATED FROM:
+ *   generator/ *.ml
+ * ANY CHANGES YOU MAKE TO THIS FILE WILL BE LOST.
+ *
+ * Copyright (C) 2009-2015 Red Hat Inc.
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
+ */
+
+#ifndef _GUESTFS_PROTOCOL_TYPEDEFS_H_
+#define _GUESTFS_PROTOCOL_TYPEDEFS_H_
+/* Internal structures. */
+
+typedef GuestfsIntIntBool guestfs_int_int_bool;
+typedef GuestfsIntIntBoolList guestfs_int_int_bool_list;
+
+typedef GuestfsIntPv guestfs_int_lvm_pv;
+typedef GuestfsIntPvList guestfs_int_lvm_pv_list;
+
+typedef GuestfsIntVg guestfs_int_lvm_vg;
+typedef GuestfsIntVgList guestfs_int_lvm_vg_list;
+
+typedef GuestfsIntLv guestfs_int_lvm_lv;
+typedef GuestfsIntLvList guestfs_int_lvm_lv_list;
+
+typedef GuestfsIntStat guestfs_int_stat;
+typedef GuestfsIntStatList guestfs_int_stat_list;
+
+typedef GuestfsIntStatNS guestfs_int_statns;
+typedef GuestfsIntStatNSList guestfs_int_statns_list;
+
+typedef GuestfsIntStatVFS guestfs_int_statvfs;
+typedef GuestfsIntStatVFSList guestfs_int_statvfs_list;
+
+typedef GuestfsIntDirent guestfs_int_dirent;
+typedef GuestfsIntDirentList guestfs_int_dirent_list;
+
+typedef GuestfsIntVersion guestfs_int_version;
+typedef GuestfsIntVersionList guestfs_int_version_list;
+
+typedef GuestfsIntXAttr guestfs_int_xattr;
+typedef GuestfsIntXAttrList guestfs_int_xattr_list;
+
+typedef GuestfsIntINotifyEvent guestfs_int_inotify_event;
+typedef GuestfsIntINotifyEventList guestfs_int_inotify_event_list;
+
+typedef GuestfsIntPartition guestfs_int_partition;
+typedef GuestfsIntPartitionList guestfs_int_partition_list;
+
+typedef GuestfsIntApplication guestfs_int_application;
+typedef GuestfsIntApplicationList guestfs_int_application_list;
+
+typedef GuestfsIntApplication2 guestfs_int_application2;
+typedef GuestfsIntApplication2List guestfs_int_application2_list;
+
+typedef GuestfsIntISOInfo guestfs_int_isoinfo;
+typedef GuestfsIntISOInfoList guestfs_int_isoinfo_list;
+
+typedef GuestfsIntMDStat guestfs_int_mdstat;
+typedef GuestfsIntMDStatList guestfs_int_mdstat_list;
+
+typedef GuestfsIntBTRFSSubvolume guestfs_int_btrfssubvolume;
+typedef GuestfsIntBTRFSSubvolumeList guestfs_int_btrfssubvolume_list;
+
+typedef GuestfsIntXFSInfo guestfs_int_xfsinfo;
+typedef GuestfsIntXFSInfoList guestfs_int_xfsinfo_list;
+
+typedef GuestfsIntUTSName guestfs_int_utsname;
+typedef GuestfsIntUTSNameList guestfs_int_utsname_list;
+
+typedef GuestfsIntHivexNode guestfs_int_hivex_node;
+typedef GuestfsIntHivexNodeList guestfs_int_hivex_node_list;
+
+typedef GuestfsIntHivexValue guestfs_int_hivex_value;
+typedef GuestfsIntHivexValueList guestfs_int_hivex_value_list;
+
+typedef GuestfsIntInternalMountable guestfs_int_internal_mountable;
+typedef GuestfsIntInternalMountableList guestfs_int_internal_mountable_list;
+
+/* Function arguments and return values. */
+
+typedef GuestfsMountArgs guestfs_mount_args;
+
+typedef GuestfsTouchArgs guestfs_touch_args;
+
+typedef GuestfsLlArgs guestfs_ll_args;
+
+typedef GuestfsLlRet guestfs_ll_ret;
+
+typedef GuestfsListDevicesRet guestfs_list_devices_ret;
+
+typedef GuestfsListPartitionsRet guestfs_list_partitions_ret;
+
+typedef GuestfsPvsRet guestfs_pvs_ret;
+
+typedef GuestfsVgsRet guestfs_vgs_ret;
+
+typedef GuestfsLvsRet guestfs_lvs_ret;
+
+typedef GuestfsPvsFullRet guestfs_pvs_full_ret;
+
+typedef GuestfsVgsFullRet guestfs_vgs_full_ret;
+
+typedef GuestfsLvsFullRet guestfs_lvs_full_ret;
+
+typedef GuestfsAugInitArgs guestfs_aug_init_args;
+
+typedef GuestfsAugDefvarArgs guestfs_aug_defvar_args;
+
+typedef GuestfsAugDefvarRet guestfs_aug_defvar_ret;
+
+typedef GuestfsAugDefnodeArgs guestfs_aug_defnode_args;
+
+typedef GuestfsAugDefnodeRet guestfs_aug_defnode_ret;
+
+typedef GuestfsAugGetArgs guestfs_aug_get_args;
+
+typedef GuestfsAugGetRet guestfs_aug_get_ret;
+
+typedef GuestfsAugSetArgs guestfs_aug_set_args;
+
+typedef GuestfsAugInsertArgs guestfs_aug_insert_args;
+
+typedef GuestfsAugRmArgs guestfs_aug_rm_args;
+
+typedef GuestfsAugRmRet guestfs_aug_rm_ret;
+
+typedef GuestfsAugMvArgs guestfs_aug_mv_args;
+
+typedef GuestfsAugMatchArgs guestfs_aug_match_args;
+
+typedef GuestfsAugMatchRet guestfs_aug_match_ret;
+
+typedef GuestfsAugLsArgs guestfs_aug_ls_args;
+
+typedef GuestfsAugLsRet guestfs_aug_ls_ret;
+
+typedef GuestfsRmArgs guestfs_rm_args;
+
+typedef GuestfsRmdirArgs guestfs_rmdir_args;
+
+typedef GuestfsRmRfArgs guestfs_rm_rf_args;
+
+typedef GuestfsMkdirArgs guestfs_mkdir_args;
+
+typedef GuestfsMkdirPpArgs guestfs_mkdir_pp_args;
+
+typedef GuestfsChmodArgs guestfs_chmod_args;
+
+typedef GuestfsChownArgs guestfs_chown_args;
+
+typedef GuestfsExistsArgs guestfs_exists_args;
+
+typedef GuestfsExistsRet guestfs_exists_ret;
+
+typedef GuestfsIsFileArgs guestfs_is_file_args;
+
+typedef GuestfsIsFileRet guestfs_is_file_ret;
+
+typedef GuestfsIsDirArgs guestfs_is_dir_args;
+
+typedef GuestfsIsDirRet guestfs_is_dir_ret;
+
+typedef GuestfsPvcreateArgs guestfs_pvcreate_args;
+
+typedef GuestfsVgcreateArgs guestfs_vgcreate_args;
+
+typedef GuestfsLvcreateArgs guestfs_lvcreate_args;
+
+typedef GuestfsSfdiskArgs guestfs_sfdisk_args;
+
+typedef GuestfsWriteFileArgs guestfs_write_file_args;
+
+typedef GuestfsUmountArgs guestfs_umount_args;
+
+typedef GuestfsMountsRet guestfs_mounts_ret;
+
+typedef GuestfsFileArgs guestfs_file_args;
+
+typedef GuestfsFileRet guestfs_file_ret;
+
+typedef GuestfsCommandArgs guestfs_command_args;
+
+typedef GuestfsCommandRet guestfs_command_ret;
+
+typedef GuestfsCommandLinesArgs guestfs_command_lines_args;
+
+typedef GuestfsCommandLinesRet guestfs_command_lines_ret;
+
+typedef GuestfsStatvfsArgs guestfs_statvfs_args;
+
+typedef GuestfsStatvfsRet guestfs_statvfs_ret;
+
+typedef GuestfsTune2fslArgs guestfs_tune2fsl_args;
+
+typedef GuestfsTune2fslRet guestfs_tune2fsl_ret;
+
+typedef GuestfsBlockdevSetroArgs guestfs_blockdev_setro_args;
+
+typedef GuestfsBlockdevSetrwArgs guestfs_blockdev_setrw_args;
+
+typedef GuestfsBlockdevGetroArgs guestfs_blockdev_getro_args;
+
+typedef GuestfsBlockdevGetroRet guestfs_blockdev_getro_ret;
+
+typedef GuestfsBlockdevGetssArgs guestfs_blockdev_getss_args;
+
+typedef GuestfsBlockdevGetssRet guestfs_blockdev_getss_ret;
+
+typedef GuestfsBlockdevGetbszArgs guestfs_blockdev_getbsz_args;
+
+typedef GuestfsBlockdevGetbszRet guestfs_blockdev_getbsz_ret;
+
+typedef GuestfsBlockdevSetbszArgs guestfs_blockdev_setbsz_args;
+
+typedef GuestfsBlockdevGetszArgs guestfs_blockdev_getsz_args;
+
+typedef GuestfsBlockdevGetszRet guestfs_blockdev_getsz_ret;
+
+typedef GuestfsBlockdevGetsize64Args guestfs_blockdev_getsize64_args;
+
+typedef GuestfsBlockdevGetsize64Ret guestfs_blockdev_getsize64_ret;
+
+typedef GuestfsBlockdevFlushbufsArgs guestfs_blockdev_flushbufs_args;
+
+typedef GuestfsBlockdevRereadptArgs guestfs_blockdev_rereadpt_args;
+
+typedef GuestfsUploadArgs guestfs_upload_args;
+
+typedef GuestfsDownloadArgs guestfs_download_args;
+
+typedef GuestfsChecksumArgs guestfs_checksum_args;
+
+typedef GuestfsChecksumRet guestfs_checksum_ret;
+
+typedef GuestfsTarInArgs guestfs_tar_in_args;
+
+typedef GuestfsTarOutArgs guestfs_tar_out_args;
+
+typedef GuestfsTgzInArgs guestfs_tgz_in_args;
+
+typedef GuestfsTgzOutArgs guestfs_tgz_out_args;
+
+typedef GuestfsMountRoArgs guestfs_mount_ro_args;
+
+typedef GuestfsMountOptionsArgs guestfs_mount_options_args;
+
+typedef GuestfsMountVfsArgs guestfs_mount_vfs_args;
+
+typedef GuestfsDebugArgs guestfs_debug_args;
+
+typedef GuestfsDebugRet guestfs_debug_ret;
+
+typedef GuestfsLvremoveArgs guestfs_lvremove_args;
+
+typedef GuestfsVgremoveArgs guestfs_vgremove_args;
+
+typedef GuestfsPvremoveArgs guestfs_pvremove_args;
+
+typedef GuestfsSetE2labelArgs guestfs_set_e2label_args;
+
+typedef GuestfsGetE2labelArgs guestfs_get_e2label_args;
+
+typedef GuestfsGetE2labelRet guestfs_get_e2label_ret;
+
+typedef GuestfsSetE2uuidArgs guestfs_set_e2uuid_args;
+
+typedef GuestfsGetE2uuidArgs guestfs_get_e2uuid_args;
+
+typedef GuestfsGetE2uuidRet guestfs_get_e2uuid_ret;
+
+typedef GuestfsFsckArgs guestfs_fsck_args;
+
+typedef GuestfsFsckRet guestfs_fsck_ret;
+
+typedef GuestfsZeroArgs guestfs_zero_args;
+
+typedef GuestfsGrubInstallArgs guestfs_grub_install_args;
+
+typedef GuestfsCpArgs guestfs_cp_args;
+
+typedef GuestfsCpAaArgs guestfs_cp_aa_args;
+
+typedef GuestfsMvArgs guestfs_mv_args;
+
+typedef GuestfsDropCachesArgs guestfs_drop_caches_args;
+
+typedef GuestfsDmesgRet guestfs_dmesg_ret;
+
+typedef GuestfsEqualArgs guestfs_equal_args;
+
+typedef GuestfsEqualRet guestfs_equal_ret;
+
+typedef GuestfsStringsArgs guestfs_strings_args;
+
+typedef GuestfsStringsRet guestfs_strings_ret;
+
+typedef GuestfsStringsEeArgs guestfs_strings_ee_args;
+
+typedef GuestfsStringsEeRet guestfs_strings_ee_ret;
+
+typedef GuestfsHexdumpArgs guestfs_hexdump_args;
+
+typedef GuestfsHexdumpRet guestfs_hexdump_ret;
+
+typedef GuestfsZerofreeArgs guestfs_zerofree_args;
+
+typedef GuestfsPvresizeArgs guestfs_pvresize_args;
+
+typedef GuestfsSfdiskNnArgs guestfs_sfdisk_nn_args;
+
+typedef GuestfsSfdisklArgs guestfs_sfdiskl_args;
+
+typedef GuestfsSfdisklRet guestfs_sfdiskl_ret;
+
+typedef GuestfsSfdiskKernelGeometryArgs guestfs_sfdisk_kernel_geometry_args;
+
+typedef GuestfsSfdiskKernelGeometryRet guestfs_sfdisk_kernel_geometry_ret;
+
+typedef GuestfsSfdiskDiskGeometryArgs guestfs_sfdisk_disk_geometry_args;
+
+typedef GuestfsSfdiskDiskGeometryRet guestfs_sfdisk_disk_geometry_ret;
+
+typedef GuestfsVgActivateAllArgs guestfs_vg_activate_all_args;
+
+typedef GuestfsVgActivateArgs guestfs_vg_activate_args;
+
+typedef GuestfsLvresizeArgs guestfs_lvresize_args;
+
+typedef GuestfsResize2fsArgs guestfs_resize2fs_args;
+
+typedef GuestfsE2fsckFfArgs guestfs_e2fsck_ff_args;
+
+typedef GuestfsSleepArgs guestfs_sleep_args;
+
+typedef GuestfsNtfs3gprobeArgs guestfs_ntfs3gprobe_args;
+
+typedef GuestfsNtfs3gprobeRet guestfs_ntfs3gprobe_ret;
+
+typedef GuestfsShArgs guestfs_sh_args;
+
+typedef GuestfsShRet guestfs_sh_ret;
+
+typedef GuestfsShLinesArgs guestfs_sh_lines_args;
+
+typedef GuestfsShLinesRet guestfs_sh_lines_ret;
+
+typedef GuestfsGlobExpandArgs guestfs_glob_expand_args;
+
+typedef GuestfsGlobExpandRet guestfs_glob_expand_ret;
+
+typedef GuestfsScrubDeviceArgs guestfs_scrub_device_args;
+
+typedef GuestfsScrubFileArgs guestfs_scrub_file_args;
+
+typedef GuestfsScrubFreespaceArgs guestfs_scrub_freespace_args;
+
+typedef GuestfsMkdtempArgs guestfs_mkdtemp_args;
+
+typedef GuestfsMkdtempRet guestfs_mkdtemp_ret;
+
+typedef GuestfsWclArgs guestfs_wcl_args;
+
+typedef GuestfsWclRet guestfs_wcl_ret;
+
+typedef GuestfsWcwArgs guestfs_wcw_args;
+
+typedef GuestfsWcwRet guestfs_wcw_ret;
+
+typedef GuestfsWccArgs guestfs_wcc_args;
+
+typedef GuestfsWccRet guestfs_wcc_ret;
+
+typedef GuestfsHeadArgs guestfs_head_args;
+
+typedef GuestfsHeadRet guestfs_head_ret;
+
+typedef GuestfsHeadNnArgs guestfs_head_nn_args;
+
+typedef GuestfsHeadNnRet guestfs_head_nn_ret;
+
+typedef GuestfsTailArgs guestfs_tail_args;
+
+typedef GuestfsTailRet guestfs_tail_ret;
+
+typedef GuestfsTailNnArgs guestfs_tail_nn_args;
+
+typedef GuestfsTailNnRet guestfs_tail_nn_ret;
+
+typedef GuestfsDfRet guestfs_df_ret;
+
+typedef GuestfsDfhRet guestfs_dfh_ret;
+
+typedef GuestfsDuArgs guestfs_du_args;
+
+typedef GuestfsDuRet guestfs_du_ret;
+
+typedef GuestfsInitrdListArgs guestfs_initrd_list_args;
+
+typedef GuestfsInitrdListRet guestfs_initrd_list_ret;
+
+typedef GuestfsMountLoopArgs guestfs_mount_loop_args;
+
+typedef GuestfsMkswapArgs guestfs_mkswap_args;
+
+typedef GuestfsMkswapLlArgs guestfs_mkswap_ll_args;
+
+typedef GuestfsMkswapUuArgs guestfs_mkswap_uu_args;
+
+typedef GuestfsMknodArgs guestfs_mknod_args;
+
+typedef GuestfsMkfifoArgs guestfs_mkfifo_args;
+
+typedef GuestfsMknodBbArgs guestfs_mknod_bb_args;
+
+typedef GuestfsMknodCcArgs guestfs_mknod_cc_args;
+
+typedef GuestfsUmaskArgs guestfs_umask_args;
+
+typedef GuestfsUmaskRet guestfs_umask_ret;
+
+typedef GuestfsReaddirArgs guestfs_readdir_args;
+
+typedef GuestfsReaddirRet guestfs_readdir_ret;
+
+typedef GuestfsSfdiskmArgs guestfs_sfdiskm_args;
+
+typedef GuestfsZfileArgs guestfs_zfile_args;
+
+typedef GuestfsZfileRet guestfs_zfile_ret;
+
+typedef GuestfsGetxattrsArgs guestfs_getxattrs_args;
+
+typedef GuestfsGetxattrsRet guestfs_getxattrs_ret;
+
+typedef GuestfsLgetxattrsArgs guestfs_lgetxattrs_args;
+
+typedef GuestfsLgetxattrsRet guestfs_lgetxattrs_ret;
+
+typedef GuestfsSetxattrArgs guestfs_setxattr_args;
+
+typedef GuestfsLsetxattrArgs guestfs_lsetxattr_args;
+
+typedef GuestfsRemovexattrArgs guestfs_removexattr_args;
+
+typedef GuestfsLremovexattrArgs guestfs_lremovexattr_args;
+
+typedef GuestfsMountpointsRet guestfs_mountpoints_ret;
+
+typedef GuestfsMkmountpointArgs guestfs_mkmountpoint_args;
+
+typedef GuestfsRmmountpointArgs guestfs_rmmountpoint_args;
+
+typedef GuestfsGrepArgs guestfs_grep_args;
+
+typedef GuestfsGrepRet guestfs_grep_ret;
+
+typedef GuestfsEgrepArgs guestfs_egrep_args;
+
+typedef GuestfsEgrepRet guestfs_egrep_ret;
+
+typedef GuestfsFgrepArgs guestfs_fgrep_args;
+
+typedef GuestfsFgrepRet guestfs_fgrep_ret;
+
+typedef GuestfsGrepiArgs guestfs_grepi_args;
+
+typedef GuestfsGrepiRet guestfs_grepi_ret;
+
+typedef GuestfsEgrepiArgs guestfs_egrepi_args;
+
+typedef GuestfsEgrepiRet guestfs_egrepi_ret;
+
+typedef GuestfsFgrepiArgs guestfs_fgrepi_args;
+
+typedef GuestfsFgrepiRet guestfs_fgrepi_ret;
+
+typedef GuestfsZgrepArgs guestfs_zgrep_args;
+
+typedef GuestfsZgrepRet guestfs_zgrep_ret;
+
+typedef GuestfsZegrepArgs guestfs_zegrep_args;
+
+typedef GuestfsZegrepRet guestfs_zegrep_ret;
+
+typedef GuestfsZfgrepArgs guestfs_zfgrep_args;
+
+typedef GuestfsZfgrepRet guestfs_zfgrep_ret;
+
+typedef GuestfsZgrepiArgs guestfs_zgrepi_args;
+
+typedef GuestfsZgrepiRet guestfs_zgrepi_ret;
+
+typedef GuestfsZegrepiArgs guestfs_zegrepi_args;
+
+typedef GuestfsZegrepiRet guestfs_zegrepi_ret;
+
+typedef GuestfsZfgrepiArgs guestfs_zfgrepi_args;
+
+typedef GuestfsZfgrepiRet guestfs_zfgrepi_ret;
+
+typedef GuestfsRealpathArgs guestfs_realpath_args;
+
+typedef GuestfsRealpathRet guestfs_realpath_ret;
+
+typedef GuestfsLnArgs guestfs_ln_args;
+
+typedef GuestfsLnfArgs guestfs_lnf_args;
+
+typedef GuestfsLnsArgs guestfs_lns_args;
+
+typedef GuestfsLnSfArgs guestfs_ln_sf_args;
+
+typedef GuestfsReadlinkArgs guestfs_readlink_args;
+
+typedef GuestfsReadlinkRet guestfs_readlink_ret;
+
+typedef GuestfsFallocateArgs guestfs_fallocate_args;
+
+typedef GuestfsSwaponDeviceArgs guestfs_swapon_device_args;
+
+typedef GuestfsSwapoffDeviceArgs guestfs_swapoff_device_args;
+
+typedef GuestfsSwaponFileArgs guestfs_swapon_file_args;
+
+typedef GuestfsSwapoffFileArgs guestfs_swapoff_file_args;
+
+typedef GuestfsSwaponLabelArgs guestfs_swapon_label_args;
+
+typedef GuestfsSwapoffLabelArgs guestfs_swapoff_label_args;
+
+typedef GuestfsSwaponUuidArgs guestfs_swapon_uuid_args;
+
+typedef GuestfsSwapoffUuidArgs guestfs_swapoff_uuid_args;
+
+typedef GuestfsMkswapFileArgs guestfs_mkswap_file_args;
+
+typedef GuestfsInotifyInitArgs guestfs_inotify_init_args;
+
+typedef GuestfsInotifyAddWatchArgs guestfs_inotify_add_watch_args;
+
+typedef GuestfsInotifyAddWatchRet guestfs_inotify_add_watch_ret;
+
+typedef GuestfsInotifyRmWatchArgs guestfs_inotify_rm_watch_args;
+
+typedef GuestfsInotifyReadRet guestfs_inotify_read_ret;
+
+typedef GuestfsInotifyFilesRet guestfs_inotify_files_ret;
+
+typedef GuestfsSetconArgs guestfs_setcon_args;
+
+typedef GuestfsGetconRet guestfs_getcon_ret;
+
+typedef GuestfsMkfsBbArgs guestfs_mkfs_bb_args;
+
+typedef GuestfsMke2journalArgs guestfs_mke2journal_args;
+
+typedef GuestfsMke2journalLlArgs guestfs_mke2journal_ll_args;
+
+typedef GuestfsMke2journalUuArgs guestfs_mke2journal_uu_args;
+
+typedef GuestfsMke2fsJjArgs guestfs_mke2fs_jj_args;
+
+typedef GuestfsMke2fsJlArgs guestfs_mke2fs_jl_args;
+
+typedef GuestfsMke2fsJuArgs guestfs_mke2fs_ju_args;
+
+typedef GuestfsModprobeArgs guestfs_modprobe_args;
+
+typedef GuestfsEchoDaemonArgs guestfs_echo_daemon_args;
+
+typedef GuestfsEchoDaemonRet guestfs_echo_daemon_ret;
+
+typedef GuestfsFind0Args guestfs_find0_args;
+
+typedef GuestfsCaseSensitivePathArgs guestfs_case_sensitive_path_args;
+
+typedef GuestfsCaseSensitivePathRet guestfs_case_sensitive_path_ret;
+
+typedef GuestfsVfsTypeArgs guestfs_vfs_type_args;
+
+typedef GuestfsVfsTypeRet guestfs_vfs_type_ret;
+
+typedef GuestfsTruncateArgs guestfs_truncate_args;
+
+typedef GuestfsTruncateSizeArgs guestfs_truncate_size_args;
+
+typedef GuestfsUtimensArgs guestfs_utimens_args;
+
+typedef GuestfsMkdirModeArgs guestfs_mkdir_mode_args;
+
+typedef GuestfsLchownArgs guestfs_lchown_args;
+
+typedef GuestfsInternalLxattrlistArgs guestfs_internal_lxattrlist_args;
+
+typedef GuestfsInternalLxattrlistRet guestfs_internal_lxattrlist_ret;
+
+typedef GuestfsInternalReadlinklistArgs guestfs_internal_readlinklist_args;
+
+typedef GuestfsInternalReadlinklistRet guestfs_internal_readlinklist_ret;
+
+typedef GuestfsPreadArgs guestfs_pread_args;
+
+typedef GuestfsPreadRet guestfs_pread_ret;
+
+typedef GuestfsPartInitArgs guestfs_part_init_args;
+
+typedef GuestfsPartAddArgs guestfs_part_add_args;
+
+typedef GuestfsPartDiskArgs guestfs_part_disk_args;
+
+typedef GuestfsPartSetBootableArgs guestfs_part_set_bootable_args;
+
+typedef GuestfsPartSetNameArgs guestfs_part_set_name_args;
+
+typedef GuestfsPartListArgs guestfs_part_list_args;
+
+typedef GuestfsPartListRet guestfs_part_list_ret;
+
+typedef GuestfsPartGetParttypeArgs guestfs_part_get_parttype_args;
+
+typedef GuestfsPartGetParttypeRet guestfs_part_get_parttype_ret;
+
+typedef GuestfsFillArgs guestfs_fill_args;
+
+typedef GuestfsAvailableArgs guestfs_available_args;
+
+typedef GuestfsDdArgs guestfs_dd_args;
+
+typedef GuestfsFilesizeArgs guestfs_filesize_args;
+
+typedef GuestfsFilesizeRet guestfs_filesize_ret;
+
+typedef GuestfsLvrenameArgs guestfs_lvrename_args;
+
+typedef GuestfsVgrenameArgs guestfs_vgrename_args;
+
+typedef GuestfsInitrdCatArgs guestfs_initrd_cat_args;
+
+typedef GuestfsInitrdCatRet guestfs_initrd_cat_ret;
+
+typedef GuestfsPvuuidArgs guestfs_pvuuid_args;
+
+typedef GuestfsPvuuidRet guestfs_pvuuid_ret;
+
+typedef GuestfsVguuidArgs guestfs_vguuid_args;
+
+typedef GuestfsVguuidRet guestfs_vguuid_ret;
+
+typedef GuestfsLvuuidArgs guestfs_lvuuid_args;
+
+typedef GuestfsLvuuidRet guestfs_lvuuid_ret;
+
+typedef GuestfsVgpvuuidsArgs guestfs_vgpvuuids_args;
+
+typedef GuestfsVgpvuuidsRet guestfs_vgpvuuids_ret;
+
+typedef GuestfsVglvuuidsArgs guestfs_vglvuuids_args;
+
+typedef GuestfsVglvuuidsRet guestfs_vglvuuids_ret;
+
+typedef GuestfsCopySizeArgs guestfs_copy_size_args;
+
+typedef GuestfsZeroDeviceArgs guestfs_zero_device_args;
+
+typedef GuestfsTxzInArgs guestfs_txz_in_args;
+
+typedef GuestfsTxzOutArgs guestfs_txz_out_args;
+
+typedef GuestfsPartDelArgs guestfs_part_del_args;
+
+typedef GuestfsPartGetBootableArgs guestfs_part_get_bootable_args;
+
+typedef GuestfsPartGetBootableRet guestfs_part_get_bootable_ret;
+
+typedef GuestfsPartGetMbrIdArgs guestfs_part_get_mbr_id_args;
+
+typedef GuestfsPartGetMbrIdRet guestfs_part_get_mbr_id_ret;
+
+typedef GuestfsPartSetMbrIdArgs guestfs_part_set_mbr_id_args;
+
+typedef GuestfsChecksumDeviceArgs guestfs_checksum_device_args;
+
+typedef GuestfsChecksumDeviceRet guestfs_checksum_device_ret;
+
+typedef GuestfsLvresizeFreeArgs guestfs_lvresize_free_args;
+
+typedef GuestfsAugClearArgs guestfs_aug_clear_args;
+
+typedef GuestfsGetUmaskRet guestfs_get_umask_ret;
+
+typedef GuestfsDebugUploadArgs guestfs_debug_upload_args;
+
+typedef GuestfsBase64InArgs guestfs_base64_in_args;
+
+typedef GuestfsBase64OutArgs guestfs_base64_out_args;
+
+typedef GuestfsChecksumsOutArgs guestfs_checksums_out_args;
+
+typedef GuestfsFillPatternArgs guestfs_fill_pattern_args;
+
+typedef GuestfsInternalWriteArgs guestfs_internal_write_args;
+
+typedef GuestfsPwriteArgs guestfs_pwrite_args;
+
+typedef GuestfsPwriteRet guestfs_pwrite_ret;
+
+typedef GuestfsResize2fsSizeArgs guestfs_resize2fs_size_args;
+
+typedef GuestfsPvresizeSizeArgs guestfs_pvresize_size_args;
+
+typedef GuestfsNtfsresizeSizeArgs guestfs_ntfsresize_size_args;
+
+typedef GuestfsAvailableAllGroupsRet guestfs_available_all_groups_ret;
+
+typedef GuestfsFallocate64Args guestfs_fallocate64_args;
+
+typedef GuestfsVfsLabelArgs guestfs_vfs_label_args;
+
+typedef GuestfsVfsLabelRet guestfs_vfs_label_ret;
+
+typedef GuestfsVfsUuidArgs guestfs_vfs_uuid_args;
+
+typedef GuestfsVfsUuidRet guestfs_vfs_uuid_ret;
+
+typedef GuestfsLvmSetFilterArgs guestfs_lvm_set_filter_args;
+
+typedef GuestfsLuksOpenArgs guestfs_luks_open_args;
+
+typedef GuestfsLuksOpenRoArgs guestfs_luks_open_ro_args;
+
+typedef GuestfsLuksCloseArgs guestfs_luks_close_args;
+
+typedef GuestfsLuksFormatArgs guestfs_luks_format_args;
+
+typedef GuestfsLuksFormatCipherArgs guestfs_luks_format_cipher_args;
+
+typedef GuestfsLuksAddKeyArgs guestfs_luks_add_key_args;
+
+typedef GuestfsLuksKillSlotArgs guestfs_luks_kill_slot_args;
+
+typedef GuestfsIsLvArgs guestfs_is_lv_args;
+
+typedef GuestfsIsLvRet guestfs_is_lv_ret;
+
+typedef GuestfsFindfsUuidArgs guestfs_findfs_uuid_args;
+
+typedef GuestfsFindfsUuidRet guestfs_findfs_uuid_ret;
+
+typedef GuestfsFindfsLabelArgs guestfs_findfs_label_args;
+
+typedef GuestfsFindfsLabelRet guestfs_findfs_label_ret;
+
+typedef GuestfsIsChardevArgs guestfs_is_chardev_args;
+
+typedef GuestfsIsChardevRet guestfs_is_chardev_ret;
+
+typedef GuestfsIsBlockdevArgs guestfs_is_blockdev_args;
+
+typedef GuestfsIsBlockdevRet guestfs_is_blockdev_ret;
+
+typedef GuestfsIsFifoArgs guestfs_is_fifo_args;
+
+typedef GuestfsIsFifoRet guestfs_is_fifo_ret;
+
+typedef GuestfsIsSymlinkArgs guestfs_is_symlink_args;
+
+typedef GuestfsIsSymlinkRet guestfs_is_symlink_ret;
+
+typedef GuestfsIsSocketArgs guestfs_is_socket_args;
+
+typedef GuestfsIsSocketRet guestfs_is_socket_ret;
+
+typedef GuestfsPartToDevArgs guestfs_part_to_dev_args;
+
+typedef GuestfsPartToDevRet guestfs_part_to_dev_ret;
+
+typedef GuestfsUploadOffsetArgs guestfs_upload_offset_args;
+
+typedef GuestfsDownloadOffsetArgs guestfs_download_offset_args;
+
+typedef GuestfsPwriteDeviceArgs guestfs_pwrite_device_args;
+
+typedef GuestfsPwriteDeviceRet guestfs_pwrite_device_ret;
+
+typedef GuestfsPreadDeviceArgs guestfs_pread_device_args;
+
+typedef GuestfsPreadDeviceRet guestfs_pread_device_ret;
+
+typedef GuestfsLvmCanonicalLvNameArgs guestfs_lvm_canonical_lv_name_args;
+
+typedef GuestfsLvmCanonicalLvNameRet guestfs_lvm_canonical_lv_name_ret;
+
+typedef GuestfsMkfsArgs guestfs_mkfs_args;
+
+typedef GuestfsGetxattrArgs guestfs_getxattr_args;
+
+typedef GuestfsGetxattrRet guestfs_getxattr_ret;
+
+typedef GuestfsLgetxattrArgs guestfs_lgetxattr_args;
+
+typedef GuestfsLgetxattrRet guestfs_lgetxattr_ret;
+
+typedef GuestfsResize2fsmArgs guestfs_resize2fsm_args;
+
+typedef GuestfsIsZeroArgs guestfs_is_zero_args;
+
+typedef GuestfsIsZeroRet guestfs_is_zero_ret;
+
+typedef GuestfsIsZeroDeviceArgs guestfs_is_zero_device_args;
+
+typedef GuestfsIsZeroDeviceRet guestfs_is_zero_device_ret;
+
+typedef GuestfsList9pRet guestfs_list9p_ret;
+
+typedef GuestfsMount9pArgs guestfs_mount9p_args;
+
+typedef GuestfsListDmDevicesRet guestfs_list_dm_devices_ret;
+
+typedef GuestfsNTFSResizeArgs guestfs_ntfsresize_args;
+
+typedef GuestfsBtrfsFilesystemResizeArgs guestfs_btrfs_filesystem_resize_args;
+
+typedef GuestfsInternalWriteAppendArgs guestfs_internal_write_append_args;
+
+typedef GuestfsCompressOutArgs guestfs_compress_out_args;
+
+typedef GuestfsCompressDeviceOutArgs guestfs_compress_device_out_args;
+
+typedef GuestfsPartToPartnumArgs guestfs_part_to_partnum_args;
+
+typedef GuestfsPartToPartnumRet guestfs_part_to_partnum_ret;
+
+typedef GuestfsCopyDeviceToDeviceArgs guestfs_copy_device_to_device_args;
+
+typedef GuestfsCopyDeviceToFileArgs guestfs_copy_device_to_file_args;
+
+typedef GuestfsCopyFileToDeviceArgs guestfs_copy_file_to_device_args;
+
+typedef GuestfsCopyFileToFileArgs guestfs_copy_file_to_file_args;
+
+typedef GuestfsTune2fsArgs guestfs_tune2fs_args;
+
+typedef GuestfsMdCreateArgs guestfs_md_create_args;
+
+typedef GuestfsListMdDevicesRet guestfs_list_md_devices_ret;
+
+typedef GuestfsMdDetailArgs guestfs_md_detail_args;
+
+typedef GuestfsMdDetailRet guestfs_md_detail_ret;
+
+typedef GuestfsMdStopArgs guestfs_md_stop_args;
+
+typedef GuestfsBlkidArgs guestfs_blkid_args;
+
+typedef GuestfsBlkidRet guestfs_blkid_ret;
+
+typedef GuestfsE2fsckArgs guestfs_e2fsck_args;
+
+typedef GuestfsLlzArgs guestfs_llz_args;
+
+typedef GuestfsLlzRet guestfs_llz_ret;
+
+typedef GuestfsWipefsArgs guestfs_wipefs_args;
+
+typedef GuestfsNtfsfixArgs guestfs_ntfsfix_args;
+
+typedef GuestfsNtfscloneOutArgs guestfs_ntfsclone_out_args;
+
+typedef GuestfsNtfscloneInArgs guestfs_ntfsclone_in_args;
+
+typedef GuestfsSetLabelArgs guestfs_set_label_args;
+
+typedef GuestfsZeroFreeSpaceArgs guestfs_zero_free_space_args;
+
+typedef GuestfsLvcreateFreeArgs guestfs_lvcreate_free_args;
+
+typedef GuestfsIsoinfoDeviceArgs guestfs_isoinfo_device_args;
+
+typedef GuestfsIsoinfoDeviceRet guestfs_isoinfo_device_ret;
+
+typedef GuestfsIsoinfoArgs guestfs_isoinfo_args;
+
+typedef GuestfsIsoinfoRet guestfs_isoinfo_ret;
+
+typedef GuestfsVgmetaArgs guestfs_vgmeta_args;
+
+typedef GuestfsVgmetaRet guestfs_vgmeta_ret;
+
+typedef GuestfsMdStatArgs guestfs_md_stat_args;
+
+typedef GuestfsMdStatRet guestfs_md_stat_ret;
+
+typedef GuestfsMkfsBtrfsArgs guestfs_mkfs_btrfs_args;
+
+typedef GuestfsGetE2attrsArgs guestfs_get_e2attrs_args;
+
+typedef GuestfsGetE2attrsRet guestfs_get_e2attrs_ret;
+
+typedef GuestfsSetE2attrsArgs guestfs_set_e2attrs_args;
+
+typedef GuestfsGetE2generationArgs guestfs_get_e2generation_args;
+
+typedef GuestfsGetE2generationRet guestfs_get_e2generation_ret;
+
+typedef GuestfsSetE2generationArgs guestfs_set_e2generation_args;
+
+typedef GuestfsBtrfsSubvolumeSnapshotArgs guestfs_btrfs_subvolume_snapshot_args;
+
+typedef GuestfsBtrfsSubvolumeDeleteArgs guestfs_btrfs_subvolume_delete_args;
+
+typedef GuestfsBtrfsSubvolumeCreateArgs guestfs_btrfs_subvolume_create_args;
+
+typedef GuestfsBtrfsSubvolumeListArgs guestfs_btrfs_subvolume_list_args;
+
+typedef GuestfsBtrfsSubvolumeListRet guestfs_btrfs_subvolume_list_ret;
+
+typedef GuestfsBtrfsSubvolumeSetDefaultArgs guestfs_btrfs_subvolume_set_default_args;
+
+typedef GuestfsBtrfsFilesystemSyncArgs guestfs_btrfs_filesystem_sync_args;
+
+typedef GuestfsBtrfsFilesystemBalanceArgs guestfs_btrfs_filesystem_balance_args;
+
+typedef GuestfsBtrfsDeviceAddArgs guestfs_btrfs_device_add_args;
+
+typedef GuestfsBtrfsDeviceDeleteArgs guestfs_btrfs_device_delete_args;
+
+typedef GuestfsBtrfsSetSeedingArgs guestfs_btrfs_set_seeding_args;
+
+typedef GuestfsBtrfsFsckArgs guestfs_btrfs_fsck_args;
+
+typedef GuestfsFilesystemAvailableArgs guestfs_filesystem_available_args;
+
+typedef GuestfsFilesystemAvailableRet guestfs_filesystem_available_ret;
+
+typedef GuestfsFstrimArgs guestfs_fstrim_args;
+
+typedef GuestfsDeviceIndexArgs guestfs_device_index_args;
+
+typedef GuestfsDeviceIndexRet guestfs_device_index_ret;
+
+typedef GuestfsNrDevicesRet guestfs_nr_devices_ret;
+
+typedef GuestfsXfsInfoArgs guestfs_xfs_info_args;
+
+typedef GuestfsXfsInfoRet guestfs_xfs_info_ret;
+
+typedef GuestfsPvchangeUuidArgs guestfs_pvchange_uuid_args;
+
+typedef GuestfsVgchangeUuidArgs guestfs_vgchange_uuid_args;
+
+typedef GuestfsUtsnameRet guestfs_utsname_ret;
+
+typedef GuestfsXfsGrowfsArgs guestfs_xfs_growfs_args;
+
+typedef GuestfsRsyncArgs guestfs_rsync_args;
+
+typedef GuestfsRsyncInArgs guestfs_rsync_in_args;
+
+typedef GuestfsRsyncOutArgs guestfs_rsync_out_args;
+
+typedef GuestfsLs0Args guestfs_ls0_args;
+
+typedef GuestfsFillDirArgs guestfs_fill_dir_args;
+
+typedef GuestfsXfsAdminArgs guestfs_xfs_admin_args;
+
+typedef GuestfsHivexOpenArgs guestfs_hivex_open_args;
+
+typedef GuestfsHivexRootRet guestfs_hivex_root_ret;
+
+typedef GuestfsHivexNodeNameArgs guestfs_hivex_node_name_args;
+
+typedef GuestfsHivexNodeNameRet guestfs_hivex_node_name_ret;
+
+typedef GuestfsHivexNodeChildrenArgs guestfs_hivex_node_children_args;
+
+typedef GuestfsHivexNodeChildrenRet guestfs_hivex_node_children_ret;
+
+typedef GuestfsHivexNodeGetChildArgs guestfs_hivex_node_get_child_args;
+
+typedef GuestfsHivexNodeGetChildRet guestfs_hivex_node_get_child_ret;
+
+typedef GuestfsHivexNodeParentArgs guestfs_hivex_node_parent_args;
+
+typedef GuestfsHivexNodeParentRet guestfs_hivex_node_parent_ret;
+
+typedef GuestfsHivexNodeValuesArgs guestfs_hivex_node_values_args;
+
+typedef GuestfsHivexNodeValuesRet guestfs_hivex_node_values_ret;
+
+typedef GuestfsHivexNodeGetValueArgs guestfs_hivex_node_get_value_args;
+
+typedef GuestfsHivexNodeGetValueRet guestfs_hivex_node_get_value_ret;
+
+typedef GuestfsHivexValueKeyArgs guestfs_hivex_value_key_args;
+
+typedef GuestfsHivexValueKeyRet guestfs_hivex_value_key_ret;
+
+typedef GuestfsHivexValueTypeArgs guestfs_hivex_value_type_args;
+
+typedef GuestfsHivexValueTypeRet guestfs_hivex_value_type_ret;
+
+typedef GuestfsHivexValueValueArgs guestfs_hivex_value_value_args;
+
+typedef GuestfsHivexValueValueRet guestfs_hivex_value_value_ret;
+
+typedef GuestfsHivexCommitArgs guestfs_hivex_commit_args;
+
+typedef GuestfsHivexNodeAddChildArgs guestfs_hivex_node_add_child_args;
+
+typedef GuestfsHivexNodeAddChildRet guestfs_hivex_node_add_child_ret;
+
+typedef GuestfsHivexNodeDeleteChildArgs guestfs_hivex_node_delete_child_args;
+
+typedef GuestfsHivexNodeSetValueArgs guestfs_hivex_node_set_value_args;
+
+typedef GuestfsXfsRepairArgs guestfs_xfs_repair_args;
+
+typedef GuestfsXfsRepairRet guestfs_xfs_repair_ret;
+
+typedef GuestfsRmFfArgs guestfs_rm_ff_args;
+
+typedef GuestfsMke2fsArgs guestfs_mke2fs_args;
+
+typedef GuestfsListDiskLabelsRet guestfs_list_disk_labels_ret;
+
+typedef GuestfsInternalHotAddDriveArgs guestfs_internal_hot_add_drive_args;
+
+typedef GuestfsInternalHotRemoveDrivePrecheckArgs guestfs_internal_hot_remove_drive_precheck_args;
+
+typedef GuestfsInternalHotRemoveDriveArgs guestfs_internal_hot_remove_drive_args;
+
+typedef GuestfsMktempArgs guestfs_mktemp_args;
+
+typedef GuestfsMktempRet guestfs_mktemp_ret;
+
+typedef GuestfsMklostAndFoundArgs guestfs_mklost_and_found_args;
+
+typedef GuestfsAclGetFileArgs guestfs_acl_get_file_args;
+
+typedef GuestfsAclGetFileRet guestfs_acl_get_file_ret;
+
+typedef GuestfsAclSetFileArgs guestfs_acl_set_file_args;
+
+typedef GuestfsAclDeleteDefFileArgs guestfs_acl_delete_def_file_args;
+
+typedef GuestfsCapGetFileArgs guestfs_cap_get_file_args;
+
+typedef GuestfsCapGetFileRet guestfs_cap_get_file_ret;
+
+typedef GuestfsCapSetFileArgs guestfs_cap_set_file_args;
+
+typedef GuestfsListLdmVolumesRet guestfs_list_ldm_volumes_ret;
+
+typedef GuestfsListLdmPartitionsRet guestfs_list_ldm_partitions_ret;
+
+typedef GuestfsLdmtoolScanRet guestfs_ldmtool_scan_ret;
+
+typedef GuestfsLdmtoolScanDevicesArgs guestfs_ldmtool_scan_devices_args;
+
+typedef GuestfsLdmtoolScanDevicesRet guestfs_ldmtool_scan_devices_ret;
+
+typedef GuestfsLdmtoolDiskgroupNameArgs guestfs_ldmtool_diskgroup_name_args;
+
+typedef GuestfsLdmtoolDiskgroupNameRet guestfs_ldmtool_diskgroup_name_ret;
+
+typedef GuestfsLdmtoolDiskgroupVolumesArgs guestfs_ldmtool_diskgroup_volumes_args;
+
+typedef GuestfsLdmtoolDiskgroupVolumesRet guestfs_ldmtool_diskgroup_volumes_ret;
+
+typedef GuestfsLdmtoolDiskgroupDisksArgs guestfs_ldmtool_diskgroup_disks_args;
+
+typedef GuestfsLdmtoolDiskgroupDisksRet guestfs_ldmtool_diskgroup_disks_ret;
+
+typedef GuestfsLdmtoolVolumeTypeArgs guestfs_ldmtool_volume_type_args;
+
+typedef GuestfsLdmtoolVolumeTypeRet guestfs_ldmtool_volume_type_ret;
+
+typedef GuestfsLdmtoolVolumeHintArgs guestfs_ldmtool_volume_hint_args;
+
+typedef GuestfsLdmtoolVolumeHintRet guestfs_ldmtool_volume_hint_ret;
+
+typedef GuestfsLdmtoolVolumePartitionsArgs guestfs_ldmtool_volume_partitions_args;
+
+typedef GuestfsLdmtoolVolumePartitionsRet guestfs_ldmtool_volume_partitions_ret;
+
+typedef GuestfsPartSetGptTypeArgs guestfs_part_set_gpt_type_args;
+
+typedef GuestfsPartGetGptTypeArgs guestfs_part_get_gpt_type_args;
+
+typedef GuestfsPartGetGptTypeRet guestfs_part_get_gpt_type_ret;
+
+typedef GuestfsRenameArgs guestfs_rename_args;
+
+typedef GuestfsIsWholeDeviceArgs guestfs_is_whole_device_args;
+
+typedef GuestfsIsWholeDeviceRet guestfs_is_whole_device_ret;
+
+typedef GuestfsInternalParseMountableArgs guestfs_internal_parse_mountable_args;
+
+typedef GuestfsInternalParseMountableRet guestfs_internal_parse_mountable_ret;
+
+typedef GuestfsInternalRhbz914931Args guestfs_internal_rhbz914931_args;
+
+typedef GuestfsFeatureAvailableArgs guestfs_feature_available_args;
+
+typedef GuestfsFeatureAvailableRet guestfs_feature_available_ret;
+
+typedef GuestfsSyslinuxArgs guestfs_syslinux_args;
+
+typedef GuestfsExtlinuxArgs guestfs_extlinux_args;
+
+typedef GuestfsCpRrArgs guestfs_cp_rr_args;
+
+typedef GuestfsRemountArgs guestfs_remount_args;
+
+typedef GuestfsSetUuidArgs guestfs_set_uuid_args;
+
+typedef GuestfsJournalOpenArgs guestfs_journal_open_args;
+
+typedef GuestfsJournalNextRet guestfs_journal_next_ret;
+
+typedef GuestfsJournalSkipArgs guestfs_journal_skip_args;
+
+typedef GuestfsJournalSkipRet guestfs_journal_skip_ret;
+
+typedef GuestfsJournalGetDataThresholdRet guestfs_journal_get_data_threshold_ret;
+
+typedef GuestfsJournalSetDataThresholdArgs guestfs_journal_set_data_threshold_args;
+
+typedef GuestfsAugSetmArgs guestfs_aug_setm_args;
+
+typedef GuestfsAugSetmRet guestfs_aug_setm_ret;
+
+typedef GuestfsAugLabelArgs guestfs_aug_label_args;
+
+typedef GuestfsAugLabelRet guestfs_aug_label_ret;
+
+typedef GuestfsInternalUploadArgs guestfs_internal_upload_args;
+
+typedef GuestfsCopyAttributesArgs guestfs_copy_attributes_args;
+
+typedef GuestfsPartGetNameArgs guestfs_part_get_name_args;
+
+typedef GuestfsPartGetNameRet guestfs_part_get_name_ret;
+
+typedef GuestfsBlkdiscardArgs guestfs_blkdiscard_args;
+
+typedef GuestfsBlkdiscardzeroesArgs guestfs_blkdiscardzeroes_args;
+
+typedef GuestfsBlkdiscardzeroesRet guestfs_blkdiscardzeroes_ret;
+
+typedef GuestfsCpioOutArgs guestfs_cpio_out_args;
+
+typedef GuestfsJournalGetRealtimeUsecRet guestfs_journal_get_realtime_usec_ret;
+
+typedef GuestfsStatnsArgs guestfs_statns_args;
+
+typedef GuestfsStatnsRet guestfs_statns_ret;
+
+typedef GuestfsLstatnsArgs guestfs_lstatns_args;
+
+typedef GuestfsLstatnsRet guestfs_lstatns_ret;
+
+typedef GuestfsInternalLstatnslistArgs guestfs_internal_lstatnslist_args;
+
+typedef GuestfsInternalLstatnslistRet guestfs_internal_lstatnslist_ret;
+
+/* Table of procedure numbers. */
+typedef enum GuestfsProcedure guestfs_procedure;
+  #define GUESTFS_PROC_MOUNT GUESTFS_PROCEDURE__GUESTFS_PROC_MOUNT
+  #define GUESTFS_PROC_SYNC GUESTFS_PROCEDURE__GUESTFS_PROC_SYNC
+  #define GUESTFS_PROC_TOUCH GUESTFS_PROCEDURE__GUESTFS_PROC_TOUCH
+  #define GUESTFS_PROC_LL GUESTFS_PROCEDURE__GUESTFS_PROC_LL
+  #define GUESTFS_PROC_LIST_DEVICES GUESTFS_PROCEDURE__GUESTFS_PROC_LIST_DEVICES
+  #define GUESTFS_PROC_LIST_PARTITIONS GUESTFS_PROCEDURE__GUESTFS_PROC_LIST_PARTITIONS
+  #define GUESTFS_PROC_PVS GUESTFS_PROCEDURE__GUESTFS_PROC_PVS
+  #define GUESTFS_PROC_VGS GUESTFS_PROCEDURE__GUESTFS_PROC_VGS
+  #define GUESTFS_PROC_LVS GUESTFS_PROCEDURE__GUESTFS_PROC_LVS
+  #define GUESTFS_PROC_PVS_FULL GUESTFS_PROCEDURE__GUESTFS_PROC_PVS_FULL
+  #define GUESTFS_PROC_VGS_FULL GUESTFS_PROCEDURE__GUESTFS_PROC_VGS_FULL
+  #define GUESTFS_PROC_LVS_FULL GUESTFS_PROCEDURE__GUESTFS_PROC_LVS_FULL
+  #define GUESTFS_PROC_AUG_INIT GUESTFS_PROCEDURE__GUESTFS_PROC_AUG_INIT
+  #define GUESTFS_PROC_AUG_CLOSE GUESTFS_PROCEDURE__GUESTFS_PROC_AUG_CLOSE
+  #define GUESTFS_PROC_AUG_DEFVAR GUESTFS_PROCEDURE__GUESTFS_PROC_AUG_DEFVAR
+  #define GUESTFS_PROC_AUG_DEFNODE GUESTFS_PROCEDURE__GUESTFS_PROC_AUG_DEFNODE
+  #define GUESTFS_PROC_AUG_GET GUESTFS_PROCEDURE__GUESTFS_PROC_AUG_GET
+  #define GUESTFS_PROC_AUG_SET GUESTFS_PROCEDURE__GUESTFS_PROC_AUG_SET
+  #define GUESTFS_PROC_AUG_INSERT GUESTFS_PROCEDURE__GUESTFS_PROC_AUG_INSERT
+  #define GUESTFS_PROC_AUG_RM GUESTFS_PROCEDURE__GUESTFS_PROC_AUG_RM
+  #define GUESTFS_PROC_AUG_MV GUESTFS_PROCEDURE__GUESTFS_PROC_AUG_MV
+  #define GUESTFS_PROC_AUG_MATCH GUESTFS_PROCEDURE__GUESTFS_PROC_AUG_MATCH
+  #define GUESTFS_PROC_AUG_SAVE GUESTFS_PROCEDURE__GUESTFS_PROC_AUG_SAVE
+  #define GUESTFS_PROC_AUG_LOAD GUESTFS_PROCEDURE__GUESTFS_PROC_AUG_LOAD
+  #define GUESTFS_PROC_AUG_LS GUESTFS_PROCEDURE__GUESTFS_PROC_AUG_LS
+  #define GUESTFS_PROC_RM GUESTFS_PROCEDURE__GUESTFS_PROC_RM
+  #define GUESTFS_PROC_RMDIR GUESTFS_PROCEDURE__GUESTFS_PROC_RMDIR
+  #define GUESTFS_PROC_RM_RF GUESTFS_PROCEDURE__GUESTFS_PROC_RM_RF
+  #define GUESTFS_PROC_MKDIR GUESTFS_PROCEDURE__GUESTFS_PROC_MKDIR
+  #define GUESTFS_PROC_MKDIR_PP GUESTFS_PROCEDURE__GUESTFS_PROC_MKDIR_PP
+  #define GUESTFS_PROC_CHMOD GUESTFS_PROCEDURE__GUESTFS_PROC_CHMOD
+  #define GUESTFS_PROC_CHOWN GUESTFS_PROCEDURE__GUESTFS_PROC_CHOWN
+  #define GUESTFS_PROC_EXISTS GUESTFS_PROCEDURE__GUESTFS_PROC_EXISTS
+  #define GUESTFS_PROC_IS_FILE GUESTFS_PROCEDURE__GUESTFS_PROC_IS_FILE
+  #define GUESTFS_PROC_IS_DIR GUESTFS_PROCEDURE__GUESTFS_PROC_IS_DIR
+  #define GUESTFS_PROC_PVCREATE GUESTFS_PROCEDURE__GUESTFS_PROC_PVCREATE
+  #define GUESTFS_PROC_VGCREATE GUESTFS_PROCEDURE__GUESTFS_PROC_VGCREATE
+  #define GUESTFS_PROC_LVCREATE GUESTFS_PROCEDURE__GUESTFS_PROC_LVCREATE
+  #define GUESTFS_PROC_SFDISK GUESTFS_PROCEDURE__GUESTFS_PROC_SFDISK
+  #define GUESTFS_PROC_WRITE_FILE GUESTFS_PROCEDURE__GUESTFS_PROC_WRITE_FILE
+  #define GUESTFS_PROC_UMOUNT GUESTFS_PROCEDURE__GUESTFS_PROC_UMOUNT
+  #define GUESTFS_PROC_MOUNTS GUESTFS_PROCEDURE__GUESTFS_PROC_MOUNTS
+  #define GUESTFS_PROC_UMOUNT_ALL GUESTFS_PROCEDURE__GUESTFS_PROC_UMOUNT_ALL
+  #define GUESTFS_PROC_LVM_REMOVE_ALL GUESTFS_PROCEDURE__GUESTFS_PROC_LVM_REMOVE_ALL
+  #define GUESTFS_PROC_FILE GUESTFS_PROCEDURE__GUESTFS_PROC_FILE
+  #define GUESTFS_PROC_COMMAND GUESTFS_PROCEDURE__GUESTFS_PROC_COMMAND
+  #define GUESTFS_PROC_COMMAND_LINES GUESTFS_PROCEDURE__GUESTFS_PROC_COMMAND_LINES
+  #define GUESTFS_PROC_STATVFS GUESTFS_PROCEDURE__GUESTFS_PROC_STATVFS
+  #define GUESTFS_PROC_TUNE2FSL GUESTFS_PROCEDURE__GUESTFS_PROC_TUNE2FSL
+  #define GUESTFS_PROC_BLOCKDEV_SETRO GUESTFS_PROCEDURE__GUESTFS_PROC_BLOCKDEV_SETRO
+  #define GUESTFS_PROC_BLOCKDEV_SETRW GUESTFS_PROCEDURE__GUESTFS_PROC_BLOCKDEV_SETRW
+  #define GUESTFS_PROC_BLOCKDEV_GETRO GUESTFS_PROCEDURE__GUESTFS_PROC_BLOCKDEV_GETRO
+  #define GUESTFS_PROC_BLOCKDEV_GETSS GUESTFS_PROCEDURE__GUESTFS_PROC_BLOCKDEV_GETSS
+  #define GUESTFS_PROC_BLOCKDEV_GETBSZ GUESTFS_PROCEDURE__GUESTFS_PROC_BLOCKDEV_GETBSZ
+  #define GUESTFS_PROC_BLOCKDEV_SETBSZ GUESTFS_PROCEDURE__GUESTFS_PROC_BLOCKDEV_SETBSZ
+  #define GUESTFS_PROC_BLOCKDEV_GETSZ GUESTFS_PROCEDURE__GUESTFS_PROC_BLOCKDEV_GETSZ
+  #define GUESTFS_PROC_BLOCKDEV_GETSIZE64 GUESTFS_PROCEDURE__GUESTFS_PROC_BLOCKDEV_GETSIZE64
+  #define GUESTFS_PROC_BLOCKDEV_FLUSHBUFS GUESTFS_PROCEDURE__GUESTFS_PROC_BLOCKDEV_FLUSHBUFS
+  #define GUESTFS_PROC_BLOCKDEV_REREADPT GUESTFS_PROCEDURE__GUESTFS_PROC_BLOCKDEV_REREADPT
+  #define GUESTFS_PROC_UPLOAD GUESTFS_PROCEDURE__GUESTFS_PROC_UPLOAD
+  #define GUESTFS_PROC_DOWNLOAD GUESTFS_PROCEDURE__GUESTFS_PROC_DOWNLOAD
+  #define GUESTFS_PROC_CHECKSUM GUESTFS_PROCEDURE__GUESTFS_PROC_CHECKSUM
+  #define GUESTFS_PROC_TAR_IN GUESTFS_PROCEDURE__GUESTFS_PROC_TAR_IN
+  #define GUESTFS_PROC_TAR_OUT GUESTFS_PROCEDURE__GUESTFS_PROC_TAR_OUT
+  #define GUESTFS_PROC_TGZ_IN GUESTFS_PROCEDURE__GUESTFS_PROC_TGZ_IN
+  #define GUESTFS_PROC_TGZ_OUT GUESTFS_PROCEDURE__GUESTFS_PROC_TGZ_OUT
+  #define GUESTFS_PROC_MOUNT_RO GUESTFS_PROCEDURE__GUESTFS_PROC_MOUNT_RO
+  #define GUESTFS_PROC_MOUNT_OPTIONS GUESTFS_PROCEDURE__GUESTFS_PROC_MOUNT_OPTIONS
+  #define GUESTFS_PROC_MOUNT_VFS GUESTFS_PROCEDURE__GUESTFS_PROC_MOUNT_VFS
+  #define GUESTFS_PROC_DEBUG GUESTFS_PROCEDURE__GUESTFS_PROC_DEBUG
+  #define GUESTFS_PROC_LVREMOVE GUESTFS_PROCEDURE__GUESTFS_PROC_LVREMOVE
+  #define GUESTFS_PROC_VGREMOVE GUESTFS_PROCEDURE__GUESTFS_PROC_VGREMOVE
+  #define GUESTFS_PROC_PVREMOVE GUESTFS_PROCEDURE__GUESTFS_PROC_PVREMOVE
+  #define GUESTFS_PROC_SET_E2LABEL GUESTFS_PROCEDURE__GUESTFS_PROC_SET_E2LABEL
+  #define GUESTFS_PROC_GET_E2LABEL GUESTFS_PROCEDURE__GUESTFS_PROC_GET_E2LABEL
+  #define GUESTFS_PROC_SET_E2UUID GUESTFS_PROCEDURE__GUESTFS_PROC_SET_E2UUID
+  #define GUESTFS_PROC_GET_E2UUID GUESTFS_PROCEDURE__GUESTFS_PROC_GET_E2UUID
+  #define GUESTFS_PROC_FSCK GUESTFS_PROCEDURE__GUESTFS_PROC_FSCK
+  #define GUESTFS_PROC_ZERO GUESTFS_PROCEDURE__GUESTFS_PROC_ZERO
+  #define GUESTFS_PROC_GRUB_INSTALL GUESTFS_PROCEDURE__GUESTFS_PROC_GRUB_INSTALL
+  #define GUESTFS_PROC_CP GUESTFS_PROCEDURE__GUESTFS_PROC_CP
+  #define GUESTFS_PROC_CP_AA GUESTFS_PROCEDURE__GUESTFS_PROC_CP_AA
+  #define GUESTFS_PROC_MV GUESTFS_PROCEDURE__GUESTFS_PROC_MV
+  #define GUESTFS_PROC_DROP_CACHES GUESTFS_PROCEDURE__GUESTFS_PROC_DROP_CACHES
+  #define GUESTFS_PROC_DMESG GUESTFS_PROCEDURE__GUESTFS_PROC_DMESG
+  #define GUESTFS_PROC_PING_DAEMON GUESTFS_PROCEDURE__GUESTFS_PROC_PING_DAEMON
+  #define GUESTFS_PROC_EQUAL GUESTFS_PROCEDURE__GUESTFS_PROC_EQUAL
+  #define GUESTFS_PROC_STRINGS GUESTFS_PROCEDURE__GUESTFS_PROC_STRINGS
+  #define GUESTFS_PROC_STRINGS_EE GUESTFS_PROCEDURE__GUESTFS_PROC_STRINGS_EE
+  #define GUESTFS_PROC_HEXDUMP GUESTFS_PROCEDURE__GUESTFS_PROC_HEXDUMP
+  #define GUESTFS_PROC_ZEROFREE GUESTFS_PROCEDURE__GUESTFS_PROC_ZEROFREE
+  #define GUESTFS_PROC_PVRESIZE GUESTFS_PROCEDURE__GUESTFS_PROC_PVRESIZE
+  #define GUESTFS_PROC_SFDISK_NN GUESTFS_PROCEDURE__GUESTFS_PROC_SFDISK_NN
+  #define GUESTFS_PROC_SFDISKL GUESTFS_PROCEDURE__GUESTFS_PROC_SFDISKL
+  #define GUESTFS_PROC_SFDISK_KERNEL_GEOMETRY GUESTFS_PROCEDURE__GUESTFS_PROC_SFDISK_KERNEL_GEOMETRY
+  #define GUESTFS_PROC_SFDISK_DISK_GEOMETRY GUESTFS_PROCEDURE__GUESTFS_PROC_SFDISK_DISK_GEOMETRY
+  #define GUESTFS_PROC_VG_ACTIVATE_ALL GUESTFS_PROCEDURE__GUESTFS_PROC_VG_ACTIVATE_ALL
+  #define GUESTFS_PROC_VG_ACTIVATE GUESTFS_PROCEDURE__GUESTFS_PROC_VG_ACTIVATE
+  #define GUESTFS_PROC_LVRESIZE GUESTFS_PROCEDURE__GUESTFS_PROC_LVRESIZE
+  #define GUESTFS_PROC_RESIZE2FS GUESTFS_PROCEDURE__GUESTFS_PROC_RESIZE2FS
+  #define GUESTFS_PROC_E2FSCK_FF GUESTFS_PROCEDURE__GUESTFS_PROC_E2FSCK_FF
+  #define GUESTFS_PROC_SLEEP GUESTFS_PROCEDURE__GUESTFS_PROC_SLEEP
+  #define GUESTFS_PROC_NTFS3GPROBE GUESTFS_PROCEDURE__GUESTFS_PROC_NTFS3GPROBE
+  #define GUESTFS_PROC_SH GUESTFS_PROCEDURE__GUESTFS_PROC_SH
+  #define GUESTFS_PROC_SH_LINES GUESTFS_PROCEDURE__GUESTFS_PROC_SH_LINES
+  #define GUESTFS_PROC_GLOB_EXPAND GUESTFS_PROCEDURE__GUESTFS_PROC_GLOB_EXPAND
+  #define GUESTFS_PROC_SCRUB_DEVICE GUESTFS_PROCEDURE__GUESTFS_PROC_SCRUB_DEVICE
+  #define GUESTFS_PROC_SCRUB_FILE GUESTFS_PROCEDURE__GUESTFS_PROC_SCRUB_FILE
+  #define GUESTFS_PROC_SCRUB_FREESPACE GUESTFS_PROCEDURE__GUESTFS_PROC_SCRUB_FREESPACE
+  #define GUESTFS_PROC_MKDTEMP GUESTFS_PROCEDURE__GUESTFS_PROC_MKDTEMP
+  #define GUESTFS_PROC_WCL GUESTFS_PROCEDURE__GUESTFS_PROC_WCL
+  #define GUESTFS_PROC_WCW GUESTFS_PROCEDURE__GUESTFS_PROC_WCW
+  #define GUESTFS_PROC_WCC GUESTFS_PROCEDURE__GUESTFS_PROC_WCC
+  #define GUESTFS_PROC_HEAD GUESTFS_PROCEDURE__GUESTFS_PROC_HEAD
+  #define GUESTFS_PROC_HEAD_NN GUESTFS_PROCEDURE__GUESTFS_PROC_HEAD_NN
+  #define GUESTFS_PROC_TAIL GUESTFS_PROCEDURE__GUESTFS_PROC_TAIL
+  #define GUESTFS_PROC_TAIL_NN GUESTFS_PROCEDURE__GUESTFS_PROC_TAIL_NN
+  #define GUESTFS_PROC_DF GUESTFS_PROCEDURE__GUESTFS_PROC_DF
+  #define GUESTFS_PROC_DFH GUESTFS_PROCEDURE__GUESTFS_PROC_DFH
+  #define GUESTFS_PROC_DU GUESTFS_PROCEDURE__GUESTFS_PROC_DU
+  #define GUESTFS_PROC_INITRD_LIST GUESTFS_PROCEDURE__GUESTFS_PROC_INITRD_LIST
+  #define GUESTFS_PROC_MOUNT_LOOP GUESTFS_PROCEDURE__GUESTFS_PROC_MOUNT_LOOP
+  #define GUESTFS_PROC_MKSWAP GUESTFS_PROCEDURE__GUESTFS_PROC_MKSWAP
+  #define GUESTFS_PROC_MKSWAP_LL GUESTFS_PROCEDURE__GUESTFS_PROC_MKSWAP_LL
+  #define GUESTFS_PROC_MKSWAP_UU GUESTFS_PROCEDURE__GUESTFS_PROC_MKSWAP_UU
+  #define GUESTFS_PROC_MKNOD GUESTFS_PROCEDURE__GUESTFS_PROC_MKNOD
+  #define GUESTFS_PROC_MKFIFO GUESTFS_PROCEDURE__GUESTFS_PROC_MKFIFO
+  #define GUESTFS_PROC_MKNOD_BB GUESTFS_PROCEDURE__GUESTFS_PROC_MKNOD_BB
+  #define GUESTFS_PROC_MKNOD_CC GUESTFS_PROCEDURE__GUESTFS_PROC_MKNOD_CC
+  #define GUESTFS_PROC_UMASK GUESTFS_PROCEDURE__GUESTFS_PROC_UMASK
+  #define GUESTFS_PROC_READDIR GUESTFS_PROCEDURE__GUESTFS_PROC_READDIR
+  #define GUESTFS_PROC_SFDISKM GUESTFS_PROCEDURE__GUESTFS_PROC_SFDISKM
+  #define GUESTFS_PROC_ZFILE GUESTFS_PROCEDURE__GUESTFS_PROC_ZFILE
+  #define GUESTFS_PROC_GETXATTRS GUESTFS_PROCEDURE__GUESTFS_PROC_GETXATTRS
+  #define GUESTFS_PROC_LGETXATTRS GUESTFS_PROCEDURE__GUESTFS_PROC_LGETXATTRS
+  #define GUESTFS_PROC_SETXATTR GUESTFS_PROCEDURE__GUESTFS_PROC_SETXATTR
+  #define GUESTFS_PROC_LSETXATTR GUESTFS_PROCEDURE__GUESTFS_PROC_LSETXATTR
+  #define GUESTFS_PROC_REMOVEXATTR GUESTFS_PROCEDURE__GUESTFS_PROC_REMOVEXATTR
+  #define GUESTFS_PROC_LREMOVEXATTR GUESTFS_PROCEDURE__GUESTFS_PROC_LREMOVEXATTR
+  #define GUESTFS_PROC_MOUNTPOINTS GUESTFS_PROCEDURE__GUESTFS_PROC_MOUNTPOINTS
+  #define GUESTFS_PROC_MKMOUNTPOINT GUESTFS_PROCEDURE__GUESTFS_PROC_MKMOUNTPOINT
+  #define GUESTFS_PROC_RMMOUNTPOINT GUESTFS_PROCEDURE__GUESTFS_PROC_RMMOUNTPOINT
+  #define GUESTFS_PROC_GREP GUESTFS_PROCEDURE__GUESTFS_PROC_GREP
+  #define GUESTFS_PROC_EGREP GUESTFS_PROCEDURE__GUESTFS_PROC_EGREP
+  #define GUESTFS_PROC_FGREP GUESTFS_PROCEDURE__GUESTFS_PROC_FGREP
+  #define GUESTFS_PROC_GREPI GUESTFS_PROCEDURE__GUESTFS_PROC_GREPI
+  #define GUESTFS_PROC_EGREPI GUESTFS_PROCEDURE__GUESTFS_PROC_EGREPI
+  #define GUESTFS_PROC_FGREPI GUESTFS_PROCEDURE__GUESTFS_PROC_FGREPI
+  #define GUESTFS_PROC_ZGREP GUESTFS_PROCEDURE__GUESTFS_PROC_ZGREP
+  #define GUESTFS_PROC_ZEGREP GUESTFS_PROCEDURE__GUESTFS_PROC_ZEGREP
+  #define GUESTFS_PROC_ZFGREP GUESTFS_PROCEDURE__GUESTFS_PROC_ZFGREP
+  #define GUESTFS_PROC_ZGREPI GUESTFS_PROCEDURE__GUESTFS_PROC_ZGREPI
+  #define GUESTFS_PROC_ZEGREPI GUESTFS_PROCEDURE__GUESTFS_PROC_ZEGREPI
+  #define GUESTFS_PROC_ZFGREPI GUESTFS_PROCEDURE__GUESTFS_PROC_ZFGREPI
+  #define GUESTFS_PROC_REALPATH GUESTFS_PROCEDURE__GUESTFS_PROC_REALPATH
+  #define GUESTFS_PROC_LN GUESTFS_PROCEDURE__GUESTFS_PROC_LN
+  #define GUESTFS_PROC_LNF GUESTFS_PROCEDURE__GUESTFS_PROC_LNF
+  #define GUESTFS_PROC_LNS GUESTFS_PROCEDURE__GUESTFS_PROC_LNS
+  #define GUESTFS_PROC_LN_SF GUESTFS_PROCEDURE__GUESTFS_PROC_LN_SF
+  #define GUESTFS_PROC_READLINK GUESTFS_PROCEDURE__GUESTFS_PROC_READLINK
+  #define GUESTFS_PROC_FALLOCATE GUESTFS_PROCEDURE__GUESTFS_PROC_FALLOCATE
+  #define GUESTFS_PROC_SWAPON_DEVICE GUESTFS_PROCEDURE__GUESTFS_PROC_SWAPON_DEVICE
+  #define GUESTFS_PROC_SWAPOFF_DEVICE GUESTFS_PROCEDURE__GUESTFS_PROC_SWAPOFF_DEVICE
+  #define GUESTFS_PROC_SWAPON_FILE GUESTFS_PROCEDURE__GUESTFS_PROC_SWAPON_FILE
+  #define GUESTFS_PROC_SWAPOFF_FILE GUESTFS_PROCEDURE__GUESTFS_PROC_SWAPOFF_FILE
+  #define GUESTFS_PROC_SWAPON_LABEL GUESTFS_PROCEDURE__GUESTFS_PROC_SWAPON_LABEL
+  #define GUESTFS_PROC_SWAPOFF_LABEL GUESTFS_PROCEDURE__GUESTFS_PROC_SWAPOFF_LABEL
+  #define GUESTFS_PROC_SWAPON_UUID GUESTFS_PROCEDURE__GUESTFS_PROC_SWAPON_UUID
+  #define GUESTFS_PROC_SWAPOFF_UUID GUESTFS_PROCEDURE__GUESTFS_PROC_SWAPOFF_UUID
+  #define GUESTFS_PROC_MKSWAP_FILE GUESTFS_PROCEDURE__GUESTFS_PROC_MKSWAP_FILE
+  #define GUESTFS_PROC_INOTIFY_INIT GUESTFS_PROCEDURE__GUESTFS_PROC_INOTIFY_INIT
+  #define GUESTFS_PROC_INOTIFY_ADD_WATCH GUESTFS_PROCEDURE__GUESTFS_PROC_INOTIFY_ADD_WATCH
+  #define GUESTFS_PROC_INOTIFY_RM_WATCH GUESTFS_PROCEDURE__GUESTFS_PROC_INOTIFY_RM_WATCH
+  #define GUESTFS_PROC_INOTIFY_READ GUESTFS_PROCEDURE__GUESTFS_PROC_INOTIFY_READ
+  #define GUESTFS_PROC_INOTIFY_FILES GUESTFS_PROCEDURE__GUESTFS_PROC_INOTIFY_FILES
+  #define GUESTFS_PROC_INOTIFY_CLOSE GUESTFS_PROCEDURE__GUESTFS_PROC_INOTIFY_CLOSE
+  #define GUESTFS_PROC_SETCON GUESTFS_PROCEDURE__GUESTFS_PROC_SETCON
+  #define GUESTFS_PROC_GETCON GUESTFS_PROCEDURE__GUESTFS_PROC_GETCON
+  #define GUESTFS_PROC_MKFS_BB GUESTFS_PROCEDURE__GUESTFS_PROC_MKFS_BB
+  #define GUESTFS_PROC_MKE2JOURNAL GUESTFS_PROCEDURE__GUESTFS_PROC_MKE2JOURNAL
+  #define GUESTFS_PROC_MKE2JOURNAL_LL GUESTFS_PROCEDURE__GUESTFS_PROC_MKE2JOURNAL_LL
+  #define GUESTFS_PROC_MKE2JOURNAL_UU GUESTFS_PROCEDURE__GUESTFS_PROC_MKE2JOURNAL_UU
+  #define GUESTFS_PROC_MKE2FS_JJ GUESTFS_PROCEDURE__GUESTFS_PROC_MKE2FS_JJ
+  #define GUESTFS_PROC_MKE2FS_JL GUESTFS_PROCEDURE__GUESTFS_PROC_MKE2FS_JL
+  #define GUESTFS_PROC_MKE2FS_JU GUESTFS_PROCEDURE__GUESTFS_PROC_MKE2FS_JU
+  #define GUESTFS_PROC_MODPROBE GUESTFS_PROCEDURE__GUESTFS_PROC_MODPROBE
+  #define GUESTFS_PROC_ECHO_DAEMON GUESTFS_PROCEDURE__GUESTFS_PROC_ECHO_DAEMON
+  #define GUESTFS_PROC_FIND0 GUESTFS_PROCEDURE__GUESTFS_PROC_FIND0
+  #define GUESTFS_PROC_CASE_SENSITIVE_PATH GUESTFS_PROCEDURE__GUESTFS_PROC_CASE_SENSITIVE_PATH
+  #define GUESTFS_PROC_VFS_TYPE GUESTFS_PROCEDURE__GUESTFS_PROC_VFS_TYPE
+  #define GUESTFS_PROC_TRUNCATE GUESTFS_PROCEDURE__GUESTFS_PROC_TRUNCATE
+  #define GUESTFS_PROC_TRUNCATE_SIZE GUESTFS_PROCEDURE__GUESTFS_PROC_TRUNCATE_SIZE
+  #define GUESTFS_PROC_UTIMENS GUESTFS_PROCEDURE__GUESTFS_PROC_UTIMENS
+  #define GUESTFS_PROC_MKDIR_MODE GUESTFS_PROCEDURE__GUESTFS_PROC_MKDIR_MODE
+  #define GUESTFS_PROC_LCHOWN GUESTFS_PROCEDURE__GUESTFS_PROC_LCHOWN
+  #define GUESTFS_PROC_INTERNAL_LXATTRLIST GUESTFS_PROCEDURE__GUESTFS_PROC_INTERNAL_LXATTRLIST
+  #define GUESTFS_PROC_INTERNAL_READLINKLIST GUESTFS_PROCEDURE__GUESTFS_PROC_INTERNAL_READLINKLIST
+  #define GUESTFS_PROC_PREAD GUESTFS_PROCEDURE__GUESTFS_PROC_PREAD
+  #define GUESTFS_PROC_PART_INIT GUESTFS_PROCEDURE__GUESTFS_PROC_PART_INIT
+  #define GUESTFS_PROC_PART_ADD GUESTFS_PROCEDURE__GUESTFS_PROC_PART_ADD
+  #define GUESTFS_PROC_PART_DISK GUESTFS_PROCEDURE__GUESTFS_PROC_PART_DISK
+  #define GUESTFS_PROC_PART_SET_BOOTABLE GUESTFS_PROCEDURE__GUESTFS_PROC_PART_SET_BOOTABLE
+  #define GUESTFS_PROC_PART_SET_NAME GUESTFS_PROCEDURE__GUESTFS_PROC_PART_SET_NAME
+  #define GUESTFS_PROC_PART_LIST GUESTFS_PROCEDURE__GUESTFS_PROC_PART_LIST
+  #define GUESTFS_PROC_PART_GET_PARTTYPE GUESTFS_PROCEDURE__GUESTFS_PROC_PART_GET_PARTTYPE
+  #define GUESTFS_PROC_FILL GUESTFS_PROCEDURE__GUESTFS_PROC_FILL
+  #define GUESTFS_PROC_AVAILABLE GUESTFS_PROCEDURE__GUESTFS_PROC_AVAILABLE
+  #define GUESTFS_PROC_DD GUESTFS_PROCEDURE__GUESTFS_PROC_DD
+  #define GUESTFS_PROC_FILESIZE GUESTFS_PROCEDURE__GUESTFS_PROC_FILESIZE
+  #define GUESTFS_PROC_LVRENAME GUESTFS_PROCEDURE__GUESTFS_PROC_LVRENAME
+  #define GUESTFS_PROC_VGRENAME GUESTFS_PROCEDURE__GUESTFS_PROC_VGRENAME
+  #define GUESTFS_PROC_INITRD_CAT GUESTFS_PROCEDURE__GUESTFS_PROC_INITRD_CAT
+  #define GUESTFS_PROC_PVUUID GUESTFS_PROCEDURE__GUESTFS_PROC_PVUUID
+  #define GUESTFS_PROC_VGUUID GUESTFS_PROCEDURE__GUESTFS_PROC_VGUUID
+  #define GUESTFS_PROC_LVUUID GUESTFS_PROCEDURE__GUESTFS_PROC_LVUUID
+  #define GUESTFS_PROC_VGPVUUIDS GUESTFS_PROCEDURE__GUESTFS_PROC_VGPVUUIDS
+  #define GUESTFS_PROC_VGLVUUIDS GUESTFS_PROCEDURE__GUESTFS_PROC_VGLVUUIDS
+  #define GUESTFS_PROC_COPY_SIZE GUESTFS_PROCEDURE__GUESTFS_PROC_COPY_SIZE
+  #define GUESTFS_PROC_ZERO_DEVICE GUESTFS_PROCEDURE__GUESTFS_PROC_ZERO_DEVICE
+  #define GUESTFS_PROC_TXZ_IN GUESTFS_PROCEDURE__GUESTFS_PROC_TXZ_IN
+  #define GUESTFS_PROC_TXZ_OUT GUESTFS_PROCEDURE__GUESTFS_PROC_TXZ_OUT
+  #define GUESTFS_PROC_VGSCAN GUESTFS_PROCEDURE__GUESTFS_PROC_VGSCAN
+  #define GUESTFS_PROC_PART_DEL GUESTFS_PROCEDURE__GUESTFS_PROC_PART_DEL
+  #define GUESTFS_PROC_PART_GET_BOOTABLE GUESTFS_PROCEDURE__GUESTFS_PROC_PART_GET_BOOTABLE
+  #define GUESTFS_PROC_PART_GET_MBR_ID GUESTFS_PROCEDURE__GUESTFS_PROC_PART_GET_MBR_ID
+  #define GUESTFS_PROC_PART_SET_MBR_ID GUESTFS_PROCEDURE__GUESTFS_PROC_PART_SET_MBR_ID
+  #define GUESTFS_PROC_CHECKSUM_DEVICE GUESTFS_PROCEDURE__GUESTFS_PROC_CHECKSUM_DEVICE
+  #define GUESTFS_PROC_LVRESIZE_FREE GUESTFS_PROCEDURE__GUESTFS_PROC_LVRESIZE_FREE
+  #define GUESTFS_PROC_AUG_CLEAR GUESTFS_PROCEDURE__GUESTFS_PROC_AUG_CLEAR
+  #define GUESTFS_PROC_GET_UMASK GUESTFS_PROCEDURE__GUESTFS_PROC_GET_UMASK
+  #define GUESTFS_PROC_DEBUG_UPLOAD GUESTFS_PROCEDURE__GUESTFS_PROC_DEBUG_UPLOAD
+  #define GUESTFS_PROC_BASE64_IN GUESTFS_PROCEDURE__GUESTFS_PROC_BASE64_IN
+  #define GUESTFS_PROC_BASE64_OUT GUESTFS_PROCEDURE__GUESTFS_PROC_BASE64_OUT
+  #define GUESTFS_PROC_CHECKSUMS_OUT GUESTFS_PROCEDURE__GUESTFS_PROC_CHECKSUMS_OUT
+  #define GUESTFS_PROC_FILL_PATTERN GUESTFS_PROCEDURE__GUESTFS_PROC_FILL_PATTERN
+  #define GUESTFS_PROC_INTERNAL_WRITE GUESTFS_PROCEDURE__GUESTFS_PROC_INTERNAL_WRITE
+  #define GUESTFS_PROC_PWRITE GUESTFS_PROCEDURE__GUESTFS_PROC_PWRITE
+  #define GUESTFS_PROC_RESIZE2FS_SIZE GUESTFS_PROCEDURE__GUESTFS_PROC_RESIZE2FS_SIZE
+  #define GUESTFS_PROC_PVRESIZE_SIZE GUESTFS_PROCEDURE__GUESTFS_PROC_PVRESIZE_SIZE
+  #define GUESTFS_PROC_NTFSRESIZE_SIZE GUESTFS_PROCEDURE__GUESTFS_PROC_NTFSRESIZE_SIZE
+  #define GUESTFS_PROC_AVAILABLE_ALL_GROUPS GUESTFS_PROCEDURE__GUESTFS_PROC_AVAILABLE_ALL_GROUPS
+  #define GUESTFS_PROC_FALLOCATE64 GUESTFS_PROCEDURE__GUESTFS_PROC_FALLOCATE64
+  #define GUESTFS_PROC_VFS_LABEL GUESTFS_PROCEDURE__GUESTFS_PROC_VFS_LABEL
+  #define GUESTFS_PROC_VFS_UUID GUESTFS_PROCEDURE__GUESTFS_PROC_VFS_UUID
+  #define GUESTFS_PROC_LVM_SET_FILTER GUESTFS_PROCEDURE__GUESTFS_PROC_LVM_SET_FILTER
+  #define GUESTFS_PROC_LVM_CLEAR_FILTER GUESTFS_PROCEDURE__GUESTFS_PROC_LVM_CLEAR_FILTER
+  #define GUESTFS_PROC_LUKS_OPEN GUESTFS_PROCEDURE__GUESTFS_PROC_LUKS_OPEN
+  #define GUESTFS_PROC_LUKS_OPEN_RO GUESTFS_PROCEDURE__GUESTFS_PROC_LUKS_OPEN_RO
+  #define GUESTFS_PROC_LUKS_CLOSE GUESTFS_PROCEDURE__GUESTFS_PROC_LUKS_CLOSE
+  #define GUESTFS_PROC_LUKS_FORMAT GUESTFS_PROCEDURE__GUESTFS_PROC_LUKS_FORMAT
+  #define GUESTFS_PROC_LUKS_FORMAT_CIPHER GUESTFS_PROCEDURE__GUESTFS_PROC_LUKS_FORMAT_CIPHER
+  #define GUESTFS_PROC_LUKS_ADD_KEY GUESTFS_PROCEDURE__GUESTFS_PROC_LUKS_ADD_KEY
+  #define GUESTFS_PROC_LUKS_KILL_SLOT GUESTFS_PROCEDURE__GUESTFS_PROC_LUKS_KILL_SLOT
+  #define GUESTFS_PROC_IS_LV GUESTFS_PROCEDURE__GUESTFS_PROC_IS_LV
+  #define GUESTFS_PROC_FINDFS_UUID GUESTFS_PROCEDURE__GUESTFS_PROC_FINDFS_UUID
+  #define GUESTFS_PROC_FINDFS_LABEL GUESTFS_PROCEDURE__GUESTFS_PROC_FINDFS_LABEL
+  #define GUESTFS_PROC_IS_CHARDEV GUESTFS_PROCEDURE__GUESTFS_PROC_IS_CHARDEV
+  #define GUESTFS_PROC_IS_BLOCKDEV GUESTFS_PROCEDURE__GUESTFS_PROC_IS_BLOCKDEV
+  #define GUESTFS_PROC_IS_FIFO GUESTFS_PROCEDURE__GUESTFS_PROC_IS_FIFO
+  #define GUESTFS_PROC_IS_SYMLINK GUESTFS_PROCEDURE__GUESTFS_PROC_IS_SYMLINK
+  #define GUESTFS_PROC_IS_SOCKET GUESTFS_PROCEDURE__GUESTFS_PROC_IS_SOCKET
+  #define GUESTFS_PROC_PART_TO_DEV GUESTFS_PROCEDURE__GUESTFS_PROC_PART_TO_DEV
+  #define GUESTFS_PROC_UPLOAD_OFFSET GUESTFS_PROCEDURE__GUESTFS_PROC_UPLOAD_OFFSET
+  #define GUESTFS_PROC_DOWNLOAD_OFFSET GUESTFS_PROCEDURE__GUESTFS_PROC_DOWNLOAD_OFFSET
+  #define GUESTFS_PROC_PWRITE_DEVICE GUESTFS_PROCEDURE__GUESTFS_PROC_PWRITE_DEVICE
+  #define GUESTFS_PROC_PREAD_DEVICE GUESTFS_PROCEDURE__GUESTFS_PROC_PREAD_DEVICE
+  #define GUESTFS_PROC_LVM_CANONICAL_LV_NAME GUESTFS_PROCEDURE__GUESTFS_PROC_LVM_CANONICAL_LV_NAME
+  #define GUESTFS_PROC_MKFS GUESTFS_PROCEDURE__GUESTFS_PROC_MKFS
+  #define GUESTFS_PROC_GETXATTR GUESTFS_PROCEDURE__GUESTFS_PROC_GETXATTR
+  #define GUESTFS_PROC_LGETXATTR GUESTFS_PROCEDURE__GUESTFS_PROC_LGETXATTR
+  #define GUESTFS_PROC_RESIZE2FSM GUESTFS_PROCEDURE__GUESTFS_PROC_RESIZE2FSM
+  #define GUESTFS_PROC_INTERNAL_AUTOSYNC GUESTFS_PROCEDURE__GUESTFS_PROC_INTERNAL_AUTOSYNC
+  #define GUESTFS_PROC_IS_ZERO GUESTFS_PROCEDURE__GUESTFS_PROC_IS_ZERO
+  #define GUESTFS_PROC_IS_ZERO_DEVICE GUESTFS_PROCEDURE__GUESTFS_PROC_IS_ZERO_DEVICE
+  #define GUESTFS_PROC_LIST9P GUESTFS_PROCEDURE__GUESTFS_PROC_LIST9P
+  #define GUESTFS_PROC_MOUNT9P GUESTFS_PROCEDURE__GUESTFS_PROC_MOUNT9P
+  #define GUESTFS_PROC_LIST_DM_DEVICES GUESTFS_PROCEDURE__GUESTFS_PROC_LIST_DM_DEVICES
+  #define GUESTFS_PROC_NTFSRESIZE GUESTFS_PROCEDURE__GUESTFS_PROC_NTFSRESIZE
+  #define GUESTFS_PROC_BTRFS_FILESYSTEM_RESIZE GUESTFS_PROCEDURE__GUESTFS_PROC_BTRFS_FILESYSTEM_RESIZE
+  #define GUESTFS_PROC_INTERNAL_WRITE_APPEND GUESTFS_PROCEDURE__GUESTFS_PROC_INTERNAL_WRITE_APPEND
+  #define GUESTFS_PROC_COMPRESS_OUT GUESTFS_PROCEDURE__GUESTFS_PROC_COMPRESS_OUT
+  #define GUESTFS_PROC_COMPRESS_DEVICE_OUT GUESTFS_PROCEDURE__GUESTFS_PROC_COMPRESS_DEVICE_OUT
+  #define GUESTFS_PROC_PART_TO_PARTNUM GUESTFS_PROCEDURE__GUESTFS_PROC_PART_TO_PARTNUM
+  #define GUESTFS_PROC_COPY_DEVICE_TO_DEVICE GUESTFS_PROCEDURE__GUESTFS_PROC_COPY_DEVICE_TO_DEVICE
+  #define GUESTFS_PROC_COPY_DEVICE_TO_FILE GUESTFS_PROCEDURE__GUESTFS_PROC_COPY_DEVICE_TO_FILE
+  #define GUESTFS_PROC_COPY_FILE_TO_DEVICE GUESTFS_PROCEDURE__GUESTFS_PROC_COPY_FILE_TO_DEVICE
+  #define GUESTFS_PROC_COPY_FILE_TO_FILE GUESTFS_PROCEDURE__GUESTFS_PROC_COPY_FILE_TO_FILE
+  #define GUESTFS_PROC_TUNE2FS GUESTFS_PROCEDURE__GUESTFS_PROC_TUNE2FS
+  #define GUESTFS_PROC_MD_CREATE GUESTFS_PROCEDURE__GUESTFS_PROC_MD_CREATE
+  #define GUESTFS_PROC_LIST_MD_DEVICES GUESTFS_PROCEDURE__GUESTFS_PROC_LIST_MD_DEVICES
+  #define GUESTFS_PROC_MD_DETAIL GUESTFS_PROCEDURE__GUESTFS_PROC_MD_DETAIL
+  #define GUESTFS_PROC_MD_STOP GUESTFS_PROCEDURE__GUESTFS_PROC_MD_STOP
+  #define GUESTFS_PROC_BLKID GUESTFS_PROCEDURE__GUESTFS_PROC_BLKID
+  #define GUESTFS_PROC_E2FSCK GUESTFS_PROCEDURE__GUESTFS_PROC_E2FSCK
+  #define GUESTFS_PROC_LLZ GUESTFS_PROCEDURE__GUESTFS_PROC_LLZ
+  #define GUESTFS_PROC_WIPEFS GUESTFS_PROCEDURE__GUESTFS_PROC_WIPEFS
+  #define GUESTFS_PROC_NTFSFIX GUESTFS_PROCEDURE__GUESTFS_PROC_NTFSFIX
+  #define GUESTFS_PROC_NTFSCLONE_OUT GUESTFS_PROCEDURE__GUESTFS_PROC_NTFSCLONE_OUT
+  #define GUESTFS_PROC_NTFSCLONE_IN GUESTFS_PROCEDURE__GUESTFS_PROC_NTFSCLONE_IN
+  #define GUESTFS_PROC_SET_LABEL GUESTFS_PROCEDURE__GUESTFS_PROC_SET_LABEL
+  #define GUESTFS_PROC_ZERO_FREE_SPACE GUESTFS_PROCEDURE__GUESTFS_PROC_ZERO_FREE_SPACE
+  #define GUESTFS_PROC_LVCREATE_FREE GUESTFS_PROCEDURE__GUESTFS_PROC_LVCREATE_FREE
+  #define GUESTFS_PROC_ISOINFO_DEVICE GUESTFS_PROCEDURE__GUESTFS_PROC_ISOINFO_DEVICE
+  #define GUESTFS_PROC_ISOINFO GUESTFS_PROCEDURE__GUESTFS_PROC_ISOINFO
+  #define GUESTFS_PROC_VGMETA GUESTFS_PROCEDURE__GUESTFS_PROC_VGMETA
+  #define GUESTFS_PROC_MD_STAT GUESTFS_PROCEDURE__GUESTFS_PROC_MD_STAT
+  #define GUESTFS_PROC_MKFS_BTRFS GUESTFS_PROCEDURE__GUESTFS_PROC_MKFS_BTRFS
+  #define GUESTFS_PROC_GET_E2ATTRS GUESTFS_PROCEDURE__GUESTFS_PROC_GET_E2ATTRS
+  #define GUESTFS_PROC_SET_E2ATTRS GUESTFS_PROCEDURE__GUESTFS_PROC_SET_E2ATTRS
+  #define GUESTFS_PROC_GET_E2GENERATION GUESTFS_PROCEDURE__GUESTFS_PROC_GET_E2GENERATION
+  #define GUESTFS_PROC_SET_E2GENERATION GUESTFS_PROCEDURE__GUESTFS_PROC_SET_E2GENERATION
+  #define GUESTFS_PROC_BTRFS_SUBVOLUME_SNAPSHOT GUESTFS_PROCEDURE__GUESTFS_PROC_BTRFS_SUBVOLUME_SNAPSHOT
+  #define GUESTFS_PROC_BTRFS_SUBVOLUME_DELETE GUESTFS_PROCEDURE__GUESTFS_PROC_BTRFS_SUBVOLUME_DELETE
+  #define GUESTFS_PROC_BTRFS_SUBVOLUME_CREATE GUESTFS_PROCEDURE__GUESTFS_PROC_BTRFS_SUBVOLUME_CREATE
+  #define GUESTFS_PROC_BTRFS_SUBVOLUME_LIST GUESTFS_PROCEDURE__GUESTFS_PROC_BTRFS_SUBVOLUME_LIST
+  #define GUESTFS_PROC_BTRFS_SUBVOLUME_SET_DEFAULT GUESTFS_PROCEDURE__GUESTFS_PROC_BTRFS_SUBVOLUME_SET_DEFAULT
+  #define GUESTFS_PROC_BTRFS_FILESYSTEM_SYNC GUESTFS_PROCEDURE__GUESTFS_PROC_BTRFS_FILESYSTEM_SYNC
+  #define GUESTFS_PROC_BTRFS_FILESYSTEM_BALANCE GUESTFS_PROCEDURE__GUESTFS_PROC_BTRFS_FILESYSTEM_BALANCE
+  #define GUESTFS_PROC_BTRFS_DEVICE_ADD GUESTFS_PROCEDURE__GUESTFS_PROC_BTRFS_DEVICE_ADD
+  #define GUESTFS_PROC_BTRFS_DEVICE_DELETE GUESTFS_PROCEDURE__GUESTFS_PROC_BTRFS_DEVICE_DELETE
+  #define GUESTFS_PROC_BTRFS_SET_SEEDING GUESTFS_PROCEDURE__GUESTFS_PROC_BTRFS_SET_SEEDING
+  #define GUESTFS_PROC_BTRFS_FSCK GUESTFS_PROCEDURE__GUESTFS_PROC_BTRFS_FSCK
+  #define GUESTFS_PROC_FILESYSTEM_AVAILABLE GUESTFS_PROCEDURE__GUESTFS_PROC_FILESYSTEM_AVAILABLE
+  #define GUESTFS_PROC_FSTRIM GUESTFS_PROCEDURE__GUESTFS_PROC_FSTRIM
+  #define GUESTFS_PROC_DEVICE_INDEX GUESTFS_PROCEDURE__GUESTFS_PROC_DEVICE_INDEX
+  #define GUESTFS_PROC_NR_DEVICES GUESTFS_PROCEDURE__GUESTFS_PROC_NR_DEVICES
+  #define GUESTFS_PROC_XFS_INFO GUESTFS_PROCEDURE__GUESTFS_PROC_XFS_INFO
+  #define GUESTFS_PROC_PVCHANGE_UUID GUESTFS_PROCEDURE__GUESTFS_PROC_PVCHANGE_UUID
+  #define GUESTFS_PROC_PVCHANGE_UUID_ALL GUESTFS_PROCEDURE__GUESTFS_PROC_PVCHANGE_UUID_ALL
+  #define GUESTFS_PROC_VGCHANGE_UUID GUESTFS_PROCEDURE__GUESTFS_PROC_VGCHANGE_UUID
+  #define GUESTFS_PROC_VGCHANGE_UUID_ALL GUESTFS_PROCEDURE__GUESTFS_PROC_VGCHANGE_UUID_ALL
+  #define GUESTFS_PROC_UTSNAME GUESTFS_PROCEDURE__GUESTFS_PROC_UTSNAME
+  #define GUESTFS_PROC_XFS_GROWFS GUESTFS_PROCEDURE__GUESTFS_PROC_XFS_GROWFS
+  #define GUESTFS_PROC_RSYNC GUESTFS_PROCEDURE__GUESTFS_PROC_RSYNC
+  #define GUESTFS_PROC_RSYNC_IN GUESTFS_PROCEDURE__GUESTFS_PROC_RSYNC_IN
+  #define GUESTFS_PROC_RSYNC_OUT GUESTFS_PROCEDURE__GUESTFS_PROC_RSYNC_OUT
+  #define GUESTFS_PROC_LS0 GUESTFS_PROCEDURE__GUESTFS_PROC_LS0
+  #define GUESTFS_PROC_FILL_DIR GUESTFS_PROCEDURE__GUESTFS_PROC_FILL_DIR
+  #define GUESTFS_PROC_XFS_ADMIN GUESTFS_PROCEDURE__GUESTFS_PROC_XFS_ADMIN
+  #define GUESTFS_PROC_HIVEX_OPEN GUESTFS_PROCEDURE__GUESTFS_PROC_HIVEX_OPEN
+  #define GUESTFS_PROC_HIVEX_CLOSE GUESTFS_PROCEDURE__GUESTFS_PROC_HIVEX_CLOSE
+  #define GUESTFS_PROC_HIVEX_ROOT GUESTFS_PROCEDURE__GUESTFS_PROC_HIVEX_ROOT
+  #define GUESTFS_PROC_HIVEX_NODE_NAME GUESTFS_PROCEDURE__GUESTFS_PROC_HIVEX_NODE_NAME
+  #define GUESTFS_PROC_HIVEX_NODE_CHILDREN GUESTFS_PROCEDURE__GUESTFS_PROC_HIVEX_NODE_CHILDREN
+  #define GUESTFS_PROC_HIVEX_NODE_GET_CHILD GUESTFS_PROCEDURE__GUESTFS_PROC_HIVEX_NODE_GET_CHILD
+  #define GUESTFS_PROC_HIVEX_NODE_PARENT GUESTFS_PROCEDURE__GUESTFS_PROC_HIVEX_NODE_PARENT
+  #define GUESTFS_PROC_HIVEX_NODE_VALUES GUESTFS_PROCEDURE__GUESTFS_PROC_HIVEX_NODE_VALUES
+  #define GUESTFS_PROC_HIVEX_NODE_GET_VALUE GUESTFS_PROCEDURE__GUESTFS_PROC_HIVEX_NODE_GET_VALUE
+  #define GUESTFS_PROC_HIVEX_VALUE_KEY GUESTFS_PROCEDURE__GUESTFS_PROC_HIVEX_VALUE_KEY
+  #define GUESTFS_PROC_HIVEX_VALUE_TYPE GUESTFS_PROCEDURE__GUESTFS_PROC_HIVEX_VALUE_TYPE
+  #define GUESTFS_PROC_HIVEX_VALUE_VALUE GUESTFS_PROCEDURE__GUESTFS_PROC_HIVEX_VALUE_VALUE
+  #define GUESTFS_PROC_HIVEX_COMMIT GUESTFS_PROCEDURE__GUESTFS_PROC_HIVEX_COMMIT
+  #define GUESTFS_PROC_HIVEX_NODE_ADD_CHILD GUESTFS_PROCEDURE__GUESTFS_PROC_HIVEX_NODE_ADD_CHILD
+  #define GUESTFS_PROC_HIVEX_NODE_DELETE_CHILD GUESTFS_PROCEDURE__GUESTFS_PROC_HIVEX_NODE_DELETE_CHILD
+  #define GUESTFS_PROC_HIVEX_NODE_SET_VALUE GUESTFS_PROCEDURE__GUESTFS_PROC_HIVEX_NODE_SET_VALUE
+  #define GUESTFS_PROC_XFS_REPAIR GUESTFS_PROCEDURE__GUESTFS_PROC_XFS_REPAIR
+  #define GUESTFS_PROC_RM_FF GUESTFS_PROCEDURE__GUESTFS_PROC_RM_FF
+  #define GUESTFS_PROC_MKE2FS GUESTFS_PROCEDURE__GUESTFS_PROC_MKE2FS
+  #define GUESTFS_PROC_LIST_DISK_LABELS GUESTFS_PROCEDURE__GUESTFS_PROC_LIST_DISK_LABELS
+  #define GUESTFS_PROC_INTERNAL_HOT_ADD_DRIVE GUESTFS_PROCEDURE__GUESTFS_PROC_INTERNAL_HOT_ADD_DRIVE
+  #define GUESTFS_PROC_INTERNAL_HOT_REMOVE_DRIVE_PRECHECK GUESTFS_PROCEDURE__GUESTFS_PROC_INTERNAL_HOT_REMOVE_DRIVE_PRECHECK
+  #define GUESTFS_PROC_INTERNAL_HOT_REMOVE_DRIVE GUESTFS_PROCEDURE__GUESTFS_PROC_INTERNAL_HOT_REMOVE_DRIVE
+  #define GUESTFS_PROC_MKTEMP GUESTFS_PROCEDURE__GUESTFS_PROC_MKTEMP
+  #define GUESTFS_PROC_MKLOST_AND_FOUND GUESTFS_PROCEDURE__GUESTFS_PROC_MKLOST_AND_FOUND
+  #define GUESTFS_PROC_ACL_GET_FILE GUESTFS_PROCEDURE__GUESTFS_PROC_ACL_GET_FILE
+  #define GUESTFS_PROC_ACL_SET_FILE GUESTFS_PROCEDURE__GUESTFS_PROC_ACL_SET_FILE
+  #define GUESTFS_PROC_ACL_DELETE_DEF_FILE GUESTFS_PROCEDURE__GUESTFS_PROC_ACL_DELETE_DEF_FILE
+  #define GUESTFS_PROC_CAP_GET_FILE GUESTFS_PROCEDURE__GUESTFS_PROC_CAP_GET_FILE
+  #define GUESTFS_PROC_CAP_SET_FILE GUESTFS_PROCEDURE__GUESTFS_PROC_CAP_SET_FILE
+  #define GUESTFS_PROC_LIST_LDM_VOLUMES GUESTFS_PROCEDURE__GUESTFS_PROC_LIST_LDM_VOLUMES
+  #define GUESTFS_PROC_LIST_LDM_PARTITIONS GUESTFS_PROCEDURE__GUESTFS_PROC_LIST_LDM_PARTITIONS
+  #define GUESTFS_PROC_LDMTOOL_CREATE_ALL GUESTFS_PROCEDURE__GUESTFS_PROC_LDMTOOL_CREATE_ALL
+  #define GUESTFS_PROC_LDMTOOL_REMOVE_ALL GUESTFS_PROCEDURE__GUESTFS_PROC_LDMTOOL_REMOVE_ALL
+  #define GUESTFS_PROC_LDMTOOL_SCAN GUESTFS_PROCEDURE__GUESTFS_PROC_LDMTOOL_SCAN
+  #define GUESTFS_PROC_LDMTOOL_SCAN_DEVICES GUESTFS_PROCEDURE__GUESTFS_PROC_LDMTOOL_SCAN_DEVICES
+  #define GUESTFS_PROC_LDMTOOL_DISKGROUP_NAME GUESTFS_PROCEDURE__GUESTFS_PROC_LDMTOOL_DISKGROUP_NAME
+  #define GUESTFS_PROC_LDMTOOL_DISKGROUP_VOLUMES GUESTFS_PROCEDURE__GUESTFS_PROC_LDMTOOL_DISKGROUP_VOLUMES
+  #define GUESTFS_PROC_LDMTOOL_DISKGROUP_DISKS GUESTFS_PROCEDURE__GUESTFS_PROC_LDMTOOL_DISKGROUP_DISKS
+  #define GUESTFS_PROC_LDMTOOL_VOLUME_TYPE GUESTFS_PROCEDURE__GUESTFS_PROC_LDMTOOL_VOLUME_TYPE
+  #define GUESTFS_PROC_LDMTOOL_VOLUME_HINT GUESTFS_PROCEDURE__GUESTFS_PROC_LDMTOOL_VOLUME_HINT
+  #define GUESTFS_PROC_LDMTOOL_VOLUME_PARTITIONS GUESTFS_PROCEDURE__GUESTFS_PROC_LDMTOOL_VOLUME_PARTITIONS
+  #define GUESTFS_PROC_PART_SET_GPT_TYPE GUESTFS_PROCEDURE__GUESTFS_PROC_PART_SET_GPT_TYPE
+  #define GUESTFS_PROC_PART_GET_GPT_TYPE GUESTFS_PROCEDURE__GUESTFS_PROC_PART_GET_GPT_TYPE
+  #define GUESTFS_PROC_RENAME GUESTFS_PROCEDURE__GUESTFS_PROC_RENAME
+  #define GUESTFS_PROC_IS_WHOLE_DEVICE GUESTFS_PROCEDURE__GUESTFS_PROC_IS_WHOLE_DEVICE
+  #define GUESTFS_PROC_INTERNAL_PARSE_MOUNTABLE GUESTFS_PROCEDURE__GUESTFS_PROC_INTERNAL_PARSE_MOUNTABLE
+  #define GUESTFS_PROC_INTERNAL_RHBZ914931 GUESTFS_PROCEDURE__GUESTFS_PROC_INTERNAL_RHBZ914931
+  #define GUESTFS_PROC_FEATURE_AVAILABLE GUESTFS_PROCEDURE__GUESTFS_PROC_FEATURE_AVAILABLE
+  #define GUESTFS_PROC_SYSLINUX GUESTFS_PROCEDURE__GUESTFS_PROC_SYSLINUX
+  #define GUESTFS_PROC_EXTLINUX GUESTFS_PROCEDURE__GUESTFS_PROC_EXTLINUX
+  #define GUESTFS_PROC_CP_RR GUESTFS_PROCEDURE__GUESTFS_PROC_CP_RR
+  #define GUESTFS_PROC_REMOUNT GUESTFS_PROCEDURE__GUESTFS_PROC_REMOUNT
+  #define GUESTFS_PROC_SET_UUID GUESTFS_PROCEDURE__GUESTFS_PROC_SET_UUID
+  #define GUESTFS_PROC_JOURNAL_OPEN GUESTFS_PROCEDURE__GUESTFS_PROC_JOURNAL_OPEN
+  #define GUESTFS_PROC_JOURNAL_CLOSE GUESTFS_PROCEDURE__GUESTFS_PROC_JOURNAL_CLOSE
+  #define GUESTFS_PROC_JOURNAL_NEXT GUESTFS_PROCEDURE__GUESTFS_PROC_JOURNAL_NEXT
+  #define GUESTFS_PROC_JOURNAL_SKIP GUESTFS_PROCEDURE__GUESTFS_PROC_JOURNAL_SKIP
+  #define GUESTFS_PROC_INTERNAL_JOURNAL_GET GUESTFS_PROCEDURE__GUESTFS_PROC_INTERNAL_JOURNAL_GET
+  #define GUESTFS_PROC_JOURNAL_GET_DATA_THRESHOLD GUESTFS_PROCEDURE__GUESTFS_PROC_JOURNAL_GET_DATA_THRESHOLD
+  #define GUESTFS_PROC_JOURNAL_SET_DATA_THRESHOLD GUESTFS_PROCEDURE__GUESTFS_PROC_JOURNAL_SET_DATA_THRESHOLD
+  #define GUESTFS_PROC_AUG_SETM GUESTFS_PROCEDURE__GUESTFS_PROC_AUG_SETM
+  #define GUESTFS_PROC_AUG_LABEL GUESTFS_PROCEDURE__GUESTFS_PROC_AUG_LABEL
+  #define GUESTFS_PROC_INTERNAL_UPLOAD GUESTFS_PROCEDURE__GUESTFS_PROC_INTERNAL_UPLOAD
+  #define GUESTFS_PROC_INTERNAL_EXIT GUESTFS_PROCEDURE__GUESTFS_PROC_INTERNAL_EXIT
+  #define GUESTFS_PROC_COPY_ATTRIBUTES GUESTFS_PROCEDURE__GUESTFS_PROC_COPY_ATTRIBUTES
+  #define GUESTFS_PROC_PART_GET_NAME GUESTFS_PROCEDURE__GUESTFS_PROC_PART_GET_NAME
+  #define GUESTFS_PROC_BLKDISCARD GUESTFS_PROCEDURE__GUESTFS_PROC_BLKDISCARD
+  #define GUESTFS_PROC_BLKDISCARDZEROES GUESTFS_PROCEDURE__GUESTFS_PROC_BLKDISCARDZEROES
+  #define GUESTFS_PROC_CPIO_OUT GUESTFS_PROCEDURE__GUESTFS_PROC_CPIO_OUT
+  #define GUESTFS_PROC_JOURNAL_GET_REALTIME_USEC GUESTFS_PROCEDURE__GUESTFS_PROC_JOURNAL_GET_REALTIME_USEC
+  #define GUESTFS_PROC_STATNS GUESTFS_PROCEDURE__GUESTFS_PROC_STATNS
+  #define GUESTFS_PROC_LSTATNS GUESTFS_PROCEDURE__GUESTFS_PROC_LSTATNS
+  #define GUESTFS_PROC_INTERNAL_LSTATNSLIST GUESTFS_PROCEDURE__GUESTFS_PROC_INTERNAL_LSTATNSLIST
+
+typedef enum GuestfsConst guestfs_const;
+  
+  #define GUESTFS_PROGRAM GUESTFS_CONST__GUESTFS_PROGRAM
+  #define GUESTFS_PROTOCOL_VERSION GUESTFS_CONST__GUESTFS_PROTOCOL_VERSION
+  #define GUESTFS_MAX_CHUNK_SIZE GUESTFS_CONST__GUESTFS_MAX_CHUNK_SIZE
+
+/* These constants must be larger than any possible message length. */
+  #define GUESTFS_LAUNCH_FLAG GUESTFS_CONST__GUESTFS_LAUNCH_FLAG
+  #define GUESTFS_CANCEL_FLAG GUESTFS_CONST__GUESTFS_CANCEL_FLAG
+  #define GUESTFS_PROGRESS_FLAG GUESTFS_CONST__GUESTFS_PROGRESS_FLAG
+
+  #define GUESTFS_ERROR_LEN GUESTFS_CONST__GUESTFS_ERROR_LEN
+
+  #define GUESTFS_MAX_PROC_NR GUESTFS_CONST__GUESTFS_MAX_PROC_NR
+
+/* The remote procedure call protocol. */
+
+  #define GUESTFS_MESSAGE_MAX GUESTFS_CONST__GUESTFS_MESSAGE_MAX
+
+typedef enum GuestfsMessageDirection guestfs_message_direction;
+  #define GUESTFS_DIRECTION_CALL GUESTFS_MESSAGE_DIRECTION__GUESTFS_DIRECTION_CALL         /* client -> daemon */
+  #define GUESTFS_DIRECTION_REPLY GUESTFS_MESSAGE_DIRECTION__GUESTFS_DIRECTION_REPLY        /* daemon -> client */
+
+typedef enum GuestfsMessageStatus guestfs_message_status;
+  #define GUESTFS_STATUS_OK GUESTFS_MESSAGE_STATUS__GUESTFS_STATUS_OK
+  #define GUESTFS_STATUS_ERROR GUESTFS_MESSAGE_STATUS__GUESTFS_STATUS_ERROR
+
+typedef GuestfsMessageError guestfs_message_error;
+
+typedef GuestfsMessageHeader guestfs_message_header;
+
+typedef GuestfsChunk guestfs_chunk;
+
+typedef GuestfsProgress guestfs_progress;
+
+typedef GuestfsFlagMessage guestfs_flag_message;
+
+typedef size_t (*protobuf_proc_pack) (ProtobufCMessage *message, uint8_t *out);
+typedef void (*protobuf_proc_unpack) (ProtobufCAllocator *allocator, size_t len, const uint8_t *data);
+
+#endif /* _GUESTFS_PROTOCOL_TYPEDEFS_H_ */

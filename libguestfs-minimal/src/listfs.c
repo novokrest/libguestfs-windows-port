@@ -29,7 +29,8 @@
 #include "guestfs.h"
 #include "guestfs-internal.h"
 #include "guestfs-internal-actions.h"
-#include "guestfs_protocol.h"
+#include "guestfs_protocol.pb-c.h"
+#include "guestfs_protocol_typedefs.h"
 
 /* List filesystems.
  *
@@ -174,8 +175,8 @@ check_with_vfs_type (guestfs_h *g, const char *device, struct stringsbuf *sb)
     if (vols == NULL)
       return -1;
 
-    for (size_t i = 0; i < vols->len; i++) {
-      struct guestfs_btrfssubvolume *this = &vols->val[i];
+    for (size_t i = 0; i < vols->n_vals; i++) {
+      struct guestfs_btrfssubvolume *this = vols->vals[i];
       guestfs___add_sprintf (g, sb,
                              "btrfsvol:%s/%s",
                              device, this->btrfssubvolume_path);

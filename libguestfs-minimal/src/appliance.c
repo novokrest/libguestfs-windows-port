@@ -38,7 +38,8 @@
 #include "guestfs.h"
 #include "guestfs-internal.h"
 #include "guestfs-internal-actions.h"
-#include "guestfs_protocol.h"
+#include "guestfs_protocol.pb-c.h"
+#include "guestfs_protocol_typedefs.h"
 
 /* Old-style appliance is going to be obsoleted. */
 static const char *kernel_name = "vmlinuz." host_cpu;

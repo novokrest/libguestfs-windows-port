@@ -45,7 +45,8 @@
 #include "guestfs.h"
 #include "guestfs-internal.h"
 #include "guestfs-internal-actions.h"
-#include "guestfs_protocol.h"
+#include "guestfs_protocol.pb-c.h"
+#include "guestfs_protocol_typedefs.h"
 
 /* Compile all the regular expressions once when the shared library is
  * loaded.  PCRE is thread safe so we're supposedly OK here if
@@ -332,8 +333,8 @@ check_windows_software_registry (guestfs_h *g, struct inspect_fs *fs)
 
   values = guestfs_hivex_node_values (g, node);
 
-  for (i = 0; i < values->len; ++i) {
-    int64_t value = values->val[i].hivex_value_h;
+  for (i = 0; i < values->n_vals; ++i) {
+    int64_t value = values->vals[i]->hivex_value_h;
     CLEANUP_FREE char *key = guestfs_hivex_value_key (g, value);
     if (key == NULL)
       goto out;
@@ -463,9 +464,9 @@ check_windows_system_registry (guestfs_h *g, struct inspect_fs *fs)
    * ignore removable devices, so it overestimates, but that doesn't
    * matter because it just means we'll allocate a few bytes extra.
    */
-  for (i = count = 0; i < values->len; ++i) {
+  for (i = count = 0; i < values->n_vals; ++i) {
     CLEANUP_FREE char *key =
-      guestfs_hivex_value_key (g, values->val[i].hivex_value_h);
+      guestfs_hivex_value_key (g, values->vals[i]->hivex_value_h);
     if (key == NULL)
       goto out;
     if (STRCASEEQLEN (key, "\\DosDevices\\", 12) &&
@@ -475,8 +476,8 @@ check_windows_system_registry (guestfs_h *g, struct inspect_fs *fs)
 
   fs->drive_mappings = safe_calloc (g, 2*count + 1, sizeof (char *));
 
-  for (i = count = 0; i < values->len; ++i) {
-    int64_t v = values->val[i].hivex_value_h;
+  for (i = count = 0; i < values->n_vals; ++i) {
+    int64_t v = values->vals[i]->hivex_value_h;
     CLEANUP_FREE char *key = guestfs_hivex_value_key (g, v);
     if (key == NULL)
       goto out;
@@ -523,8 +524,8 @@ check_windows_system_registry (guestfs_h *g, struct inspect_fs *fs)
   if (values2 == NULL)
     goto out;
 
-  for (i = 0; i < values2->len; ++i) {
-    int64_t v = values2->val[i].hivex_value_h;
+  for (i = 0; i < values2->n_vals; ++i) {
+    int64_t v = values2->vals[i]->hivex_value_h;
     CLEANUP_FREE char *key = guestfs_hivex_value_key (g, v);
     if (key == NULL)
       goto out;
@@ -591,15 +592,15 @@ map_registry_disk_blob (guestfs_h *g, const void *blob)
   if (partitions == NULL)
     return NULL;
 
-  for (j = 0; j < partitions->len; ++j) {
-    if (partitions->val[j].part_start == part_offset) /* found it */
+  for (j = 0; j < partitions->n_vals; ++j) {
+    if (partitions->vals[j]->part_start == part_offset) /* found it */
       goto found_partition;
   }
   return NULL;
 
  found_partition:
   /* Construct the full device name. */
-  return safe_asprintf (g, "%s%d", devices[i], partitions->val[j].part_num);
+  return safe_asprintf (g, "%s%d", devices[i], partitions->vals[j]->part_num);
 }
 
 /* NB: This function DOES NOT test for the existence of the file.  It
