@@ -32,8 +32,7 @@
 #include "hash.h"
 
 #include "guestfs-internal-frontend.h"
-#include "guestfs_protocol.pb-c.h"
-#include "guestfs_protocol_typedefs.h"
+#include "guestfs_protocol.h"
 
 #if ENABLE_PROBES
 #include <sys/sdt.h>
@@ -688,8 +687,8 @@ extern void guestfs___free_stringsbuf (struct stringsbuf *sb);
 extern void guestfs___cleanup_free_stringsbuf (struct stringsbuf *sb);
 
 /* proto.c */
-typedef size_t (*protobuf_proc_pack) (ProtobufCMessage *message, uint8_t *out);
-typedef void (*protobuf_proc_unpack) (ProtobufCAllocator *allocator, size_t len, const uint8_t *data);
+//typedef size_t (*protobuf_proc_pack) (ProtobufCMessage *message, uint8_t *out);
+//typedef ProtobufCMessage* (*protobuf_proc_unpack) (ProtobufCAllocator *allocator, size_t len, const uint8_t *data);
 extern int guestfs___send (guestfs_h *g, int proc_nr, uint64_t progress_hint, uint64_t optargs_bitmask, protobuf_proc_pack pb_pack, char *args);
 extern int guestfs___recv (guestfs_h *g, const char *fn, guestfs_message_header *hdr, guestfs_message_error *err, protobuf_proc_unpack pb_unpack, ProtobufCMessage **ret);
 extern int guestfs___recv_discard (guestfs_h *g, const char *fn);
@@ -829,7 +828,6 @@ extern void guestfs___cmd_clear_capture_errors (struct command *);
 extern void guestfs___cmd_clear_close_files (struct command *);
 extern int guestfs___cmd_run (struct command *);
 extern void guestfs___cmd_close (struct command *);
-
 #ifdef HAVE_ATTRIBUTE_CLEANUP
 #define CLEANUP_CMD_CLOSE __attribute__((cleanup(guestfs___cleanup_cmd_close)))
 #else
