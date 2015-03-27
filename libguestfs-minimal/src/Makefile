@@ -13,6 +13,7 @@ PCRE_CFLAGS =
 LIBVIRT_CFLAGS = 
 LIBXML2_CFLAGS = -I/usr/include/libxml2
 YAJL_CFLAGS = 
+PROTOBUF_CFLAGS = `pkg-config --cflags libprotobuf-c`
 
 PCRE_LIBS = -lpcre
 MAGIC_LIBS = 
@@ -29,6 +30,7 @@ LTLIBINTL =
 LTLIBTHREAD = 
 LTLIBICONV = 
 SERVENT_LIB = 
+PROTOBUF_LIB = `pkg-config --libs libprotobuf-c`
 
 GUESTFS_CPPFLAGS = \
 	-DGUESTFS_DEFAULT_PATH='"$(libdir)/guestfs"' \
@@ -44,7 +46,8 @@ GUESTFS_CFLAGS = \
 	$(PCRE_CFLAGS) \
 	$(LIBVIRT_CFLAGS) \
 	$(LIBXML2_CFLAGS) \
-	$(YAJL_CFLAGS)
+	$(YAJL_CFLAGS) \
+	$(PROTOBUF_CFLAGS)
 
 GUESTFS_LIBS = \
 	liberrnostring.la \
@@ -63,7 +66,8 @@ GUESTFS_LIBS = \
 	$(LTLIBINTL) \
 	$(LTLIBTHREAD) \
 	$(LTLIBICONV) \
-	$(SERVENT_LIB)
+	$(SERVENT_LIB) \
+	$(PROTOBUF_LIB)
 
 GUESTFS_SOURCES = \
 	guestfs.h \
