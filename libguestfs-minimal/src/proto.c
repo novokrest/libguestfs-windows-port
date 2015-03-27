@@ -48,7 +48,10 @@
 #include "guestfs_protocol_typedefs.h"
 
 /* Size of guestfs_progress message on the wire. */
-//#define PROGRESS_MESSAGE_SIZE 24
+#define PROGRESS_MESSAGE_SIZE 50
+#define FLAG_MESSAGE_SIZE 50
+#define MESSAGE_HEADER_SIZE 50
+#define MESSAGE_ERROR_SIZE 50
 
 /* This is the code used to send and receive RPC messages and (for
  * certain types of message) to perform file transfers.  This code is
@@ -162,7 +165,7 @@ static ssize_t
 check_daemon_socket (guestfs_h *g)
 {
   char buf[FLAG_MESSAGE_SIZE];
-  ssize_t n;flag
+  ssize_t n;
   uint32_t flag;
   guestfs_flag_message *flag_msg;
 
@@ -211,7 +214,7 @@ guestfs___send (guestfs_h *g, int proc_nr,
                 protobuf_proc_pack pb_pack, char *args)
 {
   guestfs_message_header hdr;
-  guesrfs_flag_message len_msg;
+  guestfs_flag_message len_msg;
   uint32_t len, hdr_len, pack_len;
   int serial = g->msg_next_serial++;
   ssize_t r;
@@ -232,7 +235,7 @@ guestfs___send (guestfs_h *g, int proc_nr,
   msg_out = safe_malloc (g, GUESTFS_MESSAGE_MAX + FLAG_MESSAGE_SIZE);
 
   /* Serialize the header. */
-  hdr = GUESTFS_MESSAGE_HEADER__INIT;
+  guestfs_message_header__init (&hdr);
   hdr.prog = GUESTFS_PROGRAM;
   hdr.vers = GUESTFS_PROTOCOL_VERSION;
   hdr.proc = proc_nr;
@@ -267,8 +270,8 @@ guestfs___send (guestfs_h *g, int proc_nr,
   msg_out = safe_realloc (g, msg_out, len + FLAG_MESSAGE_SIZE);
   msg_out_size = len + FLAG_MESSAGE_SIZE;
 
-  len_msg = GUESTFS_FLAG_MESSAGE__INIT;
-  len_msg->val = len;
+  guestfs_flag_message__init (&len_msg);
+  len_msg.val = len;
   assert (guestfs_flag_message__pack (&len_msg, msg_out) == FLAG_MESSAGE_SIZE);
   
   /* Look for stray daemon cancellation messages from earlier calls
@@ -414,7 +417,7 @@ send_file_chunk (guestfs_h *g, int cancel, const char *buf, size_t buflen)
 {
   uint32_t len;
   ssize_t r;
-  guetsfs_flag_message len_msg;
+  guestfs_flag_message len_msg;
   guestfs_chunk chunk;
   CLEANUP_FREE char *msg_out = NULL;
   size_t msg_out_size;
@@ -425,7 +428,7 @@ send_file_chunk (guestfs_h *g, int cancel, const char *buf, size_t buflen)
   msg_out = safe_malloc (g, GUESTFS_MAX_CHUNK_SIZE + FLAG_MESSAGE_SIZE + 48);
 
   /* Serialize the chunk. */
-  chunk = GUESTFS_CHUNK__INIT;
+  guestfs_chunk__init (&chunk);
   chunk.cancel = cancel;
   chunk.data.len = buflen;
   chunk.data.data = (char *) buf;
@@ -441,8 +444,8 @@ send_file_chunk (guestfs_h *g, int cancel, const char *buf, size_t buflen)
   msg_out = safe_realloc (g, msg_out, len + FLAG_MESSAGE_SIZE);
   msg_out_size = len + FLAG_MESSAGE_SIZE;
 
-  len_msg = GUESTFS_FLAG_MESSAGE_INIT;
-  len_msg->val = len;
+  guestfs_flag_message__init (&len_msg);
+  len_msg.val = len;
   assert (guestfs_flag_message__pack (&len_msg, msg_out) == FLAG_MESSAGE_SIZE);
 
   /* Did the daemon send a cancellation message? */
@@ -614,7 +617,7 @@ guestfs___recv_from_daemon (guestfs_h *g, uint32_t *size_rtn, void **buf_rtn)
   if (*size_rtn == GUESTFS_PROGRESS_FLAG) {
     guestfs_progress *message;
 
-    message = guestfs_progress__unpack (NULL, PROGRESS_MESSAGE_SIZE, *buf);
+    message = guestfs_progress__unpack (NULL, PROGRESS_MESSAGE_SIZE, *buf_rtn);
     guestfs___progress_message_callback (g, message);
     guestfs_progress__free_unpacked (message, NULL);
 
@@ -665,7 +668,7 @@ guestfs___recv (guestfs_h *g, const char *fn,
     return -1;
   }
   
-  tmphdr = guestfs_message_header__unpack (NULL, GUESTFS_MESSAGE_HEADER, buf);
+  tmphdr = guestfs_message_header__unpack (NULL, MESSAGE_HEADER_SIZE, buf);
   if (!tmphdr) {
     error (g, "%s: failed to parse reply header", fn);
     return -1;
@@ -674,7 +677,7 @@ guestfs___recv (guestfs_h *g, const char *fn,
   guestfs_message_header__free_unpacked (tmphdr, NULL);
 
   if (hdr->status == GUESTFS_STATUS_ERROR) {
-    tmperr = guestfs_message_error__unpack (NULL, GUESTFS_MESSAGE_ERROR, buf + GUESTFS_MESSAGE_HEADER);
+    tmperr = guestfs_message_error__unpack (NULL, MESSAGE_ERROR_SIZE, buf + MESSAGE_HEADER_SIZE);
     if (!tmperr) {
       error (g, "%s: failed to parse reply error", fn);
       return -1;
@@ -682,7 +685,7 @@ guestfs___recv (guestfs_h *g, const char *fn,
     *err = *tmperr;
     guestfs_message_error__free_unpacked (tmperr, NULL);
   } else {
-    if (pb_unpack && ret && !(tmpret = pb_unpack (NULL, size - GUESTFS_MESSAGE_HEADER, buf + GUESTFS_MESSAGE_HEADER))) {
+    if (pb_unpack && ret && !(tmpret = pb_unpack (NULL, size - MESSAGE_HEADER_SIZE, buf + MESSAGE_HEADER_SIZE))) {
       error (g, "%s: failed to parse reply", fn);
       return -1;
     }
@@ -796,18 +799,18 @@ guestfs___recv_file (guestfs_h *g, const char *filename)
   /* Send cancellation message to daemon, then wait until it
    * cancels (just throwing away data).
    */
-  guestfs_flag_message fmsg;
-  char fbuf[GUESTFS_FLAG_MESSAGE];
+  guestfs_flag_message flagmsg;
+  char flagbuf[FLAG_MESSAGE_SIZE];
   uint32_t flag = GUESTFS_CANCEL_FLAG;
 
   debug (g, "%s: waiting for daemon to acknowledge cancellation",
          __func__);
 
-  fmsg = GUESTFS_FLAG_MESSAGE__INIT;
-  fmsg->val = flag;
-  assert (guestfs_flag_message__pack (&fmsg, fbuf) == FLAG_MESSAGE_SIZE);
+  guestfs_flag_msg__init (&flagmsg);
+  flagmsg.val = flag;
+  assert (guestfs_flag_message__pack (&flagmsg, flagbuf) == FLAG_MESSAGE_SIZE);
 
-  if (g->conn->ops->write_data (g, g->conn, fbuf, sizeof fbuf) == -1) {
+  if (g->conn->ops->write_data (g, g->conn, flagbuf, sizeof flagbuf) == -1) {
     perrorf (g, _("write to daemon socket"));
     return -1;
   }
@@ -855,7 +858,7 @@ receive_file_data (guestfs_h *g, void **buf_r)
     return -1;
   }
 
-  if (chunk.data.data_len == 0) { /* end of transfer */
+  if (chunk->data.len == 0) { /* end of transfer */
     guestfs_chunk__free_unpacked (chunk, NULL);
     return 0;
   }
