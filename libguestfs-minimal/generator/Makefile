@@ -71,32 +71,19 @@ sources = \
 	bindtests.ml \
 	c.ml \
 	checks.ml \
-	csharp.ml \
 	customize.ml \
 	daemon.ml \
 	docstrings.ml \
-	erlang.ml \
 	errnostring.ml \
 	events.ml \
-	fish.ml \
-	gobject.ml \
-	golang.ml \
-	haskell.ml \
-	java.ml \
-	lua.ml \
 	main.ml \
-	ocaml.ml \
 	optgroups.ml \
-	perl.ml \
-	php.ml \
 	pr.ml \
 	pr.mli \
 	prepopts.ml \
 	prepopts.mli \
 	protobuf.ml \
 	protobuf_typedefs.ml \
-	python.ml \
-	ruby.ml \
 	structs.ml \
 	structs.mli \
 	tests_c_api.ml \
@@ -123,19 +110,6 @@ objects = \
 	protobuf_typedefs.cmo \
 	daemon.cmo \
 	tests_c_api.cmo \
-	fish.cmo \
-	ocaml.cmo \
-	perl.cmo \
-	python.cmo \
-	ruby.cmo \
-	java.cmo \
-	haskell.cmo \
-	csharp.cmo \
-	php.cmo \
-	erlang.cmo \
-	lua.cmo \
-	gobject.cmo \
-	golang.cmo \
 	bindtests.cmo \
 	errnostring.cmo \
 	customize.cmo \
