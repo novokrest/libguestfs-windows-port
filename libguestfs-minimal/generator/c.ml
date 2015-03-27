@@ -976,7 +976,7 @@ and generate_client_structs_compare () =
       pr "    size_t i;\n";
       pr "    int r;\n";
       pr "\n";
-      pr "    for (i = 0; i < s1->len; ++i) {\n";
+      pr "    for (i = 0; i < s1->n_vals; ++i) {\n";
       pr "      r = guestfs_compare_%s (s1->vals[i], s2->vals[i]);\n" typ;
       pr "      if (r != 0) return r;\n";
       pr "    }\n";
