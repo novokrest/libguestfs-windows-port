@@ -39,6 +39,8 @@ open Structs
 let generate_protobuf_typedefs () =
   generate_header ~emacs_mode:"c" CStyle LGPLv2plus;
 
+  pr "#ifndef _GUESTFS_PROTOCOL_TYPEDEFS_H_\n";
+  pr "#define _GUESTFS_PROTOCOL_TYPEDEFS_H_\n";
   pr "/* Internal structures. */\n";
   pr "\n";
   List.iter (
@@ -123,8 +125,8 @@ let generate_protobuf_typedefs () =
 
   pr "\
 typedef enum GuestfsMessageDirection guestfs_message_direction;
-  #define GUESTFS_DIRECTION_CALL GUESTFS_MESSAGE_DIRECTION__GUESTFS_DIRECTION_CALL;         /* client -> daemon */
-  #define GUESTFS_DIRECTION_REPLY GUESTFS_MESSAGE_DIRECTION__GUESTFS_DIRECTION_REPLY;        /* daemon -> client */
+  #define GUESTFS_DIRECTION_CALL GUESTFS_MESSAGE_DIRECTION__GUESTFS_DIRECTION_CALL         /* client -> daemon */
+  #define GUESTFS_DIRECTION_REPLY GUESTFS_MESSAGE_DIRECTION__GUESTFS_DIRECTION_REPLY        /* daemon -> client */
 
 typedef enum GuestfsMessageStatus guestfs_message_status;
   #define GUESTFS_STATUS_OK GUESTFS_MESSAGE_STATUS__GUESTFS_STATUS_OK
@@ -145,4 +147,7 @@ typedef GuestfsFlagMessage guestfs_flag_message;
 
 typedef size_t (*protobuf_proc_pack) (ProtobufCMessage *message, uint8_t *out);
 typedef void (*protobuf_proc_unpack) (ProtobufCAllocator *allocator, size_t len, const uint8_t *data);
-"
+
+";
+
+pr "#endif /* _GUESTFS_PROTOCOL_TYPEDEFS_H_ */"
