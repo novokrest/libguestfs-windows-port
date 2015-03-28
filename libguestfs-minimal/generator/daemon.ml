@@ -37,8 +37,7 @@ let generate_daemon_actions_h () =
   pr "#define GUESTFSD_ACTIONS_H\n";
   pr "\n";
 
-  pr "#include \"guestfs_protocol.pb-c.h\"\n";
-  pr "#include \"guestfs_protocol_typedefs.h\"\n";
+  pr "#include \"guestfs_protocol.h\"\n";
   pr "#include \"daemon.h\"\n";
   pr "\n";
 
@@ -86,8 +85,7 @@ and generate_daemon_actions () =
 
 #include \"daemon.h\"
 #include \"c-ctype.h\"
-#include \"guestfs_protocol.pb-c.h\"
-#include \"guestfs_protocol_typedefs.h\"
+#include \"guestfs_protocol.h\"
 #include \"actions.h\"
 #include \"optgroups.h\"
 
@@ -495,7 +493,7 @@ cleanup_free_mountable (mountable_t *mountable)
             pr "  free (bufret);\n";
             pr "  free (r);\n"
         | RBufferOut n ->
-            pr "  struct Guestfs%sRet ret;\n" camel_name;
+            pr "  guestfs_%s_ret ret;\n" camel_name;
             pr "  char *bufret;\n";
             pr "  size_t lenret;\n";
             pr "  %s__init (&ret);\n" name;
