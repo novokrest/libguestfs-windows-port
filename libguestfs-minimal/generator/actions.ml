@@ -2467,7 +2467,7 @@ or C<guestfs_download> functions." };
          ["find"; "/"]],
         "is_string_list (ret, 4, \"a\", \"b\", \"b/c\", \"lost+found\")"), [];
       InitScratchFS, Always, TestResult (
-        [["mkdir_p"; "/find/b/c"];
+        [["mkdir_pp"; "/find/b/c"];
          ["touch"; "/find/b/c/d"];
          ["find"; "/find/b/"]],
         "is_string_list (ret, 2, \"c\", \"c/d\")"), []
@@ -3870,21 +3870,21 @@ Create a directory named C<path>." };
     proc_nr = Some 33;
     tests = [
       InitScratchFS, Always, TestResultTrue
-        [["mkdir_pp"; "/mkdir_p/foo/bar"];
-         ["is_dir"; "/mkdir_p/foo/bar"; ""]], [];
+        [["mkdir_pp"; "/mkdir_pp/foo/bar"];
+         ["is_dir"; "/mkdir_pp/foo/bar"; ""]], [];
       InitScratchFS, Always, TestResultTrue
-        [["mkdir_pp"; "/mkdir_p2/foo/bar"];
-         ["is_dir"; "/mkdir_p2/foo"; ""]], [];
+        [["mkdir_pp"; "/mkdir_pp2/foo/bar"];
+         ["is_dir"; "/mkdir_pp2/foo"; ""]], [];
       InitScratchFS, Always, TestResultTrue
-        [["mkdir_pp"; "/mkdir_p3/foo/bar"];
-         ["is_dir"; "/mkdir_p3"; ""]], [];
+        [["mkdir_pp"; "/mkdir_pp3/foo/bar"];
+         ["is_dir"; "/mkdir_pp3"; ""]], [];
       (* Regression tests for RHBZ#503133: *)
       InitScratchFS, Always, TestRun
-        [["mkdir"; "/mkdir_p4"];
-         ["mkdir_pp"; "/mkdir_p4"]], [];
+        [["mkdir"; "/mkdir_pp4"];
+         ["mkdir_pp"; "/mkdir_pp4"]], [];
       InitScratchFS, Always, TestLastFail
-        [["touch"; "/mkdir_p5"];
-         ["mkdir_pp"; "/mkdir_p5"]], []
+        [["touch"; "/mkdir_pp5"];
+         ["mkdir_pp"; "/mkdir_pp5"]], []
     ];
     shortdesc = "create a directory and parents";
     longdesc = "\
@@ -4097,7 +4097,7 @@ To create a single partition occupying the whole disk, you would
 pass C<lines> as a single element list, when the single element being
 the string C<,> (comma).
 
-See also: C<guestfs_sfdisk_l>, C<guestfs_sfdisk_N>,
+See also: C<guestfs_sfdisk_ll>, C<guestfs_sfdisk_nn>,
 C<guestfs_part_init>" };
 
   { defaults with
@@ -4444,12 +4444,12 @@ C<path> should be a file or directory in the mounted file system
 This is the same as the C<statvfs(2)> system call." };
 
   { defaults with
-    name = "tune2fsl";
+    name = "tune2fs_lll";
     style = RHashtable "superblock", [Device "device"], [];
     proc_nr = Some 55;
     tests = [
       InitScratchFS, Always, TestResult (
-        [["tune2fsl"; "/dev/sdb1"]],
+        [["tune2fs_lll"; "/dev/sdb1"]],
         "check_hash (ret, \"Filesystem magic number\", \"0xEF53\") == 0 && "^
           "check_hash (ret, \"Filesystem OS type\", \"Linux\") == 0"), [];
     ];
@@ -5027,7 +5027,7 @@ This sets the ext2/3/4 filesystem label of the filesystem on
 C<device> to C<label>.  Filesystem labels are limited to
 16 characters.
 
-You can use either C<guestfs_tune2fs_l> or C<guestfs_get_e2label>
+You can use either C<guestfs_tune2fs_lll> or C<guestfs_get_e2label>
 to return the existing label on a filesystem." };
 
   { defaults with
@@ -5168,7 +5168,7 @@ C<guestfs_is_zero_device>" };
      *)
     tests = [
       InitBasicFS, Always, TestResultTrue (
-        [["mkdir_p"; "/boot/grub"];
+        [["mkdir_pp"; "/boot/grub"];
          ["write"; "/boot/grub/device.map"; "(hd0) /dev/sda"];
          ["grub_install"; "/"; "/dev/sda"];
          ["is_dir"; "/boot"; ""]]), []
@@ -5244,11 +5244,11 @@ either a destination filename or destination directory." };
     proc_nr = Some 88;
     tests = [
       InitScratchFS, Always, TestResultString (
-        [["mkdir"; "/cp_a1"];
-         ["mkdir"; "/cp_a2"];
-         ["write"; "/cp_a1/file"; "file content"];
-         ["cp_aa"; "/cp_a1"; "/cp_a2"];
-         ["cat"; "/cp_a2/cp_a1/file"]], "file content"), []
+        [["mkdir"; "/cp_aa1"];
+         ["mkdir"; "/cp_aa2"];
+         ["write"; "/cp_aa1/file"; "file content"];
+         ["cp_aa"; "/cp_aa1"; "/cp_aa2"];
+         ["cat"; "/cp_aa2/cp_aa1/file"]], "file content"), []
     ];
     shortdesc = "copy a file or directory recursively";
     longdesc = "\
@@ -5393,8 +5393,8 @@ version of libguestfs, but see L<guestfs(3)/CVE-2014-8484>." };
         [["strings_ee"; "b"; "/known-5"]],
         "is_string_list (ret, 0)"), [];
       InitScratchFS, Always, TestResult (
-        [["write"; "/strings_e"; "\000h\000e\000l\000l\000o\000\n\000w\000o\000r\000l\000d\000\n"];
-         ["strings_ee"; "b"; "/strings_e"]],
+        [["write"; "/strings_ee"; "\000h\000e\000l\000l\000o\000\n\000w\000o\000r\000l\000d\000\n"];
+         ["strings_ee"; "b"; "/strings_ee"]],
         "is_string_list (ret, 2, \"hello\", \"world\")"), []
     ];
     shortdesc = "print the printable strings in a file";
@@ -5521,7 +5521,7 @@ pass C<0> for the cyls/heads/sectors parameters.
 See also: C<guestfs_part_add>" };
 
   { defaults with
-    name = "sfdiskl";
+    name = "sfdisk_ll";
     style = RString "partitions", [Device "device"], [];
     proc_nr = Some 100;
     deprecated_by = Some "part_list";
@@ -5601,7 +5601,7 @@ are activated or deactivated." };
          ["write"; "/new"; "test content"];
          ["umount"; "/"; "false"; "false"];
          ["lvresize"; "/dev/VG/LV"; "20"];
-         ["e2fsck_f"; "/dev/VG/LV"];
+         ["e2fsck_ff"; "/dev/VG/LV"];
          ["e2fsck"; "/dev/VG/LV"; "true"; "false"];
          ["e2fsck"; "/dev/VG/LV"; "false"; "true"];
          ["resize2fs"; "/dev/VG/LV"];
@@ -5725,19 +5725,19 @@ See also: C<guestfs_command_lines>" };
     proc_nr = Some 113;
     tests = [
       InitScratchFS, Always, TestResult (
-        [["mkdir_p"; "/glob_expand/b/c"];
+        [["mkdir_pp"; "/glob_expand/b/c"];
          ["touch"; "/glob_expand/b/c/d"];
          ["touch"; "/glob_expand/b/c/e"];
          ["glob_expand"; "/glob_expand/b/c/*"]],
         "is_string_list (ret, 2, \"/glob_expand/b/c/d\", \"/glob_expand/b/c/e\")"), [];
       InitScratchFS, Always, TestResult (
-        [["mkdir_p"; "/glob_expand2/b/c"];
+        [["mkdir_pp"; "/glob_expand2/b/c"];
          ["touch"; "/glob_expand2/b/c/d"];
          ["touch"; "/glob_expand2/b/c/e"];
          ["glob_expand"; "/glob_expand2/*/c/*"]],
         "is_string_list (ret, 2, \"/glob_expand2/b/c/d\", \"/glob_expand2/b/c/e\")"), [];
       InitScratchFS, Always, TestResult (
-        [["mkdir_p"; "/glob_expand3/b/c"];
+        [["mkdir_pp"; "/glob_expand3/b/c"];
          ["touch"; "/glob_expand3/b/c/d"];
          ["touch"; "/glob_expand3/b/c/e"];
          ["glob_expand"; "/glob_expand3/*/x/*"]],
@@ -5788,14 +5788,14 @@ manual page for more details." };
          ["scrub_file"; "/scrub_file"]]), [];
       InitScratchFS, Always, TestRun (
         [["write"; "/scrub_file_2"; "content"];
-         ["ln_s"; "/scrub_file_2"; "/scrub_file_2_link"];
+         ["ln_ss"; "/scrub_file_2"; "/scrub_file_2_link"];
          ["scrub_file"; "/scrub_file_2_link"]]), [];
       InitScratchFS, Always, TestLastFail (
-        [["ln_s"; "/scrub_file_3_notexisting"; "/scrub_file_3_link"];
+        [["ln_ss"; "/scrub_file_3_notexisting"; "/scrub_file_3_link"];
          ["scrub_file"; "/scrub_file_3_link"]]), [];
       InitScratchFS, Always, TestLastFail (
         [["write"; "/scrub_file_4"; "content"];
-         ["ln_s"; "../sysroot/scrub_file_4"; "/scrub_file_4_link"];
+         ["ln_ss"; "../sysroot/scrub_file_4"; "/scrub_file_4_link"];
          ["scrub_file"; "/scrub_file_4_link"]]), [];
     ];
     shortdesc = "scrub (securely wipe) a file";
@@ -5856,15 +5856,15 @@ directory and its contents after use.
 See also: L<mkdtemp(3)>" };
 
   { defaults with
-    name = "wcl";
+    name = "wc_ll";
     style = RInt "lines", [Pathname "path"], [];
     proc_nr = Some 118;
     tests = [
       InitISOFS, Always, TestResult (
-        [["wcl"; "/10klines"]], "ret == 10000"), [];
+        [["wc_ll"; "/10klines"]], "ret == 10000"), [];
       (* Test for RHBZ#579608, absolute symbolic links. *)
       InitISOFS, Always, TestResult (
-        [["wcl"; "/abssymlink"]], "ret == 10000"), []
+        [["wc_ll"; "/abssymlink"]], "ret == 10000"), []
     ];
     shortdesc = "count lines in a file";
     longdesc = "\
@@ -5872,12 +5872,12 @@ This command counts the lines in a file, using the
 C<wc -l> external command." };
 
   { defaults with
-    name = "wcw";
+    name = "wc_ww";
     style = RInt "words", [Pathname "path"], [];
     proc_nr = Some 119;
     tests = [
       InitISOFS, Always, TestResult (
-        [["wcw"; "/10klines"]], "ret == 10000"), []
+        [["wc_ww"; "/10klines"]], "ret == 10000"), []
     ];
     shortdesc = "count words in a file";
     longdesc = "\
@@ -5885,12 +5885,12 @@ This command counts the words in a file, using the
 C<wc -w> external command." };
 
   { defaults with
-    name = "wcc";
+    name = "wc_ccc";
     style = RInt "chars", [Pathname "path"], [];
     proc_nr = Some 120;
     tests = [
       InitISOFS, Always, TestResult (
-        [["wcc"; "/100kallspaces"]], "ret == 102400"), []
+        [["wc_ccc"; "/100kallspaces"]], "ret == 102400"), []
     ];
     shortdesc = "count characters in a file";
     longdesc = "\
@@ -5917,19 +5917,19 @@ This command returns up to the first 10 lines of a file as
 a list of strings." };
 
   { defaults with
-    name = "head_nn";
+    name = "head_nnn";
     style = RStringList "lines", [Int "nrlines"; Pathname "path"], [];
     proc_nr = Some 122;
     protocol_limit_warning = true;
     tests = [
       InitISOFS, Always, TestResult (
-        [["head_nn"; "3"; "/10klines"]],
+        [["head_nnn"; "3"; "/10klines"]],
         "is_string_list (ret, 3, \"0abcdefghijklmnopqrstuvwxyz\", \"1abcdefghijklmnopqrstuvwxyz\", \"2abcdefghijklmnopqrstuvwxyz\")"), [];
       InitISOFS, Always, TestResult (
-        [["head_nn"; "-9997"; "/10klines"]],
+        [["head_nnn"; "-9997"; "/10klines"]],
         "is_string_list (ret, 3, \"0abcdefghijklmnopqrstuvwxyz\", \"1abcdefghijklmnopqrstuvwxyz\", \"2abcdefghijklmnopqrstuvwxyz\")"), [];
       InitISOFS, Always, TestResult (
-        [["head_nn"; "0"; "/10klines"]],
+        [["head_nnn"; "0"; "/10klines"]],
         "is_string_list (ret, 0)"), []
     ];
     shortdesc = "return first N lines of a file";
@@ -5997,7 +5997,7 @@ is I<not> intended that you try to parse the output string.
 Use C<guestfs_statvfs> from programs." };
 
   { defaults with
-    name = "dfh";
+    name = "df_hh";
     style = RString "output", [], [];
     proc_nr = Some 126;
     test_excuse = "tricky to test because it depends on the exact format of the 'df' command and other imponderables";
@@ -6152,7 +6152,7 @@ Note that, just like L<mknod(2)>, the mode must be bitwise
 OR'd with S_IFBLK, S_IFCHR, S_IFIFO or S_IFSOCK (otherwise this call
 just creates a regular file).  These constants are
 available in the standard Linux header files, or you can use
-C<guestfs_mknod_b>, C<guestfs_mknod_c> or C<guestfs_mkfifo>
+C<guestfs_mknod_bb>, C<guestfs_mknod_cc> or C<guestfs_mkfifo>
 which are wrappers around this command which bitwise OR
 in the appropriate constant for you.
 
@@ -6184,8 +6184,8 @@ The mode actually set is affected by the umask." };
     optional = Some "mknod";
     tests = [
       InitScratchFS, Always, TestResult (
-        [["mknod_bb"; "0o777"; "99"; "66"; "/mknod_b"];
-         ["stat"; "/mknod_b"]],
+        [["mknod_bb"; "0o777"; "99"; "66"; "/mknod_bb"];
+         ["stat"; "/mknod_bb"]],
         "S_ISBLK (ret->mode) && (ret->mode & 0777) == 0755"), []
     ];
     shortdesc = "make block device node";
@@ -6203,8 +6203,8 @@ The mode actually set is affected by the umask." };
     optional = Some "mknod";
     tests = [
       InitScratchFS, Always, TestResult (
-        [["mknod_cc"; "0o777"; "99"; "66"; "/mknod_c"];
-         ["stat"; "/mknod_c"]],
+        [["mknod_cc"; "0o777"; "99"; "66"; "/mknod_cc"];
+         ["stat"; "/mknod_cc"]],
         "S_ISCHR (ret->mode) && (ret->mode & 0777) == 0755"), []
     ];
     shortdesc = "make char device node";
@@ -6767,16 +6767,16 @@ returned path has no C<.>, C<..> or symbolic link path elements." };
 This command creates a hard link using the C<ln> command." };
 
   { defaults with
-    name = "lnf";
+    name = "ln_ff";
     style = RErr, [String "target"; Pathname "linkname"], [];
     proc_nr = Some 165;
     tests = [
       InitScratchFS, Always, TestResult (
-        [["mkdir"; "/lnf"];
-         ["touch"; "/lnf/a"];
-         ["touch"; "/lnf/b"];
-         ["lnf"; "/lnf/a"; "/lnf/b"];
-         ["stat"; "/lnf/b"]], "ret->nlink == 2"), []
+        [["mkdir"; "/ln_ff"];
+         ["touch"; "/ln_ff/a"];
+         ["touch"; "/ln_ff/b"];
+         ["ln_ff"; "/ln_ff/a"; "/ln_ff/b"];
+         ["stat"; "/ln_ff/b"]], "ret->nlink == 2"), []
     ];
     shortdesc = "create a hard link";
     longdesc = "\
@@ -6784,15 +6784,15 @@ This command creates a hard link using the C<ln -f> command.
 The I<-f> option removes the link (C<linkname>) if it exists already." };
 
   { defaults with
-    name = "lns";
+    name = "ln_ss";
     style = RErr, [String "target"; Pathname "linkname"], [];
     proc_nr = Some 166;
     tests = [
       InitScratchFS, Always, TestResult (
-        [["mkdir"; "/lns"];
-         ["touch"; "/lns/a"];
-         ["lns"; "a"; "/lns/b"];
-         ["lstat"; "/lns/b"]],
+        [["mkdir"; "/ln_ss"];
+         ["touch"; "/ln_ss/a"];
+         ["ln_ss"; "a"; "/ln_ss/b"];
+         ["lstat"; "/ln_ss/b"]],
         "S_ISLNK (ret->mode) && (ret->mode & 0777) == 0777"), []
     ];
     shortdesc = "create a symbolic link";
@@ -6800,15 +6800,15 @@ The I<-f> option removes the link (C<linkname>) if it exists already." };
 This command creates a symbolic link using the C<ln -s> command." };
 
   { defaults with
-    name = "ln_sf";
+    name = "ln_ssf";
     style = RErr, [String "target"; Pathname "linkname"], [];
     proc_nr = Some 167;
     tests = [
       InitScratchFS, Always, TestResultString (
-        [["mkdir_p"; "/ln_sf/b"];
-         ["touch"; "/ln_sf/b/c"];
-         ["ln_sf"; "../d"; "/ln_sf/b/c"];
-         ["readlink"; "/ln_sf/b/c"]], "../d"), []
+        [["mkdir_pp"; "/ln_ssf/b"];
+         ["touch"; "/ln_ssf/b/c"];
+         ["ln_ssf"; "../d"; "/ln_ssf/b/c"];
+         ["readlink"; "/ln_ssf/b/c"]], "../d"), []
     ];
     shortdesc = "create a symbolic link";
     longdesc = "\
@@ -7120,29 +7120,29 @@ See the documentation about SELINUX in L<guestfs(3)>,
 and C<guestfs_setcon>" };
 
   { defaults with
-    name = "mkfs_bb";
+    name = "mkfs_bbb";
     style = RErr, [String "fstype"; Int "blocksize"; Device "device"], [];
     proc_nr = Some 187;
     deprecated_by = Some "mkfs";
     tests = [
       InitEmpty, Always, TestResultString (
         [["part_disk"; "/dev/sda"; "mbr"];
-         ["mkfs_bb"; "ext2"; "4096"; "/dev/sda1"];
+         ["mkfs_bbb"; "ext2"; "4096"; "/dev/sda1"];
          ["mount"; "/dev/sda1"; "/"];
          ["write"; "/new"; "new file contents"];
          ["cat"; "/new"]], "new file contents"), [];
       InitEmpty, Always, TestRun (
         [["part_disk"; "/dev/sda"; "mbr"];
-         ["mkfs_bb"; "vfat"; "32768"; "/dev/sda1"]]), [];
+         ["mkfs_bbb"; "vfat"; "32768"; "/dev/sda1"]]), [];
       InitEmpty, Always, TestLastFail (
         [["part_disk"; "/dev/sda"; "mbr"];
-         ["mkfs_bb"; "vfat"; "32769"; "/dev/sda1"]]), [];
+         ["mkfs_bbb"; "vfat"; "32769"; "/dev/sda1"]]), [];
       InitEmpty, Always, TestLastFail (
         [["part_disk"; "/dev/sda"; "mbr"];
-         ["mkfs_bb"; "vfat"; "33280"; "/dev/sda1"]]), [];
+         ["mkfs_bbb"; "vfat"; "33280"; "/dev/sda1"]]), [];
       InitEmpty, IfAvailable "ntfsprogs", TestRun (
         [["part_disk"; "/dev/sda"; "mbr"];
-         ["mkfs_bb"; "ntfs"; "32768"; "/dev/sda1"]]), []
+         ["mkfs_bbb"; "ntfs"; "32768"; "/dev/sda1"]]), []
     ];
     shortdesc = "make a filesystem with block size";
     longdesc = "\
@@ -7165,7 +7165,7 @@ the requested cluster size." };
          ["part_add"; "/dev/sda"; "p"; "64"; "204799"];
          ["part_add"; "/dev/sda"; "p"; "204800"; "-64"];
          ["mke2journal"; "4096"; "/dev/sda1"];
-         ["mke2fs_J"; "ext2"; "4096"; "/dev/sda2"; "/dev/sda1"];
+         ["mke2fs_jj"; "ext2"; "4096"; "/dev/sda2"; "/dev/sda1"];
          ["mount"; "/dev/sda2"; "/"];
          ["write"; "/new"; "new file contents"];
          ["cat"; "/new"]], "new file contents"), []
@@ -7188,7 +7188,7 @@ to the command:
          ["part_add"; "/dev/sda"; "p"; "64"; "204799"];
          ["part_add"; "/dev/sda"; "p"; "204800"; "-64"];
          ["mke2journal_ll"; "4096"; "JOURNAL"; "/dev/sda1"];
-         ["mke2fs_JL"; "ext2"; "4096"; "/dev/sda2"; "JOURNAL"];
+         ["mke2fs_jj_ll"; "ext2"; "4096"; "/dev/sda2"; "JOURNAL"];
          ["mount"; "/dev/sda2"; "/"];
          ["write"; "/new"; "new file contents"];
          ["cat"; "/new"]], "new file contents"), []
@@ -7210,7 +7210,7 @@ This creates an ext2 external journal on C<device> with label C<label>." };
            ["part_add"; "/dev/sda"; "p"; "64"; "204799"];
            ["part_add"; "/dev/sda"; "p"; "204800"; "-64"];
            ["mke2journal_uu"; "4096"; uuid; "/dev/sda1"];
-           ["mke2fs_JU"; "ext2"; "4096"; "/dev/sda2"; uuid];
+           ["mke2fs_jj_uu"; "ext2"; "4096"; "/dev/sda2"; uuid];
            ["mount"; "/dev/sda2"; "/"];
            ["write"; "/new"; "new file contents"];
            ["cat"; "/new"]], "new file contents"), []
@@ -7235,7 +7235,7 @@ to the command:
 See also C<guestfs_mke2journal>." };
 
   { defaults with
-    name = "mke2fs_jl";
+    name = "mke2fs_jj_ll";
     style = RErr, [String "fstype"; Int "blocksize"; Device "device"; String "label"], [];
     proc_nr = Some 192;
     deprecated_by = Some "mke2fs";
@@ -7244,10 +7244,10 @@ See also C<guestfs_mke2journal>." };
 This creates an ext2/3/4 filesystem on C<device> with
 an external journal on the journal labeled C<label>.
 
-See also C<guestfs_mke2journal_L>." };
+See also C<guestfs_mke2journal_ll>." };
 
   { defaults with
-    name = "mke2fs_ju";
+    name = "mke2fs_jj_uu";
     style = RErr, [String "fstype"; Int "blocksize"; Device "device"; String "uuid"], [];
     proc_nr = Some 193;
     deprecated_by = Some "mke2fs";
@@ -7257,7 +7257,7 @@ See also C<guestfs_mke2journal_L>." };
 This creates an ext2/3/4 filesystem on C<device> with
 an external journal on the journal with UUID C<uuid>.
 
-See also C<guestfs_mke2journal_U>." };
+See also C<guestfs_mke2journal_uu>." };
 
   { defaults with
     name = "modprobe";
@@ -7480,15 +7480,15 @@ file of zeroes, use C<guestfs_fallocate64> instead." };
          ["utimens"; "/utimens-fifo"; "12345"; "67890"; "9876"; "5432"];
          ["stat"; "/utimens-fifo"]], "ret->mtime == 9876"), [];
       InitScratchFS, Always, TestResult (
-        [["ln_sf"; "/utimens-file"; "/utimens-link"];
+        [["ln_ssf"; "/utimens-file"; "/utimens-link"];
          ["utimens"; "/utimens-link"; "12345"; "67890"; "9876"; "5432"];
          ["stat"; "/utimens-link"]], "ret->mtime == 9876"), [];
       InitScratchFS, Always, TestResult (
-        [["mknod_b"; "0o644"; "8"; "0"; "/utimens-block"];
+        [["mknod_bb"; "0o644"; "8"; "0"; "/utimens-block"];
          ["utimens"; "/utimens-block"; "12345"; "67890"; "9876"; "5432"];
          ["stat"; "/utimens-block"]], "ret->mtime == 9876"), [];
       InitScratchFS, Always, TestResult (
-        [["mknod_c"; "0o644"; "1"; "3"; "/utimens-char"];
+        [["mknod_cc"; "0o644"; "1"; "3"; "/utimens-char"];
          ["utimens"; "/utimens-char"; "12345"; "67890"; "9876"; "5432"];
          ["stat"; "/utimens-char"]], "ret->mtime == 9876"), []
     ];
@@ -8755,7 +8755,7 @@ To find the label of a filesystem, use C<guestfs_vfs_label>." };
       InitISOFS, Always, TestResultFalse (
         [["is_chardev"; "/directory"; ""]]), [];
       InitScratchFS, Always, TestResultTrue (
-        [["mknod_c"; "0o777"; "99"; "66"; "/is_chardev"];
+        [["mknod_cc"; "0o777"; "99"; "66"; "/is_chardev"];
          ["is_chardev"; "/is_chardev"; ""]]), []
     ];
     shortdesc = "test if character device";
@@ -8778,7 +8778,7 @@ See also C<guestfs_stat>." };
       InitISOFS, Always, TestResultFalse (
         [["is_blockdev"; "/directory"; ""]]), [];
       InitScratchFS, Always, TestResultTrue (
-        [["mknod_b"; "0o777"; "99"; "66"; "/is_blockdev"];
+        [["mknod_bb"; "0o777"; "99"; "66"; "/is_blockdev"];
          ["is_blockdev"; "/is_blockdev"; ""]]), []
     ];
     shortdesc = "test if block device";
@@ -9109,7 +9109,7 @@ is no extended attribute named C<name>, this returns an error.
 See also: C<guestfs_lgetxattrs>, C<guestfs_getxattr>, L<attr(5)>." };
 
   { defaults with
-    name = "resize2fsm";
+    name = "resize2fs_mm";
     style = RErr, [Device "device"], [];
     proc_nr = Some 281;
     shortdesc = "resize an ext2, ext3 or ext4 filesystem to the minimum size";
@@ -9119,7 +9119,7 @@ is resized to its minimum size.  This works like the I<-M> option
 to the C<resize2fs> command.
 
 To get the resulting size of the filesystem you should call
-C<guestfs_tune2fs_l> and read the C<Block size> and C<Block count>
+C<guestfs_tune2fs_lll> and read the C<Block size> and C<Block count>
 values.  These two numbers, multiplied together, give the
 resulting size of the minimal filesystem in bytes.
 
@@ -9184,7 +9184,7 @@ mount tags is returned." };
     name = "mount9p";
     style = RErr, [String "mounttag"; String "mountpoint"], [OString "options"];
     proc_nr = Some 286;
-    camel_name = "Mount9p";
+    camel_name = "Mount9P";
     shortdesc = "mount 9p filesystem";
     longdesc = "\
 Mount the virtio-9p filesystem with the tag C<mounttag> on the
@@ -9214,7 +9214,7 @@ volumes." };
     style = RErr, [Device "device"], [OInt64 "size"; OBool "force"];
     once_had_no_optargs = true;
     proc_nr = Some 288;
-    optional = Some "ntfsprogs"; camel_name = "NTFSResize";
+    optional = Some "ntfsprogs"; camel_name = "NtfsResize";
     shortdesc = "resize an NTFS filesystem";
     longdesc = "\
 This command resizes an NTFS filesystem, expanding or
@@ -9425,33 +9425,33 @@ of this call.
 
 This is B<not> the function you want for copying files.  This
 is for copying blocks within existing files.  See C<guestfs_cp>,
-C<guestfs_cp_a> and C<guestfs_mv> for general file copying and
+C<guestfs_cp_aa> and C<guestfs_mv> for general file copying and
 moving functions." };
 
   { defaults with
     name = "tune2fs";
     style = RErr, [Device "device"], [OBool "force"; OInt "maxmountcount"; OInt "mountcount"; OString "errorbehavior"; OInt64 "group"; OInt "intervalbetweenchecks"; OInt "reservedblockspercentage"; OString "lastmounteddirectory"; OInt64 "reservedblockscount"; OInt64 "user"];
     proc_nr = Some 298;
-    camel_name = "Tune2fs";
+    camel_name = "Tune2FS";
     tests = [
       InitScratchFS, Always, TestResult (
         [["tune2fs"; "/dev/sdb1"; "false"; "0"; ""; "NOARG"; ""; "0"; ""; "NOARG"; ""; ""];
-         ["tune2fs_l"; "/dev/sdb1"]],
+         ["tune2fs_lll"; "/dev/sdb1"]],
         "check_hash (ret, \"Check interval\", \"0 (<none>)\") == 0 && "^
           "check_hash (ret, \"Maximum mount count\", \"-1\") == 0"), [];
       InitScratchFS, Always, TestResult (
         [["tune2fs"; "/dev/sdb1"; "false"; "0"; ""; "NOARG"; ""; "86400"; ""; "NOARG"; ""; ""];
-         ["tune2fs_l"; "/dev/sdb1"]],
+         ["tune2fs_lll"; "/dev/sdb1"]],
         "check_hash (ret, \"Check interval\", \"86400 (1 day)\") == 0 && "^
           "check_hash (ret, \"Maximum mount count\", \"-1\") == 0"), [];
       InitScratchFS, Always, TestResult (
         [["tune2fs"; "/dev/sdb1"; "false"; ""; ""; "NOARG"; "1"; ""; ""; "NOARG"; ""; "1"];
-         ["tune2fs_l"; "/dev/sdb1"]],
+         ["tune2fs_lll"; "/dev/sdb1"]],
         "match_re (get_key (ret, \"Reserved blocks uid\"), \"\\\\d+ \\\\(user \\\\S+\\\\)\") && "^
           "match_re (get_key (ret, \"Reserved blocks gid\"), \"\\\\d+ \\\\(group \\\\S+\\\\)\")"), [];
       InitScratchFS, Always, TestResult (
         [["tune2fs"; "/dev/sdb1"; "false"; ""; ""; "NOARG"; "0"; ""; ""; "NOARG"; ""; "0"];
-         ["tune2fs_l"; "/dev/sdb1"]],
+         ["tune2fs_lll"; "/dev/sdb1"]],
         "match_re (get_key (ret, \"Reserved blocks uid\"), \"\\\\d+ \\\\(user \\\\S+\\\\)\") && "^
           "match_re (get_key (ret, \"Reserved blocks gid\"), \"\\\\d+ \\\\(group \\\\S+\\\\)\")"), [];
     ];
@@ -9527,7 +9527,7 @@ can only be specified as a number.
 =back
 
 To get the current values of filesystem parameters, see
-C<guestfs_tune2fs_l>.  For precise details of how tune2fs
+C<guestfs_tune2fs_lll>.  For precise details of how tune2fs
 works, see the L<tune2fs(8)> man page." };
 
   { defaults with
@@ -10003,14 +10003,14 @@ replacement
 =back" };
 
   { defaults with
-    name = "mkfs_btrfs";
+    name = "mkfs_bbbtrfs";
     style = RErr, [DeviceList "devices"], [OInt64 "allocstart"; OInt64 "bytecount"; OString "datatype"; OInt "leafsize"; OString "label"; OString "metadata"; OInt "nodesize"; OInt "sectorsize"];
     proc_nr = Some 317;
     optional = Some "btrfs";
     tests = [
       InitEmpty, Always, TestRun (
         [["part_disk"; "/dev/sda"; "mbr"];
-         ["mkfs_btrfs"; "/dev/sda1"; "0"; "268435456"; "single"; "4096"; "test"; "single"; "4096"; "512"]]), []
+         ["mkfs_bbbtrfs"; "/dev/sda1"; "0"; "268435456"; "single"; "4096"; "test"; "single"; "4096"; "512"]]), []
     ];
     shortdesc = "create a btrfs filesystem";
     longdesc = "\
@@ -10236,7 +10236,7 @@ See C<guestfs_get_e2generation>." };
     optional = Some "btrfs"; camel_name = "BtrfsSubvolumeSnapshot";
     tests = [
       InitPartition, Always, TestRun (
-        [["mkfs_btrfs"; "/dev/sda1"; ""; ""; "NOARG"; ""; "NOARG"; "NOARG"; ""; ""];
+        [["mkfs_bbbtrfs"; "/dev/sda1"; ""; ""; "NOARG"; ""; "NOARG"; "NOARG"; ""; ""];
          ["mount"; "/dev/sda1"; "/"];
          ["mkdir"; "/dir"];
          ["btrfs_subvolume_create"; "/test1"];
@@ -10257,7 +10257,7 @@ of the snapshot, in the form C</path/to/dest/name>." };
     optional = Some "btrfs"; camel_name = "BtrfsSubvolumeDelete";
     tests = [
       InitPartition, Always, TestRun (
-        [["mkfs_btrfs"; "/dev/sda1"; ""; ""; "NOARG"; ""; "NOARG"; "NOARG"; ""; ""];
+        [["mkfs_bbbtrfs"; "/dev/sda1"; ""; ""; "NOARG"; ""; "NOARG"; "NOARG"; ""; ""];
          ["mount"; "/dev/sda1"; "/"];
          ["btrfs_subvolume_create"; "/test1"];
          ["btrfs_subvolume_delete"; "/test1"]]), []
@@ -10306,7 +10306,7 @@ get a list of subvolumes." };
     optional = Some "btrfs"; camel_name = "BtrfsFilesystemSync";
     tests = [
       InitPartition, Always, TestRun (
-        [["mkfs_btrfs"; "/dev/sda1"; ""; ""; "NOARG"; ""; "NOARG"; "NOARG"; ""; ""];
+        [["mkfs_bbbtrfs"; "/dev/sda1"; ""; ""; "NOARG"; ""; "NOARG"; "NOARG"; ""; ""];
          ["mount"; "/dev/sda1"; "/"];
          ["btrfs_subvolume_create"; "/test1"];
          ["btrfs_filesystem_sync"; "/test1"];
@@ -10355,7 +10355,7 @@ If C<devices> is an empty list, this does nothing." };
     optional = Some "btrfs";
     tests = [
       InitPartition, Always, TestRun (
-        [["mkfs_btrfs"; "/dev/sda1"; ""; ""; "NOARG"; ""; "NOARG"; "NOARG"; ""; ""];
+        [["mkfs_bbbtrfs"; "/dev/sda1"; ""; ""; "NOARG"; ""; "NOARG"; "NOARG"; ""; ""];
          ["btrfs_set_seeding"; "/dev/sda1"; "true"];
          ["btrfs_set_seeding"; "/dev/sda1"; "false"]]), []
     ];
@@ -10371,7 +10371,7 @@ a btrfs filesystem." };
     optional = Some "btrfs";
     tests = [
       InitPartition, Always, TestRun (
-        [["mkfs_btrfs"; "/dev/sda1"; ""; ""; "NOARG"; ""; "NOARG"; "NOARG"; ""; ""];
+        [["mkfs_bbbtrfs"; "/dev/sda1"; ""; ""; "NOARG"; ""; "NOARG"; "NOARG"; ""; ""];
          ["btrfs_fsck"; "/dev/sda1"; ""; ""]]), []
     ];
     shortdesc = "check a btrfs filesystem";
@@ -10966,15 +10966,15 @@ detected (returns C<1>) or was not detected (returns C<0>)." };
     proc_nr = Some 367;
     tests = [
       InitScratchFS, Always, TestResultFalse
-        [["mkdir"; "/rm_f"];
-         ["touch"; "/rm_f/foo"];
-         ["rm_ff"; "/rm_f/foo"];
-         ["rm_ff"; "/rm_f/not_exists"];
-         ["exists"; "/rm_f/foo"]], [];
+        [["mkdir"; "/rm_ff"];
+         ["touch"; "/rm_ff/foo"];
+         ["rm_ff"; "/rm_ff/foo"];
+         ["rm_ff"; "/rm_ff/not_exists"];
+         ["exists"; "/rm_ff/foo"]], [];
       InitScratchFS, Always, TestLastFail
-        [["mkdir"; "/rm_f2"];
-         ["mkdir"; "/rm_f2/foo"];
-         ["rm_ff"; "/rm_f2/foo"]], []
+        [["mkdir"; "/rm_ff2"];
+         ["mkdir"; "/rm_ff2/foo"];
+         ["rm_ff"; "/rm_ff2/foo"]], []
     ];
     shortdesc = "remove a file ignoring errors";
     longdesc = "\
@@ -11640,18 +11640,18 @@ See also C<guestfs_syslinux>." };
     proc_nr = Some 401;
     tests = [
       InitScratchFS, Always, TestResultString (
-        [["mkdir"; "/cp_r1"];
-         ["mkdir"; "/cp_r2"];
-         ["write"; "/cp_r1/file"; "file content"];
-         ["cp_rr"; "/cp_r1"; "/cp_r2"];
-         ["cat"; "/cp_r2/cp_r1/file"]], "file content"), []
+        [["mkdir"; "/cp_rr1"];
+         ["mkdir"; "/cp_rr2"];
+         ["write"; "/cp_rr1/file"; "file content"];
+         ["cp_rr"; "/cp_rr1"; "/cp_rr2"];
+         ["cat"; "/cp_rr2/cp_rr1/file"]], "file content"), []
     ];
     shortdesc = "copy a file or directory recursively";
     longdesc = "\
 This copies a file or directory from C<src> to C<dest>
 recursively using the C<cp -rP> command.
 
-Most users should use C<guestfs_cp_a> instead.  This command
+Most users should use C<guestfs_cp_aa> instead.  This command
 is useful when you don't want to preserve permissions, because
 the target filesystem does not support it (primarily when
 writing to DOS FAT filesystems)." };
