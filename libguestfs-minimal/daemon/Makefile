@@ -15,7 +15,8 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-CC = gcc
+CC = gcc -std=gnu99
+PROTOC = protoc-c
 
 SOURCES = \
 	9p.c \
@@ -58,6 +59,7 @@ SOURCES = \
 	grep.c \
 	grub.c \
 	guestfsd.c \
+	guestfs_protocol.pb-c.c \
 	headtail.c \
 	hexdump.c \
 	hotplug.c \
@@ -183,7 +185,7 @@ LIBS = 	\
 DAEMON = guestfsd.exe
 GPERF = gperf
 
-all: $(DAEMON)
+all: guestfs_protocol $(DAEMON)
 
 $(DAEMON): $(OBJECTS) errnostring-gperf.o guestfs_protocol.pb-c.o
 	$(CC) -o $@ $^ $(LIBS)
@@ -199,10 +201,8 @@ errnostring-gperf.h: errnostring-gperf.gperf
 errnostring-gperf.o: errnostring-gperf.c
 	$(CC) -c $(CFLAGS) $(CPPFLAGS) -o $@ $<
 
-guestfs_protocol:
-	cp $(top_srcdir)/src/$@.pb-c.h $(top_srcdir)/daemon/
-	cp $(top_srcdir)/src/$@.pb-c.c $(top_srcdir)/daemon/
-	cp $(top_srcdir)/src/$@_typedefs.h $(top_srcdir)/daemon/
+guestfs_protocol: guestfs_protocol.proto
+	$(PROTOC) --c_out=. $<
 
 clean:
 	rm -f *.o
