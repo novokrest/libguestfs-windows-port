@@ -25,9 +25,7 @@
 #include <errno.h>
 #include <unistd.h>
 
-
-#include "guestfs_protocol.pb-c.h"
-#include "guestfs_protocol_typedefs.h"
+#include "guestfs_protocol.h"
 
 #include "guestfs-internal-all.h"
 
