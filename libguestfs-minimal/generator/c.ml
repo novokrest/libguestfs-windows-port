@@ -441,8 +441,6 @@ extern \"C\" {
 #include <stdint.h>
 #include <stdarg.h>
 
-#include \"guestfs_protocol.pb-c.h\"
-
 #if defined(__GNUC__) && !defined(GUESTFS_GCC_VERSION)
 # define GUESTFS_GCC_VERSION \\
     (__GNUC__ * 10000 + __GNUC_MINOR__ * 100 + __GNUC_PATCHLEVEL__)
@@ -608,14 +606,14 @@ extern GUESTFS_DLL_PUBLIC void *guestfs_next_private (guestfs_h *g, const char *
   let generate_all_structs = List.iter (
     fun { s_name = typ; s_cols = cols } ->
       pr "struct guestfs_%s {\n" typ;
-      pr "  ProtobufCMessage base;\n";
       List.iter (
         function
         | name, FChar -> pr "  char %s;\n" name
         | name, FString -> pr "  char *%s;\n" name
         | name, FBuffer ->
-            pr "  ProtobufCBinaryData %s;\n" name
-        | name, FUUID -> pr "  ProtobufCBinaryData %s; /* this is NOT nul-terminated, be careful when printing */\n" name
+            pr "  uint32_t %s_len;\n" name;
+            pr "  char *%s;\n" name
+        | name, FUUID -> pr "  char %s[32]; /* this is NOT nul-terminated, be careful when printing */\n" name
         | name, FUInt32 -> pr "  uint32_t %s;\n" name
         | name, FInt32 -> pr "  int32_t %s;\n" name
         | name, (FUInt64|FBytes) -> pr "  uint64_t %s;\n" name
@@ -625,9 +623,8 @@ extern GUESTFS_DLL_PUBLIC void *guestfs_next_private (guestfs_h *g, const char *
       pr "};\n";
       pr "\n";
       pr "struct guestfs_%s_list {\n" typ;
-      pr "  ProtobufCMessage base;\n";
-      pr "  size_t n_vals;\n";
-      pr "  struct guestfs_%s **vals;\n" typ;
+      pr "  uint32_t len;\n";
+      pr "  struct guestfs_%s *val;\n" typ;
       pr "};\n";
       pr "\n";
       pr "extern GUESTFS_DLL_PUBLIC int guestfs_compare_%s (const struct guestfs_%s *, const struct guestfs_%s *);\n" typ typ typ;
@@ -867,8 +864,7 @@ and generate_client_structs_free () =
 
 #include \"guestfs.h\"
 #include \"guestfs-internal.h\"
-#include \"guestfs_protocol.pb-c.h\"
-#include \"guestfs_protocol_typedefs.h\"
+#include \"guestfs_protocol.h\"
 
 ";
 
@@ -879,12 +875,28 @@ and generate_client_structs_free () =
   pr "\n";
 
   List.iter (
-    fun { s_name = typ; s_camel_name = camel_typ } ->
+    fun { s_name = typ; s_cols = cols } ->
       pr "GUESTFS_DLL_PUBLIC void\n";
       pr "guestfs_free_%s (struct guestfs_%s *x)\n" typ typ;
       pr "{\n";
       pr "  if (x) {\n";
-      pr "    %s__free_unpacked(x, NULL);\n" typ;
+(*    
+      List.iter (
+        function
+        | name, FChar
+        | name, FUInt32
+        | name, FInt32
+        | name, (FUInt64|FBytes)
+        | name, FInt64 
+        | name, FUUID
+        | name, FOptPercent -> ()
+        | name, FString 
+        | name, FBuffer -> 
+          pr "    free (x->%s);\n" name
+      ) cols;
+      pr "    free (x);\n"; 
+*)
+      pr "    guestfs_int_%s__free_unpacked (x, NULL);\n" typ;
       pr "  }\n";
       pr "}\n";
       pr "\n";
@@ -892,8 +904,15 @@ and generate_client_structs_free () =
       pr "GUESTFS_DLL_PUBLIC void\n";
       pr "guestfs_free_%s_list (struct guestfs_%s_list *x)\n" typ typ;
       pr "{\n";
+(*
+      pr "  int i;\n";
       pr "  if (x) {\n";
-      pr "    %s__free_unpacked(x, NULL);\n" typ;
+      pr "    for (i = 0; i < x->len; ++i) {\n";
+      pr "      guestfs_free_%s (x->val[i]);\n" typ;
+      pr "    }\n"
+      pr "    free (x);\n";
+*)
+      pr "    guestfs_int_%s__free_unpacked (x, NULL);\n" typ;
       pr "  }\n";
       pr "}\n";
       pr "\n";
@@ -943,14 +962,14 @@ and generate_client_structs_compare () =
           pr "  r = strcmp (s1->%s, s2->%s);\n" name name;
           pr "  if (r != 0) return r;\n"
         | name, FBuffer ->
-          pr "  if (s1->%s.len < s2->%s.len) return -1;\n" name name;
-          pr "  else if (s1->%s.len > s2->%s.len) return 1;\n" name name;
+          pr "  if (s1->%s_len < s2->%s_len) return -1;\n" name name;
+          pr "  else if (s1->%s_len > s2->%s_len) return 1;\n" name name;
           pr "  else {\n";
-          pr "    r = memcmp (s1->%s.data, s2->%s.data, s1->%s.len);\n" name name name;
+          pr "    r = memcmp (s1->%s, s2->%s, s1->%s_len);\n" name name name;
           pr "    if (r != 0) return r;\n";
           pr "  }\n"
         | name, FUUID ->
-          pr "  r = memcmp (s1->%s.data, s2->%s.data, 32 * sizeof (char));\n" name name;
+          pr "  r = memcmp (s1->%s, s2->%s, 32 * sizeof (char));\n" name name;
           pr "  if (r != 0) return r;\n"
         | name, FChar
         | name, FUInt32
@@ -970,14 +989,14 @@ and generate_client_structs_compare () =
       pr "guestfs_compare_%s_list (const struct guestfs_%s_list *s1, const struct guestfs_%s_list *s2)\n"
         typ typ typ;
       pr "{\n";
-      pr "  if (s1->n_vals < s2->n_vals) return -1;\n";
-      pr "  else if (s1->n_vals > s2->n_vals) return 1;\n";
+      pr "  if (s1->len < s2->len) return -1;\n";
+      pr "  else if (s1->len > s2->len) return 1;\n";
       pr "  else {\n";
       pr "    size_t i;\n";
       pr "    int r;\n";
       pr "\n";
-      pr "    for (i = 0; i < s1->n_vals; ++i) {\n";
-      pr "      r = guestfs_compare_%s (s1->vals[i], s2->vals[i]);\n" typ;
+      pr "    for (i = 0; i < s1->len; ++i) {\n";
+      pr "      r = guestfs_compare_%s (&s1->val[i], &s2->val[i]);\n" typ;
       pr "      if (r != 0) return r;\n";
       pr "    }\n";
       pr "    return 0;\n";
@@ -1021,8 +1040,8 @@ and generate_client_structs_copy () =
         pr "{\n";
         List.iter (
           function
-          | name, FString -> pr "  free (s->%s);\n" name
-          | name, FBuffer -> pr "  free (s->%s.data);\n" name
+          | name, FString
+          | name, FBuffer -> pr "  free (s->%s);\n" name
           | _, FChar
           | _, FUUID
           | _, FUInt32
@@ -1045,8 +1064,8 @@ and generate_client_structs_copy () =
         pr "\n";
         List.iter (
           function
-          | name, FString -> pr "  out->%s = NULL;\n" name
-          | name, FBuffer -> pr "  out->%s.data = NULL;\n" name
+          | name, FString
+          | name, FBuffer -> pr "  out->%s = NULL;\n" name
           | _, FChar
           | _, FUUID
           | _, FUInt32
@@ -1066,13 +1085,13 @@ and generate_client_structs_copy () =
             pr "   * but avoids a common bug in calling code.  Note that callers\n";
             pr "   * should NOT depend on this behaviour intentionally.\n";
             pr "   */\n";
-            pr "  out->%s.len = inp->%s.len;\n" name name;
-            pr "  out->%s.data = malloc (out->%s.len + 1);\n" name name;
+            pr "  out->%s_len = inp->%s_len;\n" name name;
+            pr "  out->%s = malloc (out->%s_len + 1);\n" name name;
             pr "  if (out->%s == NULL) goto error;\n" name;
-            pr "  memcpy (out->%s.data, inp->%s.data, out->%s.len);\n" name name name;
-            pr "  out->%s[out->%s.len] = '\\0';\n" name name
+            pr "  memcpy (out->%s, inp->%s, out->%s_len);\n" name name name;
+            pr "  out->%s[out->%s_len] = '\\0';\n" name name
           | name, FUUID ->
-            pr "  memcpy (out->%s.data, inp->%s.data, 32 * sizeof (char));\n" name name;
+            pr "  memcpy (out->%s, inp->%s, 32 * sizeof (char));\n" name name;
           | name, FChar
           | name, FUInt32
           | name, FInt32
@@ -1141,21 +1160,17 @@ and generate_client_structs_copy () =
       pr "  if (ret == NULL)\n";
       pr "    return NULL;\n";
       pr "\n";
-      pr "  ret->n_vals = inp->n_vals;\n";
-      pr "  ret->vals = malloc (sizeof (struct guestfs_%s *) * ret->n_vals);\n" typ;
-      pr "  if (ret->vals == NULL)\n";
+      pr "  ret->len = inp->len;\n";
+      pr "  ret->val = malloc (sizeof (struct guestfs_%s) * ret->len);\n" typ;
+      pr "  if (ret->val == NULL)\n";
       pr "    goto error;\n";
       pr "\n";
-      pr "  for (i = 0; i < ret->n_vals; ++i) {\n";
-      pr "    ret->vals[i] = malloc (sizeof (struct guestfs_%s));\n" typ;
-      pr "    if (ret->vals[i] == NULL)\n";
-      pr "      goto error;\n";
-      pr "  for (i = 0; i < ret->n_vals; ++i) {\n";
+      pr "  for (i = 0; i < ret->len; ++i) {\n";
       if has_boxed_cols then (
-        pr "    if (copy_%s (inp->vals[i], ret->vals[i]) == -1)\n" typ;
+        pr "    if (copy_%s (&inp->val[i], &ret->val[i]) == -1)\n" typ;
         pr "      goto error;\n"
       ) else (
-        pr "    copy_%s (inp->vals[i], ret->vals[i]);\n" typ
+        pr "    copy_%s (&inp->val[i], &ret->val[i]);\n" typ
       );
       pr "  }\n";
       pr "\n";
@@ -1165,9 +1180,9 @@ and generate_client_structs_copy () =
       pr "  err = errno;\n";
       if has_boxed_cols then (
         pr "  for (j = 0; j < i; ++j)\n";
-        pr "    free_%s (ret->vals[j]);\n" typ
+        pr "    free_%s (&ret->val[j]);\n" typ
       );
-      pr "  free (ret->vals);\n";
+      pr "  free (ret->val);\n";
       pr "  free (ret);\n";
       pr "  errno = err;\n";
       pr "  return NULL;\n";
@@ -1231,8 +1246,7 @@ and generate_client_actions hash () =
 #include \"guestfs.h\"
 #include \"guestfs-internal.h\"
 #include \"guestfs-internal-actions.h\"
-#include \"guestfs_protocol.pb-c.h\"
-#include \"guestfs_protocol_typedefs.h\"
+#include \"guestfs_protocol.h\"
 #include \"errnostring.h\"
 
 ";
@@ -1670,8 +1684,8 @@ and generate_client_actions hash () =
     | _, _ -> pr "  guestfs_%s_args args;\n" name
     );
 
-    pr "  guestfs_message_header hdr;\n";
-    pr "  guestfs_message_error err;\n";
+    pr "  guestfs_message_header *hdr;\n";
+    pr "  guestfs_message_error *err;\n";
     let has_ret =
       match ret with
       | RErr -> false
@@ -1720,7 +1734,7 @@ and generate_client_actions hash () =
       function
       | FileIn n ->
         pr "  if (stat (%s, &progress_stat) == 0 &&\n" n;
-        pr "      (progress_stat.st_mode & S_IFREG))\n";
+        pr "      S_ISREG (progress_stat.st_mode))\n";
         pr "    progress_hint += progress_stat.st_size;\n";
         pr "\n";
       | _ -> ()
@@ -1831,15 +1845,15 @@ and generate_client_actions hash () =
 
     (* Wait for the reply from the remote end. *)
     if !need_read_reply_label then pr " read_reply:\n";
-    pr "  memset (&hdr, 0, sizeof hdr);\n";
-    pr "  memset (&err, 0, sizeof err);\n";
-    (*if has_ret then pr "  memset (&ret, 0, sizeof ret);\n";*)
+    pr "  hdr = NULL;\n";
+    pr "  err = NULL;\n";
+    if has_ret then pr "  ret = NULL;\n";
     pr "\n";
     pr "  r = guestfs___recv (g, \"%s\", &hdr, &err,\n        " name;
     if not has_ret then
       pr "NULL, NULL"
     else
-      pr "(protobuf_proc_unpack) guestfs_%s_ret__unpack, (ProtobufCMessage **) &ret" name;
+      pr "(protobuf_proc_unpack) guestfs_%s_ret__unpack, (char *) &ret" name;
     pr ");\n";
 
     pr "  if (r == -1) {\n";
@@ -1848,28 +1862,28 @@ and generate_client_actions hash () =
     pr "  }\n";
     pr "\n";
 
-    pr "  if (guestfs___check_reply_header (g, &hdr, GUESTFS_PROC_%s, serial) == -1) {\n"
+    pr "  if (guestfs___check_reply_header (g, hdr, GUESTFS_PROC_%s, serial) == -1) {\n"
       (String.uppercase name);
     trace_return_error ~indent:4 name style errcode;
     pr "    return %s;\n" (string_of_errcode errcode);
     pr "  }\n";
     pr "\n";
 
-    pr "  if (hdr.status == GUESTFS_STATUS_ERROR) {\n";
+    pr "  if (hdr->status == GUESTFS_STATUS_ERROR) {\n";
     pr "    int errnum = 0;\n";
     pr "\n";
     trace_return_error ~indent:4 name style errcode;
-    pr "    if (err.errno_string[0] != '\\0')\n";
-    pr "      errnum = guestfs___string_to_errno (err.errno_string);\n";
+    pr "    if (err->errno_string[0] != '\\0')\n";
+    pr "      errnum = guestfs___string_to_errno (err->errno_string);\n";
     pr "    if (errnum <= 0)\n";
-    pr "      error (g, \"%%s: %%s\", \"%s\", err.error_message);\n"
+    pr "      error (g, \"%%s: %%s\", \"%s\", err->error_message);\n"
       name;
     pr "    else\n";
     pr "      guestfs___error_errno (g, errnum, \"%%s: %%s\", \"%s\",\n"
       name;
-    pr "                           err.error_message);\n";
-    pr "    free (err.error_message);\n";
-    pr "    free (err.errno_string);\n";
+    pr "                           err->error_message);\n";
+    pr "//    free (err.error_message);\n";
+    pr "//    free (err.errno_string);\n";
     pr "    return %s;\n" (string_of_errcode errcode);
     pr "  }\n";
     pr "\n";
@@ -1897,18 +1911,19 @@ and generate_client_actions hash () =
       pr "  ret_v = ret->%s; /* caller will free */\n" n
     | RStringList n | RHashtable n ->
       pr "  /* caller will free this, but we need to add a NULL entry */\n";
-      pr "  ret->%s =\n" n;
-      pr "    safe_realloc (g, ret->%s,\n" n;
-      pr "                  sizeof (char *) * (ret->n_%s + 1));\n"
-        n;
-      pr "  ret->%s[ret->n_%s] = NULL;\n" n n;
-      pr "  ret_v = ret->%s;\n" n
-    | RStruct (n, _) ->
+      pr "  ret_v = safe_malloc (g, sizeof (char *) * (ret->n_%s + 1))\n" n;
+      pr "  for (i = 0; i < n_%s; ++i) {\n" n;
+      pr "     ret_v[i] = safe_strdup (g, ret->%s[i]);\n" n;
+      pr "  }\n";
+      pr "  ret_v[n_%s] = NULL;\n" n
+    | RStruct (n, typ) ->
       pr "  /* caller will free this */\n";
-      pr "  ret_v = safe_memdup (g, ret->%s, sizeof (*(ret->%s)));\n" n n
-    | RStructList (n, _) ->
+      pr "  ret_v = safe_malloc (g, sizeof (guestfs_%s))\n;" typ;
+      pr "  convert_guestfs_%s_protobuf_to_xdr (ret->%s, ret_v);\n" typ n
+    | RStructList (n, typ) ->
       pr "  /* caller will free this */\n";
-      pr "  ret_v = safe_memdup (g, ret->%s, sizeof (*(ret->%s)));\n" n n
+      pr "  ret_v = safe_malloc (g, sizeof (guestfs_%s))\n;" typ;
+      pr "  convert_guestfs_%s_protobuf_to_xdr (ret->%s, ret_v);\n" typ n
     | RBufferOut n ->
       pr "  /* RBufferOut is tricky: If the buffer is zero-length, then\n";
       pr "   * _val might be NULL here.  To make the API saner for\n";
@@ -1917,15 +1932,15 @@ and generate_client_actions hash () =
       pr "   */\n";
       pr "  if (ret->%s.len > 0) {\n" n;
       pr "    *size_r = ret->%s.len;\n" n;
-      pr "    ret_v = ret->%s.data; /* caller will free */\n" n;
+      pr "    ret_v = safe_memdup (g, ret->%s.data, ret->%s.len); /* caller will free */\n" n n;
       pr "  } else {\n";
-      pr "    free (ret->%s.data);\n" n;
       pr "    char *p = safe_malloc (g, 1);\n";
       pr "    *size_r = ret->%s.len;\n" n;
       pr "    ret_v = p;\n";
       pr "  }\n";
     );
     trace_return name style "ret_v";
+    pr "/* MUST FREE guestfs_header guestfs_message guestfs_<typ>_ret */\n";
     pr "  return ret_v;\n";
     pr "}\n\n"
   in
