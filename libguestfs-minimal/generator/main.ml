@@ -73,6 +73,7 @@ Run it from the top source directory using the command
 
   output_to "src/guestfs_protocol.proto" generate_protobuf;
   output_to "src/guestfs_protocol_typedefs.h" generate_protobuf_typedefs;
+  output_to "src/guestfs_protocol_converters.h" generate_protobuf_typedefs;
   output_to "src/guestfs.h" generate_guestfs_h;
   output_to "src/guestfs-internal-actions.h" generate_internal_actions_h;
   output_to "src/guestfs-internal-frontend-cleanups.h"

@@ -84,6 +84,7 @@ sources = \
 	prepopts.mli \
 	protobuf.ml \
 	protobuf_typedefs.ml \
+	protobuf_converters.ml \
 	structs.ml \
 	structs.mli \
 	tests_c_api.ml \
@@ -108,6 +109,7 @@ objects = \
 	c.cmo \
 	protobuf.cmo \
 	protobuf_typedefs.cmo \
+	protobuf_converters.cmo \
 	daemon.cmo \
 	tests_c_api.cmo \
 	bindtests.cmo \
