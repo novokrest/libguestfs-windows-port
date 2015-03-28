@@ -133,16 +133,12 @@ typedef enum GuestfsMessageStatus guestfs_message_status;
   #define GUESTFS_STATUS_ERROR GUESTFS_MESSAGE_STATUS__GUESTFS_STATUS_ERROR
 
 ";
-
+  pr "\n";
   pr "\
 typedef GuestfsMessageError guestfs_message_error;
-
 typedef GuestfsMessageHeader guestfs_message_header;
-
 typedef GuestfsChunk guestfs_chunk;
-
 typedef GuestfsProgress guestfs_progress;
-
 typedef GuestfsFlagMessage guestfs_flag_message;
 
 typedef size_t (*protobuf_proc_pack) (ProtobufCMessage *message, uint8_t *out);
