@@ -29,13 +29,12 @@
 #include "guestfs.h"
 #include "guestfs-internal.h"
 #include "guestfs-internal-actions.h"
-#include "guestfs_protocol.pb-c.h"
-#include "guestfs_protocol_typedefs.h"
+#include "guestfs_protocol.h"
 
 /* Check the return message from a call for validity. */
 int
 guestfs___check_reply_header (guestfs_h *g,
-                              const guestfs_message_header *hdr,
+                              const guestfs_protobuf_message_header *hdr,
                               unsigned int proc_nr, unsigned int serial)
 {
   if (hdr->prog != GUESTFS_PROGRAM) {
