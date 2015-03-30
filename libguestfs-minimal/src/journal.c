@@ -40,8 +40,7 @@
 #include "guestfs.h"
 #include "guestfs-internal.h"
 #include "guestfs-internal-actions.h"
-#include "guestfs_protocol.pb-c.h"
-#include "guestfs_protocol_typedefs.h"
+#include "guestfs_protocol.h"
 
 /* This is implemented library-side in order to get around potential
  * protocol limits.
@@ -106,8 +105,8 @@ guestfs__journal_get (guestfs_h *g)
 
   j = 0;
   ret = safe_malloc (g, sizeof *ret);
-  ret->n_vals = 0;
-  ret->vals = NULL;
+  ret->len = 0;
+  ret->val = NULL;
 
   /* There is a simple, private protocol employed here (note: it may
    * be changed at any time), where fields are sent using a big-endian
@@ -141,13 +140,11 @@ guestfs__journal_get (guestfs_h *g)
     *p = '\0';
 
     j++;
-    ret->vals = safe_realloc (g, ret->vals, j * sizeof (struct guestfs_xattr *));
-    ret->vals[j-1] = safe_malloc (g, sizeof (struct guestfs_xattr));
-    guestfs_int_xattr__init (ret->vals[j-1]);
-    ret->vals[j-1]->attrname = safe_strdup (g, &buf[i]);
-    ret->vals[j-1]->attrval.len = eofield - (p+1);
-    ret->vals[j-1]->attrval.data = safe_memdup (g, p+1, eofield - (p+1));
-    ret->n_vals = j;
+    ret->val = safe_realloc (g, ret->val, j * sizeof (struct guestfs_xattr));
+    ret->val[j-1].attrname = safe_strdup (g, &buf[i]);
+    ret->val[j-1].attrval_len = eofield - (p+1);
+    ret->val[j-1].attrval = safe_memdup (g, p+1, eofield - (p+1));
+    ret->len = j;
     i += len;
   }
 

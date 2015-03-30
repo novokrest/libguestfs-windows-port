@@ -34,8 +34,7 @@
 #include "guestfs.h"
 #include "guestfs-internal.h"
 #include "guestfs-internal-actions.h"
-#include "guestfs_protocol.pb-c.h"
-#include "guestfs_protocol_typedefs.h"
+#include "guestfs_protocol.h"
 
 static int
 compare (const void *vp1, const void *vp2)
@@ -389,8 +388,8 @@ guestfs__lstatnslist (guestfs_h *g, const char *dir, char * const*names)
   struct guestfs_statns_list *ret;
 
   ret = safe_malloc (g, sizeof *ret);
-  ret->n_vals = 0;
-  ret->vals = NULL;
+  ret->len = 0;
+  ret->val = NULL;
 
   while (len > 0) {
     CLEANUP_FREE_STATNS_LIST struct guestfs_statns_list *stats = NULL;
@@ -410,12 +409,12 @@ guestfs__lstatnslist (guestfs_h *g, const char *dir, char * const*names)
     }
 
     /* Append stats to ret. */
-    old_len = ret->n_vals;
-    ret->n_vals += stats->n_vals;
-    ret->vals = safe_realloc (g, ret->vals,
-                             ret->n_vals * sizeof (struct guestfs_statns *));
-    memcpy (&ret->vals[old_len], stats->vals,
-            stats->n_vals * sizeof (struct guestfs_statns *));
+    old_len = ret->len;
+    ret->len += stats->len;
+    ret->val = safe_realloc (g, ret->val,
+                             ret->len * sizeof (struct guestfs_statns));
+    memcpy (&ret->val[old_len], stats->val,
+            stats->len * sizeof (struct guestfs_statns));
   }
 
   return ret;
@@ -431,8 +430,8 @@ guestfs__lxattrlist (guestfs_h *g, const char *dir, char *const *names)
   struct guestfs_xattr_list *ret;
 
   ret = safe_malloc (g, sizeof *ret);
-  ret->n_vals = 0;
-  ret->vals = NULL;
+  ret->len = 0;
+  ret->val = NULL;
 
   while (len > 0) {
     CLEANUP_FREE_XATTR_LIST struct guestfs_xattr_list *xattrs = NULL;
@@ -451,18 +450,18 @@ guestfs__lxattrlist (guestfs_h *g, const char *dir, char *const *names)
     }
 
     /* Append xattrs to ret. */
-    old_len = ret->n_vals;
-    ret->n_vals += xattrs->n_vals;
-    ret->vals = safe_realloc (g, ret->vals,
-                             ret->n_vals * sizeof (struct guestfs_xattr));
-    for (i = 0; i < xattrs->n_vals; ++i, ++old_len) {
+    old_len = ret->len;
+    ret->len += xattrs->len;
+    ret->val = safe_realloc (g, ret->val,
+                             ret->len * sizeof (struct guestfs_xattr));
+    for (i = 0; i < xattrs->len; ++i, ++old_len) {
       /* We have to make a deep copy of the attribute name and value.
        */
-      ret->vals[old_len]->attrname = safe_strdup (g, xattrs->vals[i]->attrname);
-      ret->vals[old_len]->attrval.data = safe_malloc (g, xattrs->vals[i]->attrval.len);
-      ret->vals[old_len]->attrval.len = xattrs->vals[i]->attrval.len;
-      memcpy (ret->vals[old_len]->attrval.data, xattrs->vals[i]->attrval.data,
-              xattrs->vals[i]->attrval.len);
+      ret->val[old_len].attrname = safe_strdup (g, xattrs->val[i].attrname);
+      ret->val[old_len].attrval = safe_malloc (g, xattrs->val[i].attrval_len);
+      ret->val[old_len].attrval_len = xattrs->val[i].attrval_len;
+      memcpy (ret->val[old_len].attrval, xattrs->val[i].attrval,
+              xattrs->val[i].attrval_len);
     }
   }
 
@@ -665,15 +664,11 @@ guestfs__lstatlist (guestfs_h *g, const char *dir, char * const*names)
     return NULL;
 
   ret = safe_malloc (g, sizeof *ret);
-  ret->n_vals = r->n_vals;
-  ret->vals = safe_calloc (g, r->n_vals, sizeof (struct guestfs_stat *));
-  for (i = 0; i < r->n_vals; ++i) {
-  	ret->vals[i] = safe_malloc (g, sizeof (struct guestfs_stat));
-  	guestfs_int_stat__init (ret->vals[i]);
-  }
+  ret->len = r->len;
+  ret->val = safe_calloc (g, r->len, sizeof (struct guestfs_stat));
 
-  for (i = 0; i < r->n_vals; ++i)
-    statns_to_old_stat (r->vals[i], &ret->vals[i]);
+  for (i = 0; i < r->len; ++i)
+    statns_to_old_stat (&r->val[i], &ret->val[i]);
 
   return ret;
 }

@@ -54,8 +54,7 @@
 #include "guestfs.h"
 #include "guestfs-internal.h"
 #include "guestfs-internal-actions.h"
-#include "guestfs_protocol.pb-c.h"
-#include "guestfs_protocol_typedefs.h"
+#include "guestfs_protocol.h"
 
 #ifdef DB_DUMP
 static struct guestfs_application2_list *list_applications_rpm (guestfs_h *g, struct inspect_fs *fs);
@@ -82,38 +81,31 @@ guestfs__inspect_list_applications (guestfs_h *g, const char *root)
 
   /* Translate the structures from the new format to the old format. */
   ret = safe_malloc (g, sizeof (struct guestfs_application_list));
-  ret->n_vals = r->n_vals;
-  ret->vals =
-    safe_malloc (g, sizeof (struct guestfs_application *) * r->n_vals);
-  for (i = 0; i < ret->n_vals; ++i) {
-    ret->vals[i] = safe_malloc (g, sizeof (struct guestfs_application));
-    guestfs_int_application_list__init (ret->vals[i]);
-  }
-  for (i = 0; i < r->n_vals; ++i) {
-    ret->vals[i]->app_name = r->vals[i]->app2_name;
-    ret->vals[i]->app_display_name = r->vals[i]->app2_display_name;
-    ret->vals[i]->app_epoch = r->vals[i]->app2_epoch;
-    ret->vals[i]->app_version = r->vals[i]->app2_version;
-    ret->vals[i]->app_release = r->vals[i]->app2_release;
-    ret->vals[i]->app_install_path = r->vals[i]->app2_install_path;
-    ret->vals[i]->app_trans_path = r->vals[i]->app2_trans_path;
-    ret->vals[i]->app_publisher = r->vals[i]->app2_publisher;
-    ret->vals[i]->app_url = r->vals[i]->app2_url;
-    ret->vals[i]->app_source_package = r->vals[i]->app2_source_package;
-    ret->vals[i]->app_summary = r->vals[i]->app2_summary;
-    ret->vals[i]->app_description = r->vals[i]->app2_description;
+  ret->len = r->len;
+  ret->val =
+    safe_malloc (g, sizeof (struct guestfs_application) * r->len);
+  for (i = 0; i < r->len; ++i) {
+    ret->val[i].app_name = r->val[i].app2_name;
+    ret->val[i].app_display_name = r->val[i].app2_display_name;
+    ret->val[i].app_epoch = r->val[i].app2_epoch;
+    ret->val[i].app_version = r->val[i].app2_version;
+    ret->val[i].app_release = r->val[i].app2_release;
+    ret->val[i].app_install_path = r->val[i].app2_install_path;
+    ret->val[i].app_trans_path = r->val[i].app2_trans_path;
+    ret->val[i].app_publisher = r->val[i].app2_publisher;
+    ret->val[i].app_url = r->val[i].app2_url;
+    ret->val[i].app_source_package = r->val[i].app2_source_package;
+    ret->val[i].app_summary = r->val[i].app2_summary;
+    ret->val[i].app_description = r->val[i].app2_description;
 
     /* The other strings that we don't copy must be freed. */
-    free (r->vals[i]->app2_arch);
-    free (r->vals[i]->app2_spare1);
-    free (r->vals[i]->app2_spare2);
-    free (r->vals[i]->app2_spare3);
-    free (r->vals[i]->app2_spare4);
+    free (r->val[i].app2_arch);
+    free (r->val[i].app2_spare1);
+    free (r->val[i].app2_spare2);
+    free (r->val[i].app2_spare3);
+    free (r->val[i].app2_spare4);
   }
-  for (i = 0; i < r->n_vals; ++i) {
-    free (r->vals[i]);
-  }
-  free (r->vals);                /* Must not free the other strings. */
+  free (r->val);                /* Must not free the other strings. */
   free (r);
 
   return ret;
@@ -182,8 +174,8 @@ guestfs__inspect_list_applications2 (guestfs_h *g, const char *root)
      * empty list.
      */
     ret = safe_malloc (g, sizeof *ret);
-    ret->n_vals = 0;
-    ret->vals = NULL;
+    ret->len = 0;
+    ret->val = NULL;
   }
 
   sort_applications (ret);
@@ -210,9 +202,8 @@ free_rpm_names_list (struct rpm_names_list *list)
 {
   size_t i;
 
-  for (i = 0; i < list->n_vals; ++i)
-    free (list->names[i]->name);
-    free (list->names[i]);
+  for (i = 0; i < list->len; ++i)
+    free (list->names[i].name);
   free (list->names);
 }
 
@@ -412,8 +403,8 @@ list_applications_rpm (guestfs_h *g, struct inspect_fs *fs)
 
   /* Allocate 'apps' list. */
   apps = safe_malloc (g, sizeof *apps);
-  apps->n_vals = 0;
-  apps->vals = NULL;
+  apps->len = 0;
+  apps->val = NULL;
 
   /* Read Packages database. */
   data.list = &list;
@@ -459,8 +450,8 @@ list_applications_deb (guestfs_h *g, struct inspect_fs *fs)
 
   /* Allocate 'apps' list. */
   apps = safe_malloc (g, sizeof *apps);
-  apps->n_vals = 0;
-  apps->vals = NULL;
+  apps->len = 0;
+  apps->val = NULL;
 
   /* Read the temporary file.  Each package entry is separated by
    * a blank line.
@@ -561,8 +552,8 @@ list_applications_windows (guestfs_h *g, struct inspect_fs *fs)
 
   /* Allocate apps list. */
   ret = safe_malloc (g, sizeof *ret);
-  ret->n_vals = 0;
-  ret->vals = NULL;
+  ret->len = 0;
+  ret->val = NULL;
 
   /* Ordinary native applications. */
   const char *hivepath[] =
@@ -607,8 +598,8 @@ list_applications_windows_from_path (guestfs_h *g,
    * See also:
    * http://nsis.sourceforge.net/Add_uninstall_information_to_Add/Remove_Programs#Optional_values
    */
-  for (i = 0; i < children->n_vals; ++i) {
-    int64_t child = children->vals[i]->hivex_node_h;
+  for (i = 0; i < children->len; ++i) {
+    int64_t child = children->val[i].hivex_node_h;
     int64_t value;
     CLEANUP_FREE char *name = NULL, *display_name = NULL, *version = NULL,
       *install_path = NULL, *publisher = NULL, *url = NULL, *comments = NULL;
@@ -660,40 +651,39 @@ add_application (guestfs_h *g, struct guestfs_application2_list *apps,
                  const char *publisher, const char *url,
                  const char *description)
 {
-  apps->n_vals++;
-  apps->vals = safe_realloc (g, apps->vals,
-                             apps->n_vals * sizeof (struct guestfs_application2 *));
-  apps->vals[apps->n_vals-1] = safe_malloc (g, sizeof (struct guestfs_application2));
-  apps->vals[apps->n_vals-1]->app2_name = safe_strdup (g, name);
-  apps->vals[apps->n_vals-1]->app2_display_name = safe_strdup (g, display_name);
-  apps->vals[apps->n_vals-1]->app2_epoch = epoch;
-  apps->vals[apps->n_vals-1]->app2_version = safe_strdup (g, version);
-  apps->vals[apps->n_vals-1]->app2_release = safe_strdup (g, release);
-  apps->vals[apps->n_vals-1]->app2_arch = safe_strdup (g, arch);
-  apps->vals[apps->n_vals-1]->app2_install_path = safe_strdup (g, install_path);
+  apps->len++;
+  apps->val = safe_realloc (g, apps->val,
+                            apps->len * sizeof (struct guestfs_application2));
+  apps->val[apps->len-1].app2_name = safe_strdup (g, name);
+  apps->val[apps->len-1].app2_display_name = safe_strdup (g, display_name);
+  apps->val[apps->len-1].app2_epoch = epoch;
+  apps->val[apps->len-1].app2_version = safe_strdup (g, version);
+  apps->val[apps->len-1].app2_release = safe_strdup (g, release);
+  apps->val[apps->len-1].app2_arch = safe_strdup (g, arch);
+  apps->val[apps->len-1].app2_install_path = safe_strdup (g, install_path);
   /* XXX Translated path is not implemented yet. */
-  apps->vals[apps->n_vals-1]->app2_trans_path = safe_strdup (g, "");
-  apps->vals[apps->n_vals-1]->app2_publisher = safe_strdup (g, publisher);
-  apps->vals[apps->n_vals-1]->app2_url = safe_strdup (g, url);
+  apps->val[apps->len-1].app2_trans_path = safe_strdup (g, "");
+  apps->val[apps->len-1].app2_publisher = safe_strdup (g, publisher);
+  apps->val[apps->len-1].app2_url = safe_strdup (g, url);
   /* XXX The next two are not yet implemented for any package
    * format, but we could easily support them for rpm and deb.
    */
-  apps->vals[apps->n_vals-1]->app2_source_package = safe_strdup (g, "");
-  apps->vals[apps->n_vals-1]->app2_summary = safe_strdup (g, "");
-  apps->vals[apps->n_vals-1]->app2_description = safe_strdup (g, description);
+  apps->val[apps->len-1].app2_source_package = safe_strdup (g, "");
+  apps->val[apps->len-1].app2_summary = safe_strdup (g, "");
+  apps->val[apps->len-1].app2_description = safe_strdup (g, description);
   /* XXX Reserved for future use. */
-  apps->vals[apps->n_vals-1]->app2_spare1 = safe_strdup (g, "");
-  apps->vals[apps->n_vals-1]->app2_spare2 = safe_strdup (g, "");
-  apps->vals[apps->n_vals-1]->app2_spare3 = safe_strdup (g, "");
-  apps->vals[apps->n_vals-1]->app2_spare4 = safe_strdup (g, "");
+  apps->val[apps->len-1].app2_spare1 = safe_strdup (g, "");
+  apps->val[apps->len-1].app2_spare2 = safe_strdup (g, "");
+  apps->val[apps->len-1].app2_spare3 = safe_strdup (g, "");
+  apps->val[apps->len-1].app2_spare4 = safe_strdup (g, "");
 }
 
 /* Sort applications by name before returning the list. */
 static int
 compare_applications (const void *vp1, const void *vp2)
 {
-  const struct guestfs_application2 *v1 = *(struct guestfs_application2**) vp1;
-  const struct guestfs_application2 *v2 = *(struct guestfs_application2**) vp2;
+  const struct guestfs_application2 *v1 = vp1;
+  const struct guestfs_application2 *v2 = vp2;
 
   return strcmp (v1->app2_name, v2->app2_name);
 }
@@ -701,7 +691,7 @@ compare_applications (const void *vp1, const void *vp2)
 static void
 sort_applications (struct guestfs_application2_list *apps)
 {
-  if (apps && apps->vals)
-    qsort (apps->vals, apps->n_vals, sizeof (struct guestfs_application2 *),
+  if (apps && apps->val)
+    qsort (apps->val, apps->len, sizeof (struct guestfs_application2),
            compare_applications);
 }
