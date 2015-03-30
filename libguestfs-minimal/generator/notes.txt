@@ -1,0 +1,30 @@
+877 - cleanup
+make guestfs_error and guestfs_header
+
+
+
+guestfs_protobuf_int_%s  <-- converted --> guestfs_int_%s & struct guestfs_%s (aka xdr)
+guestfs_protobuf_int_%s_list  <-- converted --> guestfs_int_%s & struct guestfs_%s_list (aka xdr)
+
+guestfs_protobuf_%s_ret  <-- converted -->  guestfs_%s_ret (aka xdr)
+guestfs_protobuf_%s_args  <-- converted -->  guestfs_%s_args (aka xdr)
+
+
+done:
+
+guestfs_protobuf_int_%s         for structs
+guestfs_protobuf_int_%s_list    for structs
+guestfs_protobuf_%s_args        for daemon_functions
+guestfs_protobuf_%s_ret         for daemon_functions
+
+/* This is xdr from rpcgen. Must generate own... */
+guestfs_int_%s                  for structs 
+guestfs_int_%s_list             for structs
+guestfs_%s_args                 for daemon_functions
+guestfs_%s_ret                  for daemon_functions
+
+
+also:
+/* Without converters form one to another */
+guestfs_protobuf_message/chunk/error/enums...     for protobuf
+guestfs_message/chunk/error/enums....             for xdr
