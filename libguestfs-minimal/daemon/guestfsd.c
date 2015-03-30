@@ -53,6 +53,7 @@
 #include "error.h"
 
 #include "daemon.h"
+#include "guestfs_protocol_constants.h"
 
 GUESTFSD_EXT_CMD(str_udevadm, udevadm);
 
@@ -325,13 +326,13 @@ main (int argc, char *argv[])
   /* Send the magic length message which indicates that
    * userspace is up inside the guest.
    */
-  char lenbuf[FLAG_MESSAGE_SIZE];
-  guestfs_flag_message flagmsg;
+  char lenbuf[PROTOBUF_FLAG_MESSAGE_SIZE];
   uint32_t len = GUESTFS_LAUNCH_FLAG;
+  guestfs_protobuf_flag_message flagmsg;
   
-  flagmsg = GUESTFS_FLAG_MESSAGE__INIT;
+  guestfs_protobuf_flag_message__init (&flagmsg);
   flagmsg.val = len;
-  assert (guestfs_flag_message__pack (&flagmsg, lenbuf) == FLAG_MESSAGE_SIZE);
+  guestfs_protobuf_flag_message__pack (&flagmsg, lenbuf);
 
   if (xwrite (sock, lenbuf, sizeof lenbuf) == -1) {
     perror ("xwrite");
