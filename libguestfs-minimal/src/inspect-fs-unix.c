@@ -260,7 +260,7 @@ parse_lsb_release (guestfs_h *g, struct inspect_fs *fs)
   size_t i;
   int r = 0;
 
-  /* Don't trust guestfs_head_n not to break with very large files.
+  /* Don't trust guestfs_head_nn not to break with very large files.
    * Check the file size is something reasonable first.
    */
   size = guestfs_filesize (g, filename);
@@ -273,7 +273,7 @@ parse_lsb_release (guestfs_h *g, struct inspect_fs *fs)
     return -1;
   }
 
-  lines = guestfs_head_n (g, 10, filename);
+  lines = guestfs_head_nn (g, 10, filename);
   if (lines == NULL)
     return -1;
 
@@ -342,7 +342,7 @@ parse_suse_release (guestfs_h *g, struct inspect_fs *fs, const char *filename)
   CLEANUP_FREE_STRING_LIST char **lines = NULL;
   int r = -1;
 
-  /* Don't trust guestfs_head_n not to break with very large files.
+  /* Don't trust guestfs_head_nn not to break with very large files.
    * Check the file size is something reasonable first.
    */
   size = guestfs_filesize (g, filename);
@@ -355,7 +355,7 @@ parse_suse_release (guestfs_h *g, struct inspect_fs *fs, const char *filename)
     return -1;
   }
 
-  lines = guestfs_head_n (g, 10, filename);
+  lines = guestfs_head_nn (g, 10, filename);
   if (lines == NULL)
     return -1;
 
