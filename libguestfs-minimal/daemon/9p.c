@@ -39,7 +39,7 @@ static char *read_whole_file (const char *filename);
 
 /* https://bugzilla.redhat.com/show_bug.cgi?id=714981#c1 */
 char **
-do_list_9p (void)
+do_list9p (void)
 {
   DECLARE_STRINGSBUF (r);
 
@@ -172,7 +172,7 @@ read_whole_file (const char *filename)
 
 /* Takes optional arguments, consult optargs_bitmask. */
 int
-do_mount_9p (const char *mount_tag, const char *mountpoint, const char *options)
+do_mount9p (const char *mount_tag, const char *mountpoint, const char *options)
 {
   CLEANUP_FREE char *mp = NULL, *opts = NULL, *err = NULL;
   struct stat statbuf;
@@ -197,7 +197,7 @@ do_mount_9p (const char *mount_tag, const char *mountpoint, const char *options)
   }
 
   /* Add trans=virtio to the options. */
-  if ((optargs_bitmask & GUESTFS_MOUNT_9P_OPTIONS_BITMASK) &&
+  if ((optargs_bitmask & GUESTFS_MOUNT9P_OPTIONS_BITMASK) &&
       STRNEQ (options, "")) {
     if (asprintf (&opts, "trans=virtio,%s", options) == -1) {
       reply_with_perror ("asprintf");

@@ -118,7 +118,7 @@ do_sfdisk (const char *device, int cyls, int heads, int sectors,
 }
 
 int
-do_sfdisk_N (const char *device, int n, int cyls, int heads, int sectors,
+do_sfdisk_nn (const char *device, int n, int cyls, int heads, int sectors,
              const char *line)
 {
   char const *const lines[2] = { line, NULL };
@@ -127,7 +127,7 @@ do_sfdisk_N (const char *device, int n, int cyls, int heads, int sectors,
 }
 
 int
-do_sfdiskM (const char *device, char *const *lines)
+do_sfdiskm (const char *device, char *const *lines)
 {
   return sfdisk (device, 0, 0, 0, 0, "-uM", lines);
 }
@@ -152,7 +152,7 @@ sfdisk_flag (const char *device, const char *flag)
 }
 
 char *
-do_sfdisk_l (const char *device)
+do_sfdisk_ll (const char *device)
 {
   return sfdisk_flag (device, "-l");
 }

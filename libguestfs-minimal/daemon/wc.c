@@ -66,19 +66,19 @@ wc (const char *flag, const char *path)
 }
 
 int
-do_wc_l (const char *path)
+do_wc_ll (const char *path)
 {
   return wc ("-l", path);
 }
 
 int
-do_wc_w (const char *path)
+do_wc_ww (const char *path)
 {
   return wc ("-w", path);
 }
 
 int
-do_wc_c (const char *path)
+do_wc_cc (const char *path)
 {
   return wc ("-c", path);
 }

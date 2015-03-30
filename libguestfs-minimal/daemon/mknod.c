@@ -67,13 +67,13 @@ do_mkfifo (int mode, const char *path)
 }
 
 int
-do_mknod_b (int mode, int devmajor, int devminor, const char *path)
+do_mknod_bb (int mode, int devmajor, int devminor, const char *path)
 {
   return do_mknod (mode | S_IFBLK, devmajor, devminor, path);
 }
 
 int
-do_mknod_c (int mode, int devmajor, int devminor, const char *path)
+do_mknod_cc (int mode, int devmajor, int devminor, const char *path)
 {
   return do_mknod (mode | S_IFCHR, devmajor, devminor, path);
 }
