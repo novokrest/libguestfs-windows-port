@@ -30,6 +30,9 @@ open Types
 open C
 open Protobuf
 open Protobuf_typedefs
+open Protobuf_converters
+open Structs_free
+open Xdr
 open Daemon
 open Tests_c_api
 open Bindtests
@@ -68,43 +71,55 @@ Run it from the top source directory using the command
      perror "lock: BUGS" exn;
      exit 1);
 
+  let test = "" in
   (* Read the API versions file. *)
-  load_api_versions "src/api-support/added";
+  load_api_versions (test ^ "src/api-support/added");
 
-  output_to "src/guestfs_protocol.proto" generate_protobuf;
-  output_to "src/guestfs_protocol_typedefs.h" generate_protobuf_typedefs;
-  output_to "src/guestfs_protocol_converters.h" generate_protobuf_typedefs;
-  output_to "src/guestfs.h" generate_guestfs_h;
-  output_to "src/guestfs-internal-actions.h" generate_internal_actions_h;
-  output_to "src/guestfs-internal-frontend-cleanups.h"
+  output_to (test ^ "src/xdr.x") generate_xdr;
+  output_to (test ^ "src/guestfs_protocol.proto") generate_protobuf;
+  output_to (test ^ "src/guestfs_protocol_typedefs.h") generate_protobuf_typedefs;
+  output_to (test ^ "src/guestfs_protocol_converters.h") generate_protobuf_converters_header;
+  output_to (test ^ "src/guestfs_protocol_converters.c") generate_protobuf_converters;
+  output_to (test ^ "src/guestfs-internal-structs-free.h") generate_structs_free_header;
+  output_to (test ^ "src/guestfs-internal-structs-free.c") generate_structs_free;
+  output_to (test ^ "src/guestfs.h") generate_guestfs_h;
+  output_to (test ^ "src/guestfs-internal-actions.h") generate_internal_actions_h;
+  output_to (test ^ "src/guestfs-internal-frontend-cleanups.h")
     generate_internal_frontend_cleanups_h;
-  output_to "src/bindtests.c" generate_bindtests;
-  output_to "src/guestfs-structs.pod" generate_structs_pod;
-  output_to "src/guestfs-actions.pod" generate_actions_pod;
-  output_to "src/guestfs-availability.pod" generate_availability_pod;
-  output_to "src/errnostring-gperf.gperf" generate_errnostring_gperf;
-  output_to "src/errnostring.c" generate_errnostring_c;
-  output_to "src/errnostring.h" generate_errnostring_h;
-  output_to "src/event-string.c" generate_event_string_c;
-  output_to "src/MAX_PROC_NR" generate_max_proc_nr;
-  output_to "src/libguestfs.syms" generate_linker_script;
+  output_to (test ^ "src/bindtests.c") generate_bindtests;
+  output_to (test ^ "src/guestfs-structs.pod") generate_structs_pod;
+  output_to (test ^ "src/guestfs-actions.pod") generate_actions_pod;
+  output_to (test ^ "src/guestfs-availability.pod") generate_availability_pod;
+  output_to (test ^ "src/errnostring-gperf.gperf") generate_errnostring_gperf;
+  output_to (test ^ "src/errnostring.c") generate_errnostring_c;
+  output_to (test ^ "src/errnostring.h") generate_errnostring_h;
+  output_to (test ^ "src/event-string.c") generate_event_string_c;
+  output_to (test ^ "src/MAX_PROC_NR") generate_max_proc_nr;
+  output_to (test ^ "src/libguestfs.syms") generate_linker_script;
 
-  output_to "src/structs-compare.c" generate_client_structs_compare;
-  output_to "src/structs-copy.c" generate_client_structs_copy;
-  output_to "src/structs-free.c" generate_client_structs_free;
-  output_to "src/structs-cleanup.c" generate_client_structs_cleanup;
-  output_to "src/actions-variants.c" generate_client_actions_variants;
+  output_to (test ^ "src/structs-compare.c") generate_client_structs_compare;
+  output_to (test ^ "src/structs-copy.c") generate_client_structs_copy;
+  output_to (test ^ "src/structs-free.c") generate_client_structs_free;
+  output_to (test ^ "src/structs-cleanup.c") generate_client_structs_cleanup;
+  output_to (test ^ "src/actions-variants.c") generate_client_actions_variants;
 
   for i = 0 to nr_actions_files-1 do
-    let filename = sprintf "src/actions-%d.c" i in
+    let filename = test ^ (sprintf "src/actions-%d.c") i in
     output_to filename (generate_client_actions i)
   done;
 
-  output_to "daemon/actions.h" generate_daemon_actions_h;
-  output_to "daemon/stubs.c" generate_daemon_actions;
-  output_to "daemon/names.c" generate_daemon_names;
-  output_to "daemon/optgroups.c" generate_daemon_optgroups_c;
-  output_to "daemon/optgroups.h" generate_daemon_optgroups_h;
+  output_to (test ^ "daemon/xdr.x") generate_xdr;
+  output_to (test ^ "daemon/guestfs_protocol.proto") generate_protobuf;
+  output_to (test ^ "daemon/guestfs_protocol_typedefs.h") generate_protobuf_typedefs;
+  output_to (test ^ "daemon/guestfs_protocol_converters.h") generate_protobuf_converters_header;
+  output_to (test ^ "daemon/guestfs_protocol_converters.c") generate_protobuf_converters;
+  output_to (test ^ "daemon/guestfs-internal-structs-free.h") generate_structs_free_header;
+  output_to (test ^ "daemon/guestfs-internal-structs-free.c") generate_structs_free;
+  output_to (test ^ "daemon/actions.h") generate_daemon_actions_h;
+  output_to (test ^ "daemon/stubs.c") generate_daemon_actions;
+  output_to (test ^ "daemon/names.c") generate_daemon_names;
+  output_to (test ^ "daemon/optgroups.c") generate_daemon_optgroups_c;
+  output_to (test ^ "daemon/optgroups.h") generate_daemon_optgroups_h;
   (*output_to "tests/c-api/tests.c" generate_c_api_tests;*)
 
   (* Generate the list of files generated -- last. *)
