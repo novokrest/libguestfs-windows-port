@@ -189,7 +189,7 @@ extern int is_root_mounted (void);
 extern int is_device_mounted (const char *device);
 
 /*-- in stubs.c (auto-generated) --*/
-extern void dispatch_incoming_message (char* ret, size_t len);
+extern void dispatch_incoming_message (const char* ret, size_t len);
 extern guestfs_int_lvm_pv_list *parse_command_line_pvs (void);
 extern guestfs_int_lvm_vg_list *parse_command_line_vgs (void);
 extern guestfs_int_lvm_lv_list *parse_command_line_lvs (void);
