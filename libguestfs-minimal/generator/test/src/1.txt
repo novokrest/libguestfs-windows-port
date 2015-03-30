@@ -1,0 +1,2 @@
+gcc -c -I. `pkg-config --cflags libprotobuf-c` -o guestfs_protocol.pb-c.o guestfs_protocol.pb-c.c
+gcc -c -I. `pkg-config --cflags libprotobuf-c` -o guestfs_protocol_converters.o guestfs_protocol_converters.c
