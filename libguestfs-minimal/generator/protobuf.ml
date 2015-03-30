@@ -261,3 +261,17 @@ message GuestfsProtobufFlagMessage {
   required fixed32 val = 1;
 }
 "
+
+let generate_protocol_header () = 
+  generate_header ~emacs_mode:"c" CStyle LGPLv2plus;
+  pr "\n";
+  pr "#ifndef GUESTFS_PROTOCOL_H_\n";
+  pr "#define GUESTFS_PROTOCOL_H_\n";
+  pr "\n";
+  pr "#include \"xdr.h\"\n";
+  pr "#include \"guestfs_protocol.pb-c.h\"\n";
+  pr "#include \"guestfs_protocol_typedefs.h\"\n";
+  pr "#include \"guestfs_protocol_converters.h\"\n";
+  pr "#include \"guestfs_protocol_constants.h\"\n";
+  pr "\n";
+  pr "#endif /* GUESTFS_PROTOCOL_H_ */\n"
