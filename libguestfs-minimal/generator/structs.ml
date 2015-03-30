@@ -328,7 +328,7 @@ let structs = [
     "btrfssubvolume_top_level_id", FUInt64;
     "btrfssubvolume_path", FString;
     ];
-    s_camel_name = "BTRFSSubvolume" };
+    s_camel_name = "BtrfsSubvolume" };
 
   (* XFS info descriptor. *)
   { defaults with
