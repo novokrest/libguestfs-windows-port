@@ -85,12 +85,14 @@ sources = \
 	protobuf.ml \
 	protobuf_typedefs.ml \
 	protobuf_converters.ml \
+	structs_free.ml \
 	structs.ml \
 	structs.mli \
 	tests_c_api.ml \
 	types.ml \
 	utils.ml \
-	utils.mli 
+	utils.mli \
+	xdr.ml
 
 
 # In build dependency order.
@@ -107,9 +109,11 @@ objects = \
 	docstrings.cmo \
 	checks.cmo \
 	c.cmo \
+	xdr.cmo \
 	protobuf.cmo \
 	protobuf_typedefs.cmo \
 	protobuf_converters.cmo \
+	structs_free.cmo \
 	daemon.cmo \
 	tests_c_api.cmo \
 	bindtests.cmo \
@@ -117,12 +121,14 @@ objects = \
 	customize.cmo \
 	main.cmo
 
+exec = generator.exe
+
 .SUFFIXES: .cmo .cmi .cmx .ml .mli .mll .mly
 .PHONY: all clean
 
-all: generator
+all: $(exec)
 
-generator: $(objects)
+$(exec): $(objects)
 	$(OCAMLFIND) ocamlc $(OCAMLCFLAGS) -linkpkg $^ -o $@
 
 # Dependencies.
