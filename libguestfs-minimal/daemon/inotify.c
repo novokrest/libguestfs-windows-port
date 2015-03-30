@@ -30,7 +30,6 @@
 #endif
 
 #include "guestfs_protocol.h"
-#include "guestfs-free-mock.h"
 #include "daemon.h"
 #include "actions.h"
 #include "optgroups.h"

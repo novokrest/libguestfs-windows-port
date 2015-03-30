@@ -37,7 +37,6 @@
 #include "optgroups.h"
 #include "c-ctype.h"
 
-#include "guestfs-free-mock.h"
 
 GUESTFSD_EXT_CMD(str_mdadm, mdadm);
 
