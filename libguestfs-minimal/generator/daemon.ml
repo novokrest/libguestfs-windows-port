@@ -86,6 +86,7 @@ and generate_daemon_actions () =
 #include \"daemon.h\"
 #include \"c-ctype.h\"
 #include \"guestfs_protocol.h\"
+#include \"guestfs-internal-structs-free.h\"
 #include \"actions.h\"
 #include \"optgroups.h\"
 
@@ -243,7 +244,7 @@ cleanup_free_mountable (mountable_t *mountable)
         List.filter (function FileIn _ | FileOut _ -> false | _ -> true)
           args_passed_to_daemon in
       if args_passed_to_daemon <> [] then (
-        pr "  struct guestfs_%s_args *args;\n" name;
+        pr "  guestfs_protobuf_%s_args *args;\n" name;
         List.iter (
           function
           | Device n | Dev_or_Path n ->
@@ -311,7 +312,7 @@ cleanup_free_mountable (mountable_t *mountable)
 
       (* Decode arguments. *)
       if args_passed_to_daemon <> [] then (
-        pr "  if (!(args = %s_args__unpack (NULL, datalen, (const uint8_t *)data))) {\n" name;
+        pr "  if (!(args = guestfs_protobuf_%s_args__unpack (NULL, datalen, data))) {\n" name;
         if is_filein then
           pr "    cancel_receive ();\n";
           pr "    reply_with_error (\"daemon failed to decode procedure arguments\");\n";
@@ -431,79 +432,45 @@ cleanup_free_mountable (mountable_t *mountable)
         match ret with
         | RErr -> pr "  reply (NULL, NULL);\n"
         | RInt n | RInt64 n | RBool n ->
-            pr "  guestfs_%s_ret ret;\n" camel_name;
-            pr "  char *bufret;\n";
-            pr "  size_t lenret;\n";
-            pr "  %s__init (&ret);\n" name;
+            pr "  guestfs_protobuf_%s_ret ret;\n" name;
+            pr "  guestfs_protobuf_%s_ret__init (&ret);\n" name;
             pr "  ret.%s = r;\n" n;
-            pr "  lenret = %s__get_packed_size (&ret);\n" name;
-            pr "  bufret = malloc (lenret);\n";
-            pr "  %s__pack (NULL, lenret, bufret);\n" name;
-            pr "  reply (bufret, lenret);\n";
-            pr "  free (bufret);\n"
+            pr "  reply ((protobuf_proc_pack) guestfs_protobuf_%s_ret__pack, (char *) &ret);\n" name;
         | RConstString _ | RConstOptString _ ->
             failwithf "RConstString|RConstOptString cannot be used by daemon functions"
         | RString n ->
-            pr "  guestfs_%s_ret ret;\n" camel_name;
-            pr "  char *bufret;\n";
-            pr "  size_t lenret;\n";
-            pr "  %s__init (&ret);\n" name;
+            pr "  guestfs_protobuf_%s_ret ret;\n" name;
+            pr "  guestfs_protobuf_%s_ret__init (&ret);\n" name;
             pr "  ret.%s = r;\n" n;
-            pr "  lenret = %s__get_packed_size (&ret);\n" name;
-            pr "  bufret = malloc (lenret);\n";
-            pr "  %s__pack (NULL, lenret, bufret);\n" name;
-            pr "  reply (bufret, lenret);\n";
-            pr "  free (bufret);\n";
+            pr "  reply ((protobuf_proc_pack) guestfs_protobuf_%s_ret__pack, (char *) &ret);\n" name;
             pr "  free (r);\n"
         | RStringList n | RHashtable n ->
-            pr "  guestfs_%s_ret ret;\n" camel_name;
-            pr "  char *bufret;\n";
-            pr "  size_t lenret;\n";
-            pr "  %s__init (&ret);\n" name;
+            pr "  guestfs_protobuf_%s_ret ret;\n" name;
+            pr "  guestfs_protobuf_%s_ret__init (&ret);\n" name;
             pr "  ret.n_%s = count_strings (r);\n" n;
             pr "  ret.%s = r;\n" n;
-            pr "  lenret = %s__get_packed_size (&ret);\n" name;
-            pr "  bufret = malloc (lenret);\n";
-            pr "  %s__pack (NULL, lenret, bufret);\n" name;
-            pr "  reply (bufret, lenret);\n";
-            pr "  free (bufret);\n";
+            pr "  reply ((protobuf_proc_pack) guestfs_protobuf_%s_ret__pack, (char *) &ret);\n" name;
             pr "  free_strings (r);\n"
-        | RStruct (n, _) ->
-            pr "  guestfs_%s_ret ret;\n" name;
-            pr "  char *bufret;\n";
-            pr "  size_t lenret;\n";
-            pr "  %s__init (&ret);\n" name;
-            pr "  ret.%s = r;\n" n;
-            pr "  lenret = %s__get_packed_size (&ret);\n" name;
-            pr "  bufret = malloc (lenret);\n";
-            pr "  %s__pack (NULL, lenret, bufret);\n" name;
-            pr "  reply (bufret, lenret);\n";
-            pr "  free (bufret);\n";
+        | RStruct (n, typ) ->
+            pr "  guestfs_protobuf_%s_ret ret;\n" name;
+            pr "  guestfs_protobuf_%s_ret__init (&ret);\n" name;
+            pr "  convert_guestfs_int_%s_xdr_to_protobuf (r, ret.%s);\n" typ n;
+            pr "  reply ((protobuf_proc_pack) guestfs_protobuf_%s_ret__pack, (char *) &ret);\n" name;
+            pr "  guestfs_int_free_%s (r);\n" typ;
             pr "  free (r);\n"
-        | RStructList (n, _) ->
-            pr "  guestfs_%s_ret ret;\n" name;
-            pr "  char *bufret;\n";
-            pr "  size_t lenret;\n";
-            pr "  %s__init (&ret);\n" name;
-            pr "  ret.%s = r;\n" n;
-            pr "  lenret = %s__get_packed_size (&ret);\n" name;
-            pr "  bufret = malloc (lenret);\n";
-            pr "  %s__pack (NULL, lenret, bufret);\n" name;
-            pr "  reply (bufret, lenret);\n";
-            pr "  free (bufret);\n";
-            pr "  free (r);\n"
+        | RStructList (n, typ) ->
+            pr "  guestfs_protobuf_%s_ret ret;\n" name;
+            pr "  guestfs_protobuf_%s_ret__init (&ret);\n" name;
+            pr "  convert_guestfs_int_%s_list_xdr_to_protobuf (r, ret.%s);\n" typ n;
+            pr "  reply ((protobuf_proc_pack) guestfs_protobuf_%s_ret__pack, (char *) &ret);\n" name;
+            pr "  guestfs_int_free_%s_list (r);\n" typ;
+            pr "  free (r);\n";
         | RBufferOut n ->
-            pr "  guestfs_%s_ret ret;\n" camel_name;
-            pr "  char *bufret;\n";
-            pr "  size_t lenret;\n";
-            pr "  %s__init (&ret);\n" name;
+            pr "  guestfs_protobuf_%s_ret ret;\n" name;
+            pr "  guestfs_protobuf_%s_ret__init (&ret);\n" name;
             pr "  ret.%s.data = r;\n" n;
             pr "  ret.%s.len = size;\n" n;
-            pr "  lenret = %s__get_packed_size (&ret);\n" name;
-            pr "  bufret = malloc (lenret);\n";
-            pr "  %s__pack (NULL, lenret, bufret);\n" name;
-            pr "  reply (bufret, lenret);\n";
-            pr "  free (bufret);\n";
+            pr "  reply ((protobuf_proc_pack) guestfs_protobuf_%s_ret__pack, (char *) &ret);\n" name;
             pr "  free (r);\n"
       );
 
@@ -512,7 +479,7 @@ cleanup_free_mountable (mountable_t *mountable)
       (match args_passed_to_daemon with
        | [] -> ()
        | _ ->
-           pr "  free (bufret);\n";
+           pr "  guestfs_protobuf_%s_args__free_unpacked (args, NULL);\n" name;
       );
       pr "done_no_free:\n";
       pr "  return;\n";
@@ -626,7 +593,7 @@ cleanup_free_mountable (mountable_t *mountable)
         pr "{\n";
         pr "  char *out, *err;\n";
         pr "  char *p, *pend;\n";
-        pr "  int r, i, j;\n";
+        pr "  int r, i;\n";
         pr "  guestfs_int_lvm_%s_list *ret;\n" typ;
         pr "  void *newp;\n";
         pr "\n";
@@ -636,8 +603,8 @@ cleanup_free_mountable (mountable_t *mountable)
         pr "    return NULL;\n";
         pr "  }\n";
         pr "\n";
-        pr "  ret->n_vals = 0;\n";
-        pr "  ret->val = NULL;\n";
+        pr "  ret->guestfs_int_lvm_%s_list_len = 0;\n" typ;
+        pr "  ret->guestfs_int_lvm_%s_list_val = NULL;\n" typ;
         pr "\n";
         pr "  r = command (&out, &err,\n";
         pr "	       \"lvm\", \"%ss\",\n" typ;
@@ -672,26 +639,22 @@ cleanup_free_mountable (mountable_t *mountable)
         pr "    }\n";
         pr "\n";
         pr "    /* Allocate some space to store this next entry. */\n";
-        pr "    newp = realloc (ret->vals,\n";
-        pr "		    sizeof (guestfs_int_lvm_%s *) * (i+1));\n" typ;
+        pr "    newp = realloc (ret->guestfs_int_lvm_%s_list_val,\n" typ;
+        pr "		    sizeof (guestfs_int_lvm_%s) * (i+1));\n" typ;
         pr "    if (newp == NULL) {\n";
         pr "      reply_with_perror (\"realloc\");\n";
-        pr "      free (ret->vals);\n";
+        pr "      free (ret->guestfs_int_lvm_%s_list_val);\n" typ;
         pr "      free (ret);\n";
         pr "      free (out);\n";
         pr "      return NULL;\n";
         pr "    }\n";
-        pr "    ret->vals = newp;\n";
+        pr "    ret->guestfs_int_lvm_%s_list_val = newp;\n" typ;
         pr "\n";
         pr "    /* Tokenize the next entry. */\n";
-        pr "    ret->vals[i] = malloc (sizeof (guestfs_int_lvm_%s))" typ;
-        pr "    guestfs_int_lvm_%s__init (ret->vals[i]);" typ;
-        pr "    r = lvm_tokenize_%s (p, ret->vals[i]);\n" typ;
+        pr "    r = lvm_tokenize_%s (p, &ret->guestfs_int_lvm_%s_list_val[i]);\n" typ typ;
         pr "    if (r == -1) {\n";
         pr "      reply_with_error (\"failed to parse output of '%ss' command\");\n" typ;
-        pr "      for (j = 0; j < i; ++j)\n";
-        pr "        free (ret->vals[i])";
-        pr "      free (ret->vals);\n";
+        pr "      free (ret->guestfs_int_lvm_%s_list_val);\n" typ;
         pr "      free (ret);\n";
         pr "      free (out);\n";
         pr "      return NULL;\n";
@@ -701,7 +664,7 @@ cleanup_free_mountable (mountable_t *mountable)
         pr "    p = pend;\n";
         pr "  }\n";
         pr "\n";
-        pr "  ret->n_vals = i;\n";
+        pr "  ret->guestfs_int_lvm_%s_list_len = i;\n" typ;
         pr "\n";
         pr "  free (out);\n";
         pr "  return ret;\n";
