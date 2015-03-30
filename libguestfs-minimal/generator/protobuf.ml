@@ -50,7 +50,7 @@ let generate_protobuf () =
   pr "\n";
   List.iter (
     fun { s_name = typ; s_cols = cols } ->
-        pr "message GuestfsInt%s {\n" (camel_name_of_struct typ);
+        pr "message GuestfsProtobufInt%s {\n" (camel_name_of_struct typ);
         List.iteri (fun id col ->
                       match col with
                        | name, FChar -> pr "  required int32 %s = %d;\n" name (id + 1)
@@ -65,8 +65,8 @@ let generate_protobuf () =
                    ) cols;
         pr "}\n";
         pr "\n";
-        pr "message GuestfsInt%sList {\n" (camel_name_of_struct typ);
-        pr "  repeated GuestfsInt%s vals = 1;" (camel_name_of_struct typ);
+        pr "message GuestfsProtobufInt%sList {\n" (camel_name_of_struct typ);
+        pr "  repeated GuestfsProtobufInt%s vals = 1;" (camel_name_of_struct typ);
         pr "}\n";
         pr "\n";
   ) structs;
@@ -75,7 +75,7 @@ let generate_protobuf () =
   pr "\n";
   List.iter (
     fun { camel_name = shortname; style = ret, args, optargs } ->
-      let name = "Guestfs" ^ shortname in
+      let name = "GuestfsProtobuf" ^ shortname in
 
       (* Ordinary arguments and optional arguments are concatenated
        * together in the ProtoBuf args message.  The optargs_bitmask field
@@ -97,7 +97,7 @@ let generate_protobuf () =
              | Mountable_or_Path n | String n
              | Key n | GUID n ->
                pr "  required string %s = %d;\n" n (id + 1)
-             | OptString n -> pr "  required string %s = %d;\n" n (id + 1)
+             | OptString n -> pr "  repeated string %s = %d;\n" n (id + 1)
              | StringList n | DeviceList n -> pr "  repeated string %s = %d;\n" n (id + 1)
              | Bool n -> pr "  required bool %s = %d;\n" n (id + 1)
              | Int n -> pr "  required int32 %s = %d;\n" n (id + 1)
@@ -134,11 +134,11 @@ let generate_protobuf () =
            pr "}\n\n"
        | RStruct (n, typ) ->
            pr "message %sRet {\n" name;
-           pr "  required GuestfsInt%s %s = 1;\n" (camel_name_of_struct typ) n;
+           pr "  required GuestfsProtobufInt%s %s = 1;\n" (camel_name_of_struct typ) n;
            pr "}\n\n"
        | RStructList (n, typ) ->
            pr "message %sRet {\n" name;
-           pr "  required GuestfsInt%sList %s = 1;\n" (camel_name_of_struct typ) n;
+           pr "  required GuestfsProtobufInt%sList %s = 1;\n" (camel_name_of_struct typ) n;
            pr "}\n\n"
        | RHashtable n ->
            pr "message %sRet {\n" name;
@@ -152,12 +152,12 @@ let generate_protobuf () =
   ) daemon_functions;
 
   pr "/* Table of procedure numbers. */\n";
-  pr "enum GuestfsProcedure {\n";
+  pr "enum GuestfsProtobufProcedure {\n";
   let rec loop = function
     | [] -> ()
     | { proc_nr = None } :: _ -> assert false
     | { name = shortname; proc_nr = Some proc_nr } :: rest ->
-      pr "  GUESTFS_PROC_%s = %d;\n" (String.uppercase shortname) proc_nr;
+      pr "  GUESTFS_PROTOBUF_PROC_%s = %d;\n" (String.uppercase shortname) proc_nr;
       loop rest
   in
   loop daemon_functions;
@@ -165,23 +165,23 @@ let generate_protobuf () =
   pr "\n";
 
   (* Message header, etc. *)
-  pr "enum GuestfsConst {\n";
+  pr "enum GuestfsProtobufConst {\n";
   
   pr "\  
-  GUESTFS_PROGRAM = 0x2000F5F5;
-  GUESTFS_PROTOCOL_VERSION = 4;
-  GUESTFS_MAX_CHUNK_SIZE = 8192;
+  GUESTFS_PROTOBUF_PROGRAM = 0x2000F5F5;
+  GUESTFS_PROTOBUF_PROTOCOL_VERSION = 4;
+  GUESTFS_PROTOBUF_MAX_CHUNK_SIZE = 8192;
 
 /* These constants must be larger than any possible message length. */
-  GUESTFS_LAUNCH_FLAG = 0x75f55ff5;
-  GUESTFS_CANCEL_FLAG = 0x7fffeeee;
-  GUESTFS_PROGRESS_FLAG = 0x7fff5555;
+  GUESTFS_PROTOBUF_LAUNCH_FLAG = 0x75f55ff5;
+  GUESTFS_PROTOBUF_CANCEL_FLAG = 0x7fffeeee;
+  GUESTFS_PROTOBUF_PROGRESS_FLAG = 0x7fff5555;
 
 ";
-  pr "  GUESTFS_ERROR_LEN = %d;\n" (64 * 1024);
+  pr "  GUESTFS_PROTOBUF_ERROR_LEN = %d;\n" (64 * 1024);
   pr "\n";
   
-  pr "  GUESTFS_MAX_PROC_NR = %d;\n" max_proc_nr;
+  pr "  GUESTFS_PROTOBUF_MAX_PROC_NR = %d;\n" max_proc_nr;
   pr "\n";
 
   pr "/* The remote procedure call protocol. */\n";
@@ -192,32 +192,32 @@ let generate_protobuf () =
    * the protocol a lot simpler, and (b) provides a bound on the size
    * of the daemon which operates in limited memory space.
    *)
-  pr "  GUESTFS_MESSAGE_MAX = %d;\n" (4 * 1024 * 1024);
+  pr "  GUESTFS_PROTOBUF_MESSAGE_MAX = %d;\n" (4 * 1024 * 1024);
   pr "\n";
   
   pr "}\n\n"; (* End of GUESTFS_CONST *)
 
   pr "\
-enum GuestfsMessageDirection {
-  GUESTFS_DIRECTION_CALL = 0;         /* client -> daemon */
-  GUESTFS_DIRECTION_REPLY = 1;        /* daemon -> client */
+enum GuestfsProtobufMessageDirection {
+  GUESTFS_PROTOBUF_DIRECTION_CALL = 0;         /* client -> daemon */
+  GUESTFS_PROTOBUF_DIRECTION_REPLY = 1;        /* daemon -> client */
 }
 
-enum GuestfsMessageStatus {
-  GUESTFS_STATUS_OK = 0;
-  GUESTFS_STATUS_ERROR = 1;
+enum GuestfsProtobufMessageStatus {
+  GUESTFS_PROTOBUF_STATUS_OK = 0;
+  GUESTFS_PROTOBUF_STATUS_ERROR = 1;
 }
 
 ";
 
   pr "\
-message GuestfsMessageError {
+message GuestfsProtobufMessageError {
   required string errno_string = 1;           /* errno eg. \"EINVAL\", empty string
                                                  if errno not available */
   required string error_message = 2;
 }
 
-message GuestfsMessageHeader {
+message GuestfsProtobufMessageHeader {
   required fixed32 prog = 1;                         /* GUESTFS_PROGRAM */
   required fixed32 vers = 2;                         /* GUESTFS_PROTOCOL_VERSION */
   required sfixed32 proc = 3;                        /* GUESTFS_PROC_x */
@@ -228,7 +228,7 @@ message GuestfsMessageHeader {
   required sfixed32 status = 8;
 }
 
-message GuestfsChunk {
+message GuestfsProtobufChunk {
   required int32 cancel = 1;     /* if non-zero, transfer is cancelled */
   /* data size is 0 bytes if the transfer has finished successfully */
   required bytes data = 2;
@@ -249,15 +249,15 @@ message GuestfsChunk {
  * message is laid out precisely in this way.  So if you change
  * this then you'd better change that function as well.
  */
-message GuestfsProgress {
-  required sfixed32 proc = 1;                    /* @0:  GUESTFS_PROC_x */
+message GuestfsProtobufProgress {
+  required sfixed32 proc = 1;                    /* @0:  GUESTFS_PROTOBUF_PROC_x */
   required fixed32 serial = 2;                   /* @4:  message serial number */
   required fixed64 position = 3;                 /* @8:  0 <= position <= total */
   required fixed64 total = 4;                    /* @16: total size of operation */
                                                  /* @24: size of structure */
 }
 
-message GuestfsFlagMessage {
+message GuestfsProtobufFlagMessage {
   required fixed32 val = 1;
 }
 "
