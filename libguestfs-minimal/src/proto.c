@@ -44,14 +44,8 @@
 #include "guestfs.h"
 #include "guestfs-internal.h"
 #include "guestfs-internal-actions.h"
-#include "guestfs_protocol.pb-c.h"
-#include "guestfs_protocol_typedefs.h"
+#include "guestfs_protocol.h"
 
-/* Size of guestfs_progress message on the wire. */
-#define PROGRESS_MESSAGE_SIZE 50
-#define FLAG_MESSAGE_SIZE 50
-#define MESSAGE_HEADER_SIZE 50
-#define MESSAGE_ERROR_SIZE 50
 
 /* This is the code used to send and receive RPC messages and (for
  * certain types of message) to perform file transfers.  This code is
@@ -113,7 +107,7 @@ child_cleanup (guestfs_h *g)
 /* Convenient wrapper to generate a progress message callback. */
 void
 guestfs___progress_message_callback (guestfs_h *g,
-                                     const guestfs_progress *message)
+                                     const guestfs_protobuf_progress *message)
 {
   uint64_t array[4];
 
@@ -164,10 +158,10 @@ guestfs___log_message_callback (guestfs_h *g, const char *buf, size_t len)
 static ssize_t
 check_daemon_socket (guestfs_h *g)
 {
-  char buf[FLAG_MESSAGE_SIZE];
+  char buf[PROTOBUF_FLAG_MESSAGE_SIZE];
   ssize_t n;
   uint32_t flag;
-  guestfs_flag_message *flag_msg;
+  guestfs_protobuf_flag_message *flag_msg;
 
   assert (g->conn); /* callers must check this */
 
@@ -175,26 +169,26 @@ check_daemon_socket (guestfs_h *g)
   if (! g->conn->ops->can_read_data (g, g->conn))
     return 1;
 
-  n = g->conn->ops->read_data (g, g->conn, buf, FLAG_MESSAGE_SIZE);
+  n = g->conn->ops->read_data (g, g->conn, buf, PROTOBUF_FLAG_MESSAGE_SIZE);
   if (n <= 0) /* 0 or -1 */
     return n;
 
-  flag_msg = guestfs_flag_message__unpacked (NULL, FLAG_MESSAGE_SIZE, buf);
+  flag_msg = guestfs_protobuf_flag_message__unpack (NULL, PROTOBUF_FLAG_MESSAGE_SIZE, buf);
   flag = flag_msg->val;
-  guestfs_flag_message__free_unpacked (flag_msg, NULL);
+  guestfs_protobuf_flag_message__free_unpacked (flag_msg, NULL);
 
   /* Read and process progress messages that happen during FileIn. */
   if (flag == GUESTFS_PROGRESS_FLAG) {
-    char buf[PROGRESS_MESSAGE_SIZE];
-    guestfs_progress *message;
+    char buf[PROTOBUF_PROGRESS_MESSAGE_SIZE];
+    guestfs_protobuf_progress *message;
 
-    n = g->conn->ops->read_data (g, g->conn, buf, PROGRESS_MESSAGE_SIZE);
+    n = g->conn->ops->read_data (g, g->conn, buf, PROTOBUF_PROGRESS_MESSAGE_SIZE);
     if (n <= 0) /* 0 or -1 */
       return n;
 
-    message = guestfs_progress__unpack (NULL, PROGRESS_MESSAGE_SIZE, buf);
-    guestfs___progress_message_callback (g, &message);
-    guestfs_progress__free_unpacked (message, NULL);
+    message = guestfs_protobuf_progress__unpack (NULL, PROTOBUF_PROGRESS_MESSAGE_SIZE, (uint8_t *) buf);
+    guestfs___progress_message_callback (g, message);
+    guestfs_protobuf_progress__free_unpacked (message, NULL);
 
     goto again;
   }
@@ -213,9 +207,9 @@ guestfs___send (guestfs_h *g, int proc_nr,
                 uint64_t progress_hint, uint64_t optargs_bitmask,
                 protobuf_proc_pack pb_pack, char *args)
 {
-  guestfs_message_header hdr;
-  guestfs_flag_message len_msg;
-  uint32_t len, hdr_len, pack_len;
+  guestfs_protobuf_message_header hdr;
+  guestfs_protobuf_flag_message len_msg;
+  uint32_t len, flag_len, hdr_len, pack_len;
   int serial = g->msg_next_serial++;
   ssize_t r;
   CLEANUP_FREE char *msg_out = NULL;
@@ -232,10 +226,10 @@ guestfs___send (guestfs_h *g, int proc_nr,
    * we have quite limited stack space available, notably when
    * running in the JVM.
    */
-  msg_out = safe_malloc (g, GUESTFS_MESSAGE_MAX + FLAG_MESSAGE_SIZE);
+  msg_out = safe_malloc (g, GUESTFS_MESSAGE_MAX + PROTOBUF_FLAG_MESSAGE_SIZE);
 
   /* Serialize the header. */
-  guestfs_message_header__init (&hdr);
+  guestfs_protobuf_message_header__init (&hdr);
   hdr.prog = GUESTFS_PROGRAM;
   hdr.vers = GUESTFS_PROTOCOL_VERSION;
   hdr.proc = proc_nr;
@@ -245,7 +239,8 @@ guestfs___send (guestfs_h *g, int proc_nr,
   hdr.progress_hint = progress_hint;
   hdr.optargs_bitmask = optargs_bitmask;
 
-  hdr_len = guestfs_message_header__pack (&hdr, msg_out + FLAG_MESSAGE_SIZE);
+  hdr_len = guestfs_protobuf_message_header__pack (&hdr, (uint8_t *) msg_out + PROTOBUF_FLAG_MESSAGE_SIZE);
+  assert (hdr_len == PROTOBUF_MESSAGE_HEADER_SIZE);
   if (!hdr_len) {
     error (g, _("protobuf-c's guestfs_message_header__pack failed"));
     return -1;
@@ -255,7 +250,7 @@ guestfs___send (guestfs_h *g, int proc_nr,
    * have no parameters.
    */
   if (pb_pack) {
-    pack_len = pb_pack ((ProtobufCMessage*) args, msg_out + FLAG_MESSAGE_SIZE + hdr_len);
+    pack_len = pb_pack ((ProtobufCMessage*) args, msg_out + PROTOBUF_FLAG_MESSAGE_SIZE + PROTOBUF_MESSAGE_HEADER_SIZE);
     if (!pack_len) {
       error (g, _("dispatch failed to marshal args"));
       return -1;
@@ -267,12 +262,13 @@ guestfs___send (guestfs_h *g, int proc_nr,
    */
   len = hdr_len + pack_len;
 
-  msg_out = safe_realloc (g, msg_out, len + FLAG_MESSAGE_SIZE);
-  msg_out_size = len + FLAG_MESSAGE_SIZE;
+  msg_out = safe_realloc (g, msg_out, len + PROTOBUF_FLAG_MESSAGE_SIZE);
+  msg_out_size = len + PROTOBUF_FLAG_MESSAGE_SIZE;
 
-  guestfs_flag_message__init (&len_msg);
+  guestfs_protobuf_flag_message__init (&len_msg);
   len_msg.val = len;
-  assert (guestfs_flag_message__pack (&len_msg, msg_out) == FLAG_MESSAGE_SIZE);
+  flag_len = guestfs_protobuf_flag_message__pack (&len_msg, (uint8_t *) msg_out);
+  assert (flag_len == PROTOBUF_FLAG_MESSAGE_SIZE);
   
   /* Look for stray daemon cancellation messages from earlier calls
    * and ignore them.
@@ -415,25 +411,25 @@ send_file_complete (guestfs_h *g)
 static int
 send_file_chunk (guestfs_h *g, int cancel, const char *buf, size_t buflen)
 {
-  uint32_t len;
+  uint32_t len, flag_len;
   ssize_t r;
-  guestfs_flag_message len_msg;
-  guestfs_chunk chunk;
+  guestfs_protobuf_flag_message len_msg;
+  guestfs_protobuf_chunk chunk;
   CLEANUP_FREE char *msg_out = NULL;
   size_t msg_out_size;
 
   /* Allocate the chunk buffer.  Don't use the stack to avoid
    * excessive stack usage and unnecessary copies.
    */
-  msg_out = safe_malloc (g, GUESTFS_MAX_CHUNK_SIZE + FLAG_MESSAGE_SIZE + 48);
+  msg_out = safe_malloc (g, GUESTFS_MAX_CHUNK_SIZE + PROTOBUF_FLAG_MESSAGE_SIZE + 48);
 
   /* Serialize the chunk. */
-  guestfs_chunk__init (&chunk);
+  guestfs_protobuf_chunk__init (&chunk);
   chunk.cancel = cancel;
   chunk.data.len = buflen;
-  chunk.data.data = (char *) buf;
+  chunk.data.data = (uint8_t *) buf;
 
-  len = guestfs_chunk__pack (&chunk, msg_out + FLAG_MESSAGE_SIZE);
+  len = guestfs_protobuf_chunk__pack (&chunk, (uint8_t *) msg_out + PROTOBUF_FLAG_MESSAGE_SIZE);
   if (!len) {
     error (g, _("protobuf-c's guestfs_chunk_pack failed (buf = %p, buflen = %zu)"),
            buf, buflen);
@@ -441,12 +437,13 @@ send_file_chunk (guestfs_h *g, int cancel, const char *buf, size_t buflen)
   }
 
   /* Reduce the size of the outgoing message buffer to the real length. */
-  msg_out = safe_realloc (g, msg_out, len + FLAG_MESSAGE_SIZE);
-  msg_out_size = len + FLAG_MESSAGE_SIZE;
+  msg_out = safe_realloc (g, msg_out, len + PROTOBUF_FLAG_MESSAGE_SIZE);
+  msg_out_size = len + PROTOBUF_FLAG_MESSAGE_SIZE;
 
-  guestfs_flag_message__init (&len_msg);
+  guestfs_protobuf_flag_message__init (&len_msg);
   len_msg.val = len;
-  assert (guestfs_flag_message__pack (&len_msg, msg_out) == FLAG_MESSAGE_SIZE);
+  flag_len = guestfs_protobuf_flag_message__pack (&len_msg, (uint8_t *) msg_out);
+  assert (flag_len == PROTOBUF_FLAG_MESSAGE_SIZE);
 
   /* Did the daemon send a cancellation message? */
   r = check_daemon_socket (g);
@@ -496,8 +493,8 @@ send_file_chunk (guestfs_h *g, int cancel, const char *buf, size_t buflen)
 static int
 recv_from_daemon (guestfs_h *g, uint32_t *size_rtn, void **buf_rtn)
 {
-  char lenbuf[FLAG_MESSAGE_SIZE];
-  guestfs_flag_message *lenmsg;
+  char lenbuf[PROTOBUF_FLAG_MESSAGE_SIZE];
+  guestfs_protobuf_flag_message *lenmsg;
   ssize_t n;
   size_t message_size;
 
@@ -514,7 +511,7 @@ recv_from_daemon (guestfs_h *g, uint32_t *size_rtn, void **buf_rtn)
   }
 
   /* Read the 4 byte size / flag. */
-  n = g->conn->ops->read_data (g, g->conn, lenbuf, FLAG_MESSAGE_SIZE);
+  n = g->conn->ops->read_data (g, g->conn, lenbuf, PROTOBUF_FLAG_MESSAGE_SIZE);
   if (n == -1)
     return -1;
   if (n == 0) {
@@ -523,9 +520,9 @@ recv_from_daemon (guestfs_h *g, uint32_t *size_rtn, void **buf_rtn)
     return -1;
   }
 
-  lenmsg = guestfs_flag_message__unpack (NULL, FLAG_MESSAGE_SIZE, lenbuf);
+  lenmsg = guestfs_protobuf_flag_message__unpack (NULL, PROTOBUF_FLAG_MESSAGE_SIZE, (uint8_t *) lenbuf);
   *size_rtn = lenmsg->val;
-  guestfs_flag_message__free_unpacked (lenmsg, NULL);
+  guestfs_protobuf_flag_message__free_unpacked (lenmsg, NULL);
   
   if (*size_rtn == GUESTFS_LAUNCH_FLAG) {
     if (g->state != LAUNCHING)
@@ -555,7 +552,7 @@ recv_from_daemon (guestfs_h *g, uint32_t *size_rtn, void **buf_rtn)
 
   /* Calculate the message size. */
   message_size =
-    *size_rtn != GUESTFS_PROGRESS_FLAG ? *size_rtn : PROGRESS_MESSAGE_SIZE;
+    *size_rtn != GUESTFS_PROGRESS_FLAG ? *size_rtn : PROTOBUF_PROGRESS_MESSAGE_SIZE;
 
   /* Allocate the complete buffer, size now known. */
   *buf_rtn = safe_malloc (g, message_size);
@@ -615,11 +612,11 @@ guestfs___recv_from_daemon (guestfs_h *g, uint32_t *size_rtn, void **buf_rtn)
     return -1;
 
   if (*size_rtn == GUESTFS_PROGRESS_FLAG) {
-    guestfs_progress *message;
+    guestfs_protobuf_progress *message;
 
-    message = guestfs_progress__unpack (NULL, PROGRESS_MESSAGE_SIZE, *buf_rtn);
+    message = guestfs_protobuf_progress__unpack (NULL, PROTOBUF_PROGRESS_MESSAGE_SIZE, *buf_rtn);
     guestfs___progress_message_callback (g, message);
-    guestfs_progress__free_unpacked (message, NULL);
+    guestfs_protobuf_progress__free_unpacked (message, NULL);
 
     free (*buf_rtn);
     *buf_rtn = NULL;
@@ -640,12 +637,12 @@ guestfs___recv_from_daemon (guestfs_h *g, uint32_t *size_rtn, void **buf_rtn)
 /* Receive a reply. */
 int
 guestfs___recv (guestfs_h *g, const char *fn,
-                guestfs_message_header *hdr,
-                guestfs_message_error *err,
+                guestfs_protobuf_message_header **hdr,
+                guestfs_protobuf_message_error **err,
                 protobuf_proc_unpack pb_unpack, ProtobufCMessage **ret)
 {
-  guestfs_message_header *tmphdr;
-  guestfs_message_error *tmperr;
+  guestfs_protobuf_message_header *tmphdr;
+  guestfs_protobuf_message_error *tmperr;
   ProtobufCMessage *tmpret;
   CLEANUP_FREE void *buf = NULL;
   uint32_t size;
@@ -668,24 +665,26 @@ guestfs___recv (guestfs_h *g, const char *fn,
     return -1;
   }
   
-  tmphdr = guestfs_message_header__unpack (NULL, MESSAGE_HEADER_SIZE, buf);
+  tmphdr = guestfs_protobuf_message_header__unpack (NULL, PROTOBUF_MESSAGE_HEADER_SIZE, (uint8_t *) buf);
   if (!tmphdr) {
     error (g, "%s: failed to parse reply header", fn);
     return -1;
   }
-  *hdr = *tmphdr;
-  guestfs_message_header__free_unpacked (tmphdr, NULL);
+  *hdr = tmphdr;
+//  convert_guestfs_message_header_protobuf_to_xdr (tmphdr, hdr);
+//  guestfs_message_header__free_unpacked (tmphdr, NULL);
 
-  if (hdr->status == GUESTFS_STATUS_ERROR) {
-    tmperr = guestfs_message_error__unpack (NULL, MESSAGE_ERROR_SIZE, buf + MESSAGE_HEADER_SIZE);
+  if (tmphdr->status == GUESTFS_STATUS_ERROR) {
+    tmperr = guestfs_protobuf_message_error__unpack (NULL, size - PROTOBUF_MESSAGE_HEADER_SIZE, (uint8_t *) buf + PROTOBUF_MESSAGE_HEADER_SIZE);
     if (!tmperr) {
       error (g, "%s: failed to parse reply error", fn);
       return -1;
     }
-    *err = *tmperr;
-    guestfs_message_error__free_unpacked (tmperr, NULL);
+    *err = tmperr;
+//    convert_guestfs_message_error_protobuf_to_xdr (tmperr, err);
+//    guestfs_message_error__free_unpacked (tmperr, NULL);
   } else {
-    if (pb_unpack && ret && !(tmpret = pb_unpack (NULL, size - MESSAGE_HEADER_SIZE, buf + MESSAGE_HEADER_SIZE))) {
+    if (pb_unpack && ret && !(tmpret = pb_unpack (NULL, size - PROTOBUF_MESSAGE_HEADER_SIZE, (uint8_t *) buf + PROTOBUF_MESSAGE_HEADER_SIZE))) {
       error (g, "%s: failed to parse reply", fn);
       return -1;
     }
@@ -799,16 +798,17 @@ guestfs___recv_file (guestfs_h *g, const char *filename)
   /* Send cancellation message to daemon, then wait until it
    * cancels (just throwing away data).
    */
-  guestfs_flag_message flagmsg;
-  char flagbuf[FLAG_MESSAGE_SIZE];
-  uint32_t flag = GUESTFS_CANCEL_FLAG;
+  guestfs_protobuf_flag_message flagmsg;
+  char flagbuf[PROTOBUF_FLAG_MESSAGE_SIZE];
+  uint32_t flag = GUESTFS_CANCEL_FLAG, flaglen;
 
   debug (g, "%s: waiting for daemon to acknowledge cancellation",
          __func__);
 
-  guestfs_flag_msg__init (&flagmsg);
+  guestfs_protobuf_flag_message__init (&flagmsg);
   flagmsg.val = flag;
-  assert (guestfs_flag_message__pack (&flagmsg, flagbuf) == FLAG_MESSAGE_SIZE);
+  flaglen = guestfs_protobuf_flag_message__pack (&flagmsg, (uint8_t *) flagbuf);
+  assert (flaglen == PROTOBUF_FLAG_MESSAGE_SIZE);
 
   if (g->conn->ops->write_data (g, g->conn, flagbuf, sizeof flagbuf) == -1) {
     perrorf (g, _("write to daemon socket"));
@@ -829,7 +829,7 @@ receive_file_data (guestfs_h *g, void **buf_r)
   int r;
   CLEANUP_FREE void *buf = NULL;
   uint32_t len;
-  guestfs_chunk *chunk;
+  guestfs_protobuf_chunk *chunk;
 
   r = guestfs___recv_from_daemon (g, &len, &buf);
   if (r == -1)
@@ -840,7 +840,7 @@ receive_file_data (guestfs_h *g, void **buf_r)
     return -1;
   }
   
-  chunk = guestfs_chunk__unpack (NULL, len, buf);
+  chunk = guestfs_protobuf_chunk__unpack (NULL, len, buf);
 
   if (!chunk) {
     error (g, _("failed to parse file chunk"));
@@ -854,23 +854,22 @@ receive_file_data (guestfs_h *g, void **buf_r)
     }
     else
       error (g, _("file receive cancelled by daemon"));
-    guestfs_chunk__free_unpacked (chunk, NULL);
+    guestfs_protobuf_chunk__free_unpacked (chunk, NULL);
     return -1;
   }
 
   if (chunk->data.len == 0) { /* end of transfer */
-    guestfs_chunk__free_unpacked (chunk, NULL);
+    guestfs_protobuf_chunk__free_unpacked (chunk, NULL);
     return 0;
   }
 
   len = chunk->data.len;
 
-  if (buf_r) { 
-    *buf_r = chunk->data.data;
-    chunk->data.data = NULL;
-    chunk->data.len = 0;
+  if (buf_r) {
+    //TODO: try mv data.data to buf_r without copying
+    memcpy (*buf_r, chunk->data.data, chunk->data.len);
   }
-  guestfs_chunk__free_unpacked (chunk, NULL);
+  guestfs_protobuf_chunk__free_unpacked (chunk, NULL);
 
   return len;
 }
