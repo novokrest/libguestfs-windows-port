@@ -43,8 +43,7 @@ let rec generate_bindtests () =
 #include \"guestfs.h\"
 #include \"guestfs-internal.h\"
 #include \"guestfs-internal-actions.h\"
-#include \"guestfs_protocol.pb-c.h\"
-#include \"guestfs_protocol_typedefs.h\"
+#include \"guestfs_protocol.h\"
 
 int
 guestfs__internal_test_set_output (guestfs_h *g, const char *filename)
@@ -112,7 +111,7 @@ static void
 fill_lvm_pv (guestfs_h *g, struct guestfs_lvm_pv *pv, size_t i)
 {
   pv->pv_name = safe_asprintf (g, \"pv%%zu\", i);
-  memcpy (pv->pv_uuid.data, \"12345678901234567890123456789012\", 32);
+  memcpy (pv->pv_uuid, \"12345678901234567890123456789012\", 32);
   pv->pv_fmt = safe_strdup (g, \"unknown\");
   pv->pv_size = i;
   pv->dev_size = i;
@@ -154,8 +153,8 @@ fill_lvm_pv (guestfs_h *g, struct guestfs_lvm_pv *pv, size_t i)
         | String n
         | FileIn n
         | FileOut n
-        | Key n -> pr "  fprintf (fp, \"%%s\\n\", %s);\n" n
-        | GUID n -> pr "  fprintf (fp, \"%%s\\n\", %s.data);\n" n
+        | Key n
+        | GUID n -> pr "  fprintf (fp, \"%%s\\n\", %s);\n" n
         | BufferIn n ->
           pr "  {\n";
           pr "    size_t i;\n";
@@ -273,13 +272,10 @@ fill_lvm_pv (guestfs_h *g, struct guestfs_lvm_pv *pv, size_t i)
              pr "    return NULL;\n";
              pr "  }\n";
              pr "  r = safe_malloc (g, sizeof *r);\n";
-             pr "  r->n_vals = len;\n";
-             pr "  r->vals = safe_malloc (g, r->n_vals * sizeof (*r->vals));\n";
-             pr "  for (size_t i = 0; i < r->n_vals; i++) {\n";
-             pr "    r->vals[i] = safe_malloc (g, sizeof (*r->vals[i]));\n";
-             pr "    guestfs_int_%s__init (r->vals[i]);\n" typ;
-             pr "    fill_lvm_pv (g, r->vals[i], i);\n";
-             pr "  }\n";
+             pr "  r->len = len;\n";
+             pr "  r->val = safe_malloc (g, r->len * sizeof (*r->val));\n";
+             pr "  for (size_t i = 0; i < r->len; i++)\n";
+             pr "    fill_lvm_pv (g, &r->val[i], i);\n";
              pr "  return r;\n"
          | RHashtable _ ->
              pr "  char **strs;\n";
