@@ -15,7 +15,12 @@ PROTOBUF_C__BEGIN_DECLS
 #endif
 
 
+typedef struct _Example__Device Example__Device;
+typedef struct _Example__SubList Example__SubList;
 typedef struct _Example__ListDevices Example__ListDevices;
+typedef struct _Example__Flag Example__Flag;
+typedef struct _Example__Progress Example__Progress;
+typedef struct _Example__Header Example__Header;
 
 
 /* --- enums --- */
@@ -29,20 +34,119 @@ typedef enum _Example__DeviceType {
 
 /* --- messages --- */
 
+struct  _Example__Device
+{
+  ProtobufCMessage base;
+  char *name;
+  int32_t volume;
+  Example__DeviceType type;
+};
+#define EXAMPLE__DEVICE__INIT \
+ { PROTOBUF_C_MESSAGE_INIT (&example__device__descriptor) \
+    , NULL, 0, 0 }
+
+
+struct  _Example__SubList
+{
+  ProtobufCMessage base;
+  size_t n_names;
+  char **names;
+};
+#define EXAMPLE__SUB_LIST__INIT \
+ { PROTOBUF_C_MESSAGE_INIT (&example__sub_list__descriptor) \
+    , 0,NULL }
+
+
 struct  _Example__ListDevices
 {
   ProtobufCMessage base;
-  int32_t id;
-  char *name;
-  ProtobufCBinaryData data;
-  size_t n_array;
-  int32_t *array;
+  size_t n_devices;
+  Example__Device **devices;
+  Example__SubList *sublist;
 };
 #define EXAMPLE__LIST_DEVICES__INIT \
  { PROTOBUF_C_MESSAGE_INIT (&example__list_devices__descriptor) \
-    , 0, NULL, {0,NULL}, 0,NULL }
+    , 0,NULL, NULL }
 
 
+struct  _Example__Flag
+{
+  ProtobufCMessage base;
+  uint32_t val;
+};
+#define EXAMPLE__FLAG__INIT \
+ { PROTOBUF_C_MESSAGE_INIT (&example__flag__descriptor) \
+    , 0 }
+
+
+struct  _Example__Progress
+{
+  ProtobufCMessage base;
+  int32_t proc;
+  uint32_t serial;
+  uint64_t position;
+  uint64_t total;
+};
+#define EXAMPLE__PROGRESS__INIT \
+ { PROTOBUF_C_MESSAGE_INIT (&example__progress__descriptor) \
+    , 0, 0, 0, 0 }
+
+
+struct  _Example__Header
+{
+  ProtobufCMessage base;
+  uint32_t prog;
+  uint32_t vers;
+  int32_t proc;
+  int32_t direction;
+  uint32_t serial;
+  uint64_t progress_hint;
+  uint64_t optargs_bitmask;
+  int32_t status;
+};
+#define EXAMPLE__HEADER__INIT \
+ { PROTOBUF_C_MESSAGE_INIT (&example__header__descriptor) \
+    , 0, 0, 0, 0, 0, 0, 0, 0 }
+
+
+/* Example__Device methods */
+void   example__device__init
+                     (Example__Device         *message);
+size_t example__device__get_packed_size
+                     (const Example__Device   *message);
+size_t example__device__pack
+                     (const Example__Device   *message,
+                      uint8_t             *out);
+size_t example__device__pack_to_buffer
+                     (const Example__Device   *message,
+                      ProtobufCBuffer     *buffer);
+Example__Device *
+       example__device__unpack
+                     (ProtobufCAllocator  *allocator,
+                      size_t               len,
+                      const uint8_t       *data);
+void   example__device__free_unpacked
+                     (Example__Device *message,
+                      ProtobufCAllocator *allocator);
+/* Example__SubList methods */
+void   example__sub_list__init
+                     (Example__SubList         *message);
+size_t example__sub_list__get_packed_size
+                     (const Example__SubList   *message);
+size_t example__sub_list__pack
+                     (const Example__SubList   *message,
+                      uint8_t             *out);
+size_t example__sub_list__pack_to_buffer
+                     (const Example__SubList   *message,
+                      ProtobufCBuffer     *buffer);
+Example__SubList *
+       example__sub_list__unpack
+                     (ProtobufCAllocator  *allocator,
+                      size_t               len,
+                      const uint8_t       *data);
+void   example__sub_list__free_unpacked
+                     (Example__SubList *message,
+                      ProtobufCAllocator *allocator);
 /* Example__ListDevices methods */
 void   example__list_devices__init
                      (Example__ListDevices         *message);
@@ -62,10 +166,82 @@ Example__ListDevices *
 void   example__list_devices__free_unpacked
                      (Example__ListDevices *message,
                       ProtobufCAllocator *allocator);
+/* Example__Flag methods */
+void   example__flag__init
+                     (Example__Flag         *message);
+size_t example__flag__get_packed_size
+                     (const Example__Flag   *message);
+size_t example__flag__pack
+                     (const Example__Flag   *message,
+                      uint8_t             *out);
+size_t example__flag__pack_to_buffer
+                     (const Example__Flag   *message,
+                      ProtobufCBuffer     *buffer);
+Example__Flag *
+       example__flag__unpack
+                     (ProtobufCAllocator  *allocator,
+                      size_t               len,
+                      const uint8_t       *data);
+void   example__flag__free_unpacked
+                     (Example__Flag *message,
+                      ProtobufCAllocator *allocator);
+/* Example__Progress methods */
+void   example__progress__init
+                     (Example__Progress         *message);
+size_t example__progress__get_packed_size
+                     (const Example__Progress   *message);
+size_t example__progress__pack
+                     (const Example__Progress   *message,
+                      uint8_t             *out);
+size_t example__progress__pack_to_buffer
+                     (const Example__Progress   *message,
+                      ProtobufCBuffer     *buffer);
+Example__Progress *
+       example__progress__unpack
+                     (ProtobufCAllocator  *allocator,
+                      size_t               len,
+                      const uint8_t       *data);
+void   example__progress__free_unpacked
+                     (Example__Progress *message,
+                      ProtobufCAllocator *allocator);
+/* Example__Header methods */
+void   example__header__init
+                     (Example__Header         *message);
+size_t example__header__get_packed_size
+                     (const Example__Header   *message);
+size_t example__header__pack
+                     (const Example__Header   *message,
+                      uint8_t             *out);
+size_t example__header__pack_to_buffer
+                     (const Example__Header   *message,
+                      ProtobufCBuffer     *buffer);
+Example__Header *
+       example__header__unpack
+                     (ProtobufCAllocator  *allocator,
+                      size_t               len,
+                      const uint8_t       *data);
+void   example__header__free_unpacked
+                     (Example__Header *message,
+                      ProtobufCAllocator *allocator);
 /* --- per-message closures --- */
 
+typedef void (*Example__Device_Closure)
+                 (const Example__Device *message,
+                  void *closure_data);
+typedef void (*Example__SubList_Closure)
+                 (const Example__SubList *message,
+                  void *closure_data);
 typedef void (*Example__ListDevices_Closure)
                  (const Example__ListDevices *message,
+                  void *closure_data);
+typedef void (*Example__Flag_Closure)
+                 (const Example__Flag *message,
+                  void *closure_data);
+typedef void (*Example__Progress_Closure)
+                 (const Example__Progress *message,
+                  void *closure_data);
+typedef void (*Example__Header_Closure)
+                 (const Example__Header *message,
                   void *closure_data);
 
 /* --- services --- */
@@ -74,7 +250,12 @@ typedef void (*Example__ListDevices_Closure)
 /* --- descriptors --- */
 
 extern const ProtobufCEnumDescriptor    example__device_type__descriptor;
+extern const ProtobufCMessageDescriptor example__device__descriptor;
+extern const ProtobufCMessageDescriptor example__sub_list__descriptor;
 extern const ProtobufCMessageDescriptor example__list_devices__descriptor;
+extern const ProtobufCMessageDescriptor example__flag__descriptor;
+extern const ProtobufCMessageDescriptor example__progress__descriptor;
+extern const ProtobufCMessageDescriptor example__header__descriptor;
 
 PROTOBUF_C__END_DECLS
 

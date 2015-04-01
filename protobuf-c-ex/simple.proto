@@ -1,14 +1,45 @@
 package example;
 
-message ListDevices {
-    required int32 id = 1;
-    required string name = 2;
-    required bytes data = 3;
-    repeated int32 array = 4;
-}
 
 enum DeviceType {
     FILE = 1;
     DEV = 2;
     NO_TYPE = 5;
+}
+
+message Device {
+	required string name = 1;
+	required int32 volume = 2;
+	required DeviceType type = 3;
+}
+
+message SubList {
+	repeated string names = 1;	
+}
+
+message ListDevices {
+	repeated Device devices = 1;
+	required SubList sublist = 2;
+}
+
+message Flag {
+  required fixed32 val = 1;
+}
+
+message Progress {
+  required sfixed32 proc = 1;
+  required fixed32 serial = 2;
+  required fixed64 position = 3;
+  required fixed64 total = 4;
+}
+
+message Header {
+  required fixed32 prog = 1;
+  required fixed32 vers = 2;
+  required sfixed32 proc = 3;
+  required sfixed32 direction = 4;
+  required fixed32 serial = 5;
+  required fixed64 progress_hint = 6;
+  required fixed64 optargs_bitmask = 7;
+  required sfixed32 status = 8;
 }

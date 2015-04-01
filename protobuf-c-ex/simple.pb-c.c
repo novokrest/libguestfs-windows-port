@@ -7,6 +7,92 @@
 #endif
 
 #include "simple.pb-c.h"
+void   example__device__init
+                     (Example__Device         *message)
+{
+  static Example__Device init_value = EXAMPLE__DEVICE__INIT;
+  *message = init_value;
+}
+size_t example__device__get_packed_size
+                     (const Example__Device *message)
+{
+  assert(message->base.descriptor == &example__device__descriptor);
+  return protobuf_c_message_get_packed_size ((const ProtobufCMessage*)(message));
+}
+size_t example__device__pack
+                     (const Example__Device *message,
+                      uint8_t       *out)
+{
+  assert(message->base.descriptor == &example__device__descriptor);
+  return protobuf_c_message_pack ((const ProtobufCMessage*)message, out);
+}
+size_t example__device__pack_to_buffer
+                     (const Example__Device *message,
+                      ProtobufCBuffer *buffer)
+{
+  assert(message->base.descriptor == &example__device__descriptor);
+  return protobuf_c_message_pack_to_buffer ((const ProtobufCMessage*)message, buffer);
+}
+Example__Device *
+       example__device__unpack
+                     (ProtobufCAllocator  *allocator,
+                      size_t               len,
+                      const uint8_t       *data)
+{
+  return (Example__Device *)
+     protobuf_c_message_unpack (&example__device__descriptor,
+                                allocator, len, data);
+}
+void   example__device__free_unpacked
+                     (Example__Device *message,
+                      ProtobufCAllocator *allocator)
+{
+  assert(message->base.descriptor == &example__device__descriptor);
+  protobuf_c_message_free_unpacked ((ProtobufCMessage*)message, allocator);
+}
+void   example__sub_list__init
+                     (Example__SubList         *message)
+{
+  static Example__SubList init_value = EXAMPLE__SUB_LIST__INIT;
+  *message = init_value;
+}
+size_t example__sub_list__get_packed_size
+                     (const Example__SubList *message)
+{
+  assert(message->base.descriptor == &example__sub_list__descriptor);
+  return protobuf_c_message_get_packed_size ((const ProtobufCMessage*)(message));
+}
+size_t example__sub_list__pack
+                     (const Example__SubList *message,
+                      uint8_t       *out)
+{
+  assert(message->base.descriptor == &example__sub_list__descriptor);
+  return protobuf_c_message_pack ((const ProtobufCMessage*)message, out);
+}
+size_t example__sub_list__pack_to_buffer
+                     (const Example__SubList *message,
+                      ProtobufCBuffer *buffer)
+{
+  assert(message->base.descriptor == &example__sub_list__descriptor);
+  return protobuf_c_message_pack_to_buffer ((const ProtobufCMessage*)message, buffer);
+}
+Example__SubList *
+       example__sub_list__unpack
+                     (ProtobufCAllocator  *allocator,
+                      size_t               len,
+                      const uint8_t       *data)
+{
+  return (Example__SubList *)
+     protobuf_c_message_unpack (&example__sub_list__descriptor,
+                                allocator, len, data);
+}
+void   example__sub_list__free_unpacked
+                     (Example__SubList *message,
+                      ProtobufCAllocator *allocator)
+{
+  assert(message->base.descriptor == &example__sub_list__descriptor);
+  protobuf_c_message_free_unpacked ((ProtobufCMessage*)message, allocator);
+}
 void   example__list_devices__init
                      (Example__ListDevices         *message)
 {
@@ -50,67 +136,272 @@ void   example__list_devices__free_unpacked
   assert(message->base.descriptor == &example__list_devices__descriptor);
   protobuf_c_message_free_unpacked ((ProtobufCMessage*)message, allocator);
 }
-static const ProtobufCFieldDescriptor example__list_devices__field_descriptors[4] =
+void   example__flag__init
+                     (Example__Flag         *message)
+{
+  static Example__Flag init_value = EXAMPLE__FLAG__INIT;
+  *message = init_value;
+}
+size_t example__flag__get_packed_size
+                     (const Example__Flag *message)
+{
+  assert(message->base.descriptor == &example__flag__descriptor);
+  return protobuf_c_message_get_packed_size ((const ProtobufCMessage*)(message));
+}
+size_t example__flag__pack
+                     (const Example__Flag *message,
+                      uint8_t       *out)
+{
+  assert(message->base.descriptor == &example__flag__descriptor);
+  return protobuf_c_message_pack ((const ProtobufCMessage*)message, out);
+}
+size_t example__flag__pack_to_buffer
+                     (const Example__Flag *message,
+                      ProtobufCBuffer *buffer)
+{
+  assert(message->base.descriptor == &example__flag__descriptor);
+  return protobuf_c_message_pack_to_buffer ((const ProtobufCMessage*)message, buffer);
+}
+Example__Flag *
+       example__flag__unpack
+                     (ProtobufCAllocator  *allocator,
+                      size_t               len,
+                      const uint8_t       *data)
+{
+  return (Example__Flag *)
+     protobuf_c_message_unpack (&example__flag__descriptor,
+                                allocator, len, data);
+}
+void   example__flag__free_unpacked
+                     (Example__Flag *message,
+                      ProtobufCAllocator *allocator)
+{
+  assert(message->base.descriptor == &example__flag__descriptor);
+  protobuf_c_message_free_unpacked ((ProtobufCMessage*)message, allocator);
+}
+void   example__progress__init
+                     (Example__Progress         *message)
+{
+  static Example__Progress init_value = EXAMPLE__PROGRESS__INIT;
+  *message = init_value;
+}
+size_t example__progress__get_packed_size
+                     (const Example__Progress *message)
+{
+  assert(message->base.descriptor == &example__progress__descriptor);
+  return protobuf_c_message_get_packed_size ((const ProtobufCMessage*)(message));
+}
+size_t example__progress__pack
+                     (const Example__Progress *message,
+                      uint8_t       *out)
+{
+  assert(message->base.descriptor == &example__progress__descriptor);
+  return protobuf_c_message_pack ((const ProtobufCMessage*)message, out);
+}
+size_t example__progress__pack_to_buffer
+                     (const Example__Progress *message,
+                      ProtobufCBuffer *buffer)
+{
+  assert(message->base.descriptor == &example__progress__descriptor);
+  return protobuf_c_message_pack_to_buffer ((const ProtobufCMessage*)message, buffer);
+}
+Example__Progress *
+       example__progress__unpack
+                     (ProtobufCAllocator  *allocator,
+                      size_t               len,
+                      const uint8_t       *data)
+{
+  return (Example__Progress *)
+     protobuf_c_message_unpack (&example__progress__descriptor,
+                                allocator, len, data);
+}
+void   example__progress__free_unpacked
+                     (Example__Progress *message,
+                      ProtobufCAllocator *allocator)
+{
+  assert(message->base.descriptor == &example__progress__descriptor);
+  protobuf_c_message_free_unpacked ((ProtobufCMessage*)message, allocator);
+}
+void   example__header__init
+                     (Example__Header         *message)
+{
+  static Example__Header init_value = EXAMPLE__HEADER__INIT;
+  *message = init_value;
+}
+size_t example__header__get_packed_size
+                     (const Example__Header *message)
+{
+  assert(message->base.descriptor == &example__header__descriptor);
+  return protobuf_c_message_get_packed_size ((const ProtobufCMessage*)(message));
+}
+size_t example__header__pack
+                     (const Example__Header *message,
+                      uint8_t       *out)
+{
+  assert(message->base.descriptor == &example__header__descriptor);
+  return protobuf_c_message_pack ((const ProtobufCMessage*)message, out);
+}
+size_t example__header__pack_to_buffer
+                     (const Example__Header *message,
+                      ProtobufCBuffer *buffer)
+{
+  assert(message->base.descriptor == &example__header__descriptor);
+  return protobuf_c_message_pack_to_buffer ((const ProtobufCMessage*)message, buffer);
+}
+Example__Header *
+       example__header__unpack
+                     (ProtobufCAllocator  *allocator,
+                      size_t               len,
+                      const uint8_t       *data)
+{
+  return (Example__Header *)
+     protobuf_c_message_unpack (&example__header__descriptor,
+                                allocator, len, data);
+}
+void   example__header__free_unpacked
+                     (Example__Header *message,
+                      ProtobufCAllocator *allocator)
+{
+  assert(message->base.descriptor == &example__header__descriptor);
+  protobuf_c_message_free_unpacked ((ProtobufCMessage*)message, allocator);
+}
+static const ProtobufCFieldDescriptor example__device__field_descriptors[3] =
 {
   {
-    "id",
-    1,
-    PROTOBUF_C_LABEL_REQUIRED,
-    PROTOBUF_C_TYPE_INT32,
-    0,   /* quantifier_offset */
-    offsetof(Example__ListDevices, id),
-    NULL,
-    NULL,
-    0,             /* flags */
-    0,NULL,NULL    /* reserved1,reserved2, etc */
-  },
-  {
     "name",
-    2,
+    1,
     PROTOBUF_C_LABEL_REQUIRED,
     PROTOBUF_C_TYPE_STRING,
     0,   /* quantifier_offset */
-    offsetof(Example__ListDevices, name),
+    offsetof(Example__Device, name),
     NULL,
     NULL,
     0,             /* flags */
     0,NULL,NULL    /* reserved1,reserved2, etc */
   },
   {
-    "data",
+    "volume",
+    2,
+    PROTOBUF_C_LABEL_REQUIRED,
+    PROTOBUF_C_TYPE_INT32,
+    0,   /* quantifier_offset */
+    offsetof(Example__Device, volume),
+    NULL,
+    NULL,
+    0,             /* flags */
+    0,NULL,NULL    /* reserved1,reserved2, etc */
+  },
+  {
+    "type",
     3,
     PROTOBUF_C_LABEL_REQUIRED,
-    PROTOBUF_C_TYPE_BYTES,
+    PROTOBUF_C_TYPE_ENUM,
     0,   /* quantifier_offset */
-    offsetof(Example__ListDevices, data),
+    offsetof(Example__Device, type),
+    &example__device_type__descriptor,
+    NULL,
+    0,             /* flags */
+    0,NULL,NULL    /* reserved1,reserved2, etc */
+  },
+};
+static const unsigned example__device__field_indices_by_name[] = {
+  0,   /* field[0] = name */
+  2,   /* field[2] = type */
+  1,   /* field[1] = volume */
+};
+static const ProtobufCIntRange example__device__number_ranges[1 + 1] =
+{
+  { 1, 0 },
+  { 0, 3 }
+};
+const ProtobufCMessageDescriptor example__device__descriptor =
+{
+  PROTOBUF_C__MESSAGE_DESCRIPTOR_MAGIC,
+  "example.Device",
+  "Device",
+  "Example__Device",
+  "example",
+  sizeof(Example__Device),
+  3,
+  example__device__field_descriptors,
+  example__device__field_indices_by_name,
+  1,  example__device__number_ranges,
+  (ProtobufCMessageInit) example__device__init,
+  NULL,NULL,NULL    /* reserved[123] */
+};
+static const ProtobufCFieldDescriptor example__sub_list__field_descriptors[1] =
+{
+  {
+    "names",
+    1,
+    PROTOBUF_C_LABEL_REPEATED,
+    PROTOBUF_C_TYPE_STRING,
+    offsetof(Example__SubList, n_names),
+    offsetof(Example__SubList, names),
     NULL,
     NULL,
     0,             /* flags */
     0,NULL,NULL    /* reserved1,reserved2, etc */
   },
+};
+static const unsigned example__sub_list__field_indices_by_name[] = {
+  0,   /* field[0] = names */
+};
+static const ProtobufCIntRange example__sub_list__number_ranges[1 + 1] =
+{
+  { 1, 0 },
+  { 0, 1 }
+};
+const ProtobufCMessageDescriptor example__sub_list__descriptor =
+{
+  PROTOBUF_C__MESSAGE_DESCRIPTOR_MAGIC,
+  "example.SubList",
+  "SubList",
+  "Example__SubList",
+  "example",
+  sizeof(Example__SubList),
+  1,
+  example__sub_list__field_descriptors,
+  example__sub_list__field_indices_by_name,
+  1,  example__sub_list__number_ranges,
+  (ProtobufCMessageInit) example__sub_list__init,
+  NULL,NULL,NULL    /* reserved[123] */
+};
+static const ProtobufCFieldDescriptor example__list_devices__field_descriptors[2] =
+{
   {
-    "array",
-    4,
+    "devices",
+    1,
     PROTOBUF_C_LABEL_REPEATED,
-    PROTOBUF_C_TYPE_INT32,
-    offsetof(Example__ListDevices, n_array),
-    offsetof(Example__ListDevices, array),
+    PROTOBUF_C_TYPE_MESSAGE,
+    offsetof(Example__ListDevices, n_devices),
+    offsetof(Example__ListDevices, devices),
+    &example__device__descriptor,
     NULL,
+    0,             /* flags */
+    0,NULL,NULL    /* reserved1,reserved2, etc */
+  },
+  {
+    "sublist",
+    2,
+    PROTOBUF_C_LABEL_REQUIRED,
+    PROTOBUF_C_TYPE_MESSAGE,
+    0,   /* quantifier_offset */
+    offsetof(Example__ListDevices, sublist),
+    &example__sub_list__descriptor,
     NULL,
     0,             /* flags */
     0,NULL,NULL    /* reserved1,reserved2, etc */
   },
 };
 static const unsigned example__list_devices__field_indices_by_name[] = {
-  3,   /* field[3] = array */
-  2,   /* field[2] = data */
-  0,   /* field[0] = id */
-  1,   /* field[1] = name */
+  0,   /* field[0] = devices */
+  1,   /* field[1] = sublist */
 };
 static const ProtobufCIntRange example__list_devices__number_ranges[1 + 1] =
 {
   { 1, 0 },
-  { 0, 4 }
+  { 0, 2 }
 };
 const ProtobufCMessageDescriptor example__list_devices__descriptor =
 {
@@ -120,11 +411,255 @@ const ProtobufCMessageDescriptor example__list_devices__descriptor =
   "Example__ListDevices",
   "example",
   sizeof(Example__ListDevices),
-  4,
+  2,
   example__list_devices__field_descriptors,
   example__list_devices__field_indices_by_name,
   1,  example__list_devices__number_ranges,
   (ProtobufCMessageInit) example__list_devices__init,
+  NULL,NULL,NULL    /* reserved[123] */
+};
+static const ProtobufCFieldDescriptor example__flag__field_descriptors[1] =
+{
+  {
+    "val",
+    1,
+    PROTOBUF_C_LABEL_REQUIRED,
+    PROTOBUF_C_TYPE_FIXED32,
+    0,   /* quantifier_offset */
+    offsetof(Example__Flag, val),
+    NULL,
+    NULL,
+    0,             /* flags */
+    0,NULL,NULL    /* reserved1,reserved2, etc */
+  },
+};
+static const unsigned example__flag__field_indices_by_name[] = {
+  0,   /* field[0] = val */
+};
+static const ProtobufCIntRange example__flag__number_ranges[1 + 1] =
+{
+  { 1, 0 },
+  { 0, 1 }
+};
+const ProtobufCMessageDescriptor example__flag__descriptor =
+{
+  PROTOBUF_C__MESSAGE_DESCRIPTOR_MAGIC,
+  "example.Flag",
+  "Flag",
+  "Example__Flag",
+  "example",
+  sizeof(Example__Flag),
+  1,
+  example__flag__field_descriptors,
+  example__flag__field_indices_by_name,
+  1,  example__flag__number_ranges,
+  (ProtobufCMessageInit) example__flag__init,
+  NULL,NULL,NULL    /* reserved[123] */
+};
+static const ProtobufCFieldDescriptor example__progress__field_descriptors[4] =
+{
+  {
+    "proc",
+    1,
+    PROTOBUF_C_LABEL_REQUIRED,
+    PROTOBUF_C_TYPE_SFIXED32,
+    0,   /* quantifier_offset */
+    offsetof(Example__Progress, proc),
+    NULL,
+    NULL,
+    0,             /* flags */
+    0,NULL,NULL    /* reserved1,reserved2, etc */
+  },
+  {
+    "serial",
+    2,
+    PROTOBUF_C_LABEL_REQUIRED,
+    PROTOBUF_C_TYPE_FIXED32,
+    0,   /* quantifier_offset */
+    offsetof(Example__Progress, serial),
+    NULL,
+    NULL,
+    0,             /* flags */
+    0,NULL,NULL    /* reserved1,reserved2, etc */
+  },
+  {
+    "position",
+    3,
+    PROTOBUF_C_LABEL_REQUIRED,
+    PROTOBUF_C_TYPE_FIXED64,
+    0,   /* quantifier_offset */
+    offsetof(Example__Progress, position),
+    NULL,
+    NULL,
+    0,             /* flags */
+    0,NULL,NULL    /* reserved1,reserved2, etc */
+  },
+  {
+    "total",
+    4,
+    PROTOBUF_C_LABEL_REQUIRED,
+    PROTOBUF_C_TYPE_FIXED64,
+    0,   /* quantifier_offset */
+    offsetof(Example__Progress, total),
+    NULL,
+    NULL,
+    0,             /* flags */
+    0,NULL,NULL    /* reserved1,reserved2, etc */
+  },
+};
+static const unsigned example__progress__field_indices_by_name[] = {
+  2,   /* field[2] = position */
+  0,   /* field[0] = proc */
+  1,   /* field[1] = serial */
+  3,   /* field[3] = total */
+};
+static const ProtobufCIntRange example__progress__number_ranges[1 + 1] =
+{
+  { 1, 0 },
+  { 0, 4 }
+};
+const ProtobufCMessageDescriptor example__progress__descriptor =
+{
+  PROTOBUF_C__MESSAGE_DESCRIPTOR_MAGIC,
+  "example.Progress",
+  "Progress",
+  "Example__Progress",
+  "example",
+  sizeof(Example__Progress),
+  4,
+  example__progress__field_descriptors,
+  example__progress__field_indices_by_name,
+  1,  example__progress__number_ranges,
+  (ProtobufCMessageInit) example__progress__init,
+  NULL,NULL,NULL    /* reserved[123] */
+};
+static const ProtobufCFieldDescriptor example__header__field_descriptors[8] =
+{
+  {
+    "prog",
+    1,
+    PROTOBUF_C_LABEL_REQUIRED,
+    PROTOBUF_C_TYPE_FIXED32,
+    0,   /* quantifier_offset */
+    offsetof(Example__Header, prog),
+    NULL,
+    NULL,
+    0,             /* flags */
+    0,NULL,NULL    /* reserved1,reserved2, etc */
+  },
+  {
+    "vers",
+    2,
+    PROTOBUF_C_LABEL_REQUIRED,
+    PROTOBUF_C_TYPE_FIXED32,
+    0,   /* quantifier_offset */
+    offsetof(Example__Header, vers),
+    NULL,
+    NULL,
+    0,             /* flags */
+    0,NULL,NULL    /* reserved1,reserved2, etc */
+  },
+  {
+    "proc",
+    3,
+    PROTOBUF_C_LABEL_REQUIRED,
+    PROTOBUF_C_TYPE_SFIXED32,
+    0,   /* quantifier_offset */
+    offsetof(Example__Header, proc),
+    NULL,
+    NULL,
+    0,             /* flags */
+    0,NULL,NULL    /* reserved1,reserved2, etc */
+  },
+  {
+    "direction",
+    4,
+    PROTOBUF_C_LABEL_REQUIRED,
+    PROTOBUF_C_TYPE_SFIXED32,
+    0,   /* quantifier_offset */
+    offsetof(Example__Header, direction),
+    NULL,
+    NULL,
+    0,             /* flags */
+    0,NULL,NULL    /* reserved1,reserved2, etc */
+  },
+  {
+    "serial",
+    5,
+    PROTOBUF_C_LABEL_REQUIRED,
+    PROTOBUF_C_TYPE_FIXED32,
+    0,   /* quantifier_offset */
+    offsetof(Example__Header, serial),
+    NULL,
+    NULL,
+    0,             /* flags */
+    0,NULL,NULL    /* reserved1,reserved2, etc */
+  },
+  {
+    "progress_hint",
+    6,
+    PROTOBUF_C_LABEL_REQUIRED,
+    PROTOBUF_C_TYPE_FIXED64,
+    0,   /* quantifier_offset */
+    offsetof(Example__Header, progress_hint),
+    NULL,
+    NULL,
+    0,             /* flags */
+    0,NULL,NULL    /* reserved1,reserved2, etc */
+  },
+  {
+    "optargs_bitmask",
+    7,
+    PROTOBUF_C_LABEL_REQUIRED,
+    PROTOBUF_C_TYPE_FIXED64,
+    0,   /* quantifier_offset */
+    offsetof(Example__Header, optargs_bitmask),
+    NULL,
+    NULL,
+    0,             /* flags */
+    0,NULL,NULL    /* reserved1,reserved2, etc */
+  },
+  {
+    "status",
+    8,
+    PROTOBUF_C_LABEL_REQUIRED,
+    PROTOBUF_C_TYPE_SFIXED32,
+    0,   /* quantifier_offset */
+    offsetof(Example__Header, status),
+    NULL,
+    NULL,
+    0,             /* flags */
+    0,NULL,NULL    /* reserved1,reserved2, etc */
+  },
+};
+static const unsigned example__header__field_indices_by_name[] = {
+  3,   /* field[3] = direction */
+  6,   /* field[6] = optargs_bitmask */
+  2,   /* field[2] = proc */
+  0,   /* field[0] = prog */
+  5,   /* field[5] = progress_hint */
+  4,   /* field[4] = serial */
+  7,   /* field[7] = status */
+  1,   /* field[1] = vers */
+};
+static const ProtobufCIntRange example__header__number_ranges[1 + 1] =
+{
+  { 1, 0 },
+  { 0, 8 }
+};
+const ProtobufCMessageDescriptor example__header__descriptor =
+{
+  PROTOBUF_C__MESSAGE_DESCRIPTOR_MAGIC,
+  "example.Header",
+  "Header",
+  "Example__Header",
+  "example",
+  sizeof(Example__Header),
+  8,
+  example__header__field_descriptors,
+  example__header__field_indices_by_name,
+  1,  example__header__number_ranges,
+  (ProtobufCMessageInit) example__header__init,
   NULL,NULL,NULL    /* reserved[123] */
 };
 static const ProtobufCEnumValue example__device_type__enum_values_by_number[3] =
