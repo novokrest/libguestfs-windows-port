@@ -140,4 +140,4 @@ $(exec): $(objects)
 	$(OCAMLFIND) ocamlc $(OCAMLCFLAGS) -c $< -o $@
 	
 clean:
-	rm -f *.cmi *.cmo
+	rm -f *.cmi *.cmo *~
