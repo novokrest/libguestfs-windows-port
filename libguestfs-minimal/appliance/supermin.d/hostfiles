@@ -1,0 +1,2 @@
+/lib/lsb/*
+/usr/share/augeas/lenses/*.aug
