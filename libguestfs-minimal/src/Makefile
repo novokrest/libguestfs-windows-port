@@ -66,7 +66,8 @@ GUESTFS_LIBS = \
 	$(LTLIBTHREAD) \
 	$(LTLIBICONV) \
 	$(SERVENT_LIB) \
-	$(PROTOBUF_LIB)
+	$(PROTOBUF_LIB) \
+	libgnu.a
 
 GUESTFS_INCLUDE = \
 	guestfs.h \
@@ -91,6 +92,7 @@ GUESTFS_SOURCES = \
 	appliance.c \
 	bindtests.c \
 	canonical-name.c \
+	cleanup.c \
 	command.c \
 	conn-socket.c \
 	create.c \
@@ -105,6 +107,8 @@ GUESTFS_SOURCES = \
 	filearch.c \
 	fuse.c \
 	guestfs_protocol.pb-c.c \
+	guestfs_protocol_converters.c \
+	guestfs-internal-structs-free.c \
 	guid.c \
 	handle.c \
 	info.c \
@@ -130,10 +134,12 @@ GUESTFS_SOURCES = \
 	private-data.c \
 	proto.c \
 	stringsbuf.c \
+	structs-cleanup.c \
 	structs-compare.c \
 	structs-copy.c \
 	structs-free.c \
-	tmpdirs.c 
+	tmpdirs.c \
+	utils.c
 
 ERRNOSTRING_SOURCES = \
 	errnostring-gperf.c \
@@ -147,9 +153,9 @@ PROTOCOL_SOURCES = \
 
 GUESTFS_OBJECTS = $(GUESTFS_SOURCES:.c=.o)
 
-GUESTFS_LIBRARY = guestfs
+GUESTFS_LIBRARY = myguestfs
 
-all: xdr.h xdr.c errnostring-gperf.c guestfs_protocol.pb-c.c $(GUESTFS_LIBRARY)
+all: xdr protobuf errno $(GUESTFS_LIBRARY)
 
 $(GUESTFS_LIBRARY): $(GUESTFS_OBJECTS) 
 	$(CC) -shared -o lib$@.so $^ $(GUESTFS_LIBS)
@@ -157,13 +163,19 @@ $(GUESTFS_LIBRARY): $(GUESTFS_OBJECTS)
 %.o: %.c
 	$(CC) -c $(GUESTFS_CPPFLAGS) $(GUESTFS_CFLAGS) -fPIC -o $@ $<
 
+errno: errnostring-gperf.c
+
 errnostring-gperf.c: errnostring-gperf.gperf
 	rm -f $@
 	$(GPERF) -t $< > $@-t
 	mv $@-t $@
 
+protobuf: guestfs_protocol.pb-c.c
+
 guestfs_protocol.pb-c.c: guestfs_protocol.proto
 	$(PROTOC) --c_out=. $<
+
+xdr: xdr.h xdr.c
 
 xdr.h: xdr.x
 	rm -f $@-t
@@ -178,6 +190,6 @@ xdr.c: xdr.x
 	mv $@-t2 $@
 
 clean:
-	rm -f *.o
+	rm -f *.o guestfs_protocol.proto errnostring-gperf.gperf xdr.x
 
-.PHONY: all clean
+.PHONY: all clean xdr protobuf errno

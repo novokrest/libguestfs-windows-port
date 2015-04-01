@@ -191,7 +191,7 @@ LIBS = 	\
 	$(PCRE_LIBS) \
 	$(PROTOBUF_LIB)
 
-DAEMON = guestfsd.exe
+DAEMON = guestfsd
 GPERF = gperf
 
 all: xdr.h xdr.c $(DAEMON)
