@@ -879,8 +879,7 @@ and generate_client_structs_free () =
       pr "GUESTFS_DLL_PUBLIC void\n";
       pr "guestfs_free_%s (struct guestfs_%s *x)\n" typ typ;
       pr "{\n";
-      pr "  if (x) {\n";
-(*    
+      pr "  if (x) {\n";    
       List.iter (
         function
         | name, FChar
@@ -894,9 +893,6 @@ and generate_client_structs_free () =
         | name, FBuffer -> 
           pr "    free (x->%s);\n" name
       ) cols;
-      pr "    free (x);\n"; 
-*)
-      pr "    guestfs_int_%s__free_unpacked (x, NULL);\n" typ;
       pr "  }\n";
       pr "}\n";
       pr "\n";
@@ -904,15 +900,12 @@ and generate_client_structs_free () =
       pr "GUESTFS_DLL_PUBLIC void\n";
       pr "guestfs_free_%s_list (struct guestfs_%s_list *x)\n" typ typ;
       pr "{\n";
-(*
       pr "  int i;\n";
       pr "  if (x) {\n";
       pr "    for (i = 0; i < x->len; ++i) {\n";
-      pr "      guestfs_free_%s (x->val[i]);\n" typ;
-      pr "    }\n"
-      pr "    free (x);\n";
-*)
-      pr "    guestfs_int_%s__free_unpacked (x, NULL);\n" typ;
+      pr "      guestfs_free_%s (&x->val[i]);\n" typ;
+      pr "    }\n";
+      pr "    free (x->val);\n";
       pr "  }\n";
       pr "}\n";
       pr "\n";
@@ -1681,11 +1674,11 @@ and generate_client_actions hash () =
         args in
     (match args_passed_to_daemon, optargs with
     | [], [] -> ()
-    | _, _ -> pr "  guestfs_%s_args args;\n" name
+    | _, _ -> pr "  guestfs_protobuf_%s_args args;\n" name
     );
 
-    pr "  guestfs_message_header *hdr;\n";
-    pr "  guestfs_message_error *err;\n";
+    pr "  guestfs_protobuf_message_header *hdr;\n";
+    pr "  guestfs_protobuf_message_error *err;\n";
     let has_ret =
       match ret with
       | RErr -> false
@@ -1695,7 +1688,7 @@ and generate_client_actions hash () =
       | RBool _ | RString _ | RStringList _
       | RStruct _ | RStructList _
       | RHashtable _ | RBufferOut _ ->
-        pr "  guestfs_%s_ret *ret;\n" name;
+        pr "  guestfs_protobuf_%s_ret *ret;\n" name;
         true in
 
     pr "  int serial;\n";
@@ -1815,7 +1808,7 @@ and generate_client_actions hash () =
         (String.uppercase name);
       pr "                           progress_hint, %s,\n"
         (if optargs <> [] then "optargs->bitmask" else "0");
-      pr "                           (protobuf_proc_pack) guestfs_%s_args__pack, (char *) &args);\n"
+      pr "                           (protobuf_proc_pack) guestfs_protobuf_%s_args__pack, (char *) &args);\n"
         name;
     );
     pr "  if (serial == -1) {\n";
@@ -1853,7 +1846,7 @@ and generate_client_actions hash () =
     if not has_ret then
       pr "NULL, NULL"
     else
-      pr "(protobuf_proc_unpack) guestfs_%s_ret__unpack, (char *) &ret" name;
+      pr "(protobuf_proc_unpack) guestfs_protobuf_%s_ret__unpack, (ProtobufCMessage **) &ret" name;
     pr ");\n";
 
     pr "  if (r == -1) {\n";
@@ -1882,8 +1875,8 @@ and generate_client_actions hash () =
     pr "      guestfs___error_errno (g, errnum, \"%%s: %%s\", \"%s\",\n"
       name;
     pr "                           err->error_message);\n";
-    pr "//    free (err.error_message);\n";
-    pr "//    free (err.errno_string);\n";
+    pr "    guestfs_protobuf_message_error__free_unpacked (err, NULL);\n";
+    pr "    guestfs_protobuf_message_header__free_unpacked (hdr, NULL);\n";
     pr "    return %s;\n" (string_of_errcode errcode);
     pr "  }\n";
     pr "\n";
@@ -1911,19 +1904,20 @@ and generate_client_actions hash () =
       pr "  ret_v = ret->%s; /* caller will free */\n" n
     | RStringList n | RHashtable n ->
       pr "  /* caller will free this, but we need to add a NULL entry */\n";
-      pr "  ret_v = safe_malloc (g, sizeof (char *) * (ret->n_%s + 1))\n" n;
-      pr "  for (i = 0; i < n_%s; ++i) {\n" n;
+      pr "  ret_v = safe_malloc (g, sizeof (char *) * (ret->n_%s + 1));\n" n;
+      pr "  int i;\n";
+      pr "  for (i = 0; i < ret->n_%s; ++i) {\n" n;
       pr "     ret_v[i] = safe_strdup (g, ret->%s[i]);\n" n;
       pr "  }\n";
-      pr "  ret_v[n_%s] = NULL;\n" n
+      pr "  ret_v[ret->n_%s] = NULL;\n" n
     | RStruct (n, typ) ->
       pr "  /* caller will free this */\n";
-      pr "  ret_v = safe_malloc (g, sizeof (guestfs_%s))\n;" typ;
-      pr "  convert_guestfs_%s_protobuf_to_xdr (ret->%s, ret_v);\n" typ n
+      pr "  ret_v = safe_malloc (g, sizeof (struct guestfs_%s))\n;" typ;
+      pr "  convert_guestfs_int_%s_protobuf_to_xdr (ret->%s, (guestfs_int_%s *) ret_v);\n" typ n typ
     | RStructList (n, typ) ->
       pr "  /* caller will free this */\n";
-      pr "  ret_v = safe_malloc (g, sizeof (guestfs_%s))\n;" typ;
-      pr "  convert_guestfs_%s_protobuf_to_xdr (ret->%s, ret_v);\n" typ n
+      pr "  ret_v = safe_malloc (g, sizeof (struct guestfs_%s_list));\n" typ;
+      pr "  convert_guestfs_int_%s_list_protobuf_to_xdr (ret->%s, (guestfs_int_%s_list *) ret_v);\n" typ n typ
     | RBufferOut n ->
       pr "  /* RBufferOut is tricky: If the buffer is zero-length, then\n";
       pr "   * _val might be NULL here.  To make the API saner for\n";
@@ -1940,7 +1934,10 @@ and generate_client_actions hash () =
       pr "  }\n";
     );
     trace_return name style "ret_v";
-    pr "/* MUST FREE guestfs_header guestfs_message guestfs_<typ>_ret */\n";
+    pr "  guestfs_protobuf_message_header__free_unpacked (hdr, NULL);\n";
+    pr "  guestfs_protobuf_message_error__free_unpacked (err, NULL);\n";
+    if has_ret then
+      pr "  guestfs_protobuf_%s_ret__free_unpacked (ret, NULL);\n" name;
     pr "  return ret_v;\n";
     pr "}\n\n"
   in
