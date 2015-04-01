@@ -273,6 +273,7 @@ let generate_protocol_header () =
   pr "#include \"guestfs_protocol_typedefs.h\"\n";
   pr "#include \"guestfs_protocol_converters.h\"\n";
   pr "#include \"guestfs_protocol_constants.h\"\n";
+  pr "#include \"guestfs-internal-structs-free.h\"\n";
   pr "\n";
   pr "#endif /* GUESTFS_PROTOCOL_H_ */\n"
   
