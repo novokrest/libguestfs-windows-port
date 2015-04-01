@@ -78,8 +78,10 @@ Run it from the top source directory using the command
   output_to (test ^ "src/xdr.x") generate_xdr;
   output_to (test ^ "src/guestfs_protocol.proto") generate_protobuf;
   output_to (test ^ "src/guestfs_protocol_typedefs.h") generate_protobuf_typedefs;
+  output_to (test ^ "src/guestfs_protocol_constants.h") generate_protobuf_constants;
   output_to (test ^ "src/guestfs_protocol_converters.h") generate_protobuf_converters_header;
   output_to (test ^ "src/guestfs_protocol_converters.c") generate_protobuf_converters;
+  output_to (test ^ "src/guestfs_protocol.h") generate_protocol_header;
   output_to (test ^ "src/guestfs-internal-structs-free.h") generate_structs_free_header;
   output_to (test ^ "src/guestfs-internal-structs-free.c") generate_structs_free;
   output_to (test ^ "src/guestfs.h") generate_guestfs_h;
@@ -111,8 +113,10 @@ Run it from the top source directory using the command
   output_to (test ^ "daemon/xdr.x") generate_xdr;
   output_to (test ^ "daemon/guestfs_protocol.proto") generate_protobuf;
   output_to (test ^ "daemon/guestfs_protocol_typedefs.h") generate_protobuf_typedefs;
+  output_to (test ^ "daemon/guestfs_protocol_constants.h") generate_protobuf_constants;
   output_to (test ^ "daemon/guestfs_protocol_converters.h") generate_protobuf_converters_header;
   output_to (test ^ "daemon/guestfs_protocol_converters.c") generate_protobuf_converters;
+  output_to (test ^ "daemon/guestfs_protocol.h") generate_protocol_header;
   output_to (test ^ "daemon/guestfs-internal-structs-free.h") generate_structs_free_header;
   output_to (test ^ "daemon/guestfs-internal-structs-free.c") generate_structs_free;
   output_to (test ^ "daemon/actions.h") generate_daemon_actions_h;

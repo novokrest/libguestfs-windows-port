@@ -275,3 +275,17 @@ let generate_protocol_header () =
   pr "#include \"guestfs_protocol_constants.h\"\n";
   pr "\n";
   pr "#endif /* GUESTFS_PROTOCOL_H_ */\n"
+  
+let generate_protobuf_constants () = 
+  generate_header ~emacs_mode:"c" CStyle LGPLv2plus;
+  
+  pr "#ifndef GUESTFS_PROTOCOL_CONSTANTS_H_\n";
+  pr "#define GUESTFS_PROTOCOL_CONSTANTS_H_\n";
+  pr "\n";
+  pr "#define PROTOBUF_FLAG_MESSAGE_SIZE 5\n";
+  pr "#define PROTOBUF_MESSAGE_HEADER_SIZE 48\n";
+  pr "#define PROTOBUF_PROGRESS_MESSAGE_SIZE 28\n";
+  pr "/* #define PROTOBUF_ERROR_MESSAGE_SIZE 64 */\n";
+  pr "\n";
+  pr "#endif /* GUESTFS_PROTOCOL_CONSTANTS_H_ */\n"
+
