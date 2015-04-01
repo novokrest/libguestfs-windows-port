@@ -1,0 +1,76 @@
+bsdmainutils
+  btrfs-tools
+  cryptsetup
+  extlinux
+  genisoimage
+  gfs-tools
+  gfs2-tools
+  gfs2-utils
+  grub2-common
+  hfsplus
+  iproute
+  iproute2
+  iputils-ping
+  iputils-arping
+  iputils-tracepath
+  isc-dhcp-client
+  libaugeas0
+  libc-bin
+  libcap2
+  libhivex0
+  libpcre3
+  libsystemd0
+  libsystemd-id128-0
+  libsystemd-journal0
+  libyajl2
+  linux-image
+    mtools
+  nilfs-tools
+  ntfs-3g
+  openssh-client
+  reiserfsprogs
+  sysvinit                    systemd                     ufsutils
+  vim-tiny
+  xz-utils
+  zfs-fuse
+acl
+attr
+bash
+binutils
+bzip2
+coreutils
+cpio
+diffutils
+dosfstools
+e2fsprogs
+file
+findutils
+gawk
+gdisk
+grep
+gzip
+jfsutils
+kmod
+less
+libxml2
+lsof
+lsscsi
+lvm2
+lzop
+mdadm
+module-init-tools
+parted
+procps
+procps-ng
+psmisc
+rsync
+scrub
+sed
+strace
+syslinux
+tar
+udev
+util-linux
+util-linux-ng
+xfsprogs
+zerofree
