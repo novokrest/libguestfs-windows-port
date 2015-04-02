@@ -684,11 +684,14 @@ guestfs___recv (guestfs_h *g, const char *fn,
 //    convert_guestfs_message_error_protobuf_to_xdr (tmperr, err);
 //    guestfs_message_error__free_unpacked (tmperr, NULL);
   } else {
-    if (pb_unpack && ret && !(tmpret = pb_unpack (NULL, size - PROTOBUF_MESSAGE_HEADER_SIZE, (uint8_t *) buf + PROTOBUF_MESSAGE_HEADER_SIZE))) {
-      error (g, "%s: failed to parse reply", fn);
-      return -1;
-    }
-    *ret = tmpret;
+    if (pb_unpack && ret) {
+      tmpret = pb_unpack (NULL, size - PROTOBUF_MESSAGE_HEADER_SIZE, (uint8_t *) buf + PROTOBUF_MESSAGE_HEADER_SIZE);
+      if (tmpret == NULL) {
+        error (g, "%s: failed to parse reply", fn);
+        return -1;
+      }
+      *ret = tmpret;
+    } 
   }
 
   return 0;
