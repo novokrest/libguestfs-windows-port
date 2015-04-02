@@ -454,6 +454,8 @@ cleanup_free_mountable (mountable_t *mountable)
         | RStruct (n, typ) ->
             pr "  guestfs_protobuf_%s_ret ret;\n" name;
             pr "  guestfs_protobuf_%s_ret__init (&ret);\n" name;
+            pr "  ret.%s = malloc (sizeof (guestfs_protobuf_int_%s));\n" n typ;
+            pr "  guestfs_protobuf_int_%s__init (ret.%s);\n" typ n;
             pr "  convert_guestfs_int_%s_xdr_to_protobuf (r, ret.%s);\n" typ n;
             pr "  reply ((protobuf_proc_pack) guestfs_protobuf_%s_ret__pack, (char *) &ret);\n" name;
             pr "  guestfs_int_free_%s (r);\n" typ;
@@ -461,6 +463,8 @@ cleanup_free_mountable (mountable_t *mountable)
         | RStructList (n, typ) ->
             pr "  guestfs_protobuf_%s_ret ret;\n" name;
             pr "  guestfs_protobuf_%s_ret__init (&ret);\n" name;
+            pr "  ret.%s = malloc (sizeof (guestfs_protobuf_int_%s_list));\n" n typ;
+            pr "  guestfs_protobuf_int_%s_list__init (ret.%s);\n" typ n;
             pr "  convert_guestfs_int_%s_list_xdr_to_protobuf (r, ret.%s);\n" typ n;
             pr "  reply ((protobuf_proc_pack) guestfs_protobuf_%s_ret__pack, (char *) &ret);\n" name;
             pr "  guestfs_int_free_%s_list (r);\n" typ;
@@ -471,6 +475,8 @@ cleanup_free_mountable (mountable_t *mountable)
             pr "  ret.%s.data = r;\n" n;
             pr "  ret.%s.len = size;\n" n;
             pr "  reply ((protobuf_proc_pack) guestfs_protobuf_%s_ret__pack, (char *) &ret);\n" name;
+            pr "  ret.%s.data = NULL;\n" n;
+            pr "  ret.%s.len = 0;\n" n;
             pr "  free (r);\n"
       );
 
