@@ -269,7 +269,7 @@ send_error (int errnum, char *msg)
   guestfs_protobuf_flag_message flagmsg;
   guestfs_protobuf_message_header hdr;
   guestfs_protobuf_message_error err;
-  unsigned len, hdrlen, errlen;
+  unsigned len, flaglen, hdrlen, errlen;
 
   /* Print the full length error message. */
   fprintf (stderr, "guestfsd: error: %s\n", msg);
@@ -308,13 +308,14 @@ send_error (int errnum, char *msg)
   /* These strings are not going to be freed.  We just cast them
    * to (char *) because they are defined that way in the XDR structs.
    */
+  guestfs_protobuf_message_error__init (&err);
   err.errno_string =
     (char *) (errnum > 0 ? guestfs___errno_to_string (errnum) : "");
   err.error_message = (char *) msg;
 
   errlen = guestfs_protobuf_message_error__pack (&err, buf + PROTOBUF_MESSAGE_HEADER_SIZE);
 
-  if (errlen) {
+  if (!errlen) {
     fprintf (stderr, "guestfsd: failed to encode error message body\n");
     exit (EXIT_FAILURE);
   }
@@ -323,7 +324,8 @@ send_error (int errnum, char *msg)
 
   guestfs_protobuf_flag_message__init (&flagmsg);
   flagmsg.val = len;
-  guestfs_protobuf_flag_message__pack (&flagmsg, lenbuf);
+  flaglen = guestfs_protobuf_flag_message__pack (&flagmsg, lenbuf);
+  assert (flaglen == PROTOBUF_FLAG_MESSAGE_SIZE);
 
   if (xwrite (sock, lenbuf, PROTOBUF_FLAG_MESSAGE_SIZE) == -1) {
     fprintf (stderr, "guestfsd: xwrite failed\n");
@@ -366,13 +368,14 @@ reply (protobuf_proc_pack pb_pack, char *ret)
     exit (EXIT_FAILURE);
   }
 
+  retlen = 0;
   if (pb_pack) {
     /* This can fail if the reply body is too large, for example
      * if it exceeds the maximum message size.  In that case
      * we want to return an error message instead. (RHBZ#509597).
      */
     retlen = pb_pack ((ProtobufCMessage*) ret, buf + PROTOBUF_MESSAGE_HEADER_SIZE);
-    if (!retlen) {
+    if (!retlen || retlen > GUESTFS_MESSAGE_MAX) {
       reply_with_error ("guestfsd: failed to encode reply body\n(maybe the reply exceeds the maximum message size in the protocol?)");
       return;
     }
