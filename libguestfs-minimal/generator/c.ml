@@ -1674,7 +1674,9 @@ and generate_client_actions hash () =
         args in
     (match args_passed_to_daemon, optargs with
     | [], [] -> ()
-    | _, _ -> pr "  guestfs_protobuf_%s_args args;\n" name
+    | _, _ -> 
+      pr "  guestfs_protobuf_%s_args args;\n" name;
+      pr "  guestfs_protobuf_%s_args__init (&args);\n" name
     );
 
     pr "  guestfs_protobuf_message_header *hdr;\n";
@@ -1753,7 +1755,8 @@ and generate_client_actions hash () =
         | Key n | GUID n ->
           pr "  args.%s = (char *) %s;\n" n n
         | OptString n ->
-          pr "  args.%s = %s ? (char **) &%s : NULL;\n" n n n
+          pr "  args.%s = %s ? (char **) &%s : NULL;\n" n n n;
+          pr "  args.n_%s = 1;\n" n
         | StringList n | DeviceList n ->
           pr "  args.%s = (char **) %s;\n" n n;
           pr "  for (args.n_%s = 0; %s[args.n_%s]; args.n_%s++) ;\n" n n n n;
@@ -1901,7 +1904,7 @@ and generate_client_actions hash () =
     | RConstString _ | RConstOptString _ ->
       failwithf "RConstString|RConstOptString cannot be used by daemon functions"
     | RString n ->
-      pr "  ret_v = ret->%s; /* caller will free */\n" n
+      pr "  ret_v = safe_strdup (g, ret->%s); /* caller will free */\n" n
     | RStringList n | RHashtable n ->
       pr "  /* caller will free this, but we need to add a NULL entry */\n";
       pr "  ret_v = safe_malloc (g, sizeof (char *) * (ret->n_%s + 1));\n" n;
@@ -1935,7 +1938,6 @@ and generate_client_actions hash () =
     );
     trace_return name style "ret_v";
     pr "  guestfs_protobuf_message_header__free_unpacked (hdr, NULL);\n";
-    pr "  guestfs_protobuf_message_error__free_unpacked (err, NULL);\n";
     if has_ret then
       pr "  guestfs_protobuf_%s_ret__free_unpacked (ret, NULL);\n" name;
     pr "  return ret_v;\n";
