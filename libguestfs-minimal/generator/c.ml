@@ -1756,7 +1756,7 @@ and generate_client_actions hash () =
           pr "  args.%s = (char *) %s;\n" n n
         | OptString n ->
           pr "  args.%s = %s ? (char **) &%s : NULL;\n" n n n;
-          pr "  args.n_%s = 1;\n" n
+          pr "  args.n_%s = %s ? 1 : 0;\n" n n
         | StringList n | DeviceList n ->
           pr "  args.%s = (char **) %s;\n" n n;
           pr "  for (args.n_%s = 0; %s[args.n_%s]; args.n_%s++) ;\n" n n n n;
@@ -1907,12 +1907,12 @@ and generate_client_actions hash () =
       pr "  ret_v = safe_strdup (g, ret->%s); /* caller will free */\n" n
     | RStringList n | RHashtable n ->
       pr "  /* caller will free this, but we need to add a NULL entry */\n";
-      pr "  ret_v = safe_malloc (g, sizeof (char *) * (ret->n_%s + 1));\n" n;
+      pr "  ret_v = safe_malloc (g, sizeof (char *) * (ret->n_%s));\n" n;
       pr "  int i;\n";
-      pr "  for (i = 0; i < ret->n_%s; ++i) {\n" n;
+      pr "  for (i = 0; i < ret->n_%s - 1; ++i) {\n" n;
       pr "     ret_v[i] = safe_strdup (g, ret->%s[i]);\n" n;
       pr "  }\n";
-      pr "  ret_v[ret->n_%s] = NULL;\n" n
+      pr "  ret_v[ret->n_%s - 1] = NULL;\n" n
     | RStruct (n, typ) ->
       pr "  /* caller will free this */\n";
       pr "  ret_v = safe_malloc (g, sizeof (struct guestfs_%s))\n;" typ;
