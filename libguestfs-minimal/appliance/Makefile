@@ -41,7 +41,7 @@ supermin.d/daemon.tar.gz: ../daemon/guestfsd guestfsd.suppressions guestfs_lvm_c
 	rm -f $@ $@-t
 	rm -rf tmp-d
 	mkdir -p tmp-d$(DAEMON_SUPERMIN_DIR) tmp-d/etc tmp-d/usr/share/guestfs
-	ln ../daemon/guestfsd tmp-d$(DAEMON_SUPERMIN_DIR)/guestfsd.exe
+	ln ../daemon/guestfsd tmp-d$(DAEMON_SUPERMIN_DIR)/guestfsd
 	ln $(srcdir)/guestfsd.suppressions tmp-d/etc/guestfsd.suppressions
 	ln $(srcdir)/guestfs_lvm_conf.aug tmp-d/usr/share/guestfs/guestfs_lvm_conf.aug
 	ln $(srcdir)/guestfs_shadow.aug tmp-d/usr/share/guestfs/guestfs_shadow.aug
@@ -67,6 +67,26 @@ supermin.d/udev-rules.tar.gz: 99-guestfs-serial.rules
 	( cd tmp-u && tar zcf - etc ) > $@-t
 	rm -r tmp-u
 	mv $@-t $@
+
+PACKAGELIST_CPP_FLAGS = -D$(DISTRO)=1 -DEXTRA_PACKAGES="$(EXTRA_PACKAGES)"
+
+packagelist: packagelist.in Makefile
+	m4 $(PACKAGELIST_CPP_FLAGS) $< | \
+	grep -v '^[[:space:]]*$$' | grep -v '^#' > $@-t
+	cmp -s $@ $@-t || mv $@-t $@
+	rm -f $@-t
+
+$@supermin.d/excludefiles: excludefiles.in Makefile
+	m4 $(PACKAGELIST_CPP_FLAGS) $< | \
+	grep -v '^[[:space:]]*$$' | grep -v '^#' > excludefiles-t
+	cmp -s $@ excludefiles-t || mv excludefiles-t $@
+	rm -f excludefiles-t
+
+supermin.d/hostfiles: hostfiles.in Makefile
+	m4 $(PACKAGELIST_CPP_FLAGS) $< | \
+	grep -v '^[[:space:]]*$$' | grep -v '^#' > hostfiles-t
+	cmp -s $@ hostfiles-t || mv hostfiles-t $@
+	rm -f hostfiles-t
 
 # Make clean.
 

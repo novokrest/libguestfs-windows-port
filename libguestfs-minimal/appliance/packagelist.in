@@ -252,6 +252,7 @@ util-linux
 util-linux-ng
 xfsprogs
 zerofree
+libprotobuf-c
 
 ifelse(VALGRIND_DAEMON,1,valgrind)
 
