@@ -447,7 +447,7 @@ cleanup_free_mountable (mountable_t *mountable)
         | RStringList n | RHashtable n ->
             pr "  guestfs_protobuf_%s_ret ret;\n" name;
             pr "  guestfs_protobuf_%s_ret__init (&ret);\n" name;
-            pr "  ret.n_%s = count_strings (r);\n" n;
+            pr "  ret.n_%s = count_strings (r) + 1;\n" n;
             pr "  ret.%s = r;\n" n;
             pr "  reply ((protobuf_proc_pack) guestfs_protobuf_%s_ret__pack, (char *) &ret);\n" name;
             pr "  free_strings (r);\n"
