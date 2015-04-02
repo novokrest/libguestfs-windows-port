@@ -516,7 +516,7 @@ static int send_chunk (const guestfs_protobuf_chunk *);
 int
 send_file_write (const void *buf, size_t len)
 {
-  guestfs_protobuf_chunk chunk;
+  guestfs_protobuf_chunk chunk = GUESTFS_PROTOBUF_CHUNK__INIT;
   int cancel;
 
   if (len > GUESTFS_MAX_CHUNK_SIZE) {
@@ -587,7 +587,7 @@ check_for_library_cancellation (void)
 int
 send_file_end (int cancel)
 {
-  guestfs_protobuf_chunk chunk;
+  guestfs_protobuf_chunk chunk = GUESTFS_PROTOBUF_CHUNK__INIT;
 
   chunk.cancel = cancel;
   chunk.data.len = 0;
