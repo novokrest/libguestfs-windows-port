@@ -154,7 +154,7 @@ test_guestfs()
     }
     time(ts + ts_cur++);
 
-    if (mount_disks(g) == -1) {
+    if (mount_disks(g)) {
         printf("ERROR occurred during mount_disks()\n");
         exit(EXIT_FAILURE);
     }

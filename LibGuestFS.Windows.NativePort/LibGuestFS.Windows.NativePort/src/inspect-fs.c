@@ -577,7 +577,7 @@ guestfs___first_line_of_file (guestfs_h *g, const char *filename)
   int64_t size;
   char *ret;
 
-  /* Don't trust guestfs_head_n not to break with very large files.
+  /* Don't trust guestfs_head_nn not to break with very large files.
    * Check the file size is something reasonable first.
    */
   size = guestfs_filesize (g, filename);
@@ -590,7 +590,7 @@ guestfs___first_line_of_file (guestfs_h *g, const char *filename)
     return NULL;
   }
 
-  lines = guestfs_head_n (g, 1, filename);
+  lines = guestfs_head_nn (g, 1, filename);
   if (lines == NULL)
     return NULL;
   if (lines[0] == NULL) {

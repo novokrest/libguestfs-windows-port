@@ -130,8 +130,12 @@ guestfs___launch_send_progress (guestfs_h *g, int perdozen)
 
   gettimeofday (&tv, NULL);
   if (guestfs___timeval_diff (&g->launch_t, &tv) >= 5000) {
-    guestfs_progress progress_message =
-      { .proc = 0, .serial = 0, .position = perdozen, .total = 12 };
+      guestfs_protobuf_progress progress_message = GUESTFS_PROTOBUF_PROGRESS__INIT;
+      progress_message.proc = 0;
+      progress_message.serial = 0;
+      progress_message.position = perdozen;
+      progress_message.total = 12;
+//      { .proc = 0, .serial = 0, .position = perdozen, .total = 12 };
 
     guestfs___progress_message_callback (g, &progress_message);
   }
