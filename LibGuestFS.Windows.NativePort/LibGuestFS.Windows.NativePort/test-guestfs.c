@@ -154,7 +154,7 @@ test_guestfs()
     }
     time(ts + ts_cur++);
 
-    if (mount_disks(g) == -1) {
+    if (mount_disks(g)) {
         printf("ERROR occurred during mount_disks()\n");
         exit(EXIT_FAILURE);
     }
@@ -163,12 +163,12 @@ test_guestfs()
     download_file(g, "/home/novokrestdeb/test/bigfile", "bigfile");
     time(ts + ts_cur++);
 
-    //for (size_t i = 0; i < 10000; ++i) {
-    //    char buf[50];
-    //    sprintf(buf, "/home/novokrestdeb/test/%u", i);
-    //    read_file(g, buf);
-    //}
-    download_file(g, "/home/novokrestdeb/test/1", "smallfile");
+    for (size_t i = 0; i < 10000; ++i) {
+        char buf[50];
+        sprintf(buf, "/home/novokrestdeb/test/%u", i);
+        read_file(g, buf);
+    }
+    //download_file(g, "/home/novokrestdeb/test/1", "smallfile");
     time(ts + ts_cur++);
 
     printf("guestfs_close()...\n");

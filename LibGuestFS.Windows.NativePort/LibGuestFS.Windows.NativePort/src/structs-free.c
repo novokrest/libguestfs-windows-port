@@ -30,7 +30,7 @@
 #include "guestfs_protocol.h"
 
 /* Structure-freeing functions.  These rely on the fact that the
- * structure format is identical to the XDR format.  See note in
+ * structure format is identical to the Protobuf format.  See note in
  * generator.ml.
  */
 
@@ -38,17 +38,18 @@ GUESTFS_DLL_PUBLIC void
 guestfs_free_int_bool (struct guestfs_int_bool *x)
 {
   if (x) {
-    xdr_free ((xdrproc_t) xdr_guestfs_int_int_bool, (char *) x);
-    free (x);
   }
 }
 
 GUESTFS_DLL_PUBLIC void
 guestfs_free_int_bool_list (struct guestfs_int_bool_list *x)
 {
+  int i;
   if (x) {
-    xdr_free ((xdrproc_t) xdr_guestfs_int_int_bool_list, (char *) x);
-    free (x);
+    for (i = 0; i < x->len; ++i) {
+      guestfs_free_int_bool (&x->val[i]);
+    }
+    free (x->val);
   }
 }
 
@@ -56,17 +57,22 @@ GUESTFS_DLL_PUBLIC void
 guestfs_free_lvm_pv (struct guestfs_lvm_pv *x)
 {
   if (x) {
-    xdr_free ((xdrproc_t) xdr_guestfs_int_lvm_pv, (char *) x);
-    free (x);
+    free (x->pv_name);
+    free (x->pv_fmt);
+    free (x->pv_attr);
+    free (x->pv_tags);
   }
 }
 
 GUESTFS_DLL_PUBLIC void
 guestfs_free_lvm_pv_list (struct guestfs_lvm_pv_list *x)
 {
+  int i;
   if (x) {
-    xdr_free ((xdrproc_t) xdr_guestfs_int_lvm_pv_list, (char *) x);
-    free (x);
+    for (i = 0; i < x->len; ++i) {
+      guestfs_free_lvm_pv (&x->val[i]);
+    }
+    free (x->val);
   }
 }
 
@@ -74,17 +80,23 @@ GUESTFS_DLL_PUBLIC void
 guestfs_free_lvm_vg (struct guestfs_lvm_vg *x)
 {
   if (x) {
-    xdr_free ((xdrproc_t) xdr_guestfs_int_lvm_vg, (char *) x);
-    free (x);
+    free (x->vg_name);
+    free (x->vg_fmt);
+    free (x->vg_attr);
+    free (x->vg_sysid);
+    free (x->vg_tags);
   }
 }
 
 GUESTFS_DLL_PUBLIC void
 guestfs_free_lvm_vg_list (struct guestfs_lvm_vg_list *x)
 {
+  int i;
   if (x) {
-    xdr_free ((xdrproc_t) xdr_guestfs_int_lvm_vg_list, (char *) x);
-    free (x);
+    for (i = 0; i < x->len; ++i) {
+      guestfs_free_lvm_vg (&x->val[i]);
+    }
+    free (x->val);
   }
 }
 
@@ -92,17 +104,25 @@ GUESTFS_DLL_PUBLIC void
 guestfs_free_lvm_lv (struct guestfs_lvm_lv *x)
 {
   if (x) {
-    xdr_free ((xdrproc_t) xdr_guestfs_int_lvm_lv, (char *) x);
-    free (x);
+    free (x->lv_name);
+    free (x->lv_attr);
+    free (x->origin);
+    free (x->move_pv);
+    free (x->lv_tags);
+    free (x->mirror_log);
+    free (x->modules);
   }
 }
 
 GUESTFS_DLL_PUBLIC void
 guestfs_free_lvm_lv_list (struct guestfs_lvm_lv_list *x)
 {
+  int i;
   if (x) {
-    xdr_free ((xdrproc_t) xdr_guestfs_int_lvm_lv_list, (char *) x);
-    free (x);
+    for (i = 0; i < x->len; ++i) {
+      guestfs_free_lvm_lv (&x->val[i]);
+    }
+    free (x->val);
   }
 }
 
@@ -110,17 +130,18 @@ GUESTFS_DLL_PUBLIC void
 guestfs_free_stat (struct guestfs_stat *x)
 {
   if (x) {
-    xdr_free ((xdrproc_t) xdr_guestfs_int_stat, (char *) x);
-    free (x);
   }
 }
 
 GUESTFS_DLL_PUBLIC void
 guestfs_free_stat_list (struct guestfs_stat_list *x)
 {
+  int i;
   if (x) {
-    xdr_free ((xdrproc_t) xdr_guestfs_int_stat_list, (char *) x);
-    free (x);
+    for (i = 0; i < x->len; ++i) {
+      guestfs_free_stat (&x->val[i]);
+    }
+    free (x->val);
   }
 }
 
@@ -128,17 +149,18 @@ GUESTFS_DLL_PUBLIC void
 guestfs_free_statns (struct guestfs_statns *x)
 {
   if (x) {
-    xdr_free ((xdrproc_t) xdr_guestfs_int_statns, (char *) x);
-    free (x);
   }
 }
 
 GUESTFS_DLL_PUBLIC void
 guestfs_free_statns_list (struct guestfs_statns_list *x)
 {
+  int i;
   if (x) {
-    xdr_free ((xdrproc_t) xdr_guestfs_int_statns_list, (char *) x);
-    free (x);
+    for (i = 0; i < x->len; ++i) {
+      guestfs_free_statns (&x->val[i]);
+    }
+    free (x->val);
   }
 }
 
@@ -146,17 +168,18 @@ GUESTFS_DLL_PUBLIC void
 guestfs_free_statvfs (struct guestfs_statvfs *x)
 {
   if (x) {
-    xdr_free ((xdrproc_t) xdr_guestfs_int_statvfs, (char *) x);
-    free (x);
   }
 }
 
 GUESTFS_DLL_PUBLIC void
 guestfs_free_statvfs_list (struct guestfs_statvfs_list *x)
 {
+  int i;
   if (x) {
-    xdr_free ((xdrproc_t) xdr_guestfs_int_statvfs_list, (char *) x);
-    free (x);
+    for (i = 0; i < x->len; ++i) {
+      guestfs_free_statvfs (&x->val[i]);
+    }
+    free (x->val);
   }
 }
 
@@ -164,17 +187,19 @@ GUESTFS_DLL_PUBLIC void
 guestfs_free_dirent (struct guestfs_dirent *x)
 {
   if (x) {
-    xdr_free ((xdrproc_t) xdr_guestfs_int_dirent, (char *) x);
-    free (x);
+    free (x->name);
   }
 }
 
 GUESTFS_DLL_PUBLIC void
 guestfs_free_dirent_list (struct guestfs_dirent_list *x)
 {
+  int i;
   if (x) {
-    xdr_free ((xdrproc_t) xdr_guestfs_int_dirent_list, (char *) x);
-    free (x);
+    for (i = 0; i < x->len; ++i) {
+      guestfs_free_dirent (&x->val[i]);
+    }
+    free (x->val);
   }
 }
 
@@ -182,17 +207,19 @@ GUESTFS_DLL_PUBLIC void
 guestfs_free_version (struct guestfs_version *x)
 {
   if (x) {
-    xdr_free ((xdrproc_t) xdr_guestfs_int_version, (char *) x);
-    free (x);
+    free (x->extra);
   }
 }
 
 GUESTFS_DLL_PUBLIC void
 guestfs_free_version_list (struct guestfs_version_list *x)
 {
+  int i;
   if (x) {
-    xdr_free ((xdrproc_t) xdr_guestfs_int_version_list, (char *) x);
-    free (x);
+    for (i = 0; i < x->len; ++i) {
+      guestfs_free_version (&x->val[i]);
+    }
+    free (x->val);
   }
 }
 
@@ -200,17 +227,20 @@ GUESTFS_DLL_PUBLIC void
 guestfs_free_xattr (struct guestfs_xattr *x)
 {
   if (x) {
-    xdr_free ((xdrproc_t) xdr_guestfs_int_xattr, (char *) x);
-    free (x);
+    free (x->attrname);
+    free (x->attrval);
   }
 }
 
 GUESTFS_DLL_PUBLIC void
 guestfs_free_xattr_list (struct guestfs_xattr_list *x)
 {
+  int i;
   if (x) {
-    xdr_free ((xdrproc_t) xdr_guestfs_int_xattr_list, (char *) x);
-    free (x);
+    for (i = 0; i < x->len; ++i) {
+      guestfs_free_xattr (&x->val[i]);
+    }
+    free (x->val);
   }
 }
 
@@ -218,17 +248,19 @@ GUESTFS_DLL_PUBLIC void
 guestfs_free_inotify_event (struct guestfs_inotify_event *x)
 {
   if (x) {
-    xdr_free ((xdrproc_t) xdr_guestfs_int_inotify_event, (char *) x);
-    free (x);
+    free (x->in_name);
   }
 }
 
 GUESTFS_DLL_PUBLIC void
 guestfs_free_inotify_event_list (struct guestfs_inotify_event_list *x)
 {
+  int i;
   if (x) {
-    xdr_free ((xdrproc_t) xdr_guestfs_int_inotify_event_list, (char *) x);
-    free (x);
+    for (i = 0; i < x->len; ++i) {
+      guestfs_free_inotify_event (&x->val[i]);
+    }
+    free (x->val);
   }
 }
 
@@ -236,17 +268,18 @@ GUESTFS_DLL_PUBLIC void
 guestfs_free_partition (struct guestfs_partition *x)
 {
   if (x) {
-    xdr_free ((xdrproc_t) xdr_guestfs_int_partition, (char *) x);
-    free (x);
   }
 }
 
 GUESTFS_DLL_PUBLIC void
 guestfs_free_partition_list (struct guestfs_partition_list *x)
 {
+  int i;
   if (x) {
-    xdr_free ((xdrproc_t) xdr_guestfs_int_partition_list, (char *) x);
-    free (x);
+    for (i = 0; i < x->len; ++i) {
+      guestfs_free_partition (&x->val[i]);
+    }
+    free (x->val);
   }
 }
 
@@ -254,17 +287,29 @@ GUESTFS_DLL_PUBLIC void
 guestfs_free_application (struct guestfs_application *x)
 {
   if (x) {
-    xdr_free ((xdrproc_t) xdr_guestfs_int_application, (char *) x);
-    free (x);
+    free (x->app_name);
+    free (x->app_display_name);
+    free (x->app_version);
+    free (x->app_release);
+    free (x->app_install_path);
+    free (x->app_trans_path);
+    free (x->app_publisher);
+    free (x->app_url);
+    free (x->app_source_package);
+    free (x->app_summary);
+    free (x->app_description);
   }
 }
 
 GUESTFS_DLL_PUBLIC void
 guestfs_free_application_list (struct guestfs_application_list *x)
 {
+  int i;
   if (x) {
-    xdr_free ((xdrproc_t) xdr_guestfs_int_application_list, (char *) x);
-    free (x);
+    for (i = 0; i < x->len; ++i) {
+      guestfs_free_application (&x->val[i]);
+    }
+    free (x->val);
   }
 }
 
@@ -272,17 +317,34 @@ GUESTFS_DLL_PUBLIC void
 guestfs_free_application2 (struct guestfs_application2 *x)
 {
   if (x) {
-    xdr_free ((xdrproc_t) xdr_guestfs_int_application2, (char *) x);
-    free (x);
+    free (x->app2_name);
+    free (x->app2_display_name);
+    free (x->app2_version);
+    free (x->app2_release);
+    free (x->app2_arch);
+    free (x->app2_install_path);
+    free (x->app2_trans_path);
+    free (x->app2_publisher);
+    free (x->app2_url);
+    free (x->app2_source_package);
+    free (x->app2_summary);
+    free (x->app2_description);
+    free (x->app2_spare1);
+    free (x->app2_spare2);
+    free (x->app2_spare3);
+    free (x->app2_spare4);
   }
 }
 
 GUESTFS_DLL_PUBLIC void
 guestfs_free_application2_list (struct guestfs_application2_list *x)
 {
+  int i;
   if (x) {
-    xdr_free ((xdrproc_t) xdr_guestfs_int_application2_list, (char *) x);
-    free (x);
+    for (i = 0; i < x->len; ++i) {
+      guestfs_free_application2 (&x->val[i]);
+    }
+    free (x->val);
   }
 }
 
@@ -290,17 +352,27 @@ GUESTFS_DLL_PUBLIC void
 guestfs_free_isoinfo (struct guestfs_isoinfo *x)
 {
   if (x) {
-    xdr_free ((xdrproc_t) xdr_guestfs_int_isoinfo, (char *) x);
-    free (x);
+    free (x->iso_system_id);
+    free (x->iso_volume_id);
+    free (x->iso_volume_set_id);
+    free (x->iso_publisher_id);
+    free (x->iso_data_preparer_id);
+    free (x->iso_application_id);
+    free (x->iso_copyright_file_id);
+    free (x->iso_abstract_file_id);
+    free (x->iso_bibliographic_file_id);
   }
 }
 
 GUESTFS_DLL_PUBLIC void
 guestfs_free_isoinfo_list (struct guestfs_isoinfo_list *x)
 {
+  int i;
   if (x) {
-    xdr_free ((xdrproc_t) xdr_guestfs_int_isoinfo_list, (char *) x);
-    free (x);
+    for (i = 0; i < x->len; ++i) {
+      guestfs_free_isoinfo (&x->val[i]);
+    }
+    free (x->val);
   }
 }
 
@@ -308,17 +380,20 @@ GUESTFS_DLL_PUBLIC void
 guestfs_free_mdstat (struct guestfs_mdstat *x)
 {
   if (x) {
-    xdr_free ((xdrproc_t) xdr_guestfs_int_mdstat, (char *) x);
-    free (x);
+    free (x->mdstat_device);
+    free (x->mdstat_flags);
   }
 }
 
 GUESTFS_DLL_PUBLIC void
 guestfs_free_mdstat_list (struct guestfs_mdstat_list *x)
 {
+  int i;
   if (x) {
-    xdr_free ((xdrproc_t) xdr_guestfs_int_mdstat_list, (char *) x);
-    free (x);
+    for (i = 0; i < x->len; ++i) {
+      guestfs_free_mdstat (&x->val[i]);
+    }
+    free (x->val);
   }
 }
 
@@ -326,17 +401,19 @@ GUESTFS_DLL_PUBLIC void
 guestfs_free_btrfssubvolume (struct guestfs_btrfssubvolume *x)
 {
   if (x) {
-    xdr_free ((xdrproc_t) xdr_guestfs_int_btrfssubvolume, (char *) x);
-    free (x);
+    free (x->btrfssubvolume_path);
   }
 }
 
 GUESTFS_DLL_PUBLIC void
 guestfs_free_btrfssubvolume_list (struct guestfs_btrfssubvolume_list *x)
 {
+  int i;
   if (x) {
-    xdr_free ((xdrproc_t) xdr_guestfs_int_btrfssubvolume_list, (char *) x);
-    free (x);
+    for (i = 0; i < x->len; ++i) {
+      guestfs_free_btrfssubvolume (&x->val[i]);
+    }
+    free (x->val);
   }
 }
 
@@ -344,17 +421,21 @@ GUESTFS_DLL_PUBLIC void
 guestfs_free_xfsinfo (struct guestfs_xfsinfo *x)
 {
   if (x) {
-    xdr_free ((xdrproc_t) xdr_guestfs_int_xfsinfo, (char *) x);
-    free (x);
+    free (x->xfs_mntpoint);
+    free (x->xfs_logname);
+    free (x->xfs_rtname);
   }
 }
 
 GUESTFS_DLL_PUBLIC void
 guestfs_free_xfsinfo_list (struct guestfs_xfsinfo_list *x)
 {
+  int i;
   if (x) {
-    xdr_free ((xdrproc_t) xdr_guestfs_int_xfsinfo_list, (char *) x);
-    free (x);
+    for (i = 0; i < x->len; ++i) {
+      guestfs_free_xfsinfo (&x->val[i]);
+    }
+    free (x->val);
   }
 }
 
@@ -362,17 +443,22 @@ GUESTFS_DLL_PUBLIC void
 guestfs_free_utsname (struct guestfs_utsname *x)
 {
   if (x) {
-    xdr_free ((xdrproc_t) xdr_guestfs_int_utsname, (char *) x);
-    free (x);
+    free (x->uts_sysname);
+    free (x->uts_release);
+    free (x->uts_version);
+    free (x->uts_machine);
   }
 }
 
 GUESTFS_DLL_PUBLIC void
 guestfs_free_utsname_list (struct guestfs_utsname_list *x)
 {
+  int i;
   if (x) {
-    xdr_free ((xdrproc_t) xdr_guestfs_int_utsname_list, (char *) x);
-    free (x);
+    for (i = 0; i < x->len; ++i) {
+      guestfs_free_utsname (&x->val[i]);
+    }
+    free (x->val);
   }
 }
 
@@ -380,17 +466,18 @@ GUESTFS_DLL_PUBLIC void
 guestfs_free_hivex_node (struct guestfs_hivex_node *x)
 {
   if (x) {
-    xdr_free ((xdrproc_t) xdr_guestfs_int_hivex_node, (char *) x);
-    free (x);
   }
 }
 
 GUESTFS_DLL_PUBLIC void
 guestfs_free_hivex_node_list (struct guestfs_hivex_node_list *x)
 {
+  int i;
   if (x) {
-    xdr_free ((xdrproc_t) xdr_guestfs_int_hivex_node_list, (char *) x);
-    free (x);
+    for (i = 0; i < x->len; ++i) {
+      guestfs_free_hivex_node (&x->val[i]);
+    }
+    free (x->val);
   }
 }
 
@@ -398,17 +485,18 @@ GUESTFS_DLL_PUBLIC void
 guestfs_free_hivex_value (struct guestfs_hivex_value *x)
 {
   if (x) {
-    xdr_free ((xdrproc_t) xdr_guestfs_int_hivex_value, (char *) x);
-    free (x);
   }
 }
 
 GUESTFS_DLL_PUBLIC void
 guestfs_free_hivex_value_list (struct guestfs_hivex_value_list *x)
 {
+  int i;
   if (x) {
-    xdr_free ((xdrproc_t) xdr_guestfs_int_hivex_value_list, (char *) x);
-    free (x);
+    for (i = 0; i < x->len; ++i) {
+      guestfs_free_hivex_value (&x->val[i]);
+    }
+    free (x->val);
   }
 }
 
@@ -416,17 +504,20 @@ GUESTFS_DLL_PUBLIC void
 guestfs_free_internal_mountable (struct guestfs_internal_mountable *x)
 {
   if (x) {
-    xdr_free ((xdrproc_t) xdr_guestfs_int_internal_mountable, (char *) x);
-    free (x);
+    free (x->im_device);
+    free (x->im_volume);
   }
 }
 
 GUESTFS_DLL_PUBLIC void
 guestfs_free_internal_mountable_list (struct guestfs_internal_mountable_list *x)
 {
+  int i;
   if (x) {
-    xdr_free ((xdrproc_t) xdr_guestfs_int_internal_mountable_list, (char *) x);
-    free (x);
+    for (i = 0; i < x->len; ++i) {
+      guestfs_free_internal_mountable (&x->val[i]);
+    }
+    free (x->val);
   }
 }
 

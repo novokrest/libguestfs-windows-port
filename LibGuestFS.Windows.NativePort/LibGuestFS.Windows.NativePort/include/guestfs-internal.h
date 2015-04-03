@@ -26,9 +26,6 @@
 #include <libintl.h>
 #undef fprintf
 
-#include <rpc/types.h>
-#include <rpc/xdr.h>
-
 #include <pcre.h>
 
 #ifdef HAVE_LIBVIRT
@@ -38,6 +35,7 @@
 #include "hash.h"
 
 #include "guestfs-internal-frontend.h"
+#include "guestfs_protocol.h"
 
 #if ENABLE_PROBES
 #include <sys/sdt.h>
@@ -600,10 +598,6 @@ struct inspect_fstab_entry {
   char *mountpoint;
 };
 
-struct guestfs_message_header;
-struct guestfs_message_error;
-struct guestfs_progress;
-
 /* handle.c */
 extern int guestfs___get_backend_setting_bool (guestfs_h *g, const char *name);
 
@@ -656,7 +650,7 @@ struct trace_buffer {
   bool opened;
 };
 
-extern int guestfs___check_reply_header (guestfs_h *g, const struct guestfs_message_header *hdr, unsigned int proc_nr, unsigned int serial);
+extern int guestfs___check_reply_header (guestfs_h *g, const guestfs_protobuf_message_header *hdr, unsigned int proc_nr, unsigned int serial);
 extern int guestfs___check_appliance_up (guestfs_h *g, const char *caller);
 extern void guestfs___trace_open (struct trace_buffer *tb);
 extern void guestfs___trace_send_line (guestfs_h *g, struct trace_buffer *tb);
@@ -701,14 +695,16 @@ extern void guestfs___free_stringsbuf (struct stringsbuf *sb);
 extern void guestfs___cleanup_free_stringsbuf (struct stringsbuf *sb);
 
 /* proto.c */
-extern int guestfs___send (guestfs_h *g, int proc_nr, uint64_t progress_hint, uint64_t optargs_bitmask, xdrproc_t xdrp, char *args);
-extern int guestfs___recv (guestfs_h *g, const char *fn, struct guestfs_message_header *hdr, struct guestfs_message_error *err, xdrproc_t xdrp, char *ret);
-extern int guestfs___recv_discard (guestfs_h *g, const char *fn);
-extern int guestfs___send_file (guestfs_h *g, const char *filename);
-extern int guestfs___recv_file (guestfs_h *g, const char *filename);
-extern int guestfs___recv_from_daemon (guestfs_h *g, uint32_t *size_rtn, void **buf_rtn);
-extern void guestfs___progress_message_callback (guestfs_h *g, const struct guestfs_progress *message);
-extern void guestfs___log_message_callback (guestfs_h *g, const char *buf, size_t len);
+//typedef size_t (*protobuf_proc_pack) (ProtobufCMessage *message, uint8_t *out);
+//typedef ProtobufCMessage* (*protobuf_proc_unpack) (ProtobufCAllocator *allocator, size_t len, const uint8_t *data);
+extern int guestfs___send(guestfs_h *g, int proc_nr, uint64_t progress_hint, uint64_t optargs_bitmask, protobuf_proc_pack pb_pack, char *args);
+extern int guestfs___recv(guestfs_h *g, const char *fn, guestfs_protobuf_message_header **hdr, guestfs_protobuf_message_error **err, protobuf_proc_unpack pb_unpack, ProtobufCMessage **ret);
+extern int guestfs___recv_discard(guestfs_h *g, const char *fn);
+extern int guestfs___send_file(guestfs_h *g, const char *filename);
+extern int guestfs___recv_file(guestfs_h *g, const char *filename);
+extern int guestfs___recv_from_daemon(guestfs_h *g, uint32_t *size_rtn, void **buf_rtn);
+extern void guestfs___progress_message_callback(guestfs_h *g, const guestfs_protobuf_progress *message);
+extern void guestfs___log_message_callback(guestfs_h *g, const char *buf, size_t len);
 
 /* conn-socket.c */
 extern struct connection *guestfs___new_conn_socket_listening (guestfs_h *g, int daemon_accept_sock, int console_sock);
