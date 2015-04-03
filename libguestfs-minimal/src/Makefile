@@ -190,6 +190,6 @@ xdr.c: xdr.x
 	mv $@-t2 $@
 
 clean:
-	rm -f *.o guestfs_protocol.proto errnostring-gperf.gperf xdr.x
+	rm -f *.o *~ guestfs_protocol.proto errnostring-gperf.gperf xdr.x
 
 .PHONY: all clean xdr protobuf errno
