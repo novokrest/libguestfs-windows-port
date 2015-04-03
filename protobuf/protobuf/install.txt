@@ -1,0 +1,13 @@
+INSTALL in VS
+
+1. Download Protobuf sources protobuf-X.X.X from https://developers.google.com/protocol-buffers/docs/downloads
+2. go to vsprojects
+3. read readme.txt
+4. open protobuf.sln
+5. protobuf.sln in the version of Visual Studio that you intend to use to develop and build your Windows app. Visual Studio will prompt you to upgrade to your current version—allow it to complete the migration procedure.
+If you intend to build an x64 version of your project, you will need to use Visual Studio’s Configuration Manager to add x64 as new platform.
+6. Consider using Visual Studio’s Configuration Manager to prevent VS from building the solution’s test projects (gtest, gtest_main, lite-test, test_plugin, tests). These projects are not critical and may cause build errors in recent versions of Visual Studio.
+7. For other porjects (libprotobuf, libprotoc, libprotobuf-lite and protoc) add /FS flag to additional options in Project Properties/C++/Command line/Additional options (https://msdn.microsoft.com/en-us/library/dn502518.aspx)
+8.Use the "Build Solution" menu item from Visual Studio’s Build menu to initiate the build. Do not select "Rebuild Solution"--this causes VS to remove critical intermediate build output, resulting in failure.
+9. Run extract_includes.bat for get includes
+10. Copy libs (libprotobuf, libprotobuf-lite, libprotoc), bins (protoc.exe) and includes (include directory) to your projects.
