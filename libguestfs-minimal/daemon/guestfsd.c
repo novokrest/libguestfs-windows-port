@@ -35,6 +35,7 @@
 #include <netdb.h>
 #include <sys/select.h>
 #include <sys/wait.h>
+#include <sys/mman.h>
 #include <arpa/inet.h>
 #include <netinet/in.h>
 #include <errno.h>
@@ -338,6 +339,42 @@ main (int argc, char *argv[])
     perror ("xwrite");
     exit (EXIT_FAILURE);
   }
+  
+  /* test ivshmem */
+  
+  char const *IVSHMEM_FILE_NAME = "/dev/uio0"; //"/dev/ivshmem";
+  size_t const IVSHMEM_SIZE = 0x100000;
+  char const *msg = "OHOHOHOHO";
+  
+  int fd;
+  void *map = NULL;
+
+  printf ("Open ivshmem: %s\n", IVSHMEM_FILE_NAME);
+  if ((fd = open (IVSHMEM_FILE_NAME, O_RDWR)) < 0) {
+    fprintf (stderr, "Failure to open %s: %s\n", IVSHMEM_FILE_NAME, strerror (errno));
+    exit (EXIT_FAILURE);
+  }
+
+  printf ("Map ivshmem: %s\n", IVSHMEM_FILE_NAME);
+  if ((map = mmap (0, IVSHMEM_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 1 * getpagesize())) == MAP_FAILED) {
+    fprintf (stderr, "Failure to map ivshmem %s: %s \n", IVSHMEM_FILE_NAME, strerror (errno));
+    close (fd);
+    exit (EXIT_FAILURE);
+  }
+
+  printf ("Write msg: %s\n", msg);
+  strcpy ((char *) map, msg);
+
+  printf ("Unmap ivshmem: %s\n", IVSHMEM_FILE_NAME);
+  if ((munmap (map, IVSHMEM_SIZE)) < 0) {
+    fprintf (stderr, "Failure during unmap: %s\n", IVSHMEM_FILE_NAME);
+    exit (EXIT_FAILURE);
+  }
+
+  printf ("Close ivshmem: %s\n", IVSHMEM_FILE_NAME);
+  close (fd);
+
+  /* end of test ivshmem */
 
   /* Enter the main loop, reading and performing actions. */
   main_loop (sock);
