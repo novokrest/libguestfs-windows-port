@@ -1,0 +1,7 @@
+Useful commands:
+
+apt-get upgrade
+apt-get install build-essential
+
+apt-get install linux-headers 
+ln -s /usr/src/linux-headers-2.6.38/ /lib/modules/2.6.38/build
