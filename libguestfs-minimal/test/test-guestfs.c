@@ -60,13 +60,13 @@ int mount_disks(guestfs_h* gfs)
         for (int i = 0; mountpoints[i] != NULL; i += 2) {
             /* Ignore failures from this call, since bogus entries can appear in the guest's /etc/fstab.*/
             guestfs_mount_ro (gfs, mountpoints[i+1], mountpoints[i]);
-            //free (mountpoints[i]);
-            //free (mountpoints[i+1]);
+            free (mountpoints[i]);
+            free (mountpoints[i+1]);
         }
-//        free (mountpoints);
-//        free (root);
+        free (mountpoints);
+        free (root);
     }
-//    free(roots);
+    free(roots);
 
     return 0;
 }
@@ -168,8 +168,10 @@ test_guestfs()
     //    sprintf(buf, "/home/novokrestdeb/test/%u", i);
     //    read_file(g, buf);
     //}
-    download_file(g, "/home/novokrestdeb/test/1", "smallfile");
+    download_file(g, "/home/novokrestdeb/ivshmem-test/uio_ivshmem.ko", "smallfile");
     time(ts + ts_cur++);
+    
+    guestfs_write (g, "/home/novokrestdeb/1.txt", "blablabla!", 10);
 
     printf("guestfs_close()...\n");
     guestfs_close(g);
