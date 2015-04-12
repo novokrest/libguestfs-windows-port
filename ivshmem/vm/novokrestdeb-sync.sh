@@ -2,11 +2,9 @@
 
 SYNC_DIR=novokrestdeb
 
-if [ -d "$SYNC_DIR" ]; then
-  rm -rf $SYNC_DIR
+if [ ! -d "$SYNC_DIR" ]; then
+  mkdir $SYNC_DIR
 fi
-
-mkdir $SYNC_DIR
 
 if [ ! -d "loop-dir" ]; then
   mkdir loop-dir
