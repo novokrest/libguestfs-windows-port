@@ -1,1 +1,3 @@
 Inter-VM memory test
+
+Driver for ivshmem device: git clone https://git.gitorious.org/nahanni/guest-code.git
