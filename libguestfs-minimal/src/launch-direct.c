@@ -643,6 +643,12 @@ launch_direct (guestfs_h *g, void *datav, const char *arg)
     ADD_CMDLINE ("-device");
     ADD_CMDLINE (VIRTIO_NET ",netdev=usernet");
   }
+  
+  /* Set up ivshmem device */
+  if (true) {
+    ADD_CMDLINE ("-device");
+    ADD_CMDLINE ("ivshmem,shm=testshm,size=1M");
+  }
 
   ADD_CMDLINE ("-append");
   flags = 0;
