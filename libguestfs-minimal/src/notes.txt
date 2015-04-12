@@ -1,0 +1,11 @@
+BACK to RAW:
+  bindtests.ml
+  file.c
+  inspect-apps.c
+  inspect-fs-windows.c
+  journal.c
+  listfs.c
+
+TODO:
+  replace convert_guestfs_int_<struct> to convert_guestfs_<struct>
+

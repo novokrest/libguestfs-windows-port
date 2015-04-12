@@ -589,7 +589,7 @@ guestfs___first_line_of_file (guestfs_h *g, const char *filename)
     return NULL;
   }
 
-  lines = guestfs_head_n (g, 1, filename);
+  lines = guestfs_head_nn (g, 1, filename);
   if (lines == NULL)
     return NULL;
   if (lines[0] == NULL) {

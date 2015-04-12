@@ -39,12 +39,17 @@ open Structs
 let generate_protobuf_typedefs () =
   generate_header ~emacs_mode:"c" CStyle LGPLv2plus;
 
+  pr "#ifndef _GUESTFS_PROTOBUF_PROTOCOL_TYPEDEFS_H_\n";
+  pr "#define _GUESTFS_PROTOBUF_PROTOCOL_TYPEDEFS_H_\n";
+  pr "\n";
+(*  pr "#include \"guestfs_protocol.pb-c.h\"\n"; *)
+  pr "\n";
   pr "/* Internal structures. */\n";
   pr "\n";
   List.iter (
     fun { s_name = name; s_camel_name = camel_name } ->
-        pr "typedef GuestfsInt%s guestfs_int_%s;\n" camel_name name;
-        pr "typedef GuestfsInt%sList guestfs_int_%s_list;\n" camel_name name;
+        pr "typedef GuestfsProtobufInt%s guestfs_protobuf_int_%s;\n" camel_name name;
+        pr "typedef GuestfsProtobufInt%sList guestfs_protobuf_int_%s_list;\n" camel_name name;
         pr "\n";
   ) structs;
 
@@ -52,8 +57,8 @@ let generate_protobuf_typedefs () =
   pr "\n";
   List.iter (
     fun { name = shortname; camel_name = camel_shortname; style = ret, args, optargs } ->
-      let name = "guestfs_" ^ shortname in
-      let camel_name = "Guestfs" ^ camel_shortname in
+      let name = "guestfs_protobuf_" ^ shortname in
+      let camel_name = "GuestfsProtobuf" ^ camel_shortname in
 
       (* Ordinary arguments and optional arguments are concatenated
        * together in the ProtoBuf args message.  The optargs_bitmask field
@@ -77,37 +82,37 @@ let generate_protobuf_typedefs () =
          pr "\n"
       );
   ) daemon_functions;
-
+(*
   pr "/* Table of procedure numbers. */\n";
-  pr "typedef enum GuestfsProcedure guestfs_procedure;\n";
+  pr "typedef enum GuestfsProtobufProcedure guestfs_protobuf_procedure;\n";
   let rec loop = function
     | [] -> ()
     | { proc_nr = None } :: _ -> assert false
     | { name = shortname; proc_nr = Some proc_nr } :: rest ->
-      pr "  #define GUESTFS_PROC_%s GUESTFS_PROCEDURE__GUESTFS_PROC_%s\n" (String.uppercase shortname) (String.uppercase shortname);
+      pr "  #define GUESTFS_PROC_%s GUESTFS_PROTOBUF_PROCEDURE__GUESTFS_PROTOBUF_PROC_%s\n" (String.uppercase shortname) (String.uppercase shortname);
       loop rest
   in
   loop daemon_functions;
   pr "\n";
 
   (* Message header, etc. *)
-  pr "typedef enum GuestfsConst guestfs_const;\n";
+  pr "typedef enum GuestfsProtobufConst guestfs_protobuf_const;\n";
   
   pr "\  
-  #define GUESTFS_PROGRAM GUESTFS_CONST__GUESTFS_PROGRAM
-  #define GUESTFS_PROTOCOL_VERSION GUESTFS_CONST__GUESTFS_PROTOCOL_VERSION
-  #define GUESTFS_MAX_CHUNK_SIZE GUESTFS_CONST__GUESTFS_MAX_CHUNK_SIZE
+  #define GUESTFS_PROGRAM GUESTFS_PROTOBUF_CONST__GUESTFS_PROTOBUF_PROGRAM
+  #define GUESTFS_PROTOCOL_VERSION GUESTFS_PROTOBUF_CONST__GUESTFS_PROTOBUF_PROTOCOL_VERSION
+  #define GUESTFS_MAX_CHUNK_SIZE GUESTFS_PROTOBUF_CONST__GUESTFS_PROTOBUF_MAX_CHUNK_SIZE
 
 /* These constants must be larger than any possible message length. */
-  #define GUESTFS_LAUNCH_FLAG GUESTFS_CONST__GUESTFS_LAUNCH_FLAG
-  #define GUESTFS_CANCEL_FLAG GUESTFS_CONST__GUESTFS_CANCEL_FLAG
-  #define GUESTFS_PROGRESS_FLAG GUESTFS_CONST__GUESTFS_PROGRESS_FLAG
+  #define GUESTFS_LAUNCH_FLAG GUESTFS_PROTOBUF_CONST__GUESTFS_PROTOBUF_LAUNCH_FLAG
+  #define GUESTFS_CANCEL_FLAG GUESTFS_PROTOBUF_CONST__GUESTFS_PROTOBUF_CANCEL_FLAG
+  #define GUESTFS_PROGRESS_FLAG GUESTFS_PROTOBUF_CONST__GUESTFS_PROTOBUF_PROGRESS_FLAG
 
 ";
-  pr "  #define GUESTFS_ERROR_LEN GUESTFS_CONST__GUESTFS_ERROR_LEN\n";
+  pr "  #define GUESTFS_ERROR_LEN GUESTFS_PROTOBUF_CONST__GUESTFS_PROTOBUF_ERROR_LEN\n";
   pr "\n";
   
-  pr "  #define GUESTFS_MAX_PROC_NR GUESTFS_CONST__GUESTFS_MAX_PROC_NR\n";
+  pr "  #define GUESTFS_MAX_PROC_NR GUESTFS_PROTOBUF_CONST__GUESTFS_PROTOBUF_MAX_PROC_NR\n";
   pr "\n";
 
   pr "/* The remote procedure call protocol. */\n";
@@ -118,26 +123,31 @@ let generate_protobuf_typedefs () =
    * the protocol a lot simpler, and (b) provides a bound on the size
    * of the daemon which operates in limited memory space.
    *)
-  pr "  #define GUESTFS_MESSAGE_MAX GUESTFS_CONST__GUESTFS_MESSAGE_MAX\n";
+  pr "  #define GUESTFS_MESSAGE_MAX GUESTFS_PROTOBUF_CONST__GUESTFS_PROTOBUF_MESSAGE_MAX\n";
   pr "\n";
 
   pr "\
 typedef enum GuestfsMessageDirection guestfs_message_direction;
-  #define GUESTFS_DIRECTION_CALL GUESTFS_MESSAGE_DIRECTION__GUESTFS_DIRECTION_CALL;         /* client -> daemon */
-  #define GUESTFS_DIRECTION_REPLY GUESTFS_MESSAGE_DIRECTION__GUESTFS_DIRECTION_REPLY;        /* daemon -> client */
+  #define GUESTFS_DIRECTION_CALL GUESTFS_PROTOBUF_MESSAGE_DIRECTION__GUESTFS_PROTOBUF_DIRECTION_CALL         /* client -> daemon */
+  #define GUESTFS_DIRECTION_REPLY GUESTFS_PROTOBUF_MESSAGE_DIRECTION__GUESTFS_PROTOBUF_DIRECTION_REPLY        /* daemon -> client */
 
 typedef enum GuestfsMessageStatus guestfs_message_status;
-  #define GUESTFS_STATUS_OK GUESTFS_MESSAGE_STATUS__GUESTFS_STATUS_OK
-  #define GUESTFS_STATUS_ERROR GUESTFS_MESSAGE_STATUS__GUESTFS_STATUS_ERROR
+  #define GUESTFS_STATUS_OK GUESTFS_PROTOBUF_MESSAGE_STATUS__GUESTFS_PROTOBUF_STATUS_OK
+  #define GUESTFS_STATUS_ERROR GUESTFS_PROTOBUF_MESSAGE_STATUS__GUESTFS_PROTOBUF_STATUS_ERROR
+
+";
+*)
+  pr "\n";
+  pr "\
+typedef GuestfsProtobufMessageError guestfs_protobuf_message_error;
+typedef GuestfsProtobufMessageHeader guestfs_protobuf_message_header;
+typedef GuestfsProtobufChunk guestfs_protobuf_chunk;
+typedef GuestfsProtobufProgress guestfs_protobuf_progress;
+typedef GuestfsProtobufFlagMessage guestfs_protobuf_flag_message;
+
+typedef size_t (*protobuf_proc_pack) (ProtobufCMessage *message, uint8_t *out);
+typedef ProtobufCMessage* (*protobuf_proc_unpack) (ProtobufCAllocator *allocator, size_t len, const uint8_t *data);
 
 ";
 
-  pr "\
-typedef GuestfsMessageError guestfs_message_error;
-
-typedef GuestfsMessageHeader guestfs_message_header;
-
-typedef GuestfsChunk guestfs_chunk;
-
-typedef GuestfsProgress guestfs_progress;
-"
+pr "#endif /* _GUESTFS_PROTOBUF_PROTOCOL_TYPEDEFS_H_ */"

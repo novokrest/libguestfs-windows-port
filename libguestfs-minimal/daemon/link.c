@@ -108,7 +108,7 @@ do_ln (const char *target, const char *linkname)
 }
 
 int
-do_ln_f (const char *target, const char *linkname)
+do_ln_ff (const char *target, const char *linkname)
 {
   int r;
 
@@ -152,7 +152,7 @@ _symlink (const char *flag, const char *target, const char *linkname)
 }
 
 int
-do_ln_s (const char *target, const char *linkname)
+do_ln_ss (const char *target, const char *linkname)
 {
   return _symlink ("-s", target, linkname);
 }

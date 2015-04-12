@@ -28,7 +28,7 @@
 #include "actions.h"
 
 char **
-do_strings_e (const char *encoding, const char *path)
+do_strings_ee (const char *encoding, const char *path)
 {
   int fd, flags, r;
   CLEANUP_FREE char *out = NULL, *err = NULL;
@@ -67,5 +67,5 @@ do_strings_e (const char *encoding, const char *path)
 char **
 do_strings (const char *path)
 {
-  return do_strings_e ("s", path);
+  return do_strings_ee ("s", path);
 }

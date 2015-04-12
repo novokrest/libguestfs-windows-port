@@ -48,7 +48,7 @@ fstype_is_extfs (const char *fstype)
 }
 
 char **
-do_tune2fs_l (const char *device)
+do_tune2fs_ll (const char *device)
 {
   int r;
   CLEANUP_FREE char *out = NULL, *err = NULL;
@@ -245,7 +245,7 @@ do_resize2fs_size (const char *device, int64_t size)
 }
 
 int
-do_resize2fs_M (const char *device)
+do_resize2fs_mm (const char *device)
 {
   CLEANUP_FREE char *err = NULL;
   int r;
@@ -315,7 +315,7 @@ do_e2fsck (const char *device,
 }
 
 int
-do_e2fsck_f (const char *device)
+do_e2fsck_ff (const char *device)
 {
   optargs_bitmask = GUESTFS_E2FSCK_CORRECT_BITMASK;
   return do_e2fsck (device, 1, 0);
@@ -344,7 +344,7 @@ do_mke2journal (int blocksize, const char *device)
 }
 
 int
-do_mke2journal_L (int blocksize, const char *label, const char *device)
+do_mke2journal_ll (int blocksize, const char *label, const char *device)
 {
   CLEANUP_FREE char *err = NULL;
   int r;
@@ -373,7 +373,7 @@ do_mke2journal_L (int blocksize, const char *label, const char *device)
 }
 
 int
-do_mke2journal_U (int blocksize, const char *uuid, const char *device)
+do_mke2journal_uu (int blocksize, const char *uuid, const char *device)
 {
   CLEANUP_FREE char *err = NULL;
   int r;
@@ -396,7 +396,7 @@ do_mke2journal_U (int blocksize, const char *uuid, const char *device)
 }
 
 int
-do_mke2fs_J (const char *fstype, int blocksize, const char *device,
+do_mke2fs_jj (const char *fstype, int blocksize, const char *device,
              const char *journal)
 {
   CLEANUP_FREE char *err = NULL;
@@ -428,7 +428,7 @@ do_mke2fs_J (const char *fstype, int blocksize, const char *device,
 }
 
 int
-do_mke2fs_JL (const char *fstype, int blocksize, const char *device,
+do_mke2fs_jl (const char *fstype, int blocksize, const char *device,
               const char *label)
 {
   CLEANUP_FREE char *err = NULL;
@@ -466,7 +466,7 @@ do_mke2fs_JL (const char *fstype, int blocksize, const char *device,
 }
 
 int
-do_mke2fs_JU (const char *fstype, int blocksize, const char *device,
+do_mke2fs_ju (const char *fstype, int blocksize, const char *device,
               const char *uuid)
 {
   CLEANUP_FREE char *err = NULL;

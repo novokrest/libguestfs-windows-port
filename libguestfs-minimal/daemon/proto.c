@@ -29,8 +29,6 @@
 #include <sys/param.h>		/* defines MIN */
 #include <sys/select.h>
 #include <sys/time.h>
-#include <rpc/types.h>
-#include <rpc/xdr.h>
 
 #ifdef HAVE_WINDOWS_H
 #include <windows.h>
@@ -78,22 +76,22 @@ static int sock;
 void
 main_loop (int _sock)
 {
-  XDR xdr;
   char *buf;
-  char lenbuf[4];
+  char lenbuf[PROTOBUF_FLAG_MESSAGE_SIZE];
   uint32_t len;
-  struct guestfs_message_header hdr;
+  guestfs_protobuf_flag_message *flagmsg;
+  guestfs_protobuf_message_header *hdr;
 
   sock = _sock;
 
   for (;;) {
     /* Read the length word. */
-    if (xread (sock, lenbuf, 4) == -1)
+    if (xread (sock, lenbuf, PROTOBUF_FLAG_MESSAGE_SIZE) == -1)
       exit (EXIT_FAILURE);
 
-    xdrmem_create (&xdr, lenbuf, 4, XDR_DECODE);
-    xdr_u_int (&xdr, &len);
-    xdr_destroy (&xdr);
+    flagmsg = guestfs_protobuf_flag_message__unpack (NULL, PROTOBUF_FLAG_MESSAGE_SIZE, lenbuf);
+    len = flagmsg->val;
+    guestfs_protobuf_flag_message__free_unpacked (flagmsg, NULL);
 
     if (verbose)
       fprintf (stderr,
@@ -149,34 +147,34 @@ main_loop (int _sock)
     count_progress = 0;
 
     /* Decode the message header. */
-    xdrmem_create (&xdr, buf, len, XDR_DECODE);
-    if (!xdr_guestfs_message_header (&xdr, &hdr)) {
+    hdr = guestfs_protobuf_message_header__unpack (NULL, PROTOBUF_MESSAGE_HEADER_SIZE, buf);
+    if (!hdr) {
       fprintf (stderr, "guestfsd: could not decode message header\n");
       exit (EXIT_FAILURE);
     }
 
     /* Check the version etc. */
-    if (hdr.prog != GUESTFS_PROGRAM) {
-      reply_with_error ("wrong program (%d)", hdr.prog);
+    if (hdr->prog != GUESTFS_PROGRAM) {
+      reply_with_error ("wrong program (%d)", hdr->prog);
       goto cont;
     }
-    if (hdr.vers != GUESTFS_PROTOCOL_VERSION) {
-      reply_with_error ("wrong protocol version (%d)", hdr.vers);
+    if (hdr->vers != GUESTFS_PROTOCOL_VERSION) {
+      reply_with_error ("wrong protocol version (%d)", hdr->vers);
       goto cont;
     }
-    if (hdr.direction != GUESTFS_DIRECTION_CALL) {
-      reply_with_error ("unexpected message direction (%d)", hdr.direction);
+    if (hdr->direction != GUESTFS_DIRECTION_CALL) {
+      reply_with_error ("unexpected message direction (%d)", hdr->direction);
       goto cont;
     }
-    if (hdr.status != GUESTFS_STATUS_OK) {
-      reply_with_error ("unexpected message status (%d)", hdr.status);
+    if (hdr->status != GUESTFS_STATUS_OK) {
+      reply_with_error ("unexpected message status (%d)", hdr->status);
       goto cont;
     }
 
-    proc_nr = hdr.proc;
-    serial = hdr.serial;
-    progress_hint = hdr.progress_hint;
-    optargs_bitmask = hdr.optargs_bitmask;
+    proc_nr = hdr->proc;
+    serial = hdr->serial;
+    progress_hint = hdr->progress_hint;
+    optargs_bitmask = hdr->optargs_bitmask;
 
     /* Clear errors before we call the stub functions.  This is just
      * to ensure that we can accurately report errors in cases where
@@ -189,7 +187,7 @@ main_loop (int _sock)
 #endif
 
     /* Now start to process this message. */
-    dispatch_incoming_message (&xdr);
+    dispatch_incoming_message (buf + PROTOBUF_MESSAGE_HEADER_SIZE, len - PROTOBUF_MESSAGE_HEADER_SIZE);
     /* Note that dispatch_incoming_message will also send a reply. */
 
     /* In verbose mode, display the time taken to run each command. */
@@ -212,7 +210,7 @@ main_loop (int _sock)
     }
 
   cont:
-    xdr_destroy (&xdr);
+    guestfs_protobuf_message_header__free_unpacked (hdr, NULL);
     free (buf);
   }
 }
@@ -266,12 +264,12 @@ reply_with_perror_errno (int err, const char *fs, ...)
 static void
 send_error (int errnum, char *msg)
 {
-  XDR xdr;
   CLEANUP_FREE char *buf = NULL;
-  char lenbuf[4];
-  struct guestfs_message_header hdr;
-  struct guestfs_message_error err;
-  unsigned len;
+  char lenbuf[PROTOBUF_FLAG_MESSAGE_SIZE];
+  guestfs_protobuf_flag_message flagmsg;
+  guestfs_protobuf_message_header hdr;
+  guestfs_protobuf_message_error err;
+  unsigned len, flaglen, hdrlen, errlen;
 
   /* Print the full length error message. */
   fprintf (stderr, "guestfsd: error: %s\n", msg);
@@ -290,17 +288,19 @@ send_error (int errnum, char *msg)
     perror ("malloc");
     exit (EXIT_FAILURE);
   }
-  xdrmem_create (&xdr, buf, GUESTFS_ERROR_LEN + 200, XDR_ENCODE);
 
-  memset (&hdr, 0, sizeof hdr);
+  guestfs_protobuf_message_header__init (&hdr);
   hdr.prog = GUESTFS_PROGRAM;
   hdr.vers = GUESTFS_PROTOCOL_VERSION;
   hdr.direction = GUESTFS_DIRECTION_REPLY;
   hdr.status = GUESTFS_STATUS_ERROR;
   hdr.proc = proc_nr;
   hdr.serial = serial;
+  
+  hdrlen = guestfs_protobuf_message_header__pack (&hdr, buf);
+  assert (hdrlen == PROTOBUF_MESSAGE_HEADER_SIZE);
 
-  if (!xdr_guestfs_message_header (&xdr, &hdr)) {
+  if (!hdrlen) {
     fprintf (stderr, "guestfsd: failed to encode error message header\n");
     exit (EXIT_FAILURE);
   }
@@ -308,23 +308,26 @@ send_error (int errnum, char *msg)
   /* These strings are not going to be freed.  We just cast them
    * to (char *) because they are defined that way in the XDR structs.
    */
+  guestfs_protobuf_message_error__init (&err);
   err.errno_string =
     (char *) (errnum > 0 ? guestfs___errno_to_string (errnum) : "");
   err.error_message = (char *) msg;
 
-  if (!xdr_guestfs_message_error (&xdr, &err)) {
+  errlen = guestfs_protobuf_message_error__pack (&err, buf + PROTOBUF_MESSAGE_HEADER_SIZE);
+
+  if (!errlen) {
     fprintf (stderr, "guestfsd: failed to encode error message body\n");
     exit (EXIT_FAILURE);
   }
 
-  len = xdr_getpos (&xdr);
-  xdr_destroy (&xdr);
+  len = hdrlen + errlen;
 
-  xdrmem_create (&xdr, lenbuf, 4, XDR_ENCODE);
-  xdr_u_int (&xdr, &len);
-  xdr_destroy (&xdr);
+  guestfs_protobuf_flag_message__init (&flagmsg);
+  flagmsg.val = len;
+  flaglen = guestfs_protobuf_flag_message__pack (&flagmsg, lenbuf);
+  assert (flaglen == PROTOBUF_FLAG_MESSAGE_SIZE);
 
-  if (xwrite (sock, lenbuf, 4) == -1) {
+  if (xwrite (sock, lenbuf, PROTOBUF_FLAG_MESSAGE_SIZE) == -1) {
     fprintf (stderr, "guestfsd: xwrite failed\n");
     exit (EXIT_FAILURE);
   }
@@ -335,22 +338,21 @@ send_error (int errnum, char *msg)
 }
 
 void
-reply (size_t lenret, char *ret)
+reply (protobuf_proc_pack pb_pack, char *ret)
 {
-  XDR xdr;
   CLEANUP_FREE char *buf = NULL;
-  char lenbuf[4];
-  struct guestfs_message_header hdr;
-  uint32_t len;
+  char lenbuf[PROTOBUF_FLAG_MESSAGE_SIZE];
+  guestfs_protobuf_flag_message flagmsg;
+  guestfs_protobuf_message_header hdr;
+  uint32_t len, flaglen, hdrlen, retlen;
 
   buf = malloc (GUESTFS_MESSAGE_MAX);
   if (!buf) {
     perror ("malloc");
     exit (EXIT_FAILURE);
   }
-  xdrmem_create (&xdr, buf, GUESTFS_MESSAGE_MAX, XDR_ENCODE);
 
-  memset (&hdr, 0, sizeof hdr);
+  guestfs_protobuf_message_header__init (&hdr);
   hdr.prog = GUESTFS_PROGRAM;
   hdr.vers = GUESTFS_PROTOCOL_VERSION;
   hdr.direction = GUESTFS_DIRECTION_REPLY;
@@ -358,31 +360,35 @@ reply (size_t lenret, char *ret)
   hdr.proc = proc_nr;
   hdr.serial = serial;
 
-  if (!xdr_guestfs_message_header (&xdr, &hdr)) {
+  hdrlen = guestfs_protobuf_message_header__pack (&hdr, buf);
+  assert (hdrlen == PROTOBUF_MESSAGE_HEADER_SIZE);
+
+  if (!hdrlen) {
     fprintf (stderr, "guestfsd: failed to encode reply header\n");
     exit (EXIT_FAILURE);
   }
 
-  if (xdrp) {
+  retlen = 0;
+  if (pb_pack) {
     /* This can fail if the reply body is too large, for example
      * if it exceeds the maximum message size.  In that case
      * we want to return an error message instead. (RHBZ#509597).
      */
-    if (!(*xdrp) (&xdr, ret)) {
+    retlen = pb_pack ((ProtobufCMessage*) ret, buf + PROTOBUF_MESSAGE_HEADER_SIZE);
+    if (!retlen || retlen > GUESTFS_MESSAGE_MAX) {
       reply_with_error ("guestfsd: failed to encode reply body\n(maybe the reply exceeds the maximum message size in the protocol?)");
-      xdr_destroy (&xdr);
       return;
     }
   }
 
-  len = xdr_getpos (&xdr);
-  xdr_destroy (&xdr);
+  len = hdrlen + retlen;
 
-  xdrmem_create (&xdr, lenbuf, 4, XDR_ENCODE);
-  xdr_u_int (&xdr, &len);
-  xdr_destroy (&xdr);
+  guestfs_protobuf_flag_message__init (&flagmsg);
+  flagmsg.val = len;
+  flaglen = guestfs_protobuf_flag_message__pack (&flagmsg, lenbuf);
+  assert (flaglen == PROTOBUF_FLAG_MESSAGE_SIZE);
 
-  if (xwrite (sock, lenbuf, 4) == -1) {
+  if (xwrite (sock, lenbuf, PROTOBUF_FLAG_MESSAGE_SIZE) == -1) {
     fprintf (stderr, "guestfsd: xwrite failed\n");
     exit (EXIT_FAILURE);
   }
@@ -396,9 +402,9 @@ reply (size_t lenret, char *ret)
 int
 receive_file (receive_cb cb, void *opaque)
 {
-  guestfs_chunk chunk;
-  char lenbuf[4];
-  XDR xdr;
+  guestfs_protobuf_chunk *chunk;
+  guestfs_protobuf_flag_message *flagmsg;
+  char lenbuf[PROTOBUF_FLAG_MESSAGE_SIZE];
   int r;
   uint32_t len;
 
@@ -409,12 +415,12 @@ receive_file (receive_cb cb, void *opaque)
       fprintf (stderr, "guestfsd: receive_file: reading length word\n");
 
     /* Read the length word. */
-    if (xread (sock, lenbuf, 4) == -1)
+    if (xread (sock, lenbuf, PROTOBUF_FLAG_MESSAGE_SIZE) == -1)
       exit (EXIT_FAILURE);
 
-    xdrmem_create (&xdr, lenbuf, 4, XDR_DECODE);
-    xdr_u_int (&xdr, &len);
-    xdr_destroy (&xdr);
+    flagmsg = guestfs_protobuf_flag_message__unpack (NULL, PROTOBUF_FLAG_MESSAGE_SIZE, lenbuf);
+    len = flagmsg->val;
+    guestfs_protobuf_flag_message__free_unpacked (flagmsg, NULL);
 
     if (len == GUESTFS_CANCEL_FLAG)
       continue;			/* Just ignore it. */
@@ -434,48 +440,45 @@ receive_file (receive_cb cb, void *opaque)
     if (xread (sock, buf, len) == -1)
       exit (EXIT_FAILURE);
 
-    xdrmem_create (&xdr, buf, len, XDR_DECODE);
-    memset (&chunk, 0, sizeof chunk);
-    if (!xdr_guestfs_chunk (&xdr, &chunk)) {
-      xdr_destroy (&xdr);
+    chunk = guestfs_protobuf_chunk__unpack (NULL, len, buf);
+    if (!chunk) {
       return -1;
     }
-    xdr_destroy (&xdr);
 
     if (verbose)
       fprintf (stderr,
-               "guestfsd: receive_file: got chunk: cancel = 0x%x, len = %d, buf = %p\n",
-               chunk.cancel, chunk.data.data_len, chunk.data.data_val);
+               "guestfsd: receive_file: got chunk: cancel = 0x%x, len = %zd, buf = %p\n",
+               chunk->cancel, chunk->data.len, chunk->data.data);
 
-    if (chunk.cancel != 0 && chunk.cancel != 1) {
+    if (chunk->cancel != 0 && chunk->cancel != 1) {
       fprintf (stderr,
                "guestfsd: receive_file: chunk.cancel != [0|1] ... "
                "continuing even though we have probably lost synchronization with the library\n");
       return -1;
     }
 
-    if (chunk.cancel) {
+    if (chunk->cancel) {
       if (verbose)
         fprintf (stderr,
 	  "guestfsd: receive_file: received cancellation from library\n");
-      xdr_free ((xdrproc_t) xdr_guestfs_chunk, (char *) &chunk);
+      guestfs_protobuf_chunk__free_unpacked (chunk, NULL);
       return -2;
     }
-    if (chunk.data.data_len == 0) {
+    if (chunk->data.len == 0) {
       if (verbose)
         fprintf (stderr,
 		 "guestfsd: receive_file: end of file, leaving function\n");
-      xdr_free ((xdrproc_t) xdr_guestfs_chunk, (char *) &chunk);
+      guestfs_protobuf_chunk__free_unpacked (chunk, NULL);
       return 0;			/* end of file */
     }
 
     /* Note that the callback can generate progress messages. */
     if (cb)
-      r = cb (opaque, chunk.data.data_val, chunk.data.data_len);
+      r = cb (opaque, chunk->data.data, chunk->data.len);
     else
       r = 0;
 
-    xdr_free ((xdrproc_t) xdr_guestfs_chunk, (char *) &chunk);
+    guestfs_protobuf_chunk__free_unpacked (chunk, NULL);
     if (r == -1) {		/* write error */
       if (verbose)
         fprintf (stderr, "guestfsd: receive_file: write error\n");
@@ -488,15 +491,16 @@ receive_file (receive_cb cb, void *opaque)
 int
 cancel_receive (void)
 {
-  XDR xdr;
-  char fbuf[4];
-  uint32_t flag = GUESTFS_CANCEL_FLAG;
+  char flagbuf[PROTOBUF_FLAG_MESSAGE_SIZE];
+  guestfs_protobuf_flag_message flagmsg;
+  uint32_t flag = GUESTFS_CANCEL_FLAG, flaglen;
 
-  xdrmem_create (&xdr, fbuf, sizeof fbuf, XDR_ENCODE);
-  xdr_u_int (&xdr, &flag);
-  xdr_destroy (&xdr);
+  guestfs_protobuf_flag_message__init (&flagmsg);
+  flagmsg.val = flag;
+  flaglen = guestfs_protobuf_flag_message__pack (&flagmsg, flagbuf);
+  assert (flaglen == PROTOBUF_FLAG_MESSAGE_SIZE);
 
-  if (xwrite (sock, fbuf, sizeof fbuf) == -1) {
+  if (xwrite (sock, flagbuf, sizeof flagbuf) == -1) {
     perror ("write to socket");
     return -1;
   }
@@ -506,13 +510,13 @@ cancel_receive (void)
 }
 
 static int check_for_library_cancellation (void);
-static int send_chunk (const guestfs_chunk *);
+static int send_chunk (const guestfs_protobuf_chunk *);
 
 /* Also check if the library sends us a cancellation message. */
 int
 send_file_write (const void *buf, size_t len)
 {
-  guestfs_chunk chunk;
+  guestfs_protobuf_chunk chunk = GUESTFS_PROTOBUF_CHUNK__INIT;
   int cancel;
 
   if (len > GUESTFS_MAX_CHUNK_SIZE) {
@@ -525,12 +529,12 @@ send_file_write (const void *buf, size_t len)
 
   if (cancel) {
     chunk.cancel = 1;
-    chunk.data.data_len = 0;
-    chunk.data.data_val = NULL;
+    chunk.data.len = 0;
+    chunk.data.data = NULL;
   } else {
     chunk.cancel = 0;
-    chunk.data.data_len = len;
-    chunk.data.data_val = (char *) buf;
+    chunk.data.len = len;
+    chunk.data.data = (char *) buf;
   }
 
   if (send_chunk (&chunk) == -1)
@@ -546,9 +550,9 @@ check_for_library_cancellation (void)
   fd_set rset;
   struct timeval tv;
   int r;
-  char buf[4];
+  char buf[PROTOBUF_FLAG_MESSAGE_SIZE];
   uint32_t flag;
-  XDR xdr;
+  guestfs_protobuf_flag_message *flagmsg;
 
   FD_ZERO (&rset);
   FD_SET (sock, &rset);
@@ -567,9 +571,9 @@ check_for_library_cancellation (void)
   if (r == -1)
     return 0;
 
-  xdrmem_create (&xdr, buf, sizeof buf, XDR_DECODE);
-  xdr_u_int (&xdr, &flag);
-  xdr_destroy (&xdr);
+  flagmsg = guestfs_protobuf_flag_message__unpack (NULL, PROTOBUF_FLAG_MESSAGE_SIZE, buf);
+  flag = flagmsg->val;
+  guestfs_protobuf_flag_message__free_unpacked (flagmsg, NULL);
 
   if (flag != GUESTFS_CANCEL_FLAG) {
     fprintf (stderr, "guestfsd: check_for_library_cancellation: read 0x%x from library, expected 0x%x\n",
@@ -583,37 +587,34 @@ check_for_library_cancellation (void)
 int
 send_file_end (int cancel)
 {
-  guestfs_chunk chunk;
+  guestfs_protobuf_chunk chunk = GUESTFS_PROTOBUF_CHUNK__INIT;
 
   chunk.cancel = cancel;
-  chunk.data.data_len = 0;
-  chunk.data.data_val = NULL;
+  chunk.data.len = 0;
+  chunk.data.data = NULL;
   return send_chunk (&chunk);
 }
 
 static int
-send_chunk (const guestfs_chunk *chunk)
+send_chunk (const guestfs_protobuf_chunk *chunk)
 {
   char buf[GUESTFS_MAX_CHUNK_SIZE + 48];
-  char lenbuf[4];
-  XDR xdr;
-  uint32_t len;
+  char lenbuf[PROTOBUF_FLAG_MESSAGE_SIZE];
+  guestfs_protobuf_flag_message flagmsg;
+  uint32_t len, flaglen;
 
-  xdrmem_create (&xdr, buf, sizeof buf, XDR_ENCODE);
-  if (!xdr_guestfs_chunk (&xdr, (guestfs_chunk *) chunk)) {
+  len = guestfs_protobuf_chunk__pack (chunk, buf);
+  if (!len) {
     fprintf (stderr, "guestfsd: send_chunk: failed to encode chunk\n");
-    xdr_destroy (&xdr);
     return -1;
   }
 
-  len = xdr_getpos (&xdr);
-  xdr_destroy (&xdr);
+  guestfs_protobuf_flag_message__init (&flagmsg);
+  flagmsg.val = len;
+  flaglen = guestfs_protobuf_flag_message__pack (&flagmsg, lenbuf);
+  assert (flaglen == PROTOBUF_FLAG_MESSAGE_SIZE);
 
-  xdrmem_create (&xdr, lenbuf, 4, XDR_ENCODE);
-  xdr_u_int (&xdr, &len);
-  xdr_destroy (&xdr);
-
-  int err = (xwrite (sock, lenbuf, 4) == 0
+  int err = (xwrite (sock, lenbuf, PROTOBUF_FLAG_MESSAGE_SIZE) == 0
              && xwrite (sock, buf, len) == 0 ? 0 : -1);
   if (err) {
     fprintf (stderr, "guestfsd: send_chunk: write failed\n");
@@ -667,40 +668,41 @@ void
 notify_progress_no_ratelimit (uint64_t position, uint64_t total,
                               const struct timeval *now_t)
 {
-  XDR xdr;
-  char buf[128];
+  char buf[PROTOBUF_PROGRESS_MESSAGE_SIZE];
   uint32_t i;
-  size_t len;
-  guestfs_progress message;
+  size_t len, flaglen;
+  guestfs_protobuf_flag_message flagmsg;
+  guestfs_protobuf_progress message;
 
   count_progress++;
   last_progress_t = *now_t;
 
   /* Send the header word. */
   i = GUESTFS_PROGRESS_FLAG;
-  xdrmem_create (&xdr, buf, 4, XDR_ENCODE);
-  xdr_u_int (&xdr, &i);
-  xdr_destroy (&xdr);
+  
+  guestfs_protobuf_flag_message__init (&flagmsg);
+  flagmsg.val = i;
+  flaglen = guestfs_protobuf_flag_message__pack (&flagmsg, buf);
+  assert (flaglen == PROTOBUF_FLAG_MESSAGE_SIZE);
 
-  if (xwrite (sock, buf, 4) == -1) {
+  if (xwrite (sock, buf, PROTOBUF_FLAG_MESSAGE_SIZE) == -1) {
     fprintf (stderr, "guestfsd: xwrite failed\n");
     exit (EXIT_FAILURE);
   }
 
+  guestfs_protobuf_progress__init (&message);
   message.proc = proc_nr;
   message.serial = serial;
   message.position = position;
   message.total = total;
 
-  xdrmem_create (&xdr, buf, sizeof buf, XDR_ENCODE);
-  if (!xdr_guestfs_progress (&xdr, &message)) {
+  len = guestfs_protobuf_progress__pack (&message, buf);
+  assert (len == PROTOBUF_PROGRESS_MESSAGE_SIZE);
+  if (!len) {
     fprintf (stderr, "guestfsd: xdr_guestfs_progress: failed to encode message\n");
-    xdr_destroy (&xdr);
     return;
   }
-  len = xdr_getpos (&xdr);
-  xdr_destroy (&xdr);
-
+  
   if (xwrite (sock, buf, len) == -1) {
     fprintf (stderr, "guestfsd: xwrite failed\n");
     exit (EXIT_FAILURE);

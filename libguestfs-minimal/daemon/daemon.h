@@ -25,9 +25,6 @@
 #include <errno.h>
 #include <unistd.h>
 
-#include <rpc/types.h>
-#include <rpc/xdr.h>
-
 #include "guestfs_protocol.h"
 
 #include "guestfs-internal-all.h"
@@ -192,7 +189,7 @@ extern int is_root_mounted (void);
 extern int is_device_mounted (const char *device);
 
 /*-- in stubs.c (auto-generated) --*/
-extern void dispatch_incoming_message (XDR *);
+extern void dispatch_incoming_message (const char* ret, size_t len);
 extern guestfs_int_lvm_pv_list *parse_command_line_pvs (void);
 extern guestfs_int_lvm_vg_list *parse_command_line_vgs (void);
 extern guestfs_int_lvm_lv_list *parse_command_line_lvs (void);
@@ -293,7 +290,7 @@ extern int send_file_write (const void *buf, size_t len);
 extern int send_file_end (int cancel);
 
 /* only call this if there is a FileOut parameter */
-extern void reply (xdrproc_t xdrp, char *ret);
+extern void reply (protobuf_proc_pack pb_pack, char *ret);
 
 /* Notify progress to caller.  This function is self-rate-limiting so
  * you can call it as often as necessary.  Actions which call this

@@ -166,7 +166,7 @@ recursive_mkdir (const char *path)
 }
 
 int
-do_mkdir_p (const char *path)
+do_mkdir_pp (const char *path)
 {
   int r;
 

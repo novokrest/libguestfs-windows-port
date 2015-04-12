@@ -1,0 +1,14 @@
+INSTALL VS
+
+1. get sources from: https://github.com/protobuf-c/protobuf-c.git
+2. use CMake: http://www.cmake.org/download/
+2.1 set source directory: <protobuf-c>/build-cmake
+2.2 set build-directory: <protobuf-c>/build
+2.3 choose generator: Visual Studio 12 2013
+2.4 run Configure. If it failed set necessary variables (like protobuf_src_root, protobuf_library and etc)
+2.5 run Generate
+3. go to build directory
+4. open VS project
+5. Build Release
+6. Build Debug: If it failed go to protoc project properties -> Linker -> Input -> check that protobuf library dependecies is Debug (if it Release than change to Debug)
+7. Copy Debug and Releases to project

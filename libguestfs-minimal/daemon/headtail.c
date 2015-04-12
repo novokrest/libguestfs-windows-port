@@ -76,7 +76,7 @@ do_tail (const char *path)
 }
 
 char **
-do_head_n (int n, const char *path)
+do_head_nn (int n, const char *path)
 {
   char nbuf[16];
 
@@ -86,7 +86,7 @@ do_head_n (int n, const char *path)
 }
 
 char **
-do_tail_n (int n, const char *path)
+do_tail_nn (int n, const char *path)
 {
   char nbuf[16];
 

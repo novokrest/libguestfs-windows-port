@@ -1025,9 +1025,10 @@ guestfs_mount (guestfs_h *g,
                const char *mountable,
                const char *mountpoint)
 {
-  struct guestfs_mount_args args;
-  guestfs_message_header hdr;
-  guestfs_message_error err;
+  guestfs_protobuf_mount_args args;
+  guestfs_protobuf_mount_args__init (&args);
+  guestfs_protobuf_message_header *hdr;
+  guestfs_protobuf_message_error *err;
   int serial;
   int r;
   int trace_flag = g->trace;
@@ -1067,7 +1068,7 @@ guestfs_mount (guestfs_h *g,
   args.mountpoint = (char *) mountpoint;
   serial = guestfs___send (g, GUESTFS_PROC_MOUNT,
                            progress_hint, 0,
-                           (xdrproc_t) xdr_guestfs_mount_args, (char *) &args);
+                           (protobuf_proc_pack) guestfs_protobuf_mount_args__pack, (char *) &args);
   if (serial == -1) {
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
@@ -1075,8 +1076,8 @@ guestfs_mount (guestfs_h *g,
     return -1;
   }
 
-  memset (&hdr, 0, sizeof hdr);
-  memset (&err, 0, sizeof err);
+  hdr = NULL;
+  err = NULL;
 
   r = guestfs___recv (g, "mount", &hdr, &err,
         NULL, NULL);
@@ -1087,28 +1088,28 @@ guestfs_mount (guestfs_h *g,
     return -1;
   }
 
-  if (guestfs___check_reply_header (g, &hdr, GUESTFS_PROC_MOUNT, serial) == -1) {
+  if (guestfs___check_reply_header (g, hdr, GUESTFS_PROC_MOUNT, serial) == -1) {
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
                        "mount", "-1");
     return -1;
   }
 
-  if (hdr.status == GUESTFS_STATUS_ERROR) {
+  if (hdr->status == GUESTFS_STATUS_ERROR) {
     int errnum = 0;
 
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
                        "mount", "-1");
-    if (err.errno_string[0] != '\0')
-      errnum = guestfs___string_to_errno (err.errno_string);
+    if (err->errno_string[0] != '\0')
+      errnum = guestfs___string_to_errno (err->errno_string);
     if (errnum <= 0)
-      error (g, "%s: %s", "mount", err.error_message);
+      error (g, "%s: %s", "mount", err->error_message);
     else
       guestfs___error_errno (g, errnum, "%s: %s", "mount",
-                           err.error_message);
-    free (err.error_message);
-    free (err.errno_string);
+                           err->error_message);
+    guestfs_protobuf_message_error__free_unpacked (err, NULL);
+    guestfs_protobuf_message_header__free_unpacked (hdr, NULL);
     return -1;
   }
 
@@ -1120,6 +1121,7 @@ guestfs_mount (guestfs_h *g,
     guestfs___trace_send_line (g, &trace_buffer);
   }
 
+  guestfs_protobuf_message_header__free_unpacked (hdr, NULL);
   return ret_v;
 }
 
@@ -1127,9 +1129,10 @@ GUESTFS_DLL_PUBLIC int
 guestfs_touch (guestfs_h *g,
                const char *path)
 {
-  struct guestfs_touch_args args;
-  guestfs_message_header hdr;
-  guestfs_message_error err;
+  guestfs_protobuf_touch_args args;
+  guestfs_protobuf_touch_args__init (&args);
+  guestfs_protobuf_message_header *hdr;
+  guestfs_protobuf_message_error *err;
   int serial;
   int r;
   int trace_flag = g->trace;
@@ -1162,7 +1165,7 @@ guestfs_touch (guestfs_h *g,
   args.path = (char *) path;
   serial = guestfs___send (g, GUESTFS_PROC_TOUCH,
                            progress_hint, 0,
-                           (xdrproc_t) xdr_guestfs_touch_args, (char *) &args);
+                           (protobuf_proc_pack) guestfs_protobuf_touch_args__pack, (char *) &args);
   if (serial == -1) {
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
@@ -1170,8 +1173,8 @@ guestfs_touch (guestfs_h *g,
     return -1;
   }
 
-  memset (&hdr, 0, sizeof hdr);
-  memset (&err, 0, sizeof err);
+  hdr = NULL;
+  err = NULL;
 
   r = guestfs___recv (g, "touch", &hdr, &err,
         NULL, NULL);
@@ -1182,28 +1185,28 @@ guestfs_touch (guestfs_h *g,
     return -1;
   }
 
-  if (guestfs___check_reply_header (g, &hdr, GUESTFS_PROC_TOUCH, serial) == -1) {
+  if (guestfs___check_reply_header (g, hdr, GUESTFS_PROC_TOUCH, serial) == -1) {
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
                        "touch", "-1");
     return -1;
   }
 
-  if (hdr.status == GUESTFS_STATUS_ERROR) {
+  if (hdr->status == GUESTFS_STATUS_ERROR) {
     int errnum = 0;
 
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
                        "touch", "-1");
-    if (err.errno_string[0] != '\0')
-      errnum = guestfs___string_to_errno (err.errno_string);
+    if (err->errno_string[0] != '\0')
+      errnum = guestfs___string_to_errno (err->errno_string);
     if (errnum <= 0)
-      error (g, "%s: %s", "touch", err.error_message);
+      error (g, "%s: %s", "touch", err->error_message);
     else
       guestfs___error_errno (g, errnum, "%s: %s", "touch",
-                           err.error_message);
-    free (err.error_message);
-    free (err.errno_string);
+                           err->error_message);
+    guestfs_protobuf_message_error__free_unpacked (err, NULL);
+    guestfs_protobuf_message_header__free_unpacked (hdr, NULL);
     return -1;
   }
 
@@ -1215,15 +1218,16 @@ guestfs_touch (guestfs_h *g,
     guestfs___trace_send_line (g, &trace_buffer);
   }
 
+  guestfs_protobuf_message_header__free_unpacked (hdr, NULL);
   return ret_v;
 }
 
 GUESTFS_DLL_PUBLIC char **
 guestfs_list_partitions (guestfs_h *g)
 {
-  guestfs_message_header hdr;
-  guestfs_message_error err;
-  struct guestfs_list_partitions_ret ret;
+  guestfs_protobuf_message_header *hdr;
+  guestfs_protobuf_message_error *err;
+  guestfs_protobuf_list_partitions_ret *ret;
   int serial;
   int r;
   int trace_flag = g->trace;
@@ -1255,12 +1259,12 @@ guestfs_list_partitions (guestfs_h *g)
     return NULL;
   }
 
-  memset (&hdr, 0, sizeof hdr);
-  memset (&err, 0, sizeof err);
-  memset (&ret, 0, sizeof ret);
+  hdr = NULL;
+  err = NULL;
+  ret = NULL;
 
   r = guestfs___recv (g, "list_partitions", &hdr, &err,
-        (xdrproc_t) xdr_guestfs_list_partitions_ret, (char *) &ret);
+        (protobuf_proc_unpack) guestfs_protobuf_list_partitions_ret__unpack, (ProtobufCMessage **) &ret);
   if (r == -1) {
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
@@ -1268,37 +1272,38 @@ guestfs_list_partitions (guestfs_h *g)
     return NULL;
   }
 
-  if (guestfs___check_reply_header (g, &hdr, GUESTFS_PROC_LIST_PARTITIONS, serial) == -1) {
+  if (guestfs___check_reply_header (g, hdr, GUESTFS_PROC_LIST_PARTITIONS, serial) == -1) {
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
                        "list_partitions", "NULL");
     return NULL;
   }
 
-  if (hdr.status == GUESTFS_STATUS_ERROR) {
+  if (hdr->status == GUESTFS_STATUS_ERROR) {
     int errnum = 0;
 
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
                        "list_partitions", "NULL");
-    if (err.errno_string[0] != '\0')
-      errnum = guestfs___string_to_errno (err.errno_string);
+    if (err->errno_string[0] != '\0')
+      errnum = guestfs___string_to_errno (err->errno_string);
     if (errnum <= 0)
-      error (g, "%s: %s", "list_partitions", err.error_message);
+      error (g, "%s: %s", "list_partitions", err->error_message);
     else
       guestfs___error_errno (g, errnum, "%s: %s", "list_partitions",
-                           err.error_message);
-    free (err.error_message);
-    free (err.errno_string);
+                           err->error_message);
+    guestfs_protobuf_message_error__free_unpacked (err, NULL);
+    guestfs_protobuf_message_header__free_unpacked (hdr, NULL);
     return NULL;
   }
 
   /* caller will free this, but we need to add a NULL entry */
-  ret.partitions.partitions_val =
-    safe_realloc (g, ret.partitions.partitions_val,
-                  sizeof (char *) * (ret.partitions.partitions_len + 1));
-  ret.partitions.partitions_val[ret.partitions.partitions_len] = NULL;
-  ret_v = ret.partitions.partitions_val;
+  ret_v = safe_malloc (g, sizeof (char *) * (ret->n_partitions));
+  int i;
+  for (i = 0; i < ret->n_partitions - 1; ++i) {
+     ret_v[i] = safe_strdup (g, ret->partitions[i]);
+  }
+  ret_v[ret->n_partitions - 1] = NULL;
   if (trace_flag) {
     size_t i;
 
@@ -1315,15 +1320,17 @@ guestfs_list_partitions (guestfs_h *g)
     guestfs___trace_send_line (g, &trace_buffer);
   }
 
+  guestfs_protobuf_message_header__free_unpacked (hdr, NULL);
+  guestfs_protobuf_list_partitions_ret__free_unpacked (ret, NULL);
   return ret_v;
 }
 
 GUESTFS_DLL_PUBLIC struct guestfs_lvm_vg_list *
 guestfs_vgs_full (guestfs_h *g)
 {
-  guestfs_message_header hdr;
-  guestfs_message_error err;
-  struct guestfs_vgs_full_ret ret;
+  guestfs_protobuf_message_header *hdr;
+  guestfs_protobuf_message_error *err;
+  guestfs_protobuf_vgs_full_ret *ret;
   int serial;
   int r;
   int trace_flag = g->trace;
@@ -1355,12 +1362,12 @@ guestfs_vgs_full (guestfs_h *g)
     return NULL;
   }
 
-  memset (&hdr, 0, sizeof hdr);
-  memset (&err, 0, sizeof err);
-  memset (&ret, 0, sizeof ret);
+  hdr = NULL;
+  err = NULL;
+  ret = NULL;
 
   r = guestfs___recv (g, "vgs_full", &hdr, &err,
-        (xdrproc_t) xdr_guestfs_vgs_full_ret, (char *) &ret);
+        (protobuf_proc_unpack) guestfs_protobuf_vgs_full_ret__unpack, (ProtobufCMessage **) &ret);
   if (r == -1) {
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
@@ -1368,33 +1375,34 @@ guestfs_vgs_full (guestfs_h *g)
     return NULL;
   }
 
-  if (guestfs___check_reply_header (g, &hdr, GUESTFS_PROC_VGS_FULL, serial) == -1) {
+  if (guestfs___check_reply_header (g, hdr, GUESTFS_PROC_VGS_FULL, serial) == -1) {
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
                        "vgs_full", "NULL");
     return NULL;
   }
 
-  if (hdr.status == GUESTFS_STATUS_ERROR) {
+  if (hdr->status == GUESTFS_STATUS_ERROR) {
     int errnum = 0;
 
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
                        "vgs_full", "NULL");
-    if (err.errno_string[0] != '\0')
-      errnum = guestfs___string_to_errno (err.errno_string);
+    if (err->errno_string[0] != '\0')
+      errnum = guestfs___string_to_errno (err->errno_string);
     if (errnum <= 0)
-      error (g, "%s: %s", "vgs_full", err.error_message);
+      error (g, "%s: %s", "vgs_full", err->error_message);
     else
       guestfs___error_errno (g, errnum, "%s: %s", "vgs_full",
-                           err.error_message);
-    free (err.error_message);
-    free (err.errno_string);
+                           err->error_message);
+    guestfs_protobuf_message_error__free_unpacked (err, NULL);
+    guestfs_protobuf_message_header__free_unpacked (hdr, NULL);
     return NULL;
   }
 
   /* caller will free this */
-  ret_v = safe_memdup (g, &ret.volgroups, sizeof (ret.volgroups));
+  ret_v = safe_malloc (g, sizeof (struct guestfs_lvm_vg_list));
+  convert_guestfs_int_lvm_vg_list_protobuf_to_xdr (ret->volgroups, (guestfs_int_lvm_vg_list *) ret_v);
   if (trace_flag) {
     guestfs___trace_open (&trace_buffer);
     fprintf (trace_buffer.fp, "%s = ", "vgs_full");
@@ -1402,6 +1410,8 @@ guestfs_vgs_full (guestfs_h *g)
     guestfs___trace_send_line (g, &trace_buffer);
   }
 
+  guestfs_protobuf_message_header__free_unpacked (hdr, NULL);
+  guestfs_protobuf_vgs_full_ret__free_unpacked (ret, NULL);
   return ret_v;
 }
 
@@ -1410,10 +1420,11 @@ guestfs_aug_defvar (guestfs_h *g,
                     const char *name,
                     const char *expr)
 {
-  struct guestfs_aug_defvar_args args;
-  guestfs_message_header hdr;
-  guestfs_message_error err;
-  struct guestfs_aug_defvar_ret ret;
+  guestfs_protobuf_aug_defvar_args args;
+  guestfs_protobuf_aug_defvar_args__init (&args);
+  guestfs_protobuf_message_header *hdr;
+  guestfs_protobuf_message_error *err;
+  guestfs_protobuf_aug_defvar_ret *ret;
   int serial;
   int r;
   int trace_flag = g->trace;
@@ -1449,9 +1460,10 @@ guestfs_aug_defvar (guestfs_h *g,
 
   args.name = (char *) name;
   args.expr = expr ? (char **) &expr : NULL;
+  args.n_expr = expr ? 1 : 0;
   serial = guestfs___send (g, GUESTFS_PROC_AUG_DEFVAR,
                            progress_hint, 0,
-                           (xdrproc_t) xdr_guestfs_aug_defvar_args, (char *) &args);
+                           (protobuf_proc_pack) guestfs_protobuf_aug_defvar_args__pack, (char *) &args);
   if (serial == -1) {
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
@@ -1459,12 +1471,12 @@ guestfs_aug_defvar (guestfs_h *g,
     return -1;
   }
 
-  memset (&hdr, 0, sizeof hdr);
-  memset (&err, 0, sizeof err);
-  memset (&ret, 0, sizeof ret);
+  hdr = NULL;
+  err = NULL;
+  ret = NULL;
 
   r = guestfs___recv (g, "aug_defvar", &hdr, &err,
-        (xdrproc_t) xdr_guestfs_aug_defvar_ret, (char *) &ret);
+        (protobuf_proc_unpack) guestfs_protobuf_aug_defvar_ret__unpack, (ProtobufCMessage **) &ret);
   if (r == -1) {
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
@@ -1472,32 +1484,32 @@ guestfs_aug_defvar (guestfs_h *g,
     return -1;
   }
 
-  if (guestfs___check_reply_header (g, &hdr, GUESTFS_PROC_AUG_DEFVAR, serial) == -1) {
+  if (guestfs___check_reply_header (g, hdr, GUESTFS_PROC_AUG_DEFVAR, serial) == -1) {
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
                        "aug_defvar", "-1");
     return -1;
   }
 
-  if (hdr.status == GUESTFS_STATUS_ERROR) {
+  if (hdr->status == GUESTFS_STATUS_ERROR) {
     int errnum = 0;
 
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
                        "aug_defvar", "-1");
-    if (err.errno_string[0] != '\0')
-      errnum = guestfs___string_to_errno (err.errno_string);
+    if (err->errno_string[0] != '\0')
+      errnum = guestfs___string_to_errno (err->errno_string);
     if (errnum <= 0)
-      error (g, "%s: %s", "aug_defvar", err.error_message);
+      error (g, "%s: %s", "aug_defvar", err->error_message);
     else
       guestfs___error_errno (g, errnum, "%s: %s", "aug_defvar",
-                           err.error_message);
-    free (err.error_message);
-    free (err.errno_string);
+                           err->error_message);
+    guestfs_protobuf_message_error__free_unpacked (err, NULL);
+    guestfs_protobuf_message_header__free_unpacked (hdr, NULL);
     return -1;
   }
 
-  ret_v = ret.nrnodes;
+  ret_v = ret->nrnodes;
   if (trace_flag) {
     guestfs___trace_open (&trace_buffer);
     fprintf (trace_buffer.fp, "%s = ", "aug_defvar");
@@ -1505,6 +1517,8 @@ guestfs_aug_defvar (guestfs_h *g,
     guestfs___trace_send_line (g, &trace_buffer);
   }
 
+  guestfs_protobuf_message_header__free_unpacked (hdr, NULL);
+  guestfs_protobuf_aug_defvar_ret__free_unpacked (ret, NULL);
   return ret_v;
 }
 
@@ -1512,10 +1526,11 @@ GUESTFS_DLL_PUBLIC int
 guestfs_exists (guestfs_h *g,
                 const char *path)
 {
-  struct guestfs_exists_args args;
-  guestfs_message_header hdr;
-  guestfs_message_error err;
-  struct guestfs_exists_ret ret;
+  guestfs_protobuf_exists_args args;
+  guestfs_protobuf_exists_args__init (&args);
+  guestfs_protobuf_message_header *hdr;
+  guestfs_protobuf_message_error *err;
+  guestfs_protobuf_exists_ret *ret;
   int serial;
   int r;
   int trace_flag = g->trace;
@@ -1548,7 +1563,7 @@ guestfs_exists (guestfs_h *g,
   args.path = (char *) path;
   serial = guestfs___send (g, GUESTFS_PROC_EXISTS,
                            progress_hint, 0,
-                           (xdrproc_t) xdr_guestfs_exists_args, (char *) &args);
+                           (protobuf_proc_pack) guestfs_protobuf_exists_args__pack, (char *) &args);
   if (serial == -1) {
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
@@ -1556,12 +1571,12 @@ guestfs_exists (guestfs_h *g,
     return -1;
   }
 
-  memset (&hdr, 0, sizeof hdr);
-  memset (&err, 0, sizeof err);
-  memset (&ret, 0, sizeof ret);
+  hdr = NULL;
+  err = NULL;
+  ret = NULL;
 
   r = guestfs___recv (g, "exists", &hdr, &err,
-        (xdrproc_t) xdr_guestfs_exists_ret, (char *) &ret);
+        (protobuf_proc_unpack) guestfs_protobuf_exists_ret__unpack, (ProtobufCMessage **) &ret);
   if (r == -1) {
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
@@ -1569,32 +1584,32 @@ guestfs_exists (guestfs_h *g,
     return -1;
   }
 
-  if (guestfs___check_reply_header (g, &hdr, GUESTFS_PROC_EXISTS, serial) == -1) {
+  if (guestfs___check_reply_header (g, hdr, GUESTFS_PROC_EXISTS, serial) == -1) {
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
                        "exists", "-1");
     return -1;
   }
 
-  if (hdr.status == GUESTFS_STATUS_ERROR) {
+  if (hdr->status == GUESTFS_STATUS_ERROR) {
     int errnum = 0;
 
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
                        "exists", "-1");
-    if (err.errno_string[0] != '\0')
-      errnum = guestfs___string_to_errno (err.errno_string);
+    if (err->errno_string[0] != '\0')
+      errnum = guestfs___string_to_errno (err->errno_string);
     if (errnum <= 0)
-      error (g, "%s: %s", "exists", err.error_message);
+      error (g, "%s: %s", "exists", err->error_message);
     else
       guestfs___error_errno (g, errnum, "%s: %s", "exists",
-                           err.error_message);
-    free (err.error_message);
-    free (err.errno_string);
+                           err->error_message);
+    guestfs_protobuf_message_error__free_unpacked (err, NULL);
+    guestfs_protobuf_message_header__free_unpacked (hdr, NULL);
     return -1;
   }
 
-  ret_v = ret.existsflag;
+  ret_v = ret->existsflag;
   if (trace_flag) {
     guestfs___trace_open (&trace_buffer);
     fprintf (trace_buffer.fp, "%s = ", "exists");
@@ -1602,6 +1617,8 @@ guestfs_exists (guestfs_h *g,
     guestfs___trace_send_line (g, &trace_buffer);
   }
 
+  guestfs_protobuf_message_header__free_unpacked (hdr, NULL);
+  guestfs_protobuf_exists_ret__free_unpacked (ret, NULL);
   return ret_v;
 }
 
@@ -1616,9 +1633,10 @@ guestfs_umount_opts_argv (guestfs_h *g,
     optargs = &optargs_null;
   }
 
-  struct guestfs_umount_args args;
-  guestfs_message_header hdr;
-  guestfs_message_error err;
+  guestfs_protobuf_umount_args args;
+  guestfs_protobuf_umount_args__init (&args);
+  guestfs_protobuf_message_header *hdr;
+  guestfs_protobuf_message_error *err;
   int serial;
   int r;
   int trace_flag = g->trace;
@@ -1673,7 +1691,7 @@ guestfs_umount_opts_argv (guestfs_h *g,
   }
   serial = guestfs___send (g, GUESTFS_PROC_UMOUNT,
                            progress_hint, optargs->bitmask,
-                           (xdrproc_t) xdr_guestfs_umount_args, (char *) &args);
+                           (protobuf_proc_pack) guestfs_protobuf_umount_args__pack, (char *) &args);
   if (serial == -1) {
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
@@ -1681,8 +1699,8 @@ guestfs_umount_opts_argv (guestfs_h *g,
     return -1;
   }
 
-  memset (&hdr, 0, sizeof hdr);
-  memset (&err, 0, sizeof err);
+  hdr = NULL;
+  err = NULL;
 
   r = guestfs___recv (g, "umount", &hdr, &err,
         NULL, NULL);
@@ -1693,28 +1711,28 @@ guestfs_umount_opts_argv (guestfs_h *g,
     return -1;
   }
 
-  if (guestfs___check_reply_header (g, &hdr, GUESTFS_PROC_UMOUNT, serial) == -1) {
+  if (guestfs___check_reply_header (g, hdr, GUESTFS_PROC_UMOUNT, serial) == -1) {
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
                        "umount", "-1");
     return -1;
   }
 
-  if (hdr.status == GUESTFS_STATUS_ERROR) {
+  if (hdr->status == GUESTFS_STATUS_ERROR) {
     int errnum = 0;
 
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
                        "umount", "-1");
-    if (err.errno_string[0] != '\0')
-      errnum = guestfs___string_to_errno (err.errno_string);
+    if (err->errno_string[0] != '\0')
+      errnum = guestfs___string_to_errno (err->errno_string);
     if (errnum <= 0)
-      error (g, "%s: %s", "umount", err.error_message);
+      error (g, "%s: %s", "umount", err->error_message);
     else
       guestfs___error_errno (g, errnum, "%s: %s", "umount",
-                           err.error_message);
-    free (err.error_message);
-    free (err.errno_string);
+                           err->error_message);
+    guestfs_protobuf_message_error__free_unpacked (err, NULL);
+    guestfs_protobuf_message_header__free_unpacked (hdr, NULL);
     return -1;
   }
 
@@ -1726,15 +1744,16 @@ guestfs_umount_opts_argv (guestfs_h *g,
     guestfs___trace_send_line (g, &trace_buffer);
   }
 
+  guestfs_protobuf_message_header__free_unpacked (hdr, NULL);
   return ret_v;
 }
 
 GUESTFS_DLL_PUBLIC char **
 guestfs_mounts (guestfs_h *g)
 {
-  guestfs_message_header hdr;
-  guestfs_message_error err;
-  struct guestfs_mounts_ret ret;
+  guestfs_protobuf_message_header *hdr;
+  guestfs_protobuf_message_error *err;
+  guestfs_protobuf_mounts_ret *ret;
   int serial;
   int r;
   int trace_flag = g->trace;
@@ -1766,12 +1785,12 @@ guestfs_mounts (guestfs_h *g)
     return NULL;
   }
 
-  memset (&hdr, 0, sizeof hdr);
-  memset (&err, 0, sizeof err);
-  memset (&ret, 0, sizeof ret);
+  hdr = NULL;
+  err = NULL;
+  ret = NULL;
 
   r = guestfs___recv (g, "mounts", &hdr, &err,
-        (xdrproc_t) xdr_guestfs_mounts_ret, (char *) &ret);
+        (protobuf_proc_unpack) guestfs_protobuf_mounts_ret__unpack, (ProtobufCMessage **) &ret);
   if (r == -1) {
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
@@ -1779,37 +1798,38 @@ guestfs_mounts (guestfs_h *g)
     return NULL;
   }
 
-  if (guestfs___check_reply_header (g, &hdr, GUESTFS_PROC_MOUNTS, serial) == -1) {
+  if (guestfs___check_reply_header (g, hdr, GUESTFS_PROC_MOUNTS, serial) == -1) {
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
                        "mounts", "NULL");
     return NULL;
   }
 
-  if (hdr.status == GUESTFS_STATUS_ERROR) {
+  if (hdr->status == GUESTFS_STATUS_ERROR) {
     int errnum = 0;
 
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
                        "mounts", "NULL");
-    if (err.errno_string[0] != '\0')
-      errnum = guestfs___string_to_errno (err.errno_string);
+    if (err->errno_string[0] != '\0')
+      errnum = guestfs___string_to_errno (err->errno_string);
     if (errnum <= 0)
-      error (g, "%s: %s", "mounts", err.error_message);
+      error (g, "%s: %s", "mounts", err->error_message);
     else
       guestfs___error_errno (g, errnum, "%s: %s", "mounts",
-                           err.error_message);
-    free (err.error_message);
-    free (err.errno_string);
+                           err->error_message);
+    guestfs_protobuf_message_error__free_unpacked (err, NULL);
+    guestfs_protobuf_message_header__free_unpacked (hdr, NULL);
     return NULL;
   }
 
   /* caller will free this, but we need to add a NULL entry */
-  ret.devices.devices_val =
-    safe_realloc (g, ret.devices.devices_val,
-                  sizeof (char *) * (ret.devices.devices_len + 1));
-  ret.devices.devices_val[ret.devices.devices_len] = NULL;
-  ret_v = ret.devices.devices_val;
+  ret_v = safe_malloc (g, sizeof (char *) * (ret->n_devices));
+  int i;
+  for (i = 0; i < ret->n_devices - 1; ++i) {
+     ret_v[i] = safe_strdup (g, ret->devices[i]);
+  }
+  ret_v[ret->n_devices - 1] = NULL;
   if (trace_flag) {
     size_t i;
 
@@ -1826,14 +1846,16 @@ guestfs_mounts (guestfs_h *g)
     guestfs___trace_send_line (g, &trace_buffer);
   }
 
+  guestfs_protobuf_message_header__free_unpacked (hdr, NULL);
+  guestfs_protobuf_mounts_ret__free_unpacked (ret, NULL);
   return ret_v;
 }
 
 GUESTFS_DLL_PUBLIC int
 guestfs_lvm_remove_all (guestfs_h *g)
 {
-  guestfs_message_header hdr;
-  guestfs_message_error err;
+  guestfs_protobuf_message_header *hdr;
+  guestfs_protobuf_message_error *err;
   int serial;
   int r;
   int trace_flag = g->trace;
@@ -1865,8 +1887,8 @@ guestfs_lvm_remove_all (guestfs_h *g)
     return -1;
   }
 
-  memset (&hdr, 0, sizeof hdr);
-  memset (&err, 0, sizeof err);
+  hdr = NULL;
+  err = NULL;
 
   r = guestfs___recv (g, "lvm_remove_all", &hdr, &err,
         NULL, NULL);
@@ -1877,28 +1899,28 @@ guestfs_lvm_remove_all (guestfs_h *g)
     return -1;
   }
 
-  if (guestfs___check_reply_header (g, &hdr, GUESTFS_PROC_LVM_REMOVE_ALL, serial) == -1) {
+  if (guestfs___check_reply_header (g, hdr, GUESTFS_PROC_LVM_REMOVE_ALL, serial) == -1) {
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
                        "lvm_remove_all", "-1");
     return -1;
   }
 
-  if (hdr.status == GUESTFS_STATUS_ERROR) {
+  if (hdr->status == GUESTFS_STATUS_ERROR) {
     int errnum = 0;
 
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
                        "lvm_remove_all", "-1");
-    if (err.errno_string[0] != '\0')
-      errnum = guestfs___string_to_errno (err.errno_string);
+    if (err->errno_string[0] != '\0')
+      errnum = guestfs___string_to_errno (err->errno_string);
     if (errnum <= 0)
-      error (g, "%s: %s", "lvm_remove_all", err.error_message);
+      error (g, "%s: %s", "lvm_remove_all", err->error_message);
     else
       guestfs___error_errno (g, errnum, "%s: %s", "lvm_remove_all",
-                           err.error_message);
-    free (err.error_message);
-    free (err.errno_string);
+                           err->error_message);
+    guestfs_protobuf_message_error__free_unpacked (err, NULL);
+    guestfs_protobuf_message_header__free_unpacked (hdr, NULL);
     return -1;
   }
 
@@ -1910,117 +1932,7 @@ guestfs_lvm_remove_all (guestfs_h *g)
     guestfs___trace_send_line (g, &trace_buffer);
   }
 
-  return ret_v;
-}
-
-GUESTFS_DLL_PUBLIC char **
-guestfs_tune2fs_l (guestfs_h *g,
-                   const char *device)
-{
-  struct guestfs_tune2fs_l_args args;
-  guestfs_message_header hdr;
-  guestfs_message_error err;
-  struct guestfs_tune2fs_l_ret ret;
-  int serial;
-  int r;
-  int trace_flag = g->trace;
-  struct trace_buffer trace_buffer;
-  char **ret_v;
-  const uint64_t progress_hint = 0;
-
-  guestfs___call_callbacks_message (g, GUESTFS_EVENT_ENTER,
-                                    "tune2fs_l", 9);
-  if (device == NULL) {
-    error (g, "%s: %s: parameter cannot be NULL",
-           "tune2fs_l", "device");
-    return NULL;
-  }
-
-  if (trace_flag) {
-    guestfs___trace_open (&trace_buffer);
-    fprintf (trace_buffer.fp, "%s", "tune2fs_l");
-    fprintf (trace_buffer.fp, " \"%s\"", device);
-    guestfs___trace_send_line (g, &trace_buffer);
-  }
-
-  if (guestfs___check_appliance_up (g, "tune2fs_l") == -1) {
-    if (trace_flag)
-      guestfs___trace (g, "%s = %s (error)",
-                       "tune2fs_l", "NULL");
-    return NULL;
-  }
-
-  args.device = (char *) device;
-  serial = guestfs___send (g, GUESTFS_PROC_TUNE2FS_L,
-                           progress_hint, 0,
-                           (xdrproc_t) xdr_guestfs_tune2fs_l_args, (char *) &args);
-  if (serial == -1) {
-    if (trace_flag)
-      guestfs___trace (g, "%s = %s (error)",
-                       "tune2fs_l", "NULL");
-    return NULL;
-  }
-
-  memset (&hdr, 0, sizeof hdr);
-  memset (&err, 0, sizeof err);
-  memset (&ret, 0, sizeof ret);
-
-  r = guestfs___recv (g, "tune2fs_l", &hdr, &err,
-        (xdrproc_t) xdr_guestfs_tune2fs_l_ret, (char *) &ret);
-  if (r == -1) {
-    if (trace_flag)
-      guestfs___trace (g, "%s = %s (error)",
-                       "tune2fs_l", "NULL");
-    return NULL;
-  }
-
-  if (guestfs___check_reply_header (g, &hdr, GUESTFS_PROC_TUNE2FS_L, serial) == -1) {
-    if (trace_flag)
-      guestfs___trace (g, "%s = %s (error)",
-                       "tune2fs_l", "NULL");
-    return NULL;
-  }
-
-  if (hdr.status == GUESTFS_STATUS_ERROR) {
-    int errnum = 0;
-
-    if (trace_flag)
-      guestfs___trace (g, "%s = %s (error)",
-                       "tune2fs_l", "NULL");
-    if (err.errno_string[0] != '\0')
-      errnum = guestfs___string_to_errno (err.errno_string);
-    if (errnum <= 0)
-      error (g, "%s: %s", "tune2fs_l", err.error_message);
-    else
-      guestfs___error_errno (g, errnum, "%s: %s", "tune2fs_l",
-                           err.error_message);
-    free (err.error_message);
-    free (err.errno_string);
-    return NULL;
-  }
-
-  /* caller will free this, but we need to add a NULL entry */
-  ret.superblock.superblock_val =
-    safe_realloc (g, ret.superblock.superblock_val,
-                  sizeof (char *) * (ret.superblock.superblock_len + 1));
-  ret.superblock.superblock_val[ret.superblock.superblock_len] = NULL;
-  ret_v = ret.superblock.superblock_val;
-  if (trace_flag) {
-    size_t i;
-
-    guestfs___trace_open (&trace_buffer);
-    fprintf (trace_buffer.fp, "%s = ", "tune2fs_l");
-    fputs ("[", trace_buffer.fp);
-    for (i = 0; ret_v[i]; ++i) {
-      if (i > 0) fputs (", ", trace_buffer.fp);
-      fputs ("\"", trace_buffer.fp);
-      fputs (ret_v[i], trace_buffer.fp);
-      fputs ("\"", trace_buffer.fp);
-    }
-    fputs ("]", trace_buffer.fp);
-    guestfs___trace_send_line (g, &trace_buffer);
-  }
-
+  guestfs_protobuf_message_header__free_unpacked (hdr, NULL);
   return ret_v;
 }
 
@@ -2029,9 +1941,10 @@ guestfs_mount_ro (guestfs_h *g,
                   const char *mountable,
                   const char *mountpoint)
 {
-  struct guestfs_mount_ro_args args;
-  guestfs_message_header hdr;
-  guestfs_message_error err;
+  guestfs_protobuf_mount_ro_args args;
+  guestfs_protobuf_mount_ro_args__init (&args);
+  guestfs_protobuf_message_header *hdr;
+  guestfs_protobuf_message_error *err;
   int serial;
   int r;
   int trace_flag = g->trace;
@@ -2071,7 +1984,7 @@ guestfs_mount_ro (guestfs_h *g,
   args.mountpoint = (char *) mountpoint;
   serial = guestfs___send (g, GUESTFS_PROC_MOUNT_RO,
                            progress_hint, 0,
-                           (xdrproc_t) xdr_guestfs_mount_ro_args, (char *) &args);
+                           (protobuf_proc_pack) guestfs_protobuf_mount_ro_args__pack, (char *) &args);
   if (serial == -1) {
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
@@ -2079,8 +1992,8 @@ guestfs_mount_ro (guestfs_h *g,
     return -1;
   }
 
-  memset (&hdr, 0, sizeof hdr);
-  memset (&err, 0, sizeof err);
+  hdr = NULL;
+  err = NULL;
 
   r = guestfs___recv (g, "mount_ro", &hdr, &err,
         NULL, NULL);
@@ -2091,28 +2004,28 @@ guestfs_mount_ro (guestfs_h *g,
     return -1;
   }
 
-  if (guestfs___check_reply_header (g, &hdr, GUESTFS_PROC_MOUNT_RO, serial) == -1) {
+  if (guestfs___check_reply_header (g, hdr, GUESTFS_PROC_MOUNT_RO, serial) == -1) {
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
                        "mount_ro", "-1");
     return -1;
   }
 
-  if (hdr.status == GUESTFS_STATUS_ERROR) {
+  if (hdr->status == GUESTFS_STATUS_ERROR) {
     int errnum = 0;
 
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
                        "mount_ro", "-1");
-    if (err.errno_string[0] != '\0')
-      errnum = guestfs___string_to_errno (err.errno_string);
+    if (err->errno_string[0] != '\0')
+      errnum = guestfs___string_to_errno (err->errno_string);
     if (errnum <= 0)
-      error (g, "%s: %s", "mount_ro", err.error_message);
+      error (g, "%s: %s", "mount_ro", err->error_message);
     else
       guestfs___error_errno (g, errnum, "%s: %s", "mount_ro",
-                           err.error_message);
-    free (err.error_message);
-    free (err.errno_string);
+                           err->error_message);
+    guestfs_protobuf_message_error__free_unpacked (err, NULL);
+    guestfs_protobuf_message_header__free_unpacked (hdr, NULL);
     return -1;
   }
 
@@ -2124,6 +2037,7 @@ guestfs_mount_ro (guestfs_h *g,
     guestfs___trace_send_line (g, &trace_buffer);
   }
 
+  guestfs_protobuf_message_header__free_unpacked (hdr, NULL);
   return ret_v;
 }
 
@@ -2132,9 +2046,10 @@ guestfs_vg_activate (guestfs_h *g,
                      int activate,
                      char *const *volgroups)
 {
-  struct guestfs_vg_activate_args args;
-  guestfs_message_header hdr;
-  guestfs_message_error err;
+  guestfs_protobuf_vg_activate_args args;
+  guestfs_protobuf_vg_activate_args__init (&args);
+  guestfs_protobuf_message_header *hdr;
+  guestfs_protobuf_message_error *err;
   int serial;
   int r;
   int trace_flag = g->trace;
@@ -2174,11 +2089,11 @@ guestfs_vg_activate (guestfs_h *g,
   }
 
   args.activate = activate;
-  args.volgroups.volgroups_val = (char **) volgroups;
-  for (args.volgroups.volgroups_len = 0; volgroups[args.volgroups.volgroups_len]; args.volgroups.volgroups_len++) ;
+  args.volgroups = (char **) volgroups;
+  for (args.n_volgroups = 0; volgroups[args.n_volgroups]; args.n_volgroups++) ;
   serial = guestfs___send (g, GUESTFS_PROC_VG_ACTIVATE,
                            progress_hint, 0,
-                           (xdrproc_t) xdr_guestfs_vg_activate_args, (char *) &args);
+                           (protobuf_proc_pack) guestfs_protobuf_vg_activate_args__pack, (char *) &args);
   if (serial == -1) {
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
@@ -2186,8 +2101,8 @@ guestfs_vg_activate (guestfs_h *g,
     return -1;
   }
 
-  memset (&hdr, 0, sizeof hdr);
-  memset (&err, 0, sizeof err);
+  hdr = NULL;
+  err = NULL;
 
   r = guestfs___recv (g, "vg_activate", &hdr, &err,
         NULL, NULL);
@@ -2198,28 +2113,28 @@ guestfs_vg_activate (guestfs_h *g,
     return -1;
   }
 
-  if (guestfs___check_reply_header (g, &hdr, GUESTFS_PROC_VG_ACTIVATE, serial) == -1) {
+  if (guestfs___check_reply_header (g, hdr, GUESTFS_PROC_VG_ACTIVATE, serial) == -1) {
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
                        "vg_activate", "-1");
     return -1;
   }
 
-  if (hdr.status == GUESTFS_STATUS_ERROR) {
+  if (hdr->status == GUESTFS_STATUS_ERROR) {
     int errnum = 0;
 
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
                        "vg_activate", "-1");
-    if (err.errno_string[0] != '\0')
-      errnum = guestfs___string_to_errno (err.errno_string);
+    if (err->errno_string[0] != '\0')
+      errnum = guestfs___string_to_errno (err->errno_string);
     if (errnum <= 0)
-      error (g, "%s: %s", "vg_activate", err.error_message);
+      error (g, "%s: %s", "vg_activate", err->error_message);
     else
       guestfs___error_errno (g, errnum, "%s: %s", "vg_activate",
-                           err.error_message);
-    free (err.error_message);
-    free (err.errno_string);
+                           err->error_message);
+    guestfs_protobuf_message_error__free_unpacked (err, NULL);
+    guestfs_protobuf_message_header__free_unpacked (hdr, NULL);
     return -1;
   }
 
@@ -2231,106 +2146,7 @@ guestfs_vg_activate (guestfs_h *g,
     guestfs___trace_send_line (g, &trace_buffer);
   }
 
-  return ret_v;
-}
-
-GUESTFS_DLL_PUBLIC int
-guestfs_ntfs_3g_probe (guestfs_h *g,
-                       int rw,
-                       const char *device)
-{
-  struct guestfs_ntfs_3g_probe_args args;
-  guestfs_message_header hdr;
-  guestfs_message_error err;
-  struct guestfs_ntfs_3g_probe_ret ret;
-  int serial;
-  int r;
-  int trace_flag = g->trace;
-  struct trace_buffer trace_buffer;
-  int ret_v;
-  const uint64_t progress_hint = 0;
-
-  guestfs___call_callbacks_message (g, GUESTFS_EVENT_ENTER,
-                                    "ntfs_3g_probe", 13);
-  if (device == NULL) {
-    error (g, "%s: %s: parameter cannot be NULL",
-           "ntfs_3g_probe", "device");
-    return -1;
-  }
-
-  if (trace_flag) {
-    guestfs___trace_open (&trace_buffer);
-    fprintf (trace_buffer.fp, "%s", "ntfs_3g_probe");
-    fputs (rw ? " true" : " false", trace_buffer.fp);
-    fprintf (trace_buffer.fp, " \"%s\"", device);
-    guestfs___trace_send_line (g, &trace_buffer);
-  }
-
-  if (guestfs___check_appliance_up (g, "ntfs_3g_probe") == -1) {
-    if (trace_flag)
-      guestfs___trace (g, "%s = %s (error)",
-                       "ntfs_3g_probe", "-1");
-    return -1;
-  }
-
-  args.rw = rw;
-  args.device = (char *) device;
-  serial = guestfs___send (g, GUESTFS_PROC_NTFS_3G_PROBE,
-                           progress_hint, 0,
-                           (xdrproc_t) xdr_guestfs_ntfs_3g_probe_args, (char *) &args);
-  if (serial == -1) {
-    if (trace_flag)
-      guestfs___trace (g, "%s = %s (error)",
-                       "ntfs_3g_probe", "-1");
-    return -1;
-  }
-
-  memset (&hdr, 0, sizeof hdr);
-  memset (&err, 0, sizeof err);
-  memset (&ret, 0, sizeof ret);
-
-  r = guestfs___recv (g, "ntfs_3g_probe", &hdr, &err,
-        (xdrproc_t) xdr_guestfs_ntfs_3g_probe_ret, (char *) &ret);
-  if (r == -1) {
-    if (trace_flag)
-      guestfs___trace (g, "%s = %s (error)",
-                       "ntfs_3g_probe", "-1");
-    return -1;
-  }
-
-  if (guestfs___check_reply_header (g, &hdr, GUESTFS_PROC_NTFS_3G_PROBE, serial) == -1) {
-    if (trace_flag)
-      guestfs___trace (g, "%s = %s (error)",
-                       "ntfs_3g_probe", "-1");
-    return -1;
-  }
-
-  if (hdr.status == GUESTFS_STATUS_ERROR) {
-    int errnum = 0;
-
-    if (trace_flag)
-      guestfs___trace (g, "%s = %s (error)",
-                       "ntfs_3g_probe", "-1");
-    if (err.errno_string[0] != '\0')
-      errnum = guestfs___string_to_errno (err.errno_string);
-    if (errnum <= 0)
-      error (g, "%s: %s", "ntfs_3g_probe", err.error_message);
-    else
-      guestfs___error_errno (g, errnum, "%s: %s", "ntfs_3g_probe",
-                           err.error_message);
-    free (err.error_message);
-    free (err.errno_string);
-    return -1;
-  }
-
-  ret_v = ret.status;
-  if (trace_flag) {
-    guestfs___trace_open (&trace_buffer);
-    fprintf (trace_buffer.fp, "%s = ", "ntfs_3g_probe");
-    fprintf (trace_buffer.fp, "%d", ret_v);
-    guestfs___trace_send_line (g, &trace_buffer);
-  }
-
+  guestfs_protobuf_message_header__free_unpacked (hdr, NULL);
   return ret_v;
 }
 
@@ -2338,10 +2154,11 @@ GUESTFS_DLL_PUBLIC char *
 guestfs_mkdtemp (guestfs_h *g,
                  const char *tmpl)
 {
-  struct guestfs_mkdtemp_args args;
-  guestfs_message_header hdr;
-  guestfs_message_error err;
-  struct guestfs_mkdtemp_ret ret;
+  guestfs_protobuf_mkdtemp_args args;
+  guestfs_protobuf_mkdtemp_args__init (&args);
+  guestfs_protobuf_message_header *hdr;
+  guestfs_protobuf_message_error *err;
+  guestfs_protobuf_mkdtemp_ret *ret;
   int serial;
   int r;
   int trace_flag = g->trace;
@@ -2374,7 +2191,7 @@ guestfs_mkdtemp (guestfs_h *g,
   args.tmpl = (char *) tmpl;
   serial = guestfs___send (g, GUESTFS_PROC_MKDTEMP,
                            progress_hint, 0,
-                           (xdrproc_t) xdr_guestfs_mkdtemp_args, (char *) &args);
+                           (protobuf_proc_pack) guestfs_protobuf_mkdtemp_args__pack, (char *) &args);
   if (serial == -1) {
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
@@ -2382,12 +2199,12 @@ guestfs_mkdtemp (guestfs_h *g,
     return NULL;
   }
 
-  memset (&hdr, 0, sizeof hdr);
-  memset (&err, 0, sizeof err);
-  memset (&ret, 0, sizeof ret);
+  hdr = NULL;
+  err = NULL;
+  ret = NULL;
 
   r = guestfs___recv (g, "mkdtemp", &hdr, &err,
-        (xdrproc_t) xdr_guestfs_mkdtemp_ret, (char *) &ret);
+        (protobuf_proc_unpack) guestfs_protobuf_mkdtemp_ret__unpack, (ProtobufCMessage **) &ret);
   if (r == -1) {
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
@@ -2395,32 +2212,32 @@ guestfs_mkdtemp (guestfs_h *g,
     return NULL;
   }
 
-  if (guestfs___check_reply_header (g, &hdr, GUESTFS_PROC_MKDTEMP, serial) == -1) {
+  if (guestfs___check_reply_header (g, hdr, GUESTFS_PROC_MKDTEMP, serial) == -1) {
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
                        "mkdtemp", "NULL");
     return NULL;
   }
 
-  if (hdr.status == GUESTFS_STATUS_ERROR) {
+  if (hdr->status == GUESTFS_STATUS_ERROR) {
     int errnum = 0;
 
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
                        "mkdtemp", "NULL");
-    if (err.errno_string[0] != '\0')
-      errnum = guestfs___string_to_errno (err.errno_string);
+    if (err->errno_string[0] != '\0')
+      errnum = guestfs___string_to_errno (err->errno_string);
     if (errnum <= 0)
-      error (g, "%s: %s", "mkdtemp", err.error_message);
+      error (g, "%s: %s", "mkdtemp", err->error_message);
     else
       guestfs___error_errno (g, errnum, "%s: %s", "mkdtemp",
-                           err.error_message);
-    free (err.error_message);
-    free (err.errno_string);
+                           err->error_message);
+    guestfs_protobuf_message_error__free_unpacked (err, NULL);
+    guestfs_protobuf_message_header__free_unpacked (hdr, NULL);
     return NULL;
   }
 
-  ret_v = ret.dir; /* caller will free */
+  ret_v = safe_strdup (g, ret->dir); /* caller will free */
   if (trace_flag) {
     guestfs___trace_open (&trace_buffer);
     fprintf (trace_buffer.fp, "%s = ", "mkdtemp");
@@ -2428,6 +2245,226 @@ guestfs_mkdtemp (guestfs_h *g,
     guestfs___trace_send_line (g, &trace_buffer);
   }
 
+  guestfs_protobuf_message_header__free_unpacked (hdr, NULL);
+  guestfs_protobuf_mkdtemp_ret__free_unpacked (ret, NULL);
+  return ret_v;
+}
+
+GUESTFS_DLL_PUBLIC int
+guestfs_wc_cc (guestfs_h *g,
+               const char *path)
+{
+  guestfs_protobuf_wc_cc_args args;
+  guestfs_protobuf_wc_cc_args__init (&args);
+  guestfs_protobuf_message_header *hdr;
+  guestfs_protobuf_message_error *err;
+  guestfs_protobuf_wc_cc_ret *ret;
+  int serial;
+  int r;
+  int trace_flag = g->trace;
+  struct trace_buffer trace_buffer;
+  int ret_v;
+  const uint64_t progress_hint = 0;
+
+  guestfs___call_callbacks_message (g, GUESTFS_EVENT_ENTER,
+                                    "wc_cc", 5);
+  if (path == NULL) {
+    error (g, "%s: %s: parameter cannot be NULL",
+           "wc_cc", "path");
+    return -1;
+  }
+
+  if (trace_flag) {
+    guestfs___trace_open (&trace_buffer);
+    fprintf (trace_buffer.fp, "%s", "wc_cc");
+    fprintf (trace_buffer.fp, " \"%s\"", path);
+    guestfs___trace_send_line (g, &trace_buffer);
+  }
+
+  if (guestfs___check_appliance_up (g, "wc_cc") == -1) {
+    if (trace_flag)
+      guestfs___trace (g, "%s = %s (error)",
+                       "wc_cc", "-1");
+    return -1;
+  }
+
+  args.path = (char *) path;
+  serial = guestfs___send (g, GUESTFS_PROC_WC_CC,
+                           progress_hint, 0,
+                           (protobuf_proc_pack) guestfs_protobuf_wc_cc_args__pack, (char *) &args);
+  if (serial == -1) {
+    if (trace_flag)
+      guestfs___trace (g, "%s = %s (error)",
+                       "wc_cc", "-1");
+    return -1;
+  }
+
+  hdr = NULL;
+  err = NULL;
+  ret = NULL;
+
+  r = guestfs___recv (g, "wc_cc", &hdr, &err,
+        (protobuf_proc_unpack) guestfs_protobuf_wc_cc_ret__unpack, (ProtobufCMessage **) &ret);
+  if (r == -1) {
+    if (trace_flag)
+      guestfs___trace (g, "%s = %s (error)",
+                       "wc_cc", "-1");
+    return -1;
+  }
+
+  if (guestfs___check_reply_header (g, hdr, GUESTFS_PROC_WC_CC, serial) == -1) {
+    if (trace_flag)
+      guestfs___trace (g, "%s = %s (error)",
+                       "wc_cc", "-1");
+    return -1;
+  }
+
+  if (hdr->status == GUESTFS_STATUS_ERROR) {
+    int errnum = 0;
+
+    if (trace_flag)
+      guestfs___trace (g, "%s = %s (error)",
+                       "wc_cc", "-1");
+    if (err->errno_string[0] != '\0')
+      errnum = guestfs___string_to_errno (err->errno_string);
+    if (errnum <= 0)
+      error (g, "%s: %s", "wc_cc", err->error_message);
+    else
+      guestfs___error_errno (g, errnum, "%s: %s", "wc_cc",
+                           err->error_message);
+    guestfs_protobuf_message_error__free_unpacked (err, NULL);
+    guestfs_protobuf_message_header__free_unpacked (hdr, NULL);
+    return -1;
+  }
+
+  ret_v = ret->chars;
+  if (trace_flag) {
+    guestfs___trace_open (&trace_buffer);
+    fprintf (trace_buffer.fp, "%s = ", "wc_cc");
+    fprintf (trace_buffer.fp, "%d", ret_v);
+    guestfs___trace_send_line (g, &trace_buffer);
+  }
+
+  guestfs_protobuf_message_header__free_unpacked (hdr, NULL);
+  guestfs_protobuf_wc_cc_ret__free_unpacked (ret, NULL);
+  return ret_v;
+}
+
+GUESTFS_DLL_PUBLIC char **
+guestfs_head_nn (guestfs_h *g,
+                 int nrlines,
+                 const char *path)
+{
+  guestfs_protobuf_head_nn_args args;
+  guestfs_protobuf_head_nn_args__init (&args);
+  guestfs_protobuf_message_header *hdr;
+  guestfs_protobuf_message_error *err;
+  guestfs_protobuf_head_nn_ret *ret;
+  int serial;
+  int r;
+  int trace_flag = g->trace;
+  struct trace_buffer trace_buffer;
+  char **ret_v;
+  const uint64_t progress_hint = 0;
+
+  guestfs___call_callbacks_message (g, GUESTFS_EVENT_ENTER,
+                                    "head_nn", 7);
+  if (path == NULL) {
+    error (g, "%s: %s: parameter cannot be NULL",
+           "head_nn", "path");
+    return NULL;
+  }
+
+  if (trace_flag) {
+    guestfs___trace_open (&trace_buffer);
+    fprintf (trace_buffer.fp, "%s", "head_nn");
+    fprintf (trace_buffer.fp, " %d", nrlines);
+    fprintf (trace_buffer.fp, " \"%s\"", path);
+    guestfs___trace_send_line (g, &trace_buffer);
+  }
+
+  if (guestfs___check_appliance_up (g, "head_nn") == -1) {
+    if (trace_flag)
+      guestfs___trace (g, "%s = %s (error)",
+                       "head_nn", "NULL");
+    return NULL;
+  }
+
+  args.nrlines = nrlines;
+  args.path = (char *) path;
+  serial = guestfs___send (g, GUESTFS_PROC_HEAD_NN,
+                           progress_hint, 0,
+                           (protobuf_proc_pack) guestfs_protobuf_head_nn_args__pack, (char *) &args);
+  if (serial == -1) {
+    if (trace_flag)
+      guestfs___trace (g, "%s = %s (error)",
+                       "head_nn", "NULL");
+    return NULL;
+  }
+
+  hdr = NULL;
+  err = NULL;
+  ret = NULL;
+
+  r = guestfs___recv (g, "head_nn", &hdr, &err,
+        (protobuf_proc_unpack) guestfs_protobuf_head_nn_ret__unpack, (ProtobufCMessage **) &ret);
+  if (r == -1) {
+    if (trace_flag)
+      guestfs___trace (g, "%s = %s (error)",
+                       "head_nn", "NULL");
+    return NULL;
+  }
+
+  if (guestfs___check_reply_header (g, hdr, GUESTFS_PROC_HEAD_NN, serial) == -1) {
+    if (trace_flag)
+      guestfs___trace (g, "%s = %s (error)",
+                       "head_nn", "NULL");
+    return NULL;
+  }
+
+  if (hdr->status == GUESTFS_STATUS_ERROR) {
+    int errnum = 0;
+
+    if (trace_flag)
+      guestfs___trace (g, "%s = %s (error)",
+                       "head_nn", "NULL");
+    if (err->errno_string[0] != '\0')
+      errnum = guestfs___string_to_errno (err->errno_string);
+    if (errnum <= 0)
+      error (g, "%s: %s", "head_nn", err->error_message);
+    else
+      guestfs___error_errno (g, errnum, "%s: %s", "head_nn",
+                           err->error_message);
+    guestfs_protobuf_message_error__free_unpacked (err, NULL);
+    guestfs_protobuf_message_header__free_unpacked (hdr, NULL);
+    return NULL;
+  }
+
+  /* caller will free this, but we need to add a NULL entry */
+  ret_v = safe_malloc (g, sizeof (char *) * (ret->n_lines));
+  int i;
+  for (i = 0; i < ret->n_lines - 1; ++i) {
+     ret_v[i] = safe_strdup (g, ret->lines[i]);
+  }
+  ret_v[ret->n_lines - 1] = NULL;
+  if (trace_flag) {
+    size_t i;
+
+    guestfs___trace_open (&trace_buffer);
+    fprintf (trace_buffer.fp, "%s = ", "head_nn");
+    fputs ("[", trace_buffer.fp);
+    for (i = 0; ret_v[i]; ++i) {
+      if (i > 0) fputs (", ", trace_buffer.fp);
+      fputs ("\"", trace_buffer.fp);
+      fputs (ret_v[i], trace_buffer.fp);
+      fputs ("\"", trace_buffer.fp);
+    }
+    fputs ("]", trace_buffer.fp);
+    guestfs___trace_send_line (g, &trace_buffer);
+  }
+
+  guestfs_protobuf_message_header__free_unpacked (hdr, NULL);
+  guestfs_protobuf_head_nn_ret__free_unpacked (ret, NULL);
   return ret_v;
 }
 
@@ -2435,10 +2472,11 @@ GUESTFS_DLL_PUBLIC char **
 guestfs_tail (guestfs_h *g,
               const char *path)
 {
-  struct guestfs_tail_args args;
-  guestfs_message_header hdr;
-  guestfs_message_error err;
-  struct guestfs_tail_ret ret;
+  guestfs_protobuf_tail_args args;
+  guestfs_protobuf_tail_args__init (&args);
+  guestfs_protobuf_message_header *hdr;
+  guestfs_protobuf_message_error *err;
+  guestfs_protobuf_tail_ret *ret;
   int serial;
   int r;
   int trace_flag = g->trace;
@@ -2471,7 +2509,7 @@ guestfs_tail (guestfs_h *g,
   args.path = (char *) path;
   serial = guestfs___send (g, GUESTFS_PROC_TAIL,
                            progress_hint, 0,
-                           (xdrproc_t) xdr_guestfs_tail_args, (char *) &args);
+                           (protobuf_proc_pack) guestfs_protobuf_tail_args__pack, (char *) &args);
   if (serial == -1) {
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
@@ -2479,12 +2517,12 @@ guestfs_tail (guestfs_h *g,
     return NULL;
   }
 
-  memset (&hdr, 0, sizeof hdr);
-  memset (&err, 0, sizeof err);
-  memset (&ret, 0, sizeof ret);
+  hdr = NULL;
+  err = NULL;
+  ret = NULL;
 
   r = guestfs___recv (g, "tail", &hdr, &err,
-        (xdrproc_t) xdr_guestfs_tail_ret, (char *) &ret);
+        (protobuf_proc_unpack) guestfs_protobuf_tail_ret__unpack, (ProtobufCMessage **) &ret);
   if (r == -1) {
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
@@ -2492,37 +2530,38 @@ guestfs_tail (guestfs_h *g,
     return NULL;
   }
 
-  if (guestfs___check_reply_header (g, &hdr, GUESTFS_PROC_TAIL, serial) == -1) {
+  if (guestfs___check_reply_header (g, hdr, GUESTFS_PROC_TAIL, serial) == -1) {
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
                        "tail", "NULL");
     return NULL;
   }
 
-  if (hdr.status == GUESTFS_STATUS_ERROR) {
+  if (hdr->status == GUESTFS_STATUS_ERROR) {
     int errnum = 0;
 
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
                        "tail", "NULL");
-    if (err.errno_string[0] != '\0')
-      errnum = guestfs___string_to_errno (err.errno_string);
+    if (err->errno_string[0] != '\0')
+      errnum = guestfs___string_to_errno (err->errno_string);
     if (errnum <= 0)
-      error (g, "%s: %s", "tail", err.error_message);
+      error (g, "%s: %s", "tail", err->error_message);
     else
       guestfs___error_errno (g, errnum, "%s: %s", "tail",
-                           err.error_message);
-    free (err.error_message);
-    free (err.errno_string);
+                           err->error_message);
+    guestfs_protobuf_message_error__free_unpacked (err, NULL);
+    guestfs_protobuf_message_header__free_unpacked (hdr, NULL);
     return NULL;
   }
 
   /* caller will free this, but we need to add a NULL entry */
-  ret.lines.lines_val =
-    safe_realloc (g, ret.lines.lines_val,
-                  sizeof (char *) * (ret.lines.lines_len + 1));
-  ret.lines.lines_val[ret.lines.lines_len] = NULL;
-  ret_v = ret.lines.lines_val;
+  ret_v = safe_malloc (g, sizeof (char *) * (ret->n_lines));
+  int i;
+  for (i = 0; i < ret->n_lines - 1; ++i) {
+     ret_v[i] = safe_strdup (g, ret->lines[i]);
+  }
+  ret_v[ret->n_lines - 1] = NULL;
   if (trace_flag) {
     size_t i;
 
@@ -2539,6 +2578,8 @@ guestfs_tail (guestfs_h *g,
     guestfs___trace_send_line (g, &trace_buffer);
   }
 
+  guestfs_protobuf_message_header__free_unpacked (hdr, NULL);
+  guestfs_protobuf_tail_ret__free_unpacked (ret, NULL);
   return ret_v;
 }
 
@@ -2546,10 +2587,11 @@ GUESTFS_DLL_PUBLIC char **
 guestfs_initrd_list (guestfs_h *g,
                      const char *path)
 {
-  struct guestfs_initrd_list_args args;
-  guestfs_message_header hdr;
-  guestfs_message_error err;
-  struct guestfs_initrd_list_ret ret;
+  guestfs_protobuf_initrd_list_args args;
+  guestfs_protobuf_initrd_list_args__init (&args);
+  guestfs_protobuf_message_header *hdr;
+  guestfs_protobuf_message_error *err;
+  guestfs_protobuf_initrd_list_ret *ret;
   int serial;
   int r;
   int trace_flag = g->trace;
@@ -2582,7 +2624,7 @@ guestfs_initrd_list (guestfs_h *g,
   args.path = (char *) path;
   serial = guestfs___send (g, GUESTFS_PROC_INITRD_LIST,
                            progress_hint, 0,
-                           (xdrproc_t) xdr_guestfs_initrd_list_args, (char *) &args);
+                           (protobuf_proc_pack) guestfs_protobuf_initrd_list_args__pack, (char *) &args);
   if (serial == -1) {
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
@@ -2590,12 +2632,12 @@ guestfs_initrd_list (guestfs_h *g,
     return NULL;
   }
 
-  memset (&hdr, 0, sizeof hdr);
-  memset (&err, 0, sizeof err);
-  memset (&ret, 0, sizeof ret);
+  hdr = NULL;
+  err = NULL;
+  ret = NULL;
 
   r = guestfs___recv (g, "initrd_list", &hdr, &err,
-        (xdrproc_t) xdr_guestfs_initrd_list_ret, (char *) &ret);
+        (protobuf_proc_unpack) guestfs_protobuf_initrd_list_ret__unpack, (ProtobufCMessage **) &ret);
   if (r == -1) {
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
@@ -2603,37 +2645,38 @@ guestfs_initrd_list (guestfs_h *g,
     return NULL;
   }
 
-  if (guestfs___check_reply_header (g, &hdr, GUESTFS_PROC_INITRD_LIST, serial) == -1) {
+  if (guestfs___check_reply_header (g, hdr, GUESTFS_PROC_INITRD_LIST, serial) == -1) {
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
                        "initrd_list", "NULL");
     return NULL;
   }
 
-  if (hdr.status == GUESTFS_STATUS_ERROR) {
+  if (hdr->status == GUESTFS_STATUS_ERROR) {
     int errnum = 0;
 
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
                        "initrd_list", "NULL");
-    if (err.errno_string[0] != '\0')
-      errnum = guestfs___string_to_errno (err.errno_string);
+    if (err->errno_string[0] != '\0')
+      errnum = guestfs___string_to_errno (err->errno_string);
     if (errnum <= 0)
-      error (g, "%s: %s", "initrd_list", err.error_message);
+      error (g, "%s: %s", "initrd_list", err->error_message);
     else
       guestfs___error_errno (g, errnum, "%s: %s", "initrd_list",
-                           err.error_message);
-    free (err.error_message);
-    free (err.errno_string);
+                           err->error_message);
+    guestfs_protobuf_message_error__free_unpacked (err, NULL);
+    guestfs_protobuf_message_header__free_unpacked (hdr, NULL);
     return NULL;
   }
 
   /* caller will free this, but we need to add a NULL entry */
-  ret.filenames.filenames_val =
-    safe_realloc (g, ret.filenames.filenames_val,
-                  sizeof (char *) * (ret.filenames.filenames_len + 1));
-  ret.filenames.filenames_val[ret.filenames.filenames_len] = NULL;
-  ret_v = ret.filenames.filenames_val;
+  ret_v = safe_malloc (g, sizeof (char *) * (ret->n_filenames));
+  int i;
+  for (i = 0; i < ret->n_filenames - 1; ++i) {
+     ret_v[i] = safe_strdup (g, ret->filenames[i]);
+  }
+  ret_v[ret->n_filenames - 1] = NULL;
   if (trace_flag) {
     size_t i;
 
@@ -2650,6 +2693,8 @@ guestfs_initrd_list (guestfs_h *g,
     guestfs___trace_send_line (g, &trace_buffer);
   }
 
+  guestfs_protobuf_message_header__free_unpacked (hdr, NULL);
+  guestfs_protobuf_initrd_list_ret__free_unpacked (ret, NULL);
   return ret_v;
 }
 
@@ -2660,9 +2705,10 @@ guestfs_mknod (guestfs_h *g,
                int devminor,
                const char *path)
 {
-  struct guestfs_mknod_args args;
-  guestfs_message_header hdr;
-  guestfs_message_error err;
+  guestfs_protobuf_mknod_args args;
+  guestfs_protobuf_mknod_args__init (&args);
+  guestfs_protobuf_message_header *hdr;
+  guestfs_protobuf_message_error *err;
   int serial;
   int r;
   int trace_flag = g->trace;
@@ -2701,7 +2747,7 @@ guestfs_mknod (guestfs_h *g,
   args.path = (char *) path;
   serial = guestfs___send (g, GUESTFS_PROC_MKNOD,
                            progress_hint, 0,
-                           (xdrproc_t) xdr_guestfs_mknod_args, (char *) &args);
+                           (protobuf_proc_pack) guestfs_protobuf_mknod_args__pack, (char *) &args);
   if (serial == -1) {
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
@@ -2709,8 +2755,8 @@ guestfs_mknod (guestfs_h *g,
     return -1;
   }
 
-  memset (&hdr, 0, sizeof hdr);
-  memset (&err, 0, sizeof err);
+  hdr = NULL;
+  err = NULL;
 
   r = guestfs___recv (g, "mknod", &hdr, &err,
         NULL, NULL);
@@ -2721,28 +2767,28 @@ guestfs_mknod (guestfs_h *g,
     return -1;
   }
 
-  if (guestfs___check_reply_header (g, &hdr, GUESTFS_PROC_MKNOD, serial) == -1) {
+  if (guestfs___check_reply_header (g, hdr, GUESTFS_PROC_MKNOD, serial) == -1) {
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
                        "mknod", "-1");
     return -1;
   }
 
-  if (hdr.status == GUESTFS_STATUS_ERROR) {
+  if (hdr->status == GUESTFS_STATUS_ERROR) {
     int errnum = 0;
 
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
                        "mknod", "-1");
-    if (err.errno_string[0] != '\0')
-      errnum = guestfs___string_to_errno (err.errno_string);
+    if (err->errno_string[0] != '\0')
+      errnum = guestfs___string_to_errno (err->errno_string);
     if (errnum <= 0)
-      error (g, "%s: %s", "mknod", err.error_message);
+      error (g, "%s: %s", "mknod", err->error_message);
     else
       guestfs___error_errno (g, errnum, "%s: %s", "mknod",
-                           err.error_message);
-    free (err.error_message);
-    free (err.errno_string);
+                           err->error_message);
+    guestfs_protobuf_message_error__free_unpacked (err, NULL);
+    guestfs_protobuf_message_header__free_unpacked (hdr, NULL);
     return -1;
   }
 
@@ -2754,6 +2800,7 @@ guestfs_mknod (guestfs_h *g,
     guestfs___trace_send_line (g, &trace_buffer);
   }
 
+  guestfs_protobuf_message_header__free_unpacked (hdr, NULL);
   return ret_v;
 }
 
@@ -2762,10 +2809,11 @@ guestfs_zfile (guestfs_h *g,
                const char *meth,
                const char *path)
 {
-  struct guestfs_zfile_args args;
-  guestfs_message_header hdr;
-  guestfs_message_error err;
-  struct guestfs_zfile_ret ret;
+  guestfs_protobuf_zfile_args args;
+  guestfs_protobuf_zfile_args__init (&args);
+  guestfs_protobuf_message_header *hdr;
+  guestfs_protobuf_message_error *err;
+  guestfs_protobuf_zfile_ret *ret;
   int serial;
   int r;
   int trace_flag = g->trace;
@@ -2805,7 +2853,7 @@ guestfs_zfile (guestfs_h *g,
   args.path = (char *) path;
   serial = guestfs___send (g, GUESTFS_PROC_ZFILE,
                            progress_hint, 0,
-                           (xdrproc_t) xdr_guestfs_zfile_args, (char *) &args);
+                           (protobuf_proc_pack) guestfs_protobuf_zfile_args__pack, (char *) &args);
   if (serial == -1) {
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
@@ -2813,12 +2861,12 @@ guestfs_zfile (guestfs_h *g,
     return NULL;
   }
 
-  memset (&hdr, 0, sizeof hdr);
-  memset (&err, 0, sizeof err);
-  memset (&ret, 0, sizeof ret);
+  hdr = NULL;
+  err = NULL;
+  ret = NULL;
 
   r = guestfs___recv (g, "zfile", &hdr, &err,
-        (xdrproc_t) xdr_guestfs_zfile_ret, (char *) &ret);
+        (protobuf_proc_unpack) guestfs_protobuf_zfile_ret__unpack, (ProtobufCMessage **) &ret);
   if (r == -1) {
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
@@ -2826,32 +2874,32 @@ guestfs_zfile (guestfs_h *g,
     return NULL;
   }
 
-  if (guestfs___check_reply_header (g, &hdr, GUESTFS_PROC_ZFILE, serial) == -1) {
+  if (guestfs___check_reply_header (g, hdr, GUESTFS_PROC_ZFILE, serial) == -1) {
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
                        "zfile", "NULL");
     return NULL;
   }
 
-  if (hdr.status == GUESTFS_STATUS_ERROR) {
+  if (hdr->status == GUESTFS_STATUS_ERROR) {
     int errnum = 0;
 
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
                        "zfile", "NULL");
-    if (err.errno_string[0] != '\0')
-      errnum = guestfs___string_to_errno (err.errno_string);
+    if (err->errno_string[0] != '\0')
+      errnum = guestfs___string_to_errno (err->errno_string);
     if (errnum <= 0)
-      error (g, "%s: %s", "zfile", err.error_message);
+      error (g, "%s: %s", "zfile", err->error_message);
     else
       guestfs___error_errno (g, errnum, "%s: %s", "zfile",
-                           err.error_message);
-    free (err.error_message);
-    free (err.errno_string);
+                           err->error_message);
+    guestfs_protobuf_message_error__free_unpacked (err, NULL);
+    guestfs_protobuf_message_header__free_unpacked (hdr, NULL);
     return NULL;
   }
 
-  ret_v = ret.description; /* caller will free */
+  ret_v = safe_strdup (g, ret->description); /* caller will free */
   if (trace_flag) {
     guestfs___trace_open (&trace_buffer);
     fprintf (trace_buffer.fp, "%s = ", "zfile");
@@ -2859,6 +2907,8 @@ guestfs_zfile (guestfs_h *g,
     guestfs___trace_send_line (g, &trace_buffer);
   }
 
+  guestfs_protobuf_message_header__free_unpacked (hdr, NULL);
+  guestfs_protobuf_zfile_ret__free_unpacked (ret, NULL);
   return ret_v;
 }
 
@@ -2866,10 +2916,11 @@ GUESTFS_DLL_PUBLIC struct guestfs_xattr_list *
 guestfs_getxattrs (guestfs_h *g,
                    const char *path)
 {
-  struct guestfs_getxattrs_args args;
-  guestfs_message_header hdr;
-  guestfs_message_error err;
-  struct guestfs_getxattrs_ret ret;
+  guestfs_protobuf_getxattrs_args args;
+  guestfs_protobuf_getxattrs_args__init (&args);
+  guestfs_protobuf_message_header *hdr;
+  guestfs_protobuf_message_error *err;
+  guestfs_protobuf_getxattrs_ret *ret;
   int serial;
   int r;
   int trace_flag = g->trace;
@@ -2902,7 +2953,7 @@ guestfs_getxattrs (guestfs_h *g,
   args.path = (char *) path;
   serial = guestfs___send (g, GUESTFS_PROC_GETXATTRS,
                            progress_hint, 0,
-                           (xdrproc_t) xdr_guestfs_getxattrs_args, (char *) &args);
+                           (protobuf_proc_pack) guestfs_protobuf_getxattrs_args__pack, (char *) &args);
   if (serial == -1) {
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
@@ -2910,12 +2961,12 @@ guestfs_getxattrs (guestfs_h *g,
     return NULL;
   }
 
-  memset (&hdr, 0, sizeof hdr);
-  memset (&err, 0, sizeof err);
-  memset (&ret, 0, sizeof ret);
+  hdr = NULL;
+  err = NULL;
+  ret = NULL;
 
   r = guestfs___recv (g, "getxattrs", &hdr, &err,
-        (xdrproc_t) xdr_guestfs_getxattrs_ret, (char *) &ret);
+        (protobuf_proc_unpack) guestfs_protobuf_getxattrs_ret__unpack, (ProtobufCMessage **) &ret);
   if (r == -1) {
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
@@ -2923,33 +2974,34 @@ guestfs_getxattrs (guestfs_h *g,
     return NULL;
   }
 
-  if (guestfs___check_reply_header (g, &hdr, GUESTFS_PROC_GETXATTRS, serial) == -1) {
+  if (guestfs___check_reply_header (g, hdr, GUESTFS_PROC_GETXATTRS, serial) == -1) {
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
                        "getxattrs", "NULL");
     return NULL;
   }
 
-  if (hdr.status == GUESTFS_STATUS_ERROR) {
+  if (hdr->status == GUESTFS_STATUS_ERROR) {
     int errnum = 0;
 
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
                        "getxattrs", "NULL");
-    if (err.errno_string[0] != '\0')
-      errnum = guestfs___string_to_errno (err.errno_string);
+    if (err->errno_string[0] != '\0')
+      errnum = guestfs___string_to_errno (err->errno_string);
     if (errnum <= 0)
-      error (g, "%s: %s", "getxattrs", err.error_message);
+      error (g, "%s: %s", "getxattrs", err->error_message);
     else
       guestfs___error_errno (g, errnum, "%s: %s", "getxattrs",
-                           err.error_message);
-    free (err.error_message);
-    free (err.errno_string);
+                           err->error_message);
+    guestfs_protobuf_message_error__free_unpacked (err, NULL);
+    guestfs_protobuf_message_header__free_unpacked (hdr, NULL);
     return NULL;
   }
 
   /* caller will free this */
-  ret_v = safe_memdup (g, &ret.xattrs, sizeof (ret.xattrs));
+  ret_v = safe_malloc (g, sizeof (struct guestfs_xattr_list));
+  convert_guestfs_int_xattr_list_protobuf_to_xdr (ret->xattrs, (guestfs_int_xattr_list *) ret_v);
   if (trace_flag) {
     guestfs___trace_open (&trace_buffer);
     fprintf (trace_buffer.fp, "%s = ", "getxattrs");
@@ -2957,6 +3009,8 @@ guestfs_getxattrs (guestfs_h *g,
     guestfs___trace_send_line (g, &trace_buffer);
   }
 
+  guestfs_protobuf_message_header__free_unpacked (hdr, NULL);
+  guestfs_protobuf_getxattrs_ret__free_unpacked (ret, NULL);
   return ret_v;
 }
 
@@ -2972,10 +3026,11 @@ guestfs_grep_opts_argv (guestfs_h *g,
     optargs = &optargs_null;
   }
 
-  struct guestfs_grep_args args;
-  guestfs_message_header hdr;
-  guestfs_message_error err;
-  struct guestfs_grep_ret ret;
+  guestfs_protobuf_grep_args args;
+  guestfs_protobuf_grep_args__init (&args);
+  guestfs_protobuf_message_header *hdr;
+  guestfs_protobuf_message_error *err;
+  guestfs_protobuf_grep_ret *ret;
   int serial;
   int r;
   int trace_flag = g->trace;
@@ -3053,7 +3108,7 @@ guestfs_grep_opts_argv (guestfs_h *g,
   }
   serial = guestfs___send (g, GUESTFS_PROC_GREP,
                            progress_hint, optargs->bitmask,
-                           (xdrproc_t) xdr_guestfs_grep_args, (char *) &args);
+                           (protobuf_proc_pack) guestfs_protobuf_grep_args__pack, (char *) &args);
   if (serial == -1) {
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
@@ -3061,12 +3116,12 @@ guestfs_grep_opts_argv (guestfs_h *g,
     return NULL;
   }
 
-  memset (&hdr, 0, sizeof hdr);
-  memset (&err, 0, sizeof err);
-  memset (&ret, 0, sizeof ret);
+  hdr = NULL;
+  err = NULL;
+  ret = NULL;
 
   r = guestfs___recv (g, "grep", &hdr, &err,
-        (xdrproc_t) xdr_guestfs_grep_ret, (char *) &ret);
+        (protobuf_proc_unpack) guestfs_protobuf_grep_ret__unpack, (ProtobufCMessage **) &ret);
   if (r == -1) {
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
@@ -3074,37 +3129,38 @@ guestfs_grep_opts_argv (guestfs_h *g,
     return NULL;
   }
 
-  if (guestfs___check_reply_header (g, &hdr, GUESTFS_PROC_GREP, serial) == -1) {
+  if (guestfs___check_reply_header (g, hdr, GUESTFS_PROC_GREP, serial) == -1) {
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
                        "grep", "NULL");
     return NULL;
   }
 
-  if (hdr.status == GUESTFS_STATUS_ERROR) {
+  if (hdr->status == GUESTFS_STATUS_ERROR) {
     int errnum = 0;
 
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
                        "grep", "NULL");
-    if (err.errno_string[0] != '\0')
-      errnum = guestfs___string_to_errno (err.errno_string);
+    if (err->errno_string[0] != '\0')
+      errnum = guestfs___string_to_errno (err->errno_string);
     if (errnum <= 0)
-      error (g, "%s: %s", "grep", err.error_message);
+      error (g, "%s: %s", "grep", err->error_message);
     else
       guestfs___error_errno (g, errnum, "%s: %s", "grep",
-                           err.error_message);
-    free (err.error_message);
-    free (err.errno_string);
+                           err->error_message);
+    guestfs_protobuf_message_error__free_unpacked (err, NULL);
+    guestfs_protobuf_message_header__free_unpacked (hdr, NULL);
     return NULL;
   }
 
   /* caller will free this, but we need to add a NULL entry */
-  ret.lines.lines_val =
-    safe_realloc (g, ret.lines.lines_val,
-                  sizeof (char *) * (ret.lines.lines_len + 1));
-  ret.lines.lines_val[ret.lines.lines_len] = NULL;
-  ret_v = ret.lines.lines_val;
+  ret_v = safe_malloc (g, sizeof (char *) * (ret->n_lines));
+  int i;
+  for (i = 0; i < ret->n_lines - 1; ++i) {
+     ret_v[i] = safe_strdup (g, ret->lines[i]);
+  }
+  ret_v[ret->n_lines - 1] = NULL;
   if (trace_flag) {
     size_t i;
 
@@ -3121,6 +3177,8 @@ guestfs_grep_opts_argv (guestfs_h *g,
     guestfs___trace_send_line (g, &trace_buffer);
   }
 
+  guestfs_protobuf_message_header__free_unpacked (hdr, NULL);
+  guestfs_protobuf_grep_ret__free_unpacked (ret, NULL);
   return ret_v;
 }
 
@@ -3129,10 +3187,11 @@ guestfs_zfgrep (guestfs_h *g,
                 const char *pattern,
                 const char *path)
 {
-  struct guestfs_zfgrep_args args;
-  guestfs_message_header hdr;
-  guestfs_message_error err;
-  struct guestfs_zfgrep_ret ret;
+  guestfs_protobuf_zfgrep_args args;
+  guestfs_protobuf_zfgrep_args__init (&args);
+  guestfs_protobuf_message_header *hdr;
+  guestfs_protobuf_message_error *err;
+  guestfs_protobuf_zfgrep_ret *ret;
   int serial;
   int r;
   int trace_flag = g->trace;
@@ -3172,7 +3231,7 @@ guestfs_zfgrep (guestfs_h *g,
   args.path = (char *) path;
   serial = guestfs___send (g, GUESTFS_PROC_ZFGREP,
                            progress_hint, 0,
-                           (xdrproc_t) xdr_guestfs_zfgrep_args, (char *) &args);
+                           (protobuf_proc_pack) guestfs_protobuf_zfgrep_args__pack, (char *) &args);
   if (serial == -1) {
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
@@ -3180,12 +3239,12 @@ guestfs_zfgrep (guestfs_h *g,
     return NULL;
   }
 
-  memset (&hdr, 0, sizeof hdr);
-  memset (&err, 0, sizeof err);
-  memset (&ret, 0, sizeof ret);
+  hdr = NULL;
+  err = NULL;
+  ret = NULL;
 
   r = guestfs___recv (g, "zfgrep", &hdr, &err,
-        (xdrproc_t) xdr_guestfs_zfgrep_ret, (char *) &ret);
+        (protobuf_proc_unpack) guestfs_protobuf_zfgrep_ret__unpack, (ProtobufCMessage **) &ret);
   if (r == -1) {
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
@@ -3193,37 +3252,38 @@ guestfs_zfgrep (guestfs_h *g,
     return NULL;
   }
 
-  if (guestfs___check_reply_header (g, &hdr, GUESTFS_PROC_ZFGREP, serial) == -1) {
+  if (guestfs___check_reply_header (g, hdr, GUESTFS_PROC_ZFGREP, serial) == -1) {
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
                        "zfgrep", "NULL");
     return NULL;
   }
 
-  if (hdr.status == GUESTFS_STATUS_ERROR) {
+  if (hdr->status == GUESTFS_STATUS_ERROR) {
     int errnum = 0;
 
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
                        "zfgrep", "NULL");
-    if (err.errno_string[0] != '\0')
-      errnum = guestfs___string_to_errno (err.errno_string);
+    if (err->errno_string[0] != '\0')
+      errnum = guestfs___string_to_errno (err->errno_string);
     if (errnum <= 0)
-      error (g, "%s: %s", "zfgrep", err.error_message);
+      error (g, "%s: %s", "zfgrep", err->error_message);
     else
       guestfs___error_errno (g, errnum, "%s: %s", "zfgrep",
-                           err.error_message);
-    free (err.error_message);
-    free (err.errno_string);
+                           err->error_message);
+    guestfs_protobuf_message_error__free_unpacked (err, NULL);
+    guestfs_protobuf_message_header__free_unpacked (hdr, NULL);
     return NULL;
   }
 
   /* caller will free this, but we need to add a NULL entry */
-  ret.lines.lines_val =
-    safe_realloc (g, ret.lines.lines_val,
-                  sizeof (char *) * (ret.lines.lines_len + 1));
-  ret.lines.lines_val[ret.lines.lines_len] = NULL;
-  ret_v = ret.lines.lines_val;
+  ret_v = safe_malloc (g, sizeof (char *) * (ret->n_lines));
+  int i;
+  for (i = 0; i < ret->n_lines - 1; ++i) {
+     ret_v[i] = safe_strdup (g, ret->lines[i]);
+  }
+  ret_v[ret->n_lines - 1] = NULL;
   if (trace_flag) {
     size_t i;
 
@@ -3240,6 +3300,8 @@ guestfs_zfgrep (guestfs_h *g,
     guestfs___trace_send_line (g, &trace_buffer);
   }
 
+  guestfs_protobuf_message_header__free_unpacked (hdr, NULL);
+  guestfs_protobuf_zfgrep_ret__free_unpacked (ret, NULL);
   return ret_v;
 }
 
@@ -3248,10 +3310,11 @@ guestfs_zegrepi (guestfs_h *g,
                  const char *regex,
                  const char *path)
 {
-  struct guestfs_zegrepi_args args;
-  guestfs_message_header hdr;
-  guestfs_message_error err;
-  struct guestfs_zegrepi_ret ret;
+  guestfs_protobuf_zegrepi_args args;
+  guestfs_protobuf_zegrepi_args__init (&args);
+  guestfs_protobuf_message_header *hdr;
+  guestfs_protobuf_message_error *err;
+  guestfs_protobuf_zegrepi_ret *ret;
   int serial;
   int r;
   int trace_flag = g->trace;
@@ -3291,7 +3354,7 @@ guestfs_zegrepi (guestfs_h *g,
   args.path = (char *) path;
   serial = guestfs___send (g, GUESTFS_PROC_ZEGREPI,
                            progress_hint, 0,
-                           (xdrproc_t) xdr_guestfs_zegrepi_args, (char *) &args);
+                           (protobuf_proc_pack) guestfs_protobuf_zegrepi_args__pack, (char *) &args);
   if (serial == -1) {
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
@@ -3299,12 +3362,12 @@ guestfs_zegrepi (guestfs_h *g,
     return NULL;
   }
 
-  memset (&hdr, 0, sizeof hdr);
-  memset (&err, 0, sizeof err);
-  memset (&ret, 0, sizeof ret);
+  hdr = NULL;
+  err = NULL;
+  ret = NULL;
 
   r = guestfs___recv (g, "zegrepi", &hdr, &err,
-        (xdrproc_t) xdr_guestfs_zegrepi_ret, (char *) &ret);
+        (protobuf_proc_unpack) guestfs_protobuf_zegrepi_ret__unpack, (ProtobufCMessage **) &ret);
   if (r == -1) {
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
@@ -3312,37 +3375,38 @@ guestfs_zegrepi (guestfs_h *g,
     return NULL;
   }
 
-  if (guestfs___check_reply_header (g, &hdr, GUESTFS_PROC_ZEGREPI, serial) == -1) {
+  if (guestfs___check_reply_header (g, hdr, GUESTFS_PROC_ZEGREPI, serial) == -1) {
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
                        "zegrepi", "NULL");
     return NULL;
   }
 
-  if (hdr.status == GUESTFS_STATUS_ERROR) {
+  if (hdr->status == GUESTFS_STATUS_ERROR) {
     int errnum = 0;
 
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
                        "zegrepi", "NULL");
-    if (err.errno_string[0] != '\0')
-      errnum = guestfs___string_to_errno (err.errno_string);
+    if (err->errno_string[0] != '\0')
+      errnum = guestfs___string_to_errno (err->errno_string);
     if (errnum <= 0)
-      error (g, "%s: %s", "zegrepi", err.error_message);
+      error (g, "%s: %s", "zegrepi", err->error_message);
     else
       guestfs___error_errno (g, errnum, "%s: %s", "zegrepi",
-                           err.error_message);
-    free (err.error_message);
-    free (err.errno_string);
+                           err->error_message);
+    guestfs_protobuf_message_error__free_unpacked (err, NULL);
+    guestfs_protobuf_message_header__free_unpacked (hdr, NULL);
     return NULL;
   }
 
   /* caller will free this, but we need to add a NULL entry */
-  ret.lines.lines_val =
-    safe_realloc (g, ret.lines.lines_val,
-                  sizeof (char *) * (ret.lines.lines_len + 1));
-  ret.lines.lines_val[ret.lines.lines_len] = NULL;
-  ret_v = ret.lines.lines_val;
+  ret_v = safe_malloc (g, sizeof (char *) * (ret->n_lines));
+  int i;
+  for (i = 0; i < ret->n_lines - 1; ++i) {
+     ret_v[i] = safe_strdup (g, ret->lines[i]);
+  }
+  ret_v[ret->n_lines - 1] = NULL;
   if (trace_flag) {
     size_t i;
 
@@ -3359,6 +3423,8 @@ guestfs_zegrepi (guestfs_h *g,
     guestfs___trace_send_line (g, &trace_buffer);
   }
 
+  guestfs_protobuf_message_header__free_unpacked (hdr, NULL);
+  guestfs_protobuf_zegrepi_ret__free_unpacked (ret, NULL);
   return ret_v;
 }
 
@@ -3366,10 +3432,11 @@ GUESTFS_DLL_PUBLIC char *
 guestfs_realpath (guestfs_h *g,
                   const char *path)
 {
-  struct guestfs_realpath_args args;
-  guestfs_message_header hdr;
-  guestfs_message_error err;
-  struct guestfs_realpath_ret ret;
+  guestfs_protobuf_realpath_args args;
+  guestfs_protobuf_realpath_args__init (&args);
+  guestfs_protobuf_message_header *hdr;
+  guestfs_protobuf_message_error *err;
+  guestfs_protobuf_realpath_ret *ret;
   int serial;
   int r;
   int trace_flag = g->trace;
@@ -3402,7 +3469,7 @@ guestfs_realpath (guestfs_h *g,
   args.path = (char *) path;
   serial = guestfs___send (g, GUESTFS_PROC_REALPATH,
                            progress_hint, 0,
-                           (xdrproc_t) xdr_guestfs_realpath_args, (char *) &args);
+                           (protobuf_proc_pack) guestfs_protobuf_realpath_args__pack, (char *) &args);
   if (serial == -1) {
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
@@ -3410,12 +3477,12 @@ guestfs_realpath (guestfs_h *g,
     return NULL;
   }
 
-  memset (&hdr, 0, sizeof hdr);
-  memset (&err, 0, sizeof err);
-  memset (&ret, 0, sizeof ret);
+  hdr = NULL;
+  err = NULL;
+  ret = NULL;
 
   r = guestfs___recv (g, "realpath", &hdr, &err,
-        (xdrproc_t) xdr_guestfs_realpath_ret, (char *) &ret);
+        (protobuf_proc_unpack) guestfs_protobuf_realpath_ret__unpack, (ProtobufCMessage **) &ret);
   if (r == -1) {
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
@@ -3423,32 +3490,32 @@ guestfs_realpath (guestfs_h *g,
     return NULL;
   }
 
-  if (guestfs___check_reply_header (g, &hdr, GUESTFS_PROC_REALPATH, serial) == -1) {
+  if (guestfs___check_reply_header (g, hdr, GUESTFS_PROC_REALPATH, serial) == -1) {
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
                        "realpath", "NULL");
     return NULL;
   }
 
-  if (hdr.status == GUESTFS_STATUS_ERROR) {
+  if (hdr->status == GUESTFS_STATUS_ERROR) {
     int errnum = 0;
 
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
                        "realpath", "NULL");
-    if (err.errno_string[0] != '\0')
-      errnum = guestfs___string_to_errno (err.errno_string);
+    if (err->errno_string[0] != '\0')
+      errnum = guestfs___string_to_errno (err->errno_string);
     if (errnum <= 0)
-      error (g, "%s: %s", "realpath", err.error_message);
+      error (g, "%s: %s", "realpath", err->error_message);
     else
       guestfs___error_errno (g, errnum, "%s: %s", "realpath",
-                           err.error_message);
-    free (err.error_message);
-    free (err.errno_string);
+                           err->error_message);
+    guestfs_protobuf_message_error__free_unpacked (err, NULL);
+    guestfs_protobuf_message_header__free_unpacked (hdr, NULL);
     return NULL;
   }
 
-  ret_v = ret.rpath; /* caller will free */
+  ret_v = safe_strdup (g, ret->rpath); /* caller will free */
   if (trace_flag) {
     guestfs___trace_open (&trace_buffer);
     fprintf (trace_buffer.fp, "%s = ", "realpath");
@@ -3456,6 +3523,8 @@ guestfs_realpath (guestfs_h *g,
     guestfs___trace_send_line (g, &trace_buffer);
   }
 
+  guestfs_protobuf_message_header__free_unpacked (hdr, NULL);
+  guestfs_protobuf_realpath_ret__free_unpacked (ret, NULL);
   return ret_v;
 }
 
@@ -3463,9 +3532,10 @@ GUESTFS_DLL_PUBLIC int
 guestfs_swapoff_file (guestfs_h *g,
                       const char *file)
 {
-  struct guestfs_swapoff_file_args args;
-  guestfs_message_header hdr;
-  guestfs_message_error err;
+  guestfs_protobuf_swapoff_file_args args;
+  guestfs_protobuf_swapoff_file_args__init (&args);
+  guestfs_protobuf_message_header *hdr;
+  guestfs_protobuf_message_error *err;
   int serial;
   int r;
   int trace_flag = g->trace;
@@ -3498,7 +3568,7 @@ guestfs_swapoff_file (guestfs_h *g,
   args.file = (char *) file;
   serial = guestfs___send (g, GUESTFS_PROC_SWAPOFF_FILE,
                            progress_hint, 0,
-                           (xdrproc_t) xdr_guestfs_swapoff_file_args, (char *) &args);
+                           (protobuf_proc_pack) guestfs_protobuf_swapoff_file_args__pack, (char *) &args);
   if (serial == -1) {
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
@@ -3506,8 +3576,8 @@ guestfs_swapoff_file (guestfs_h *g,
     return -1;
   }
 
-  memset (&hdr, 0, sizeof hdr);
-  memset (&err, 0, sizeof err);
+  hdr = NULL;
+  err = NULL;
 
   r = guestfs___recv (g, "swapoff_file", &hdr, &err,
         NULL, NULL);
@@ -3518,28 +3588,28 @@ guestfs_swapoff_file (guestfs_h *g,
     return -1;
   }
 
-  if (guestfs___check_reply_header (g, &hdr, GUESTFS_PROC_SWAPOFF_FILE, serial) == -1) {
+  if (guestfs___check_reply_header (g, hdr, GUESTFS_PROC_SWAPOFF_FILE, serial) == -1) {
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
                        "swapoff_file", "-1");
     return -1;
   }
 
-  if (hdr.status == GUESTFS_STATUS_ERROR) {
+  if (hdr->status == GUESTFS_STATUS_ERROR) {
     int errnum = 0;
 
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
                        "swapoff_file", "-1");
-    if (err.errno_string[0] != '\0')
-      errnum = guestfs___string_to_errno (err.errno_string);
+    if (err->errno_string[0] != '\0')
+      errnum = guestfs___string_to_errno (err->errno_string);
     if (errnum <= 0)
-      error (g, "%s: %s", "swapoff_file", err.error_message);
+      error (g, "%s: %s", "swapoff_file", err->error_message);
     else
       guestfs___error_errno (g, errnum, "%s: %s", "swapoff_file",
-                           err.error_message);
-    free (err.error_message);
-    free (err.errno_string);
+                           err->error_message);
+    guestfs_protobuf_message_error__free_unpacked (err, NULL);
+    guestfs_protobuf_message_header__free_unpacked (hdr, NULL);
     return -1;
   }
 
@@ -3551,6 +3621,7 @@ guestfs_swapoff_file (guestfs_h *g,
     guestfs___trace_send_line (g, &trace_buffer);
   }
 
+  guestfs_protobuf_message_header__free_unpacked (hdr, NULL);
   return ret_v;
 }
 
@@ -3558,9 +3629,10 @@ GUESTFS_DLL_PUBLIC int
 guestfs_inotify_rm_watch (guestfs_h *g,
                           int wd)
 {
-  struct guestfs_inotify_rm_watch_args args;
-  guestfs_message_header hdr;
-  guestfs_message_error err;
+  guestfs_protobuf_inotify_rm_watch_args args;
+  guestfs_protobuf_inotify_rm_watch_args__init (&args);
+  guestfs_protobuf_message_header *hdr;
+  guestfs_protobuf_message_error *err;
   int serial;
   int r;
   int trace_flag = g->trace;
@@ -3587,7 +3659,7 @@ guestfs_inotify_rm_watch (guestfs_h *g,
   args.wd = wd;
   serial = guestfs___send (g, GUESTFS_PROC_INOTIFY_RM_WATCH,
                            progress_hint, 0,
-                           (xdrproc_t) xdr_guestfs_inotify_rm_watch_args, (char *) &args);
+                           (protobuf_proc_pack) guestfs_protobuf_inotify_rm_watch_args__pack, (char *) &args);
   if (serial == -1) {
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
@@ -3595,8 +3667,8 @@ guestfs_inotify_rm_watch (guestfs_h *g,
     return -1;
   }
 
-  memset (&hdr, 0, sizeof hdr);
-  memset (&err, 0, sizeof err);
+  hdr = NULL;
+  err = NULL;
 
   r = guestfs___recv (g, "inotify_rm_watch", &hdr, &err,
         NULL, NULL);
@@ -3607,28 +3679,28 @@ guestfs_inotify_rm_watch (guestfs_h *g,
     return -1;
   }
 
-  if (guestfs___check_reply_header (g, &hdr, GUESTFS_PROC_INOTIFY_RM_WATCH, serial) == -1) {
+  if (guestfs___check_reply_header (g, hdr, GUESTFS_PROC_INOTIFY_RM_WATCH, serial) == -1) {
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
                        "inotify_rm_watch", "-1");
     return -1;
   }
 
-  if (hdr.status == GUESTFS_STATUS_ERROR) {
+  if (hdr->status == GUESTFS_STATUS_ERROR) {
     int errnum = 0;
 
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
                        "inotify_rm_watch", "-1");
-    if (err.errno_string[0] != '\0')
-      errnum = guestfs___string_to_errno (err.errno_string);
+    if (err->errno_string[0] != '\0')
+      errnum = guestfs___string_to_errno (err->errno_string);
     if (errnum <= 0)
-      error (g, "%s: %s", "inotify_rm_watch", err.error_message);
+      error (g, "%s: %s", "inotify_rm_watch", err->error_message);
     else
       guestfs___error_errno (g, errnum, "%s: %s", "inotify_rm_watch",
-                           err.error_message);
-    free (err.error_message);
-    free (err.errno_string);
+                           err->error_message);
+    guestfs_protobuf_message_error__free_unpacked (err, NULL);
+    guestfs_protobuf_message_header__free_unpacked (hdr, NULL);
     return -1;
   }
 
@@ -3640,15 +3712,16 @@ guestfs_inotify_rm_watch (guestfs_h *g,
     guestfs___trace_send_line (g, &trace_buffer);
   }
 
+  guestfs_protobuf_message_header__free_unpacked (hdr, NULL);
   return ret_v;
 }
 
 GUESTFS_DLL_PUBLIC char **
 guestfs_inotify_files (guestfs_h *g)
 {
-  guestfs_message_header hdr;
-  guestfs_message_error err;
-  struct guestfs_inotify_files_ret ret;
+  guestfs_protobuf_message_header *hdr;
+  guestfs_protobuf_message_error *err;
+  guestfs_protobuf_inotify_files_ret *ret;
   int serial;
   int r;
   int trace_flag = g->trace;
@@ -3680,12 +3753,12 @@ guestfs_inotify_files (guestfs_h *g)
     return NULL;
   }
 
-  memset (&hdr, 0, sizeof hdr);
-  memset (&err, 0, sizeof err);
-  memset (&ret, 0, sizeof ret);
+  hdr = NULL;
+  err = NULL;
+  ret = NULL;
 
   r = guestfs___recv (g, "inotify_files", &hdr, &err,
-        (xdrproc_t) xdr_guestfs_inotify_files_ret, (char *) &ret);
+        (protobuf_proc_unpack) guestfs_protobuf_inotify_files_ret__unpack, (ProtobufCMessage **) &ret);
   if (r == -1) {
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
@@ -3693,37 +3766,38 @@ guestfs_inotify_files (guestfs_h *g)
     return NULL;
   }
 
-  if (guestfs___check_reply_header (g, &hdr, GUESTFS_PROC_INOTIFY_FILES, serial) == -1) {
+  if (guestfs___check_reply_header (g, hdr, GUESTFS_PROC_INOTIFY_FILES, serial) == -1) {
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
                        "inotify_files", "NULL");
     return NULL;
   }
 
-  if (hdr.status == GUESTFS_STATUS_ERROR) {
+  if (hdr->status == GUESTFS_STATUS_ERROR) {
     int errnum = 0;
 
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
                        "inotify_files", "NULL");
-    if (err.errno_string[0] != '\0')
-      errnum = guestfs___string_to_errno (err.errno_string);
+    if (err->errno_string[0] != '\0')
+      errnum = guestfs___string_to_errno (err->errno_string);
     if (errnum <= 0)
-      error (g, "%s: %s", "inotify_files", err.error_message);
+      error (g, "%s: %s", "inotify_files", err->error_message);
     else
       guestfs___error_errno (g, errnum, "%s: %s", "inotify_files",
-                           err.error_message);
-    free (err.error_message);
-    free (err.errno_string);
+                           err->error_message);
+    guestfs_protobuf_message_error__free_unpacked (err, NULL);
+    guestfs_protobuf_message_header__free_unpacked (hdr, NULL);
     return NULL;
   }
 
   /* caller will free this, but we need to add a NULL entry */
-  ret.paths.paths_val =
-    safe_realloc (g, ret.paths.paths_val,
-                  sizeof (char *) * (ret.paths.paths_len + 1));
-  ret.paths.paths_val[ret.paths.paths_len] = NULL;
-  ret_v = ret.paths.paths_val;
+  ret_v = safe_malloc (g, sizeof (char *) * (ret->n_paths));
+  int i;
+  for (i = 0; i < ret->n_paths - 1; ++i) {
+     ret_v[i] = safe_strdup (g, ret->paths[i]);
+  }
+  ret_v[ret->n_paths - 1] = NULL;
   if (trace_flag) {
     size_t i;
 
@@ -3740,6 +3814,8 @@ guestfs_inotify_files (guestfs_h *g)
     guestfs___trace_send_line (g, &trace_buffer);
   }
 
+  guestfs_protobuf_message_header__free_unpacked (hdr, NULL);
+  guestfs_protobuf_inotify_files_ret__free_unpacked (ret, NULL);
   return ret_v;
 }
 
@@ -3749,9 +3825,10 @@ guestfs_lchown (guestfs_h *g,
                 int group,
                 const char *path)
 {
-  struct guestfs_lchown_args args;
-  guestfs_message_header hdr;
-  guestfs_message_error err;
+  guestfs_protobuf_lchown_args args;
+  guestfs_protobuf_lchown_args__init (&args);
+  guestfs_protobuf_message_header *hdr;
+  guestfs_protobuf_message_error *err;
   int serial;
   int r;
   int trace_flag = g->trace;
@@ -3788,7 +3865,7 @@ guestfs_lchown (guestfs_h *g,
   args.path = (char *) path;
   serial = guestfs___send (g, GUESTFS_PROC_LCHOWN,
                            progress_hint, 0,
-                           (xdrproc_t) xdr_guestfs_lchown_args, (char *) &args);
+                           (protobuf_proc_pack) guestfs_protobuf_lchown_args__pack, (char *) &args);
   if (serial == -1) {
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
@@ -3796,8 +3873,8 @@ guestfs_lchown (guestfs_h *g,
     return -1;
   }
 
-  memset (&hdr, 0, sizeof hdr);
-  memset (&err, 0, sizeof err);
+  hdr = NULL;
+  err = NULL;
 
   r = guestfs___recv (g, "lchown", &hdr, &err,
         NULL, NULL);
@@ -3808,28 +3885,28 @@ guestfs_lchown (guestfs_h *g,
     return -1;
   }
 
-  if (guestfs___check_reply_header (g, &hdr, GUESTFS_PROC_LCHOWN, serial) == -1) {
+  if (guestfs___check_reply_header (g, hdr, GUESTFS_PROC_LCHOWN, serial) == -1) {
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
                        "lchown", "-1");
     return -1;
   }
 
-  if (hdr.status == GUESTFS_STATUS_ERROR) {
+  if (hdr->status == GUESTFS_STATUS_ERROR) {
     int errnum = 0;
 
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
                        "lchown", "-1");
-    if (err.errno_string[0] != '\0')
-      errnum = guestfs___string_to_errno (err.errno_string);
+    if (err->errno_string[0] != '\0')
+      errnum = guestfs___string_to_errno (err->errno_string);
     if (errnum <= 0)
-      error (g, "%s: %s", "lchown", err.error_message);
+      error (g, "%s: %s", "lchown", err->error_message);
     else
       guestfs___error_errno (g, errnum, "%s: %s", "lchown",
-                           err.error_message);
-    free (err.error_message);
-    free (err.errno_string);
+                           err->error_message);
+    guestfs_protobuf_message_error__free_unpacked (err, NULL);
+    guestfs_protobuf_message_header__free_unpacked (hdr, NULL);
     return -1;
   }
 
@@ -3841,6 +3918,7 @@ guestfs_lchown (guestfs_h *g,
     guestfs___trace_send_line (g, &trace_buffer);
   }
 
+  guestfs_protobuf_message_header__free_unpacked (hdr, NULL);
   return ret_v;
 }
 
@@ -3851,10 +3929,11 @@ guestfs_pread (guestfs_h *g,
                int64_t offset,
                size_t *size_r)
 {
-  struct guestfs_pread_args args;
-  guestfs_message_header hdr;
-  guestfs_message_error err;
-  struct guestfs_pread_ret ret;
+  guestfs_protobuf_pread_args args;
+  guestfs_protobuf_pread_args__init (&args);
+  guestfs_protobuf_message_header *hdr;
+  guestfs_protobuf_message_error *err;
+  guestfs_protobuf_pread_ret *ret;
   int serial;
   int r;
   int trace_flag = g->trace;
@@ -3891,7 +3970,7 @@ guestfs_pread (guestfs_h *g,
   args.offset = offset;
   serial = guestfs___send (g, GUESTFS_PROC_PREAD,
                            progress_hint, 0,
-                           (xdrproc_t) xdr_guestfs_pread_args, (char *) &args);
+                           (protobuf_proc_pack) guestfs_protobuf_pread_args__pack, (char *) &args);
   if (serial == -1) {
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
@@ -3899,12 +3978,12 @@ guestfs_pread (guestfs_h *g,
     return NULL;
   }
 
-  memset (&hdr, 0, sizeof hdr);
-  memset (&err, 0, sizeof err);
-  memset (&ret, 0, sizeof ret);
+  hdr = NULL;
+  err = NULL;
+  ret = NULL;
 
   r = guestfs___recv (g, "pread", &hdr, &err,
-        (xdrproc_t) xdr_guestfs_pread_ret, (char *) &ret);
+        (protobuf_proc_unpack) guestfs_protobuf_pread_ret__unpack, (ProtobufCMessage **) &ret);
   if (r == -1) {
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
@@ -3912,28 +3991,28 @@ guestfs_pread (guestfs_h *g,
     return NULL;
   }
 
-  if (guestfs___check_reply_header (g, &hdr, GUESTFS_PROC_PREAD, serial) == -1) {
+  if (guestfs___check_reply_header (g, hdr, GUESTFS_PROC_PREAD, serial) == -1) {
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
                        "pread", "NULL");
     return NULL;
   }
 
-  if (hdr.status == GUESTFS_STATUS_ERROR) {
+  if (hdr->status == GUESTFS_STATUS_ERROR) {
     int errnum = 0;
 
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
                        "pread", "NULL");
-    if (err.errno_string[0] != '\0')
-      errnum = guestfs___string_to_errno (err.errno_string);
+    if (err->errno_string[0] != '\0')
+      errnum = guestfs___string_to_errno (err->errno_string);
     if (errnum <= 0)
-      error (g, "%s: %s", "pread", err.error_message);
+      error (g, "%s: %s", "pread", err->error_message);
     else
       guestfs___error_errno (g, errnum, "%s: %s", "pread",
-                           err.error_message);
-    free (err.error_message);
-    free (err.errno_string);
+                           err->error_message);
+    guestfs_protobuf_message_error__free_unpacked (err, NULL);
+    guestfs_protobuf_message_header__free_unpacked (hdr, NULL);
     return NULL;
   }
 
@@ -3942,13 +4021,12 @@ guestfs_pread (guestfs_h *g,
    * callers, we turn this case into a unique pointer (using
    * malloc(1)).
    */
-  if (ret.content.content_len > 0) {
-    *size_r = ret.content.content_len;
-    ret_v = ret.content.content_val; /* caller will free */
+  if (ret->content.len > 0) {
+    *size_r = ret->content.len;
+    ret_v = safe_memdup (g, ret->content.data, ret->content.len); /* caller will free */
   } else {
-    free (ret.content.content_val);
     char *p = safe_malloc (g, 1);
-    *size_r = ret.content.content_len;
+    *size_r = ret->content.len;
     ret_v = p;
   }
   if (trace_flag) {
@@ -3958,6 +4036,8 @@ guestfs_pread (guestfs_h *g,
     guestfs___trace_send_line (g, &trace_buffer);
   }
 
+  guestfs_protobuf_message_header__free_unpacked (hdr, NULL);
+  guestfs_protobuf_pread_ret__free_unpacked (ret, NULL);
   return ret_v;
 }
 
@@ -3966,9 +4046,10 @@ guestfs_dd (guestfs_h *g,
             const char *src,
             const char *dest)
 {
-  struct guestfs_dd_args args;
-  guestfs_message_header hdr;
-  guestfs_message_error err;
+  guestfs_protobuf_dd_args args;
+  guestfs_protobuf_dd_args__init (&args);
+  guestfs_protobuf_message_header *hdr;
+  guestfs_protobuf_message_error *err;
   int serial;
   int r;
   int trace_flag = g->trace;
@@ -4008,7 +4089,7 @@ guestfs_dd (guestfs_h *g,
   args.dest = (char *) dest;
   serial = guestfs___send (g, GUESTFS_PROC_DD,
                            progress_hint, 0,
-                           (xdrproc_t) xdr_guestfs_dd_args, (char *) &args);
+                           (protobuf_proc_pack) guestfs_protobuf_dd_args__pack, (char *) &args);
   if (serial == -1) {
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
@@ -4016,8 +4097,8 @@ guestfs_dd (guestfs_h *g,
     return -1;
   }
 
-  memset (&hdr, 0, sizeof hdr);
-  memset (&err, 0, sizeof err);
+  hdr = NULL;
+  err = NULL;
 
   r = guestfs___recv (g, "dd", &hdr, &err,
         NULL, NULL);
@@ -4028,28 +4109,28 @@ guestfs_dd (guestfs_h *g,
     return -1;
   }
 
-  if (guestfs___check_reply_header (g, &hdr, GUESTFS_PROC_DD, serial) == -1) {
+  if (guestfs___check_reply_header (g, hdr, GUESTFS_PROC_DD, serial) == -1) {
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
                        "dd", "-1");
     return -1;
   }
 
-  if (hdr.status == GUESTFS_STATUS_ERROR) {
+  if (hdr->status == GUESTFS_STATUS_ERROR) {
     int errnum = 0;
 
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
                        "dd", "-1");
-    if (err.errno_string[0] != '\0')
-      errnum = guestfs___string_to_errno (err.errno_string);
+    if (err->errno_string[0] != '\0')
+      errnum = guestfs___string_to_errno (err->errno_string);
     if (errnum <= 0)
-      error (g, "%s: %s", "dd", err.error_message);
+      error (g, "%s: %s", "dd", err->error_message);
     else
       guestfs___error_errno (g, errnum, "%s: %s", "dd",
-                           err.error_message);
-    free (err.error_message);
-    free (err.errno_string);
+                           err->error_message);
+    guestfs_protobuf_message_error__free_unpacked (err, NULL);
+    guestfs_protobuf_message_header__free_unpacked (hdr, NULL);
     return -1;
   }
 
@@ -4061,14 +4142,15 @@ guestfs_dd (guestfs_h *g,
     guestfs___trace_send_line (g, &trace_buffer);
   }
 
+  guestfs_protobuf_message_header__free_unpacked (hdr, NULL);
   return ret_v;
 }
 
 GUESTFS_DLL_PUBLIC int
 guestfs_vgscan (guestfs_h *g)
 {
-  guestfs_message_header hdr;
-  guestfs_message_error err;
+  guestfs_protobuf_message_header *hdr;
+  guestfs_protobuf_message_error *err;
   int serial;
   int r;
   int trace_flag = g->trace;
@@ -4100,8 +4182,8 @@ guestfs_vgscan (guestfs_h *g)
     return -1;
   }
 
-  memset (&hdr, 0, sizeof hdr);
-  memset (&err, 0, sizeof err);
+  hdr = NULL;
+  err = NULL;
 
   r = guestfs___recv (g, "vgscan", &hdr, &err,
         NULL, NULL);
@@ -4112,28 +4194,28 @@ guestfs_vgscan (guestfs_h *g)
     return -1;
   }
 
-  if (guestfs___check_reply_header (g, &hdr, GUESTFS_PROC_VGSCAN, serial) == -1) {
+  if (guestfs___check_reply_header (g, hdr, GUESTFS_PROC_VGSCAN, serial) == -1) {
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
                        "vgscan", "-1");
     return -1;
   }
 
-  if (hdr.status == GUESTFS_STATUS_ERROR) {
+  if (hdr->status == GUESTFS_STATUS_ERROR) {
     int errnum = 0;
 
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
                        "vgscan", "-1");
-    if (err.errno_string[0] != '\0')
-      errnum = guestfs___string_to_errno (err.errno_string);
+    if (err->errno_string[0] != '\0')
+      errnum = guestfs___string_to_errno (err->errno_string);
     if (errnum <= 0)
-      error (g, "%s: %s", "vgscan", err.error_message);
+      error (g, "%s: %s", "vgscan", err->error_message);
     else
       guestfs___error_errno (g, errnum, "%s: %s", "vgscan",
-                           err.error_message);
-    free (err.error_message);
-    free (err.errno_string);
+                           err->error_message);
+    guestfs_protobuf_message_error__free_unpacked (err, NULL);
+    guestfs_protobuf_message_header__free_unpacked (hdr, NULL);
     return -1;
   }
 
@@ -4145,6 +4227,7 @@ guestfs_vgscan (guestfs_h *g)
     guestfs___trace_send_line (g, &trace_buffer);
   }
 
+  guestfs_protobuf_message_header__free_unpacked (hdr, NULL);
   return ret_v;
 }
 
@@ -4153,10 +4236,11 @@ guestfs_checksum_device (guestfs_h *g,
                          const char *csumtype,
                          const char *device)
 {
-  struct guestfs_checksum_device_args args;
-  guestfs_message_header hdr;
-  guestfs_message_error err;
-  struct guestfs_checksum_device_ret ret;
+  guestfs_protobuf_checksum_device_args args;
+  guestfs_protobuf_checksum_device_args__init (&args);
+  guestfs_protobuf_message_header *hdr;
+  guestfs_protobuf_message_error *err;
+  guestfs_protobuf_checksum_device_ret *ret;
   int serial;
   int r;
   int trace_flag = g->trace;
@@ -4196,7 +4280,7 @@ guestfs_checksum_device (guestfs_h *g,
   args.device = (char *) device;
   serial = guestfs___send (g, GUESTFS_PROC_CHECKSUM_DEVICE,
                            progress_hint, 0,
-                           (xdrproc_t) xdr_guestfs_checksum_device_args, (char *) &args);
+                           (protobuf_proc_pack) guestfs_protobuf_checksum_device_args__pack, (char *) &args);
   if (serial == -1) {
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
@@ -4204,12 +4288,12 @@ guestfs_checksum_device (guestfs_h *g,
     return NULL;
   }
 
-  memset (&hdr, 0, sizeof hdr);
-  memset (&err, 0, sizeof err);
-  memset (&ret, 0, sizeof ret);
+  hdr = NULL;
+  err = NULL;
+  ret = NULL;
 
   r = guestfs___recv (g, "checksum_device", &hdr, &err,
-        (xdrproc_t) xdr_guestfs_checksum_device_ret, (char *) &ret);
+        (protobuf_proc_unpack) guestfs_protobuf_checksum_device_ret__unpack, (ProtobufCMessage **) &ret);
   if (r == -1) {
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
@@ -4217,32 +4301,32 @@ guestfs_checksum_device (guestfs_h *g,
     return NULL;
   }
 
-  if (guestfs___check_reply_header (g, &hdr, GUESTFS_PROC_CHECKSUM_DEVICE, serial) == -1) {
+  if (guestfs___check_reply_header (g, hdr, GUESTFS_PROC_CHECKSUM_DEVICE, serial) == -1) {
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
                        "checksum_device", "NULL");
     return NULL;
   }
 
-  if (hdr.status == GUESTFS_STATUS_ERROR) {
+  if (hdr->status == GUESTFS_STATUS_ERROR) {
     int errnum = 0;
 
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
                        "checksum_device", "NULL");
-    if (err.errno_string[0] != '\0')
-      errnum = guestfs___string_to_errno (err.errno_string);
+    if (err->errno_string[0] != '\0')
+      errnum = guestfs___string_to_errno (err->errno_string);
     if (errnum <= 0)
-      error (g, "%s: %s", "checksum_device", err.error_message);
+      error (g, "%s: %s", "checksum_device", err->error_message);
     else
       guestfs___error_errno (g, errnum, "%s: %s", "checksum_device",
-                           err.error_message);
-    free (err.error_message);
-    free (err.errno_string);
+                           err->error_message);
+    guestfs_protobuf_message_error__free_unpacked (err, NULL);
+    guestfs_protobuf_message_header__free_unpacked (hdr, NULL);
     return NULL;
   }
 
-  ret_v = ret.checksum; /* caller will free */
+  ret_v = safe_strdup (g, ret->checksum); /* caller will free */
   if (trace_flag) {
     guestfs___trace_open (&trace_buffer);
     fprintf (trace_buffer.fp, "%s = ", "checksum_device");
@@ -4250,6 +4334,8 @@ guestfs_checksum_device (guestfs_h *g,
     guestfs___trace_send_line (g, &trace_buffer);
   }
 
+  guestfs_protobuf_message_header__free_unpacked (hdr, NULL);
+  guestfs_protobuf_checksum_device_ret__free_unpacked (ret, NULL);
   return ret_v;
 }
 
@@ -4258,9 +4344,10 @@ guestfs_lvresize_free (guestfs_h *g,
                        const char *lv,
                        int percent)
 {
-  struct guestfs_lvresize_free_args args;
-  guestfs_message_header hdr;
-  guestfs_message_error err;
+  guestfs_protobuf_lvresize_free_args args;
+  guestfs_protobuf_lvresize_free_args__init (&args);
+  guestfs_protobuf_message_header *hdr;
+  guestfs_protobuf_message_error *err;
   int serial;
   int r;
   int trace_flag = g->trace;
@@ -4295,7 +4382,7 @@ guestfs_lvresize_free (guestfs_h *g,
   args.percent = percent;
   serial = guestfs___send (g, GUESTFS_PROC_LVRESIZE_FREE,
                            progress_hint, 0,
-                           (xdrproc_t) xdr_guestfs_lvresize_free_args, (char *) &args);
+                           (protobuf_proc_pack) guestfs_protobuf_lvresize_free_args__pack, (char *) &args);
   if (serial == -1) {
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
@@ -4303,8 +4390,8 @@ guestfs_lvresize_free (guestfs_h *g,
     return -1;
   }
 
-  memset (&hdr, 0, sizeof hdr);
-  memset (&err, 0, sizeof err);
+  hdr = NULL;
+  err = NULL;
 
   r = guestfs___recv (g, "lvresize_free", &hdr, &err,
         NULL, NULL);
@@ -4315,28 +4402,28 @@ guestfs_lvresize_free (guestfs_h *g,
     return -1;
   }
 
-  if (guestfs___check_reply_header (g, &hdr, GUESTFS_PROC_LVRESIZE_FREE, serial) == -1) {
+  if (guestfs___check_reply_header (g, hdr, GUESTFS_PROC_LVRESIZE_FREE, serial) == -1) {
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
                        "lvresize_free", "-1");
     return -1;
   }
 
-  if (hdr.status == GUESTFS_STATUS_ERROR) {
+  if (hdr->status == GUESTFS_STATUS_ERROR) {
     int errnum = 0;
 
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
                        "lvresize_free", "-1");
-    if (err.errno_string[0] != '\0')
-      errnum = guestfs___string_to_errno (err.errno_string);
+    if (err->errno_string[0] != '\0')
+      errnum = guestfs___string_to_errno (err->errno_string);
     if (errnum <= 0)
-      error (g, "%s: %s", "lvresize_free", err.error_message);
+      error (g, "%s: %s", "lvresize_free", err->error_message);
     else
       guestfs___error_errno (g, errnum, "%s: %s", "lvresize_free",
-                           err.error_message);
-    free (err.error_message);
-    free (err.errno_string);
+                           err->error_message);
+    guestfs_protobuf_message_error__free_unpacked (err, NULL);
+    guestfs_protobuf_message_header__free_unpacked (hdr, NULL);
     return -1;
   }
 
@@ -4348,6 +4435,7 @@ guestfs_lvresize_free (guestfs_h *g,
     guestfs___trace_send_line (g, &trace_buffer);
   }
 
+  guestfs_protobuf_message_header__free_unpacked (hdr, NULL);
   return ret_v;
 }
 
@@ -4355,9 +4443,10 @@ GUESTFS_DLL_PUBLIC int
 guestfs_aug_clear (guestfs_h *g,
                    const char *augpath)
 {
-  struct guestfs_aug_clear_args args;
-  guestfs_message_header hdr;
-  guestfs_message_error err;
+  guestfs_protobuf_aug_clear_args args;
+  guestfs_protobuf_aug_clear_args__init (&args);
+  guestfs_protobuf_message_header *hdr;
+  guestfs_protobuf_message_error *err;
   int serial;
   int r;
   int trace_flag = g->trace;
@@ -4390,7 +4479,7 @@ guestfs_aug_clear (guestfs_h *g,
   args.augpath = (char *) augpath;
   serial = guestfs___send (g, GUESTFS_PROC_AUG_CLEAR,
                            progress_hint, 0,
-                           (xdrproc_t) xdr_guestfs_aug_clear_args, (char *) &args);
+                           (protobuf_proc_pack) guestfs_protobuf_aug_clear_args__pack, (char *) &args);
   if (serial == -1) {
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
@@ -4398,8 +4487,8 @@ guestfs_aug_clear (guestfs_h *g,
     return -1;
   }
 
-  memset (&hdr, 0, sizeof hdr);
-  memset (&err, 0, sizeof err);
+  hdr = NULL;
+  err = NULL;
 
   r = guestfs___recv (g, "aug_clear", &hdr, &err,
         NULL, NULL);
@@ -4410,28 +4499,28 @@ guestfs_aug_clear (guestfs_h *g,
     return -1;
   }
 
-  if (guestfs___check_reply_header (g, &hdr, GUESTFS_PROC_AUG_CLEAR, serial) == -1) {
+  if (guestfs___check_reply_header (g, hdr, GUESTFS_PROC_AUG_CLEAR, serial) == -1) {
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
                        "aug_clear", "-1");
     return -1;
   }
 
-  if (hdr.status == GUESTFS_STATUS_ERROR) {
+  if (hdr->status == GUESTFS_STATUS_ERROR) {
     int errnum = 0;
 
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
                        "aug_clear", "-1");
-    if (err.errno_string[0] != '\0')
-      errnum = guestfs___string_to_errno (err.errno_string);
+    if (err->errno_string[0] != '\0')
+      errnum = guestfs___string_to_errno (err->errno_string);
     if (errnum <= 0)
-      error (g, "%s: %s", "aug_clear", err.error_message);
+      error (g, "%s: %s", "aug_clear", err->error_message);
     else
       guestfs___error_errno (g, errnum, "%s: %s", "aug_clear",
-                           err.error_message);
-    free (err.error_message);
-    free (err.errno_string);
+                           err->error_message);
+    guestfs_protobuf_message_error__free_unpacked (err, NULL);
+    guestfs_protobuf_message_header__free_unpacked (hdr, NULL);
     return -1;
   }
 
@@ -4443,15 +4532,16 @@ guestfs_aug_clear (guestfs_h *g,
     guestfs___trace_send_line (g, &trace_buffer);
   }
 
+  guestfs_protobuf_message_header__free_unpacked (hdr, NULL);
   return ret_v;
 }
 
 GUESTFS_DLL_PUBLIC int
 guestfs_get_umask (guestfs_h *g)
 {
-  guestfs_message_header hdr;
-  guestfs_message_error err;
-  struct guestfs_get_umask_ret ret;
+  guestfs_protobuf_message_header *hdr;
+  guestfs_protobuf_message_error *err;
+  guestfs_protobuf_get_umask_ret *ret;
   int serial;
   int r;
   int trace_flag = g->trace;
@@ -4483,12 +4573,12 @@ guestfs_get_umask (guestfs_h *g)
     return -1;
   }
 
-  memset (&hdr, 0, sizeof hdr);
-  memset (&err, 0, sizeof err);
-  memset (&ret, 0, sizeof ret);
+  hdr = NULL;
+  err = NULL;
+  ret = NULL;
 
   r = guestfs___recv (g, "get_umask", &hdr, &err,
-        (xdrproc_t) xdr_guestfs_get_umask_ret, (char *) &ret);
+        (protobuf_proc_unpack) guestfs_protobuf_get_umask_ret__unpack, (ProtobufCMessage **) &ret);
   if (r == -1) {
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
@@ -4496,32 +4586,32 @@ guestfs_get_umask (guestfs_h *g)
     return -1;
   }
 
-  if (guestfs___check_reply_header (g, &hdr, GUESTFS_PROC_GET_UMASK, serial) == -1) {
+  if (guestfs___check_reply_header (g, hdr, GUESTFS_PROC_GET_UMASK, serial) == -1) {
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
                        "get_umask", "-1");
     return -1;
   }
 
-  if (hdr.status == GUESTFS_STATUS_ERROR) {
+  if (hdr->status == GUESTFS_STATUS_ERROR) {
     int errnum = 0;
 
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
                        "get_umask", "-1");
-    if (err.errno_string[0] != '\0')
-      errnum = guestfs___string_to_errno (err.errno_string);
+    if (err->errno_string[0] != '\0')
+      errnum = guestfs___string_to_errno (err->errno_string);
     if (errnum <= 0)
-      error (g, "%s: %s", "get_umask", err.error_message);
+      error (g, "%s: %s", "get_umask", err->error_message);
     else
       guestfs___error_errno (g, errnum, "%s: %s", "get_umask",
-                           err.error_message);
-    free (err.error_message);
-    free (err.errno_string);
+                           err->error_message);
+    guestfs_protobuf_message_error__free_unpacked (err, NULL);
+    guestfs_protobuf_message_header__free_unpacked (hdr, NULL);
     return -1;
   }
 
-  ret_v = ret.mask;
+  ret_v = ret->mask;
   if (trace_flag) {
     guestfs___trace_open (&trace_buffer);
     fprintf (trace_buffer.fp, "%s = ", "get_umask");
@@ -4529,6 +4619,8 @@ guestfs_get_umask (guestfs_h *g)
     guestfs___trace_send_line (g, &trace_buffer);
   }
 
+  guestfs_protobuf_message_header__free_unpacked (hdr, NULL);
+  guestfs_protobuf_get_umask_ret__free_unpacked (ret, NULL);
   return ret_v;
 }
 
@@ -4537,9 +4629,10 @@ guestfs_base64_in (guestfs_h *g,
                    const char *base64file,
                    const char *filename)
 {
-  struct guestfs_base64_in_args args;
-  guestfs_message_header hdr;
-  guestfs_message_error err;
+  guestfs_protobuf_base64_in_args args;
+  guestfs_protobuf_base64_in_args__init (&args);
+  guestfs_protobuf_message_header *hdr;
+  guestfs_protobuf_message_error *err;
   int serial;
   int r;
   int trace_flag = g->trace;
@@ -4570,7 +4663,7 @@ guestfs_base64_in (guestfs_h *g,
   }
 
   if (stat (base64file, &progress_stat) == 0 &&
-      (progress_stat.st_mode) & _S_IFREG)
+      (progress_stat.st_mode & S_IFREG))
     progress_hint += progress_stat.st_size;
 
   if (guestfs___check_appliance_up (g, "base64_in") == -1) {
@@ -4583,7 +4676,7 @@ guestfs_base64_in (guestfs_h *g,
   args.filename = (char *) filename;
   serial = guestfs___send (g, GUESTFS_PROC_BASE64_IN,
                            progress_hint, 0,
-                           (xdrproc_t) xdr_guestfs_base64_in_args, (char *) &args);
+                           (protobuf_proc_pack) guestfs_protobuf_base64_in_args__pack, (char *) &args);
   if (serial == -1) {
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
@@ -4604,8 +4697,8 @@ guestfs_base64_in (guestfs_h *g,
     goto read_reply;
 
  read_reply:
-  memset (&hdr, 0, sizeof hdr);
-  memset (&err, 0, sizeof err);
+  hdr = NULL;
+  err = NULL;
 
   r = guestfs___recv (g, "base64_in", &hdr, &err,
         NULL, NULL);
@@ -4616,28 +4709,28 @@ guestfs_base64_in (guestfs_h *g,
     return -1;
   }
 
-  if (guestfs___check_reply_header (g, &hdr, GUESTFS_PROC_BASE64_IN, serial) == -1) {
+  if (guestfs___check_reply_header (g, hdr, GUESTFS_PROC_BASE64_IN, serial) == -1) {
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
                        "base64_in", "-1");
     return -1;
   }
 
-  if (hdr.status == GUESTFS_STATUS_ERROR) {
+  if (hdr->status == GUESTFS_STATUS_ERROR) {
     int errnum = 0;
 
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
                        "base64_in", "-1");
-    if (err.errno_string[0] != '\0')
-      errnum = guestfs___string_to_errno (err.errno_string);
+    if (err->errno_string[0] != '\0')
+      errnum = guestfs___string_to_errno (err->errno_string);
     if (errnum <= 0)
-      error (g, "%s: %s", "base64_in", err.error_message);
+      error (g, "%s: %s", "base64_in", err->error_message);
     else
       guestfs___error_errno (g, errnum, "%s: %s", "base64_in",
-                           err.error_message);
-    free (err.error_message);
-    free (err.errno_string);
+                           err->error_message);
+    guestfs_protobuf_message_error__free_unpacked (err, NULL);
+    guestfs_protobuf_message_header__free_unpacked (hdr, NULL);
     return -1;
   }
 
@@ -4649,6 +4742,7 @@ guestfs_base64_in (guestfs_h *g,
     guestfs___trace_send_line (g, &trace_buffer);
   }
 
+  guestfs_protobuf_message_header__free_unpacked (hdr, NULL);
   return ret_v;
 }
 
@@ -4657,9 +4751,10 @@ guestfs_base64_out (guestfs_h *g,
                     const char *filename,
                     const char *base64file)
 {
-  struct guestfs_base64_out_args args;
-  guestfs_message_header hdr;
-  guestfs_message_error err;
+  guestfs_protobuf_base64_out_args args;
+  guestfs_protobuf_base64_out_args__init (&args);
+  guestfs_protobuf_message_header *hdr;
+  guestfs_protobuf_message_error *err;
   int serial;
   int r;
   int trace_flag = g->trace;
@@ -4698,7 +4793,7 @@ guestfs_base64_out (guestfs_h *g,
   args.filename = (char *) filename;
   serial = guestfs___send (g, GUESTFS_PROC_BASE64_OUT,
                            progress_hint, 0,
-                           (xdrproc_t) xdr_guestfs_base64_out_args, (char *) &args);
+                           (protobuf_proc_pack) guestfs_protobuf_base64_out_args__pack, (char *) &args);
   if (serial == -1) {
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
@@ -4706,8 +4801,8 @@ guestfs_base64_out (guestfs_h *g,
     return -1;
   }
 
-  memset (&hdr, 0, sizeof hdr);
-  memset (&err, 0, sizeof err);
+  hdr = NULL;
+  err = NULL;
 
   r = guestfs___recv (g, "base64_out", &hdr, &err,
         NULL, NULL);
@@ -4718,28 +4813,28 @@ guestfs_base64_out (guestfs_h *g,
     return -1;
   }
 
-  if (guestfs___check_reply_header (g, &hdr, GUESTFS_PROC_BASE64_OUT, serial) == -1) {
+  if (guestfs___check_reply_header (g, hdr, GUESTFS_PROC_BASE64_OUT, serial) == -1) {
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
                        "base64_out", "-1");
     return -1;
   }
 
-  if (hdr.status == GUESTFS_STATUS_ERROR) {
+  if (hdr->status == GUESTFS_STATUS_ERROR) {
     int errnum = 0;
 
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
                        "base64_out", "-1");
-    if (err.errno_string[0] != '\0')
-      errnum = guestfs___string_to_errno (err.errno_string);
+    if (err->errno_string[0] != '\0')
+      errnum = guestfs___string_to_errno (err->errno_string);
     if (errnum <= 0)
-      error (g, "%s: %s", "base64_out", err.error_message);
+      error (g, "%s: %s", "base64_out", err->error_message);
     else
       guestfs___error_errno (g, errnum, "%s: %s", "base64_out",
-                           err.error_message);
-    free (err.error_message);
-    free (err.errno_string);
+                           err->error_message);
+    guestfs_protobuf_message_error__free_unpacked (err, NULL);
+    guestfs_protobuf_message_header__free_unpacked (hdr, NULL);
     return -1;
   }
 
@@ -4758,6 +4853,7 @@ guestfs_base64_out (guestfs_h *g,
     guestfs___trace_send_line (g, &trace_buffer);
   }
 
+  guestfs_protobuf_message_header__free_unpacked (hdr, NULL);
   return ret_v;
 }
 
@@ -4767,9 +4863,10 @@ guestfs_luks_open (guestfs_h *g,
                    const char *key,
                    const char *mapname)
 {
-  struct guestfs_luks_open_args args;
-  guestfs_message_header hdr;
-  guestfs_message_error err;
+  guestfs_protobuf_luks_open_args args;
+  guestfs_protobuf_luks_open_args__init (&args);
+  guestfs_protobuf_message_header *hdr;
+  guestfs_protobuf_message_error *err;
   int serial;
   int r;
   int trace_flag = g->trace;
@@ -4816,7 +4913,7 @@ guestfs_luks_open (guestfs_h *g,
   args.mapname = (char *) mapname;
   serial = guestfs___send (g, GUESTFS_PROC_LUKS_OPEN,
                            progress_hint, 0,
-                           (xdrproc_t) xdr_guestfs_luks_open_args, (char *) &args);
+                           (protobuf_proc_pack) guestfs_protobuf_luks_open_args__pack, (char *) &args);
   if (serial == -1) {
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
@@ -4824,8 +4921,8 @@ guestfs_luks_open (guestfs_h *g,
     return -1;
   }
 
-  memset (&hdr, 0, sizeof hdr);
-  memset (&err, 0, sizeof err);
+  hdr = NULL;
+  err = NULL;
 
   r = guestfs___recv (g, "luks_open", &hdr, &err,
         NULL, NULL);
@@ -4836,28 +4933,28 @@ guestfs_luks_open (guestfs_h *g,
     return -1;
   }
 
-  if (guestfs___check_reply_header (g, &hdr, GUESTFS_PROC_LUKS_OPEN, serial) == -1) {
+  if (guestfs___check_reply_header (g, hdr, GUESTFS_PROC_LUKS_OPEN, serial) == -1) {
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
                        "luks_open", "-1");
     return -1;
   }
 
-  if (hdr.status == GUESTFS_STATUS_ERROR) {
+  if (hdr->status == GUESTFS_STATUS_ERROR) {
     int errnum = 0;
 
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
                        "luks_open", "-1");
-    if (err.errno_string[0] != '\0')
-      errnum = guestfs___string_to_errno (err.errno_string);
+    if (err->errno_string[0] != '\0')
+      errnum = guestfs___string_to_errno (err->errno_string);
     if (errnum <= 0)
-      error (g, "%s: %s", "luks_open", err.error_message);
+      error (g, "%s: %s", "luks_open", err->error_message);
     else
       guestfs___error_errno (g, errnum, "%s: %s", "luks_open",
-                           err.error_message);
-    free (err.error_message);
-    free (err.errno_string);
+                           err->error_message);
+    guestfs_protobuf_message_error__free_unpacked (err, NULL);
+    guestfs_protobuf_message_header__free_unpacked (hdr, NULL);
     return -1;
   }
 
@@ -4869,6 +4966,7 @@ guestfs_luks_open (guestfs_h *g,
     guestfs___trace_send_line (g, &trace_buffer);
   }
 
+  guestfs_protobuf_message_header__free_unpacked (hdr, NULL);
   return ret_v;
 }
 
@@ -4878,9 +4976,10 @@ guestfs_luks_open_ro (guestfs_h *g,
                       const char *key,
                       const char *mapname)
 {
-  struct guestfs_luks_open_ro_args args;
-  guestfs_message_header hdr;
-  guestfs_message_error err;
+  guestfs_protobuf_luks_open_ro_args args;
+  guestfs_protobuf_luks_open_ro_args__init (&args);
+  guestfs_protobuf_message_header *hdr;
+  guestfs_protobuf_message_error *err;
   int serial;
   int r;
   int trace_flag = g->trace;
@@ -4927,7 +5026,7 @@ guestfs_luks_open_ro (guestfs_h *g,
   args.mapname = (char *) mapname;
   serial = guestfs___send (g, GUESTFS_PROC_LUKS_OPEN_RO,
                            progress_hint, 0,
-                           (xdrproc_t) xdr_guestfs_luks_open_ro_args, (char *) &args);
+                           (protobuf_proc_pack) guestfs_protobuf_luks_open_ro_args__pack, (char *) &args);
   if (serial == -1) {
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
@@ -4935,8 +5034,8 @@ guestfs_luks_open_ro (guestfs_h *g,
     return -1;
   }
 
-  memset (&hdr, 0, sizeof hdr);
-  memset (&err, 0, sizeof err);
+  hdr = NULL;
+  err = NULL;
 
   r = guestfs___recv (g, "luks_open_ro", &hdr, &err,
         NULL, NULL);
@@ -4947,28 +5046,28 @@ guestfs_luks_open_ro (guestfs_h *g,
     return -1;
   }
 
-  if (guestfs___check_reply_header (g, &hdr, GUESTFS_PROC_LUKS_OPEN_RO, serial) == -1) {
+  if (guestfs___check_reply_header (g, hdr, GUESTFS_PROC_LUKS_OPEN_RO, serial) == -1) {
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
                        "luks_open_ro", "-1");
     return -1;
   }
 
-  if (hdr.status == GUESTFS_STATUS_ERROR) {
+  if (hdr->status == GUESTFS_STATUS_ERROR) {
     int errnum = 0;
 
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
                        "luks_open_ro", "-1");
-    if (err.errno_string[0] != '\0')
-      errnum = guestfs___string_to_errno (err.errno_string);
+    if (err->errno_string[0] != '\0')
+      errnum = guestfs___string_to_errno (err->errno_string);
     if (errnum <= 0)
-      error (g, "%s: %s", "luks_open_ro", err.error_message);
+      error (g, "%s: %s", "luks_open_ro", err->error_message);
     else
       guestfs___error_errno (g, errnum, "%s: %s", "luks_open_ro",
-                           err.error_message);
-    free (err.error_message);
-    free (err.errno_string);
+                           err->error_message);
+    guestfs_protobuf_message_error__free_unpacked (err, NULL);
+    guestfs_protobuf_message_header__free_unpacked (hdr, NULL);
     return -1;
   }
 
@@ -4980,6 +5079,7 @@ guestfs_luks_open_ro (guestfs_h *g,
     guestfs___trace_send_line (g, &trace_buffer);
   }
 
+  guestfs_protobuf_message_header__free_unpacked (hdr, NULL);
   return ret_v;
 }
 
@@ -4987,10 +5087,11 @@ GUESTFS_DLL_PUBLIC char *
 guestfs_findfs_label (guestfs_h *g,
                       const char *label)
 {
-  struct guestfs_findfs_label_args args;
-  guestfs_message_header hdr;
-  guestfs_message_error err;
-  struct guestfs_findfs_label_ret ret;
+  guestfs_protobuf_findfs_label_args args;
+  guestfs_protobuf_findfs_label_args__init (&args);
+  guestfs_protobuf_message_header *hdr;
+  guestfs_protobuf_message_error *err;
+  guestfs_protobuf_findfs_label_ret *ret;
   int serial;
   int r;
   int trace_flag = g->trace;
@@ -5023,7 +5124,7 @@ guestfs_findfs_label (guestfs_h *g,
   args.label = (char *) label;
   serial = guestfs___send (g, GUESTFS_PROC_FINDFS_LABEL,
                            progress_hint, 0,
-                           (xdrproc_t) xdr_guestfs_findfs_label_args, (char *) &args);
+                           (protobuf_proc_pack) guestfs_protobuf_findfs_label_args__pack, (char *) &args);
   if (serial == -1) {
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
@@ -5031,12 +5132,12 @@ guestfs_findfs_label (guestfs_h *g,
     return NULL;
   }
 
-  memset (&hdr, 0, sizeof hdr);
-  memset (&err, 0, sizeof err);
-  memset (&ret, 0, sizeof ret);
+  hdr = NULL;
+  err = NULL;
+  ret = NULL;
 
   r = guestfs___recv (g, "findfs_label", &hdr, &err,
-        (xdrproc_t) xdr_guestfs_findfs_label_ret, (char *) &ret);
+        (protobuf_proc_unpack) guestfs_protobuf_findfs_label_ret__unpack, (ProtobufCMessage **) &ret);
   if (r == -1) {
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
@@ -5044,32 +5145,32 @@ guestfs_findfs_label (guestfs_h *g,
     return NULL;
   }
 
-  if (guestfs___check_reply_header (g, &hdr, GUESTFS_PROC_FINDFS_LABEL, serial) == -1) {
+  if (guestfs___check_reply_header (g, hdr, GUESTFS_PROC_FINDFS_LABEL, serial) == -1) {
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
                        "findfs_label", "NULL");
     return NULL;
   }
 
-  if (hdr.status == GUESTFS_STATUS_ERROR) {
+  if (hdr->status == GUESTFS_STATUS_ERROR) {
     int errnum = 0;
 
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
                        "findfs_label", "NULL");
-    if (err.errno_string[0] != '\0')
-      errnum = guestfs___string_to_errno (err.errno_string);
+    if (err->errno_string[0] != '\0')
+      errnum = guestfs___string_to_errno (err->errno_string);
     if (errnum <= 0)
-      error (g, "%s: %s", "findfs_label", err.error_message);
+      error (g, "%s: %s", "findfs_label", err->error_message);
     else
       guestfs___error_errno (g, errnum, "%s: %s", "findfs_label",
-                           err.error_message);
-    free (err.error_message);
-    free (err.errno_string);
+                           err->error_message);
+    guestfs_protobuf_message_error__free_unpacked (err, NULL);
+    guestfs_protobuf_message_header__free_unpacked (hdr, NULL);
     return NULL;
   }
 
-  ret_v = ret.device; /* caller will free */
+  ret_v = safe_strdup (g, ret->device); /* caller will free */
   if (trace_flag) {
     guestfs___trace_open (&trace_buffer);
     fprintf (trace_buffer.fp, "%s = ", "findfs_label");
@@ -5077,6 +5178,8 @@ guestfs_findfs_label (guestfs_h *g,
     guestfs___trace_send_line (g, &trace_buffer);
   }
 
+  guestfs_protobuf_message_header__free_unpacked (hdr, NULL);
+  guestfs_protobuf_findfs_label_ret__free_unpacked (ret, NULL);
   return ret_v;
 }
 
@@ -5084,10 +5187,11 @@ GUESTFS_DLL_PUBLIC int
 guestfs_is_symlink (guestfs_h *g,
                     const char *path)
 {
-  struct guestfs_is_symlink_args args;
-  guestfs_message_header hdr;
-  guestfs_message_error err;
-  struct guestfs_is_symlink_ret ret;
+  guestfs_protobuf_is_symlink_args args;
+  guestfs_protobuf_is_symlink_args__init (&args);
+  guestfs_protobuf_message_header *hdr;
+  guestfs_protobuf_message_error *err;
+  guestfs_protobuf_is_symlink_ret *ret;
   int serial;
   int r;
   int trace_flag = g->trace;
@@ -5120,7 +5224,7 @@ guestfs_is_symlink (guestfs_h *g,
   args.path = (char *) path;
   serial = guestfs___send (g, GUESTFS_PROC_IS_SYMLINK,
                            progress_hint, 0,
-                           (xdrproc_t) xdr_guestfs_is_symlink_args, (char *) &args);
+                           (protobuf_proc_pack) guestfs_protobuf_is_symlink_args__pack, (char *) &args);
   if (serial == -1) {
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
@@ -5128,12 +5232,12 @@ guestfs_is_symlink (guestfs_h *g,
     return -1;
   }
 
-  memset (&hdr, 0, sizeof hdr);
-  memset (&err, 0, sizeof err);
-  memset (&ret, 0, sizeof ret);
+  hdr = NULL;
+  err = NULL;
+  ret = NULL;
 
   r = guestfs___recv (g, "is_symlink", &hdr, &err,
-        (xdrproc_t) xdr_guestfs_is_symlink_ret, (char *) &ret);
+        (protobuf_proc_unpack) guestfs_protobuf_is_symlink_ret__unpack, (ProtobufCMessage **) &ret);
   if (r == -1) {
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
@@ -5141,32 +5245,32 @@ guestfs_is_symlink (guestfs_h *g,
     return -1;
   }
 
-  if (guestfs___check_reply_header (g, &hdr, GUESTFS_PROC_IS_SYMLINK, serial) == -1) {
+  if (guestfs___check_reply_header (g, hdr, GUESTFS_PROC_IS_SYMLINK, serial) == -1) {
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
                        "is_symlink", "-1");
     return -1;
   }
 
-  if (hdr.status == GUESTFS_STATUS_ERROR) {
+  if (hdr->status == GUESTFS_STATUS_ERROR) {
     int errnum = 0;
 
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
                        "is_symlink", "-1");
-    if (err.errno_string[0] != '\0')
-      errnum = guestfs___string_to_errno (err.errno_string);
+    if (err->errno_string[0] != '\0')
+      errnum = guestfs___string_to_errno (err->errno_string);
     if (errnum <= 0)
-      error (g, "%s: %s", "is_symlink", err.error_message);
+      error (g, "%s: %s", "is_symlink", err->error_message);
     else
       guestfs___error_errno (g, errnum, "%s: %s", "is_symlink",
-                           err.error_message);
-    free (err.error_message);
-    free (err.errno_string);
+                           err->error_message);
+    guestfs_protobuf_message_error__free_unpacked (err, NULL);
+    guestfs_protobuf_message_header__free_unpacked (hdr, NULL);
     return -1;
   }
 
-  ret_v = ret.flag;
+  ret_v = ret->flag;
   if (trace_flag) {
     guestfs___trace_open (&trace_buffer);
     fprintf (trace_buffer.fp, "%s = ", "is_symlink");
@@ -5174,6 +5278,8 @@ guestfs_is_symlink (guestfs_h *g,
     guestfs___trace_send_line (g, &trace_buffer);
   }
 
+  guestfs_protobuf_message_header__free_unpacked (hdr, NULL);
+  guestfs_protobuf_is_symlink_ret__free_unpacked (ret, NULL);
   return ret_v;
 }
 
@@ -5181,10 +5287,11 @@ GUESTFS_DLL_PUBLIC int
 guestfs_is_zero (guestfs_h *g,
                  const char *path)
 {
-  struct guestfs_is_zero_args args;
-  guestfs_message_header hdr;
-  guestfs_message_error err;
-  struct guestfs_is_zero_ret ret;
+  guestfs_protobuf_is_zero_args args;
+  guestfs_protobuf_is_zero_args__init (&args);
+  guestfs_protobuf_message_header *hdr;
+  guestfs_protobuf_message_error *err;
+  guestfs_protobuf_is_zero_ret *ret;
   int serial;
   int r;
   int trace_flag = g->trace;
@@ -5217,7 +5324,7 @@ guestfs_is_zero (guestfs_h *g,
   args.path = (char *) path;
   serial = guestfs___send (g, GUESTFS_PROC_IS_ZERO,
                            progress_hint, 0,
-                           (xdrproc_t) xdr_guestfs_is_zero_args, (char *) &args);
+                           (protobuf_proc_pack) guestfs_protobuf_is_zero_args__pack, (char *) &args);
   if (serial == -1) {
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
@@ -5225,12 +5332,12 @@ guestfs_is_zero (guestfs_h *g,
     return -1;
   }
 
-  memset (&hdr, 0, sizeof hdr);
-  memset (&err, 0, sizeof err);
-  memset (&ret, 0, sizeof ret);
+  hdr = NULL;
+  err = NULL;
+  ret = NULL;
 
   r = guestfs___recv (g, "is_zero", &hdr, &err,
-        (xdrproc_t) xdr_guestfs_is_zero_ret, (char *) &ret);
+        (protobuf_proc_unpack) guestfs_protobuf_is_zero_ret__unpack, (ProtobufCMessage **) &ret);
   if (r == -1) {
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
@@ -5238,32 +5345,32 @@ guestfs_is_zero (guestfs_h *g,
     return -1;
   }
 
-  if (guestfs___check_reply_header (g, &hdr, GUESTFS_PROC_IS_ZERO, serial) == -1) {
+  if (guestfs___check_reply_header (g, hdr, GUESTFS_PROC_IS_ZERO, serial) == -1) {
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
                        "is_zero", "-1");
     return -1;
   }
 
-  if (hdr.status == GUESTFS_STATUS_ERROR) {
+  if (hdr->status == GUESTFS_STATUS_ERROR) {
     int errnum = 0;
 
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
                        "is_zero", "-1");
-    if (err.errno_string[0] != '\0')
-      errnum = guestfs___string_to_errno (err.errno_string);
+    if (err->errno_string[0] != '\0')
+      errnum = guestfs___string_to_errno (err->errno_string);
     if (errnum <= 0)
-      error (g, "%s: %s", "is_zero", err.error_message);
+      error (g, "%s: %s", "is_zero", err->error_message);
     else
       guestfs___error_errno (g, errnum, "%s: %s", "is_zero",
-                           err.error_message);
-    free (err.error_message);
-    free (err.errno_string);
+                           err->error_message);
+    guestfs_protobuf_message_error__free_unpacked (err, NULL);
+    guestfs_protobuf_message_header__free_unpacked (hdr, NULL);
     return -1;
   }
 
-  ret_v = ret.zeroflag;
+  ret_v = ret->zeroflag;
   if (trace_flag) {
     guestfs___trace_open (&trace_buffer);
     fprintf (trace_buffer.fp, "%s = ", "is_zero");
@@ -5271,6 +5378,8 @@ guestfs_is_zero (guestfs_h *g,
     guestfs___trace_send_line (g, &trace_buffer);
   }
 
+  guestfs_protobuf_message_header__free_unpacked (hdr, NULL);
+  guestfs_protobuf_is_zero_ret__free_unpacked (ret, NULL);
   return ret_v;
 }
 
@@ -5286,9 +5395,10 @@ guestfs_copy_device_to_device_argv (guestfs_h *g,
     optargs = &optargs_null;
   }
 
-  struct guestfs_copy_device_to_device_args args;
-  guestfs_message_header hdr;
-  guestfs_message_error err;
+  guestfs_protobuf_copy_device_to_device_args args;
+  guestfs_protobuf_copy_device_to_device_args__init (&args);
+  guestfs_protobuf_message_header *hdr;
+  guestfs_protobuf_message_error *err;
   int serial;
   int r;
   int trace_flag = g->trace;
@@ -5366,7 +5476,7 @@ guestfs_copy_device_to_device_argv (guestfs_h *g,
   }
   serial = guestfs___send (g, GUESTFS_PROC_COPY_DEVICE_TO_DEVICE,
                            progress_hint, optargs->bitmask,
-                           (xdrproc_t) xdr_guestfs_copy_device_to_device_args, (char *) &args);
+                           (protobuf_proc_pack) guestfs_protobuf_copy_device_to_device_args__pack, (char *) &args);
   if (serial == -1) {
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
@@ -5374,8 +5484,8 @@ guestfs_copy_device_to_device_argv (guestfs_h *g,
     return -1;
   }
 
-  memset (&hdr, 0, sizeof hdr);
-  memset (&err, 0, sizeof err);
+  hdr = NULL;
+  err = NULL;
 
   r = guestfs___recv (g, "copy_device_to_device", &hdr, &err,
         NULL, NULL);
@@ -5386,28 +5496,28 @@ guestfs_copy_device_to_device_argv (guestfs_h *g,
     return -1;
   }
 
-  if (guestfs___check_reply_header (g, &hdr, GUESTFS_PROC_COPY_DEVICE_TO_DEVICE, serial) == -1) {
+  if (guestfs___check_reply_header (g, hdr, GUESTFS_PROC_COPY_DEVICE_TO_DEVICE, serial) == -1) {
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
                        "copy_device_to_device", "-1");
     return -1;
   }
 
-  if (hdr.status == GUESTFS_STATUS_ERROR) {
+  if (hdr->status == GUESTFS_STATUS_ERROR) {
     int errnum = 0;
 
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
                        "copy_device_to_device", "-1");
-    if (err.errno_string[0] != '\0')
-      errnum = guestfs___string_to_errno (err.errno_string);
+    if (err->errno_string[0] != '\0')
+      errnum = guestfs___string_to_errno (err->errno_string);
     if (errnum <= 0)
-      error (g, "%s: %s", "copy_device_to_device", err.error_message);
+      error (g, "%s: %s", "copy_device_to_device", err->error_message);
     else
       guestfs___error_errno (g, errnum, "%s: %s", "copy_device_to_device",
-                           err.error_message);
-    free (err.error_message);
-    free (err.errno_string);
+                           err->error_message);
+    guestfs_protobuf_message_error__free_unpacked (err, NULL);
+    guestfs_protobuf_message_header__free_unpacked (hdr, NULL);
     return -1;
   }
 
@@ -5419,6 +5529,7 @@ guestfs_copy_device_to_device_argv (guestfs_h *g,
     guestfs___trace_send_line (g, &trace_buffer);
   }
 
+  guestfs_protobuf_message_header__free_unpacked (hdr, NULL);
   return ret_v;
 }
 
@@ -5434,9 +5545,10 @@ guestfs_md_create_argv (guestfs_h *g,
     optargs = &optargs_null;
   }
 
-  struct guestfs_md_create_args args;
-  guestfs_message_header hdr;
-  guestfs_message_error err;
+  guestfs_protobuf_md_create_args args;
+  guestfs_protobuf_md_create_args__init (&args);
+  guestfs_protobuf_message_header *hdr;
+  guestfs_protobuf_message_error *err;
   int serial;
   int r;
   int trace_flag = g->trace;
@@ -5508,8 +5620,8 @@ guestfs_md_create_argv (guestfs_h *g,
   }
 
   args.name = (char *) name;
-  args.devices.devices_val = (char **) devices;
-  for (args.devices.devices_len = 0; devices[args.devices.devices_len]; args.devices.devices_len++) ;
+  args.devices = (char **) devices;
+  for (args.n_devices = 0; devices[args.n_devices]; args.n_devices++) ;
   if (optargs->bitmask & GUESTFS_MD_CREATE_MISSINGBITMAP_BITMASK) {
     args.missingbitmap = optargs->missingbitmap;
   } else {
@@ -5537,7 +5649,7 @@ guestfs_md_create_argv (guestfs_h *g,
   }
   serial = guestfs___send (g, GUESTFS_PROC_MD_CREATE,
                            progress_hint, optargs->bitmask,
-                           (xdrproc_t) xdr_guestfs_md_create_args, (char *) &args);
+                           (protobuf_proc_pack) guestfs_protobuf_md_create_args__pack, (char *) &args);
   if (serial == -1) {
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
@@ -5545,8 +5657,8 @@ guestfs_md_create_argv (guestfs_h *g,
     return -1;
   }
 
-  memset (&hdr, 0, sizeof hdr);
-  memset (&err, 0, sizeof err);
+  hdr = NULL;
+  err = NULL;
 
   r = guestfs___recv (g, "md_create", &hdr, &err,
         NULL, NULL);
@@ -5557,28 +5669,28 @@ guestfs_md_create_argv (guestfs_h *g,
     return -1;
   }
 
-  if (guestfs___check_reply_header (g, &hdr, GUESTFS_PROC_MD_CREATE, serial) == -1) {
+  if (guestfs___check_reply_header (g, hdr, GUESTFS_PROC_MD_CREATE, serial) == -1) {
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
                        "md_create", "-1");
     return -1;
   }
 
-  if (hdr.status == GUESTFS_STATUS_ERROR) {
+  if (hdr->status == GUESTFS_STATUS_ERROR) {
     int errnum = 0;
 
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
                        "md_create", "-1");
-    if (err.errno_string[0] != '\0')
-      errnum = guestfs___string_to_errno (err.errno_string);
+    if (err->errno_string[0] != '\0')
+      errnum = guestfs___string_to_errno (err->errno_string);
     if (errnum <= 0)
-      error (g, "%s: %s", "md_create", err.error_message);
+      error (g, "%s: %s", "md_create", err->error_message);
     else
       guestfs___error_errno (g, errnum, "%s: %s", "md_create",
-                           err.error_message);
-    free (err.error_message);
-    free (err.errno_string);
+                           err->error_message);
+    guestfs_protobuf_message_error__free_unpacked (err, NULL);
+    guestfs_protobuf_message_header__free_unpacked (hdr, NULL);
     return -1;
   }
 
@@ -5590,6 +5702,7 @@ guestfs_md_create_argv (guestfs_h *g,
     guestfs___trace_send_line (g, &trace_buffer);
   }
 
+  guestfs_protobuf_message_header__free_unpacked (hdr, NULL);
   return ret_v;
 }
 
@@ -5597,10 +5710,11 @@ GUESTFS_DLL_PUBLIC char *
 guestfs_llz (guestfs_h *g,
              const char *directory)
 {
-  struct guestfs_llz_args args;
-  guestfs_message_header hdr;
-  guestfs_message_error err;
-  struct guestfs_llz_ret ret;
+  guestfs_protobuf_llz_args args;
+  guestfs_protobuf_llz_args__init (&args);
+  guestfs_protobuf_message_header *hdr;
+  guestfs_protobuf_message_error *err;
+  guestfs_protobuf_llz_ret *ret;
   int serial;
   int r;
   int trace_flag = g->trace;
@@ -5633,7 +5747,7 @@ guestfs_llz (guestfs_h *g,
   args.directory = (char *) directory;
   serial = guestfs___send (g, GUESTFS_PROC_LLZ,
                            progress_hint, 0,
-                           (xdrproc_t) xdr_guestfs_llz_args, (char *) &args);
+                           (protobuf_proc_pack) guestfs_protobuf_llz_args__pack, (char *) &args);
   if (serial == -1) {
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
@@ -5641,12 +5755,12 @@ guestfs_llz (guestfs_h *g,
     return NULL;
   }
 
-  memset (&hdr, 0, sizeof hdr);
-  memset (&err, 0, sizeof err);
-  memset (&ret, 0, sizeof ret);
+  hdr = NULL;
+  err = NULL;
+  ret = NULL;
 
   r = guestfs___recv (g, "llz", &hdr, &err,
-        (xdrproc_t) xdr_guestfs_llz_ret, (char *) &ret);
+        (protobuf_proc_unpack) guestfs_protobuf_llz_ret__unpack, (ProtobufCMessage **) &ret);
   if (r == -1) {
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
@@ -5654,32 +5768,32 @@ guestfs_llz (guestfs_h *g,
     return NULL;
   }
 
-  if (guestfs___check_reply_header (g, &hdr, GUESTFS_PROC_LLZ, serial) == -1) {
+  if (guestfs___check_reply_header (g, hdr, GUESTFS_PROC_LLZ, serial) == -1) {
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
                        "llz", "NULL");
     return NULL;
   }
 
-  if (hdr.status == GUESTFS_STATUS_ERROR) {
+  if (hdr->status == GUESTFS_STATUS_ERROR) {
     int errnum = 0;
 
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
                        "llz", "NULL");
-    if (err.errno_string[0] != '\0')
-      errnum = guestfs___string_to_errno (err.errno_string);
+    if (err->errno_string[0] != '\0')
+      errnum = guestfs___string_to_errno (err->errno_string);
     if (errnum <= 0)
-      error (g, "%s: %s", "llz", err.error_message);
+      error (g, "%s: %s", "llz", err->error_message);
     else
       guestfs___error_errno (g, errnum, "%s: %s", "llz",
-                           err.error_message);
-    free (err.error_message);
-    free (err.errno_string);
+                           err->error_message);
+    guestfs_protobuf_message_error__free_unpacked (err, NULL);
+    guestfs_protobuf_message_header__free_unpacked (hdr, NULL);
     return NULL;
   }
 
-  ret_v = ret.listing; /* caller will free */
+  ret_v = safe_strdup (g, ret->listing); /* caller will free */
   if (trace_flag) {
     guestfs___trace_open (&trace_buffer);
     fprintf (trace_buffer.fp, "%s = ", "llz");
@@ -5687,6 +5801,8 @@ guestfs_llz (guestfs_h *g,
     guestfs___trace_send_line (g, &trace_buffer);
   }
 
+  guestfs_protobuf_message_header__free_unpacked (hdr, NULL);
+  guestfs_protobuf_llz_ret__free_unpacked (ret, NULL);
   return ret_v;
 }
 
@@ -5702,9 +5818,10 @@ guestfs_ntfsclone_out_argv (guestfs_h *g,
     optargs = &optargs_null;
   }
 
-  struct guestfs_ntfsclone_out_args args;
-  guestfs_message_header hdr;
-  guestfs_message_error err;
+  guestfs_protobuf_ntfsclone_out_args args;
+  guestfs_protobuf_ntfsclone_out_args__init (&args);
+  guestfs_protobuf_message_header *hdr;
+  guestfs_protobuf_message_error *err;
   int serial;
   int r;
   int trace_flag = g->trace;
@@ -5789,7 +5906,7 @@ guestfs_ntfsclone_out_argv (guestfs_h *g,
   }
   serial = guestfs___send (g, GUESTFS_PROC_NTFSCLONE_OUT,
                            progress_hint, optargs->bitmask,
-                           (xdrproc_t) xdr_guestfs_ntfsclone_out_args, (char *) &args);
+                           (protobuf_proc_pack) guestfs_protobuf_ntfsclone_out_args__pack, (char *) &args);
   if (serial == -1) {
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
@@ -5797,8 +5914,8 @@ guestfs_ntfsclone_out_argv (guestfs_h *g,
     return -1;
   }
 
-  memset (&hdr, 0, sizeof hdr);
-  memset (&err, 0, sizeof err);
+  hdr = NULL;
+  err = NULL;
 
   r = guestfs___recv (g, "ntfsclone_out", &hdr, &err,
         NULL, NULL);
@@ -5809,28 +5926,28 @@ guestfs_ntfsclone_out_argv (guestfs_h *g,
     return -1;
   }
 
-  if (guestfs___check_reply_header (g, &hdr, GUESTFS_PROC_NTFSCLONE_OUT, serial) == -1) {
+  if (guestfs___check_reply_header (g, hdr, GUESTFS_PROC_NTFSCLONE_OUT, serial) == -1) {
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
                        "ntfsclone_out", "-1");
     return -1;
   }
 
-  if (hdr.status == GUESTFS_STATUS_ERROR) {
+  if (hdr->status == GUESTFS_STATUS_ERROR) {
     int errnum = 0;
 
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
                        "ntfsclone_out", "-1");
-    if (err.errno_string[0] != '\0')
-      errnum = guestfs___string_to_errno (err.errno_string);
+    if (err->errno_string[0] != '\0')
+      errnum = guestfs___string_to_errno (err->errno_string);
     if (errnum <= 0)
-      error (g, "%s: %s", "ntfsclone_out", err.error_message);
+      error (g, "%s: %s", "ntfsclone_out", err->error_message);
     else
       guestfs___error_errno (g, errnum, "%s: %s", "ntfsclone_out",
-                           err.error_message);
-    free (err.error_message);
-    free (err.errno_string);
+                           err->error_message);
+    guestfs_protobuf_message_error__free_unpacked (err, NULL);
+    guestfs_protobuf_message_header__free_unpacked (hdr, NULL);
     return -1;
   }
 
@@ -5849,6 +5966,7 @@ guestfs_ntfsclone_out_argv (guestfs_h *g,
     guestfs___trace_send_line (g, &trace_buffer);
   }
 
+  guestfs_protobuf_message_header__free_unpacked (hdr, NULL);
   return ret_v;
 }
 
@@ -5863,9 +5981,10 @@ guestfs_btrfs_fsck_argv (guestfs_h *g,
     optargs = &optargs_null;
   }
 
-  struct guestfs_btrfs_fsck_args args;
-  guestfs_message_header hdr;
-  guestfs_message_error err;
+  guestfs_protobuf_btrfs_fsck_args args;
+  guestfs_protobuf_btrfs_fsck_args__init (&args);
+  guestfs_protobuf_message_header *hdr;
+  guestfs_protobuf_message_error *err;
   int serial;
   int r;
   int trace_flag = g->trace;
@@ -5920,7 +6039,7 @@ guestfs_btrfs_fsck_argv (guestfs_h *g,
   }
   serial = guestfs___send (g, GUESTFS_PROC_BTRFS_FSCK,
                            progress_hint, optargs->bitmask,
-                           (xdrproc_t) xdr_guestfs_btrfs_fsck_args, (char *) &args);
+                           (protobuf_proc_pack) guestfs_protobuf_btrfs_fsck_args__pack, (char *) &args);
   if (serial == -1) {
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
@@ -5928,8 +6047,8 @@ guestfs_btrfs_fsck_argv (guestfs_h *g,
     return -1;
   }
 
-  memset (&hdr, 0, sizeof hdr);
-  memset (&err, 0, sizeof err);
+  hdr = NULL;
+  err = NULL;
 
   r = guestfs___recv (g, "btrfs_fsck", &hdr, &err,
         NULL, NULL);
@@ -5940,28 +6059,28 @@ guestfs_btrfs_fsck_argv (guestfs_h *g,
     return -1;
   }
 
-  if (guestfs___check_reply_header (g, &hdr, GUESTFS_PROC_BTRFS_FSCK, serial) == -1) {
+  if (guestfs___check_reply_header (g, hdr, GUESTFS_PROC_BTRFS_FSCK, serial) == -1) {
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
                        "btrfs_fsck", "-1");
     return -1;
   }
 
-  if (hdr.status == GUESTFS_STATUS_ERROR) {
+  if (hdr->status == GUESTFS_STATUS_ERROR) {
     int errnum = 0;
 
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
                        "btrfs_fsck", "-1");
-    if (err.errno_string[0] != '\0')
-      errnum = guestfs___string_to_errno (err.errno_string);
+    if (err->errno_string[0] != '\0')
+      errnum = guestfs___string_to_errno (err->errno_string);
     if (errnum <= 0)
-      error (g, "%s: %s", "btrfs_fsck", err.error_message);
+      error (g, "%s: %s", "btrfs_fsck", err->error_message);
     else
       guestfs___error_errno (g, errnum, "%s: %s", "btrfs_fsck",
-                           err.error_message);
-    free (err.error_message);
-    free (err.errno_string);
+                           err->error_message);
+    guestfs_protobuf_message_error__free_unpacked (err, NULL);
+    guestfs_protobuf_message_header__free_unpacked (hdr, NULL);
     return -1;
   }
 
@@ -5973,6 +6092,7 @@ guestfs_btrfs_fsck_argv (guestfs_h *g,
     guestfs___trace_send_line (g, &trace_buffer);
   }
 
+  guestfs_protobuf_message_header__free_unpacked (hdr, NULL);
   return ret_v;
 }
 
@@ -5980,10 +6100,11 @@ GUESTFS_DLL_PUBLIC int
 guestfs_device_index (guestfs_h *g,
                       const char *device)
 {
-  struct guestfs_device_index_args args;
-  guestfs_message_header hdr;
-  guestfs_message_error err;
-  struct guestfs_device_index_ret ret;
+  guestfs_protobuf_device_index_args args;
+  guestfs_protobuf_device_index_args__init (&args);
+  guestfs_protobuf_message_header *hdr;
+  guestfs_protobuf_message_error *err;
+  guestfs_protobuf_device_index_ret *ret;
   int serial;
   int r;
   int trace_flag = g->trace;
@@ -6016,7 +6137,7 @@ guestfs_device_index (guestfs_h *g,
   args.device = (char *) device;
   serial = guestfs___send (g, GUESTFS_PROC_DEVICE_INDEX,
                            progress_hint, 0,
-                           (xdrproc_t) xdr_guestfs_device_index_args, (char *) &args);
+                           (protobuf_proc_pack) guestfs_protobuf_device_index_args__pack, (char *) &args);
   if (serial == -1) {
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
@@ -6024,12 +6145,12 @@ guestfs_device_index (guestfs_h *g,
     return -1;
   }
 
-  memset (&hdr, 0, sizeof hdr);
-  memset (&err, 0, sizeof err);
-  memset (&ret, 0, sizeof ret);
+  hdr = NULL;
+  err = NULL;
+  ret = NULL;
 
   r = guestfs___recv (g, "device_index", &hdr, &err,
-        (xdrproc_t) xdr_guestfs_device_index_ret, (char *) &ret);
+        (protobuf_proc_unpack) guestfs_protobuf_device_index_ret__unpack, (ProtobufCMessage **) &ret);
   if (r == -1) {
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
@@ -6037,32 +6158,32 @@ guestfs_device_index (guestfs_h *g,
     return -1;
   }
 
-  if (guestfs___check_reply_header (g, &hdr, GUESTFS_PROC_DEVICE_INDEX, serial) == -1) {
+  if (guestfs___check_reply_header (g, hdr, GUESTFS_PROC_DEVICE_INDEX, serial) == -1) {
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
                        "device_index", "-1");
     return -1;
   }
 
-  if (hdr.status == GUESTFS_STATUS_ERROR) {
+  if (hdr->status == GUESTFS_STATUS_ERROR) {
     int errnum = 0;
 
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
                        "device_index", "-1");
-    if (err.errno_string[0] != '\0')
-      errnum = guestfs___string_to_errno (err.errno_string);
+    if (err->errno_string[0] != '\0')
+      errnum = guestfs___string_to_errno (err->errno_string);
     if (errnum <= 0)
-      error (g, "%s: %s", "device_index", err.error_message);
+      error (g, "%s: %s", "device_index", err->error_message);
     else
       guestfs___error_errno (g, errnum, "%s: %s", "device_index",
-                           err.error_message);
-    free (err.error_message);
-    free (err.errno_string);
+                           err->error_message);
+    guestfs_protobuf_message_error__free_unpacked (err, NULL);
+    guestfs_protobuf_message_header__free_unpacked (hdr, NULL);
     return -1;
   }
 
-  ret_v = ret.index;
+  ret_v = ret->index;
   if (trace_flag) {
     guestfs___trace_open (&trace_buffer);
     fprintf (trace_buffer.fp, "%s = ", "device_index");
@@ -6070,6 +6191,8 @@ guestfs_device_index (guestfs_h *g,
     guestfs___trace_send_line (g, &trace_buffer);
   }
 
+  guestfs_protobuf_message_header__free_unpacked (hdr, NULL);
+  guestfs_protobuf_device_index_ret__free_unpacked (ret, NULL);
   return ret_v;
 }
 
@@ -6078,9 +6201,10 @@ guestfs_fill_dir (guestfs_h *g,
                   const char *dir,
                   int nr)
 {
-  struct guestfs_fill_dir_args args;
-  guestfs_message_header hdr;
-  guestfs_message_error err;
+  guestfs_protobuf_fill_dir_args args;
+  guestfs_protobuf_fill_dir_args__init (&args);
+  guestfs_protobuf_message_header *hdr;
+  guestfs_protobuf_message_error *err;
   int serial;
   int r;
   int trace_flag = g->trace;
@@ -6115,7 +6239,7 @@ guestfs_fill_dir (guestfs_h *g,
   args.nr = nr;
   serial = guestfs___send (g, GUESTFS_PROC_FILL_DIR,
                            progress_hint, 0,
-                           (xdrproc_t) xdr_guestfs_fill_dir_args, (char *) &args);
+                           (protobuf_proc_pack) guestfs_protobuf_fill_dir_args__pack, (char *) &args);
   if (serial == -1) {
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
@@ -6123,8 +6247,8 @@ guestfs_fill_dir (guestfs_h *g,
     return -1;
   }
 
-  memset (&hdr, 0, sizeof hdr);
-  memset (&err, 0, sizeof err);
+  hdr = NULL;
+  err = NULL;
 
   r = guestfs___recv (g, "fill_dir", &hdr, &err,
         NULL, NULL);
@@ -6135,28 +6259,28 @@ guestfs_fill_dir (guestfs_h *g,
     return -1;
   }
 
-  if (guestfs___check_reply_header (g, &hdr, GUESTFS_PROC_FILL_DIR, serial) == -1) {
+  if (guestfs___check_reply_header (g, hdr, GUESTFS_PROC_FILL_DIR, serial) == -1) {
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
                        "fill_dir", "-1");
     return -1;
   }
 
-  if (hdr.status == GUESTFS_STATUS_ERROR) {
+  if (hdr->status == GUESTFS_STATUS_ERROR) {
     int errnum = 0;
 
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
                        "fill_dir", "-1");
-    if (err.errno_string[0] != '\0')
-      errnum = guestfs___string_to_errno (err.errno_string);
+    if (err->errno_string[0] != '\0')
+      errnum = guestfs___string_to_errno (err->errno_string);
     if (errnum <= 0)
-      error (g, "%s: %s", "fill_dir", err.error_message);
+      error (g, "%s: %s", "fill_dir", err->error_message);
     else
       guestfs___error_errno (g, errnum, "%s: %s", "fill_dir",
-                           err.error_message);
-    free (err.error_message);
-    free (err.errno_string);
+                           err->error_message);
+    guestfs_protobuf_message_error__free_unpacked (err, NULL);
+    guestfs_protobuf_message_header__free_unpacked (hdr, NULL);
     return -1;
   }
 
@@ -6168,6 +6292,7 @@ guestfs_fill_dir (guestfs_h *g,
     guestfs___trace_send_line (g, &trace_buffer);
   }
 
+  guestfs_protobuf_message_header__free_unpacked (hdr, NULL);
   return ret_v;
 }
 
@@ -6182,9 +6307,10 @@ guestfs_xfs_admin_argv (guestfs_h *g,
     optargs = &optargs_null;
   }
 
-  struct guestfs_xfs_admin_args args;
-  guestfs_message_header hdr;
-  guestfs_message_error err;
+  guestfs_protobuf_xfs_admin_args args;
+  guestfs_protobuf_xfs_admin_args__init (&args);
+  guestfs_protobuf_message_header *hdr;
+  guestfs_protobuf_message_error *err;
   int serial;
   int r;
   int trace_flag = g->trace;
@@ -6291,7 +6417,7 @@ guestfs_xfs_admin_argv (guestfs_h *g,
   }
   serial = guestfs___send (g, GUESTFS_PROC_XFS_ADMIN,
                            progress_hint, optargs->bitmask,
-                           (xdrproc_t) xdr_guestfs_xfs_admin_args, (char *) &args);
+                           (protobuf_proc_pack) guestfs_protobuf_xfs_admin_args__pack, (char *) &args);
   if (serial == -1) {
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
@@ -6299,8 +6425,8 @@ guestfs_xfs_admin_argv (guestfs_h *g,
     return -1;
   }
 
-  memset (&hdr, 0, sizeof hdr);
-  memset (&err, 0, sizeof err);
+  hdr = NULL;
+  err = NULL;
 
   r = guestfs___recv (g, "xfs_admin", &hdr, &err,
         NULL, NULL);
@@ -6311,28 +6437,28 @@ guestfs_xfs_admin_argv (guestfs_h *g,
     return -1;
   }
 
-  if (guestfs___check_reply_header (g, &hdr, GUESTFS_PROC_XFS_ADMIN, serial) == -1) {
+  if (guestfs___check_reply_header (g, hdr, GUESTFS_PROC_XFS_ADMIN, serial) == -1) {
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
                        "xfs_admin", "-1");
     return -1;
   }
 
-  if (hdr.status == GUESTFS_STATUS_ERROR) {
+  if (hdr->status == GUESTFS_STATUS_ERROR) {
     int errnum = 0;
 
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
                        "xfs_admin", "-1");
-    if (err.errno_string[0] != '\0')
-      errnum = guestfs___string_to_errno (err.errno_string);
+    if (err->errno_string[0] != '\0')
+      errnum = guestfs___string_to_errno (err->errno_string);
     if (errnum <= 0)
-      error (g, "%s: %s", "xfs_admin", err.error_message);
+      error (g, "%s: %s", "xfs_admin", err->error_message);
     else
       guestfs___error_errno (g, errnum, "%s: %s", "xfs_admin",
-                           err.error_message);
-    free (err.error_message);
-    free (err.errno_string);
+                           err->error_message);
+    guestfs_protobuf_message_error__free_unpacked (err, NULL);
+    guestfs_protobuf_message_header__free_unpacked (hdr, NULL);
     return -1;
   }
 
@@ -6344,15 +6470,16 @@ guestfs_xfs_admin_argv (guestfs_h *g,
     guestfs___trace_send_line (g, &trace_buffer);
   }
 
+  guestfs_protobuf_message_header__free_unpacked (hdr, NULL);
   return ret_v;
 }
 
 GUESTFS_DLL_PUBLIC int64_t
 guestfs_hivex_root (guestfs_h *g)
 {
-  guestfs_message_header hdr;
-  guestfs_message_error err;
-  struct guestfs_hivex_root_ret ret;
+  guestfs_protobuf_message_header *hdr;
+  guestfs_protobuf_message_error *err;
+  guestfs_protobuf_hivex_root_ret *ret;
   int serial;
   int r;
   int trace_flag = g->trace;
@@ -6384,12 +6511,12 @@ guestfs_hivex_root (guestfs_h *g)
     return -1;
   }
 
-  memset (&hdr, 0, sizeof hdr);
-  memset (&err, 0, sizeof err);
-  memset (&ret, 0, sizeof ret);
+  hdr = NULL;
+  err = NULL;
+  ret = NULL;
 
   r = guestfs___recv (g, "hivex_root", &hdr, &err,
-        (xdrproc_t) xdr_guestfs_hivex_root_ret, (char *) &ret);
+        (protobuf_proc_unpack) guestfs_protobuf_hivex_root_ret__unpack, (ProtobufCMessage **) &ret);
   if (r == -1) {
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
@@ -6397,32 +6524,32 @@ guestfs_hivex_root (guestfs_h *g)
     return -1;
   }
 
-  if (guestfs___check_reply_header (g, &hdr, GUESTFS_PROC_HIVEX_ROOT, serial) == -1) {
+  if (guestfs___check_reply_header (g, hdr, GUESTFS_PROC_HIVEX_ROOT, serial) == -1) {
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
                        "hivex_root", "-1");
     return -1;
   }
 
-  if (hdr.status == GUESTFS_STATUS_ERROR) {
+  if (hdr->status == GUESTFS_STATUS_ERROR) {
     int errnum = 0;
 
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
                        "hivex_root", "-1");
-    if (err.errno_string[0] != '\0')
-      errnum = guestfs___string_to_errno (err.errno_string);
+    if (err->errno_string[0] != '\0')
+      errnum = guestfs___string_to_errno (err->errno_string);
     if (errnum <= 0)
-      error (g, "%s: %s", "hivex_root", err.error_message);
+      error (g, "%s: %s", "hivex_root", err->error_message);
     else
       guestfs___error_errno (g, errnum, "%s: %s", "hivex_root",
-                           err.error_message);
-    free (err.error_message);
-    free (err.errno_string);
+                           err->error_message);
+    guestfs_protobuf_message_error__free_unpacked (err, NULL);
+    guestfs_protobuf_message_header__free_unpacked (hdr, NULL);
     return -1;
   }
 
-  ret_v = ret.nodeh;
+  ret_v = ret->nodeh;
   if (trace_flag) {
     guestfs___trace_open (&trace_buffer);
     fprintf (trace_buffer.fp, "%s = ", "hivex_root");
@@ -6430,6 +6557,8 @@ guestfs_hivex_root (guestfs_h *g)
     guestfs___trace_send_line (g, &trace_buffer);
   }
 
+  guestfs_protobuf_message_header__free_unpacked (hdr, NULL);
+  guestfs_protobuf_hivex_root_ret__free_unpacked (ret, NULL);
   return ret_v;
 }
 
@@ -6437,10 +6566,11 @@ GUESTFS_DLL_PUBLIC int64_t
 guestfs_hivex_node_parent (guestfs_h *g,
                            int64_t nodeh)
 {
-  struct guestfs_hivex_node_parent_args args;
-  guestfs_message_header hdr;
-  guestfs_message_error err;
-  struct guestfs_hivex_node_parent_ret ret;
+  guestfs_protobuf_hivex_node_parent_args args;
+  guestfs_protobuf_hivex_node_parent_args__init (&args);
+  guestfs_protobuf_message_header *hdr;
+  guestfs_protobuf_message_error *err;
+  guestfs_protobuf_hivex_node_parent_ret *ret;
   int serial;
   int r;
   int trace_flag = g->trace;
@@ -6467,7 +6597,7 @@ guestfs_hivex_node_parent (guestfs_h *g,
   args.nodeh = nodeh;
   serial = guestfs___send (g, GUESTFS_PROC_HIVEX_NODE_PARENT,
                            progress_hint, 0,
-                           (xdrproc_t) xdr_guestfs_hivex_node_parent_args, (char *) &args);
+                           (protobuf_proc_pack) guestfs_protobuf_hivex_node_parent_args__pack, (char *) &args);
   if (serial == -1) {
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
@@ -6475,12 +6605,12 @@ guestfs_hivex_node_parent (guestfs_h *g,
     return -1;
   }
 
-  memset (&hdr, 0, sizeof hdr);
-  memset (&err, 0, sizeof err);
-  memset (&ret, 0, sizeof ret);
+  hdr = NULL;
+  err = NULL;
+  ret = NULL;
 
   r = guestfs___recv (g, "hivex_node_parent", &hdr, &err,
-        (xdrproc_t) xdr_guestfs_hivex_node_parent_ret, (char *) &ret);
+        (protobuf_proc_unpack) guestfs_protobuf_hivex_node_parent_ret__unpack, (ProtobufCMessage **) &ret);
   if (r == -1) {
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
@@ -6488,32 +6618,32 @@ guestfs_hivex_node_parent (guestfs_h *g,
     return -1;
   }
 
-  if (guestfs___check_reply_header (g, &hdr, GUESTFS_PROC_HIVEX_NODE_PARENT, serial) == -1) {
+  if (guestfs___check_reply_header (g, hdr, GUESTFS_PROC_HIVEX_NODE_PARENT, serial) == -1) {
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
                        "hivex_node_parent", "-1");
     return -1;
   }
 
-  if (hdr.status == GUESTFS_STATUS_ERROR) {
+  if (hdr->status == GUESTFS_STATUS_ERROR) {
     int errnum = 0;
 
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
                        "hivex_node_parent", "-1");
-    if (err.errno_string[0] != '\0')
-      errnum = guestfs___string_to_errno (err.errno_string);
+    if (err->errno_string[0] != '\0')
+      errnum = guestfs___string_to_errno (err->errno_string);
     if (errnum <= 0)
-      error (g, "%s: %s", "hivex_node_parent", err.error_message);
+      error (g, "%s: %s", "hivex_node_parent", err->error_message);
     else
       guestfs___error_errno (g, errnum, "%s: %s", "hivex_node_parent",
-                           err.error_message);
-    free (err.error_message);
-    free (err.errno_string);
+                           err->error_message);
+    guestfs_protobuf_message_error__free_unpacked (err, NULL);
+    guestfs_protobuf_message_header__free_unpacked (hdr, NULL);
     return -1;
   }
 
-  ret_v = ret.parent;
+  ret_v = ret->parent;
   if (trace_flag) {
     guestfs___trace_open (&trace_buffer);
     fprintf (trace_buffer.fp, "%s = ", "hivex_node_parent");
@@ -6521,6 +6651,8 @@ guestfs_hivex_node_parent (guestfs_h *g,
     guestfs___trace_send_line (g, &trace_buffer);
   }
 
+  guestfs_protobuf_message_header__free_unpacked (hdr, NULL);
+  guestfs_protobuf_hivex_node_parent_ret__free_unpacked (ret, NULL);
   return ret_v;
 }
 
@@ -6529,10 +6661,11 @@ guestfs_hivex_value_value (guestfs_h *g,
                            int64_t valueh,
                            size_t *size_r)
 {
-  struct guestfs_hivex_value_value_args args;
-  guestfs_message_header hdr;
-  guestfs_message_error err;
-  struct guestfs_hivex_value_value_ret ret;
+  guestfs_protobuf_hivex_value_value_args args;
+  guestfs_protobuf_hivex_value_value_args__init (&args);
+  guestfs_protobuf_message_header *hdr;
+  guestfs_protobuf_message_error *err;
+  guestfs_protobuf_hivex_value_value_ret *ret;
   int serial;
   int r;
   int trace_flag = g->trace;
@@ -6559,7 +6692,7 @@ guestfs_hivex_value_value (guestfs_h *g,
   args.valueh = valueh;
   serial = guestfs___send (g, GUESTFS_PROC_HIVEX_VALUE_VALUE,
                            progress_hint, 0,
-                           (xdrproc_t) xdr_guestfs_hivex_value_value_args, (char *) &args);
+                           (protobuf_proc_pack) guestfs_protobuf_hivex_value_value_args__pack, (char *) &args);
   if (serial == -1) {
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
@@ -6567,12 +6700,12 @@ guestfs_hivex_value_value (guestfs_h *g,
     return NULL;
   }
 
-  memset (&hdr, 0, sizeof hdr);
-  memset (&err, 0, sizeof err);
-  memset (&ret, 0, sizeof ret);
+  hdr = NULL;
+  err = NULL;
+  ret = NULL;
 
   r = guestfs___recv (g, "hivex_value_value", &hdr, &err,
-        (xdrproc_t) xdr_guestfs_hivex_value_value_ret, (char *) &ret);
+        (protobuf_proc_unpack) guestfs_protobuf_hivex_value_value_ret__unpack, (ProtobufCMessage **) &ret);
   if (r == -1) {
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
@@ -6580,28 +6713,28 @@ guestfs_hivex_value_value (guestfs_h *g,
     return NULL;
   }
 
-  if (guestfs___check_reply_header (g, &hdr, GUESTFS_PROC_HIVEX_VALUE_VALUE, serial) == -1) {
+  if (guestfs___check_reply_header (g, hdr, GUESTFS_PROC_HIVEX_VALUE_VALUE, serial) == -1) {
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
                        "hivex_value_value", "NULL");
     return NULL;
   }
 
-  if (hdr.status == GUESTFS_STATUS_ERROR) {
+  if (hdr->status == GUESTFS_STATUS_ERROR) {
     int errnum = 0;
 
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
                        "hivex_value_value", "NULL");
-    if (err.errno_string[0] != '\0')
-      errnum = guestfs___string_to_errno (err.errno_string);
+    if (err->errno_string[0] != '\0')
+      errnum = guestfs___string_to_errno (err->errno_string);
     if (errnum <= 0)
-      error (g, "%s: %s", "hivex_value_value", err.error_message);
+      error (g, "%s: %s", "hivex_value_value", err->error_message);
     else
       guestfs___error_errno (g, errnum, "%s: %s", "hivex_value_value",
-                           err.error_message);
-    free (err.error_message);
-    free (err.errno_string);
+                           err->error_message);
+    guestfs_protobuf_message_error__free_unpacked (err, NULL);
+    guestfs_protobuf_message_header__free_unpacked (hdr, NULL);
     return NULL;
   }
 
@@ -6610,13 +6743,12 @@ guestfs_hivex_value_value (guestfs_h *g,
    * callers, we turn this case into a unique pointer (using
    * malloc(1)).
    */
-  if (ret.databuf.databuf_len > 0) {
-    *size_r = ret.databuf.databuf_len;
-    ret_v = ret.databuf.databuf_val; /* caller will free */
+  if (ret->databuf.len > 0) {
+    *size_r = ret->databuf.len;
+    ret_v = safe_memdup (g, ret->databuf.data, ret->databuf.len); /* caller will free */
   } else {
-    free (ret.databuf.databuf_val);
     char *p = safe_malloc (g, 1);
-    *size_r = ret.databuf.databuf_len;
+    *size_r = ret->databuf.len;
     ret_v = p;
   }
   if (trace_flag) {
@@ -6626,14 +6758,16 @@ guestfs_hivex_value_value (guestfs_h *g,
     guestfs___trace_send_line (g, &trace_buffer);
   }
 
+  guestfs_protobuf_message_header__free_unpacked (hdr, NULL);
+  guestfs_protobuf_hivex_value_value_ret__free_unpacked (ret, NULL);
   return ret_v;
 }
 
 GUESTFS_DLL_PUBLIC int
 guestfs_ldmtool_create_all (guestfs_h *g)
 {
-  guestfs_message_header hdr;
-  guestfs_message_error err;
+  guestfs_protobuf_message_header *hdr;
+  guestfs_protobuf_message_error *err;
   int serial;
   int r;
   int trace_flag = g->trace;
@@ -6665,8 +6799,8 @@ guestfs_ldmtool_create_all (guestfs_h *g)
     return -1;
   }
 
-  memset (&hdr, 0, sizeof hdr);
-  memset (&err, 0, sizeof err);
+  hdr = NULL;
+  err = NULL;
 
   r = guestfs___recv (g, "ldmtool_create_all", &hdr, &err,
         NULL, NULL);
@@ -6677,28 +6811,28 @@ guestfs_ldmtool_create_all (guestfs_h *g)
     return -1;
   }
 
-  if (guestfs___check_reply_header (g, &hdr, GUESTFS_PROC_LDMTOOL_CREATE_ALL, serial) == -1) {
+  if (guestfs___check_reply_header (g, hdr, GUESTFS_PROC_LDMTOOL_CREATE_ALL, serial) == -1) {
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
                        "ldmtool_create_all", "-1");
     return -1;
   }
 
-  if (hdr.status == GUESTFS_STATUS_ERROR) {
+  if (hdr->status == GUESTFS_STATUS_ERROR) {
     int errnum = 0;
 
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
                        "ldmtool_create_all", "-1");
-    if (err.errno_string[0] != '\0')
-      errnum = guestfs___string_to_errno (err.errno_string);
+    if (err->errno_string[0] != '\0')
+      errnum = guestfs___string_to_errno (err->errno_string);
     if (errnum <= 0)
-      error (g, "%s: %s", "ldmtool_create_all", err.error_message);
+      error (g, "%s: %s", "ldmtool_create_all", err->error_message);
     else
       guestfs___error_errno (g, errnum, "%s: %s", "ldmtool_create_all",
-                           err.error_message);
-    free (err.error_message);
-    free (err.errno_string);
+                           err->error_message);
+    guestfs_protobuf_message_error__free_unpacked (err, NULL);
+    guestfs_protobuf_message_header__free_unpacked (hdr, NULL);
     return -1;
   }
 
@@ -6710,6 +6844,7 @@ guestfs_ldmtool_create_all (guestfs_h *g)
     guestfs___trace_send_line (g, &trace_buffer);
   }
 
+  guestfs_protobuf_message_header__free_unpacked (hdr, NULL);
   return ret_v;
 }
 
@@ -6717,10 +6852,11 @@ GUESTFS_DLL_PUBLIC char **
 guestfs_ldmtool_diskgroup_disks (guestfs_h *g,
                                  const char *diskgroup)
 {
-  struct guestfs_ldmtool_diskgroup_disks_args args;
-  guestfs_message_header hdr;
-  guestfs_message_error err;
-  struct guestfs_ldmtool_diskgroup_disks_ret ret;
+  guestfs_protobuf_ldmtool_diskgroup_disks_args args;
+  guestfs_protobuf_ldmtool_diskgroup_disks_args__init (&args);
+  guestfs_protobuf_message_header *hdr;
+  guestfs_protobuf_message_error *err;
+  guestfs_protobuf_ldmtool_diskgroup_disks_ret *ret;
   int serial;
   int r;
   int trace_flag = g->trace;
@@ -6753,7 +6889,7 @@ guestfs_ldmtool_diskgroup_disks (guestfs_h *g,
   args.diskgroup = (char *) diskgroup;
   serial = guestfs___send (g, GUESTFS_PROC_LDMTOOL_DISKGROUP_DISKS,
                            progress_hint, 0,
-                           (xdrproc_t) xdr_guestfs_ldmtool_diskgroup_disks_args, (char *) &args);
+                           (protobuf_proc_pack) guestfs_protobuf_ldmtool_diskgroup_disks_args__pack, (char *) &args);
   if (serial == -1) {
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
@@ -6761,12 +6897,12 @@ guestfs_ldmtool_diskgroup_disks (guestfs_h *g,
     return NULL;
   }
 
-  memset (&hdr, 0, sizeof hdr);
-  memset (&err, 0, sizeof err);
-  memset (&ret, 0, sizeof ret);
+  hdr = NULL;
+  err = NULL;
+  ret = NULL;
 
   r = guestfs___recv (g, "ldmtool_diskgroup_disks", &hdr, &err,
-        (xdrproc_t) xdr_guestfs_ldmtool_diskgroup_disks_ret, (char *) &ret);
+        (protobuf_proc_unpack) guestfs_protobuf_ldmtool_diskgroup_disks_ret__unpack, (ProtobufCMessage **) &ret);
   if (r == -1) {
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
@@ -6774,37 +6910,38 @@ guestfs_ldmtool_diskgroup_disks (guestfs_h *g,
     return NULL;
   }
 
-  if (guestfs___check_reply_header (g, &hdr, GUESTFS_PROC_LDMTOOL_DISKGROUP_DISKS, serial) == -1) {
+  if (guestfs___check_reply_header (g, hdr, GUESTFS_PROC_LDMTOOL_DISKGROUP_DISKS, serial) == -1) {
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
                        "ldmtool_diskgroup_disks", "NULL");
     return NULL;
   }
 
-  if (hdr.status == GUESTFS_STATUS_ERROR) {
+  if (hdr->status == GUESTFS_STATUS_ERROR) {
     int errnum = 0;
 
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
                        "ldmtool_diskgroup_disks", "NULL");
-    if (err.errno_string[0] != '\0')
-      errnum = guestfs___string_to_errno (err.errno_string);
+    if (err->errno_string[0] != '\0')
+      errnum = guestfs___string_to_errno (err->errno_string);
     if (errnum <= 0)
-      error (g, "%s: %s", "ldmtool_diskgroup_disks", err.error_message);
+      error (g, "%s: %s", "ldmtool_diskgroup_disks", err->error_message);
     else
       guestfs___error_errno (g, errnum, "%s: %s", "ldmtool_diskgroup_disks",
-                           err.error_message);
-    free (err.error_message);
-    free (err.errno_string);
+                           err->error_message);
+    guestfs_protobuf_message_error__free_unpacked (err, NULL);
+    guestfs_protobuf_message_header__free_unpacked (hdr, NULL);
     return NULL;
   }
 
   /* caller will free this, but we need to add a NULL entry */
-  ret.disks.disks_val =
-    safe_realloc (g, ret.disks.disks_val,
-                  sizeof (char *) * (ret.disks.disks_len + 1));
-  ret.disks.disks_val[ret.disks.disks_len] = NULL;
-  ret_v = ret.disks.disks_val;
+  ret_v = safe_malloc (g, sizeof (char *) * (ret->n_disks));
+  int i;
+  for (i = 0; i < ret->n_disks - 1; ++i) {
+     ret_v[i] = safe_strdup (g, ret->disks[i]);
+  }
+  ret_v[ret->n_disks - 1] = NULL;
   if (trace_flag) {
     size_t i;
 
@@ -6821,6 +6958,8 @@ guestfs_ldmtool_diskgroup_disks (guestfs_h *g,
     guestfs___trace_send_line (g, &trace_buffer);
   }
 
+  guestfs_protobuf_message_header__free_unpacked (hdr, NULL);
+  guestfs_protobuf_ldmtool_diskgroup_disks_ret__free_unpacked (ret, NULL);
   return ret_v;
 }
 
@@ -6835,9 +6974,10 @@ guestfs_syslinux_argv (guestfs_h *g,
     optargs = &optargs_null;
   }
 
-  struct guestfs_syslinux_args args;
-  guestfs_message_header hdr;
-  guestfs_message_error err;
+  guestfs_protobuf_syslinux_args args;
+  guestfs_protobuf_syslinux_args__init (&args);
+  guestfs_protobuf_message_header *hdr;
+  guestfs_protobuf_message_error *err;
   int serial;
   int r;
   int trace_flag = g->trace;
@@ -6890,7 +7030,7 @@ guestfs_syslinux_argv (guestfs_h *g,
   }
   serial = guestfs___send (g, GUESTFS_PROC_SYSLINUX,
                            progress_hint, optargs->bitmask,
-                           (xdrproc_t) xdr_guestfs_syslinux_args, (char *) &args);
+                           (protobuf_proc_pack) guestfs_protobuf_syslinux_args__pack, (char *) &args);
   if (serial == -1) {
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
@@ -6898,8 +7038,8 @@ guestfs_syslinux_argv (guestfs_h *g,
     return -1;
   }
 
-  memset (&hdr, 0, sizeof hdr);
-  memset (&err, 0, sizeof err);
+  hdr = NULL;
+  err = NULL;
 
   r = guestfs___recv (g, "syslinux", &hdr, &err,
         NULL, NULL);
@@ -6910,28 +7050,28 @@ guestfs_syslinux_argv (guestfs_h *g,
     return -1;
   }
 
-  if (guestfs___check_reply_header (g, &hdr, GUESTFS_PROC_SYSLINUX, serial) == -1) {
+  if (guestfs___check_reply_header (g, hdr, GUESTFS_PROC_SYSLINUX, serial) == -1) {
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
                        "syslinux", "-1");
     return -1;
   }
 
-  if (hdr.status == GUESTFS_STATUS_ERROR) {
+  if (hdr->status == GUESTFS_STATUS_ERROR) {
     int errnum = 0;
 
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
                        "syslinux", "-1");
-    if (err.errno_string[0] != '\0')
-      errnum = guestfs___string_to_errno (err.errno_string);
+    if (err->errno_string[0] != '\0')
+      errnum = guestfs___string_to_errno (err->errno_string);
     if (errnum <= 0)
-      error (g, "%s: %s", "syslinux", err.error_message);
+      error (g, "%s: %s", "syslinux", err->error_message);
     else
       guestfs___error_errno (g, errnum, "%s: %s", "syslinux",
-                           err.error_message);
-    free (err.error_message);
-    free (err.errno_string);
+                           err->error_message);
+    guestfs_protobuf_message_error__free_unpacked (err, NULL);
+    guestfs_protobuf_message_header__free_unpacked (hdr, NULL);
     return -1;
   }
 
@@ -6943,6 +7083,7 @@ guestfs_syslinux_argv (guestfs_h *g,
     guestfs___trace_send_line (g, &trace_buffer);
   }
 
+  guestfs_protobuf_message_header__free_unpacked (hdr, NULL);
   return ret_v;
 }
 
@@ -6958,9 +7099,10 @@ guestfs_copy_attributes_argv (guestfs_h *g,
     optargs = &optargs_null;
   }
 
-  struct guestfs_copy_attributes_args args;
-  guestfs_message_header hdr;
-  guestfs_message_error err;
+  guestfs_protobuf_copy_attributes_args args;
+  guestfs_protobuf_copy_attributes_args__init (&args);
+  guestfs_protobuf_message_header *hdr;
+  guestfs_protobuf_message_error *err;
   int serial;
   int r;
   int trace_flag = g->trace;
@@ -7038,7 +7180,7 @@ guestfs_copy_attributes_argv (guestfs_h *g,
   }
   serial = guestfs___send (g, GUESTFS_PROC_COPY_ATTRIBUTES,
                            progress_hint, optargs->bitmask,
-                           (xdrproc_t) xdr_guestfs_copy_attributes_args, (char *) &args);
+                           (protobuf_proc_pack) guestfs_protobuf_copy_attributes_args__pack, (char *) &args);
   if (serial == -1) {
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
@@ -7046,8 +7188,8 @@ guestfs_copy_attributes_argv (guestfs_h *g,
     return -1;
   }
 
-  memset (&hdr, 0, sizeof hdr);
-  memset (&err, 0, sizeof err);
+  hdr = NULL;
+  err = NULL;
 
   r = guestfs___recv (g, "copy_attributes", &hdr, &err,
         NULL, NULL);
@@ -7058,28 +7200,28 @@ guestfs_copy_attributes_argv (guestfs_h *g,
     return -1;
   }
 
-  if (guestfs___check_reply_header (g, &hdr, GUESTFS_PROC_COPY_ATTRIBUTES, serial) == -1) {
+  if (guestfs___check_reply_header (g, hdr, GUESTFS_PROC_COPY_ATTRIBUTES, serial) == -1) {
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
                        "copy_attributes", "-1");
     return -1;
   }
 
-  if (hdr.status == GUESTFS_STATUS_ERROR) {
+  if (hdr->status == GUESTFS_STATUS_ERROR) {
     int errnum = 0;
 
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
                        "copy_attributes", "-1");
-    if (err.errno_string[0] != '\0')
-      errnum = guestfs___string_to_errno (err.errno_string);
+    if (err->errno_string[0] != '\0')
+      errnum = guestfs___string_to_errno (err->errno_string);
     if (errnum <= 0)
-      error (g, "%s: %s", "copy_attributes", err.error_message);
+      error (g, "%s: %s", "copy_attributes", err->error_message);
     else
       guestfs___error_errno (g, errnum, "%s: %s", "copy_attributes",
-                           err.error_message);
-    free (err.error_message);
-    free (err.errno_string);
+                           err->error_message);
+    guestfs_protobuf_message_error__free_unpacked (err, NULL);
+    guestfs_protobuf_message_header__free_unpacked (hdr, NULL);
     return -1;
   }
 
@@ -7091,6 +7233,7 @@ guestfs_copy_attributes_argv (guestfs_h *g,
     guestfs___trace_send_line (g, &trace_buffer);
   }
 
+  guestfs_protobuf_message_header__free_unpacked (hdr, NULL);
   return ret_v;
 }
 

@@ -49,7 +49,7 @@ do_df (void)
 }
 
 char *
-do_df_h (void)
+do_df_hh (void)
 {
   int r;
   char *out;

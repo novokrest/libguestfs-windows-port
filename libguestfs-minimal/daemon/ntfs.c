@@ -47,7 +47,7 @@ optgroup_ntfsprogs_available (void)
 }
 
 int
-do_ntfs_3g_probe (int rw, const char *device)
+do_ntfs3g_probe (int rw, const char *device)
 {
   CLEANUP_FREE char *err = NULL;
   int r;

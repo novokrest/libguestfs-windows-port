@@ -34,7 +34,7 @@
 /* Check the return message from a call for validity. */
 int
 guestfs___check_reply_header (guestfs_h *g,
-                              const struct guestfs_message_header *hdr,
+                              const guestfs_protobuf_message_header *hdr,
                               unsigned int proc_nr, unsigned int serial)
 {
   if (hdr->prog != GUESTFS_PROGRAM) {

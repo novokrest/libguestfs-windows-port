@@ -71,38 +71,28 @@ sources = \
 	bindtests.ml \
 	c.ml \
 	checks.ml \
-	csharp.ml \
 	customize.ml \
 	daemon.ml \
 	docstrings.ml \
-	erlang.ml \
 	errnostring.ml \
 	events.ml \
-	fish.ml \
-	gobject.ml \
-	golang.ml \
-	haskell.ml \
-	java.ml \
-	lua.ml \
 	main.ml \
-	ocaml.ml \
 	optgroups.ml \
-	perl.ml \
-	php.ml \
 	pr.ml \
 	pr.mli \
 	prepopts.ml \
 	prepopts.mli \
 	protobuf.ml \
 	protobuf_typedefs.ml \
-	python.ml \
-	ruby.ml \
+	protobuf_converters.ml \
+	structs_free.ml \
 	structs.ml \
 	structs.mli \
 	tests_c_api.ml \
 	types.ml \
 	utils.ml \
-	utils.mli 
+	utils.mli \
+	xdr.ml
 
 
 # In build dependency order.
@@ -119,34 +109,26 @@ objects = \
 	docstrings.cmo \
 	checks.cmo \
 	c.cmo \
+	xdr.cmo \
 	protobuf.cmo \
 	protobuf_typedefs.cmo \
+	protobuf_converters.cmo \
+	structs_free.cmo \
 	daemon.cmo \
 	tests_c_api.cmo \
-	fish.cmo \
-	ocaml.cmo \
-	perl.cmo \
-	python.cmo \
-	ruby.cmo \
-	java.cmo \
-	haskell.cmo \
-	csharp.cmo \
-	php.cmo \
-	erlang.cmo \
-	lua.cmo \
-	gobject.cmo \
-	golang.cmo \
 	bindtests.cmo \
 	errnostring.cmo \
 	customize.cmo \
 	main.cmo
 
+exec = generator.exe
+
 .SUFFIXES: .cmo .cmi .cmx .ml .mli .mll .mly
 .PHONY: all clean
 
-all: generator
+all: $(exec)
 
-generator: $(objects)
+$(exec): $(objects)
 	$(OCAMLFIND) ocamlc $(OCAMLCFLAGS) -linkpkg $^ -o $@
 
 # Dependencies.
@@ -158,4 +140,4 @@ generator: $(objects)
 	$(OCAMLFIND) ocamlc $(OCAMLCFLAGS) -c $< -o $@
 	
 clean:
-	rm -f *.cmi *.cmo
+	rm -f *.cmi *.cmo *~

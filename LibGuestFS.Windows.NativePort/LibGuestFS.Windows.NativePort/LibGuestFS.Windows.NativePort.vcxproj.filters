@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <Filter Include="Source Files">
@@ -85,9 +85,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\errnostring.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\guestfs_protocol.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\actions-support.c">
@@ -246,6 +243,15 @@
     <ClCompile Include="src\gnulib\lib\hash-pjw.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\guestfs_protocol.pb-c.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\guestfs_protocol_converters.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\guestfs-internal-structs-free.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\config.h">
@@ -336,6 +342,24 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\gnulib\lib\hash-pjw.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\guestfs_protocol.pb-c.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\guestfs_protocol_constants.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\guestfs_protocol_converters.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\guestfs_protocol_typedefs.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\guestfs-internal-structs-free.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\xdr.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

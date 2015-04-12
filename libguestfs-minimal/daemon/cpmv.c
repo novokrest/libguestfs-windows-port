@@ -37,13 +37,13 @@ do_cp (const char *src, const char *dest)
 }
 
 int
-do_cp_a (const char *src, const char *dest)
+do_cp_aa (const char *src, const char *dest)
 {
   return cpmv_cmd (str_cp, "-a", src, dest);
 }
 
 int
-do_cp_r (const char *src, const char *dest)
+do_cp_rr (const char *src, const char *dest)
 {
   return cpmv_cmd (str_cp, "-rP", src, dest);
 }

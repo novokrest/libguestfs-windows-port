@@ -115,11 +115,11 @@ let structs = [
 
   (* LVM PVs, VGs, LVs. *)
   { defaults with
-    s_name = "lvm_pv"; s_cols = lvm_pv_cols; s_camel_name = "Pv" };
+    s_name = "lvm_pv"; s_cols = lvm_pv_cols; s_camel_name = "LvmPv" };
   { defaults with
-    s_name = "lvm_vg"; s_cols = lvm_vg_cols; s_camel_name = "Vg" };
+    s_name = "lvm_vg"; s_cols = lvm_vg_cols; s_camel_name = "LvmVg" };
   { defaults with
-    s_name = "lvm_lv"; s_cols = lvm_lv_cols; s_camel_name = "Lv" };
+    s_name = "lvm_lv"; s_cols = lvm_lv_cols; s_camel_name = "LvmLv" };
 
   (* Column names and types from stat structures.
    * NB. Can't use things like 'st_atime' because glibc header files
@@ -172,7 +172,7 @@ let structs = [
     "st_spare5", FInt64;
     "st_spare6", FInt64;
     ];
-    s_camel_name = "StatNS" };
+    s_camel_name = "Statns" };
   { defaults with
     s_name = "statvfs";
     s_cols = [
@@ -188,7 +188,7 @@ let structs = [
     "flag", FInt64;
     "namemax", FInt64;
     ];
-    s_camel_name = "StatVFS" };
+    s_camel_name = "Statvfs" };
 
   (* Column names in dirent structure. *)
   { defaults with
@@ -219,7 +219,7 @@ let structs = [
     "attrname", FString;
     "attrval", FBuffer;
     ];
-    s_camel_name = "XAttr" };
+    s_camel_name = "Xattr" };
 
   (* Inotify events. *)
   { defaults with
@@ -230,7 +230,7 @@ let structs = [
     "in_cookie", FUInt32;
     "in_name", FString;
     ];
-    s_camel_name = "INotifyEvent" };
+    s_camel_name = "InotifyEvent" };
 
   (* Partition table entry. *)
   { defaults with
@@ -308,7 +308,7 @@ let structs = [
     "iso_volume_expiration_t", FInt64;
     "iso_volume_effective_t", FInt64;
     ];
-    s_camel_name = "ISOInfo" };
+    s_camel_name = "Isoinfo" };
 
   (* /proc/mdstat information.  See linux.git/drivers/md/md.c *)
   { defaults with
@@ -318,7 +318,7 @@ let structs = [
     "mdstat_index", FInt32;
     "mdstat_flags", FString;
     ];
-    s_camel_name = "MDStat" };
+    s_camel_name = "Mdstat" };
 
   (* btrfs subvolume list output *)
   { defaults with
@@ -328,7 +328,7 @@ let structs = [
     "btrfssubvolume_top_level_id", FUInt64;
     "btrfssubvolume_path", FString;
     ];
-    s_camel_name = "BTRFSSubvolume" };
+    s_camel_name = "Btrfssubvolume" };
 
   (* XFS info descriptor. *)
   { defaults with
@@ -360,7 +360,7 @@ let structs = [
     "xfs_rtblocks", FUInt64;
     "xfs_rtextents", FUInt64;
     ];
-    s_camel_name = "XFSInfo" };
+    s_camel_name = "Xfsinfo" };
 
   (* utsname *)
   { defaults with
@@ -371,7 +371,7 @@ let structs = [
     "uts_version", FString;
     "uts_machine", FString;
     ];
-    s_camel_name = "UTSName" };
+    s_camel_name = "Utsname" };
 
   (* Used by hivex_* APIs to return a list of int64 handles (node
    * handles and value handles).  Note that we can't add a putative

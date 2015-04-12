@@ -108,7 +108,7 @@ do_rm (const char *path)
 }
 
 int
-do_rm_f (const char *path)
+do_rm_ff (const char *path)
 {
   int r;
 

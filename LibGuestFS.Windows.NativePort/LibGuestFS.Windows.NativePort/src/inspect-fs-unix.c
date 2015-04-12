@@ -274,7 +274,7 @@ parse_lsb_release (guestfs_h *g, struct inspect_fs *fs)
     return -1;
   }
 
-  lines = guestfs_head_n (g, 10, filename);
+  lines = guestfs_head_nn (g, 10, filename);
   if (lines == NULL)
     return -1;
 
@@ -356,7 +356,7 @@ parse_suse_release (guestfs_h *g, struct inspect_fs *fs, const char *filename)
     return -1;
   }
 
-  lines = guestfs_head_n (g, 10, filename);
+  lines = guestfs_head_nn (g, 10, filename);
   if (lines == NULL)
     return -1;
 

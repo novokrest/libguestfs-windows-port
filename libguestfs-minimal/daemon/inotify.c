@@ -297,8 +297,7 @@ do_inotify_read (void)
   return ret;
 
  error:
-  xdr_free ((xdrproc_t) xdr_guestfs_int_inotify_event_list, (char *) ret);
-  free (ret);
+  guestfs_int_free_inotify_event_list (ret);
   return NULL;
 }
 
@@ -347,8 +346,7 @@ do_inotify_files (void)
         fprintf (fp, "%s\n", name);
     }
 
-    xdr_free ((xdrproc_t) xdr_guestfs_int_inotify_event_list, (char *) events);
-    free (events);
+    guestfs_int_free_inotify_event_list (events);
   }
 
   pclose (fp);

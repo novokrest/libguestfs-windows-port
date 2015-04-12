@@ -26,8 +26,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-#include <rpc/types.h>
-#include <rpc/xdr.h>
 #include <getopt.h>
 #include <sys/param.h>
 #include <sys/types.h>
@@ -55,6 +53,7 @@
 #include "error.h"
 
 #include "daemon.h"
+#include "guestfs_protocol_constants.h"
 
 GUESTFSD_EXT_CMD(str_udevadm, udevadm);
 
@@ -327,18 +326,18 @@ main (int argc, char *argv[])
   /* Send the magic length message which indicates that
    * userspace is up inside the guest.
    */
-  char lenbuf[4];
-  XDR xdr;
+  char lenbuf[PROTOBUF_FLAG_MESSAGE_SIZE];
   uint32_t len = GUESTFS_LAUNCH_FLAG;
-  xdrmem_create (&xdr, lenbuf, sizeof lenbuf, XDR_ENCODE);
-  xdr_u_int (&xdr, &len);
+  guestfs_protobuf_flag_message flagmsg;
+  
+  guestfs_protobuf_flag_message__init (&flagmsg);
+  flagmsg.val = len;
+  guestfs_protobuf_flag_message__pack (&flagmsg, lenbuf);
 
   if (xwrite (sock, lenbuf, sizeof lenbuf) == -1) {
     perror ("xwrite");
     exit (EXIT_FAILURE);
   }
-
-  xdr_destroy (&xdr);
 
   /* Enter the main loop, reading and performing actions. */
   main_loop (sock);

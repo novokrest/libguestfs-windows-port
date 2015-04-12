@@ -209,7 +209,7 @@ do_mkfs (const char *fstype, const char *device, int blocksize,
 }
 
 int
-do_mkfs_b (const char *fstype, int blocksize, const char *device)
+do_mkfs_bb (const char *fstype, int blocksize, const char *device)
 {
   optargs_bitmask = GUESTFS_MKFS_BLOCKSIZE_BITMASK;
   return do_mkfs (fstype, device, blocksize, 0, 0, 0);

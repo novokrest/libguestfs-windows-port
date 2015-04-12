@@ -105,14 +105,14 @@ do_mkswap (const char *device, const char *label, const char *uuid)
 }
 
 int
-do_mkswap_L (const char *label, const char *device)
+do_mkswap_ll (const char *label, const char *device)
 {
   optargs_bitmask = GUESTFS_MKSWAP_LABEL_BITMASK;
   return do_mkswap (device, label, NULL);
 }
 
 int
-do_mkswap_U (const char *uuid, const char *device)
+do_mkswap_uu (const char *uuid, const char *device)
 {
   optargs_bitmask = GUESTFS_MKSWAP_UUID_BITMASK;
   return do_mkswap (device, NULL, uuid);
