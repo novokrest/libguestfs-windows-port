@@ -6,7 +6,7 @@
 #include <fcntl.h>
 #include <sys/mman.h>
 
-static char const *IVSHMEM_FILE_NAME = "/dev/ivshmem";
+static char const *IVSHMEM_FILE_NAME = "/dev/uio0"; //"/dev/ivshmem";
 static size_t const IVSHMEM_SIZE = 0x100000;
 
 int
@@ -22,7 +22,7 @@ ivshmem_write (char const *msg)
   }
 
   printf ("Map ivshmem: %s\n", IVSHMEM_FILE_NAME);
-  if ((map = mmap (0, IVSHMEM_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0)) == MAP_FAILED) {
+  if ((map = mmap (0, IVSHMEM_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 1 * getpagesize())) == MAP_FAILED) {
     fprintf (stderr, "Failure to map ivshmem %s: %s \n", IVSHMEM_FILE_NAME, strerror (errno));
     close (fd);
     return -1;
