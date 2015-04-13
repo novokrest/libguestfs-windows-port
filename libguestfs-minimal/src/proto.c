@@ -869,9 +869,10 @@ receive_file_data (guestfs_h *g, void **buf_r)
   len = chunk->data.len;
 
   if (buf_r) {
-    //TODO: try mv data.data to buf_r without copying
-    *buf_r = malloc (chunk->data.len);
-    memcpy (*buf_r, chunk->data.data, chunk->data.len);
+    /* Fix (-1 copy): Move data from unpacked chunk without copying */
+    *buf_r = chunk->data.data;
+    chunk->data.data = NULL;
+    chunk->data.len = 0;
   }
   guestfs_protobuf_chunk__free_unpacked (chunk, NULL);
 
