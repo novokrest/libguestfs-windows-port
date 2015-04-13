@@ -354,6 +354,14 @@ struct error_cb_stack {
   void *                   error_cb_data;
 };
 
+/* IVSHMEM */
+struct shared_memory {
+  int size;
+  char *name;
+  int fd;
+};
+
+
 /* The libguestfs handle. */
 struct guestfs_h
 {
@@ -474,6 +482,10 @@ struct guestfs_h
   /*** Protocol. ***/
   struct connection *conn;              /* Connection to appliance. */
   int msg_next_serial;
+  
+  /*** IVSHMEM ***/
+  bool enable_shared_memory;          /* Enable Inter-VM shared memory */
+  struct shared_memory shm;
 
 #if HAVE_FUSE
   /**** Used by the mount-local APIs. ****/

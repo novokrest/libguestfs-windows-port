@@ -87,6 +87,8 @@ guestfs_create_flags (unsigned flags, ...)
   g->state = CONFIG;
 
   g->conn = NULL;
+ 
+  g->enable_shared_memory = false;
 
   guestfs___init_error_handler (g);
   g->abort_cb = abort;

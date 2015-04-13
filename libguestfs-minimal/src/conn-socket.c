@@ -390,6 +390,14 @@ static struct connection_ops ops = {
   .can_read_data = can_read_data,
 };
 
+static struct connection_ops ivshmem_ops = {
+  .free_connection = ivshmem_free_conn_socket,
+  .accept_connection = ivshmem_accept_connection,
+  .read_data = ivshmem_read_data,
+  .write_data = ivshmem_write_data,
+  .can_read_data = ivshmem_can_read_data,
+};
+
 /* Create a new socket connection, listening.
  *
  * Note that it's OK for console_sock to be passed as -1, meaning
