@@ -23,6 +23,7 @@
 #include <unistd.h>
 #include <string.h>
 #include <errno.h>
+#include <sys/mman.h>
 
 #ifdef HAVE_LIBVIRT
 #include <libvirt/libvirt.h>
@@ -41,6 +42,7 @@
 
 static int shutdown_backend (guestfs_h *g, int check_for_errors);
 static void close_handles (void);
+static int finalize_shared_memory (guestfs_h *g);
 
 gl_lock_define_initialized (static, handles_lock);
 static guestfs_h *handles = NULL;
@@ -88,7 +90,7 @@ guestfs_create_flags (unsigned flags, ...)
 
   g->conn = NULL;
  
-  g->enable_shared_memory = false;
+  g->enable_shm = false;
 
   guestfs___init_error_handler (g);
   g->abort_cb = abort;
@@ -439,12 +441,34 @@ shutdown_backend (guestfs_h *g, int check_for_errors)
     g->conn->ops->free_connection (g, g->conn);
     g->conn = NULL;
   }
+  
+  if (g->enable_shm && finalize_shared_memory (g) == -1) {
+    ret = -1;
+  }
 
   guestfs___free_drives (g);
 
   g->state = CONFIG;
 
   return ret;
+}
+
+static int
+finalize_shared_memory (guestfs_h *g)
+{
+  uint64_t size = g->shm.size * 1024 * 1024;
+  
+  if ((munmap (g->shm.map, size)) < 0) {
+    fprintf (stderr, "Failure to unmap ivshmem: %s\n", strerror (errno));
+    return -1;
+  }
+
+  if (close (g->shm.fd)) {
+    fprintf (stderr, "Failure to close shm: %s\n", strerror (errno));
+    return -1;
+  }
+  
+  return 0;
 }
 
 /* Close all open handles (called from atexit(3)). */

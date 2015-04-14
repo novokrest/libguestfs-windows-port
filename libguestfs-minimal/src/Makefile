@@ -67,7 +67,8 @@ GUESTFS_LIBS = \
 	$(LTLIBICONV) \
 	$(SERVENT_LIB) \
 	$(PROTOBUF_LIB) \
-	libgnu.a
+	libgnu.a \
+	-lrt
 
 GUESTFS_INCLUDE = \
 	guestfs.h \
@@ -133,6 +134,7 @@ GUESTFS_SOURCES = \
 	osinfo.c \
 	private-data.c \
 	proto.c \
+	shared-memory.c \
 	stringsbuf.c \
 	structs-cleanup.c \
 	structs-compare.c \

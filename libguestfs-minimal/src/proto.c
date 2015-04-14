@@ -829,6 +829,9 @@ guestfs___recv_file (guestfs_h *g, const char *filename)
   return -1;
 }
 
+static ssize_t receive_file_data_shm (guestfs_h *g, void **buf_r);
+static ssize_t receive_file_data_sock (guestfs_h *g, void **buf_r);
+
 static ssize_t
 receive_file_data (guestfs_h *g, void **buf_r)
 {
@@ -852,11 +855,6 @@ receive_file_data_shm (guestfs_h *g, void **buf_r)
   r = guestfs___recv_from_daemon (g, &buflen, &buf);
   if (r == -1)
     return -1;
-
-  if (buflen != GUESTFS_SHARED_MEMORY_FLAG) {
-    error (g, _("receive_file_data_shm: unexpected flag received when reading file chunks"));
-    return -1;
-  }
   
   shm_chunk = guestfs_protobuf_shm_chunk__unpack (NULL, buflen, buf);
 
@@ -872,7 +870,7 @@ receive_file_data_shm (guestfs_h *g, void **buf_r)
     }
     else
       error (g, _("file receive cancelled by daemon"));
-    guestfs_protobuf_chunk__free_unpacked (shm_chunk, NULL);
+    guestfs_protobuf_shm_chunk__free_unpacked (shm_chunk, NULL);
     return -1;
   }
 

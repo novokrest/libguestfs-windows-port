@@ -357,8 +357,9 @@ struct error_cb_stack {
 /* IVSHMEM */
 struct shared_memory {
   int size;
-  char *name;
+  const char *name;
   int fd;
+  void *map;
 };
 
 
@@ -375,6 +376,7 @@ struct guestfs_h
   bool direct_mode;             /* Direct mode. */
   bool recovery_proc;           /* Create a recovery process. */
   bool enable_network;          /* Enable the network. */
+  bool enable_shm;              /* Enable the shared memory */
   bool selinux;                 /* selinux enabled? */
   bool pgroup;                  /* Create process group for children? */
   bool close_on_exit;           /* Is this handle on the atexit list? */
@@ -484,7 +486,6 @@ struct guestfs_h
   int msg_next_serial;
   
   /*** IVSHMEM ***/
-  bool enable_shared_memory;          /* Enable Inter-VM shared memory */
   struct shared_memory shm;
 
 #if HAVE_FUSE

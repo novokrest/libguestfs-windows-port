@@ -367,6 +367,8 @@ guestfs___appliance_command_line (guestfs_h *g, const char *appliance_dev,
      " %s"                      /* selinux */
      "%s"                       /* verbose */
      "%s"                       /* network */
+     " guestfs_shm=%d"          /* enable shared memory */
+     " guestfs_shm_size=%d"     /* shared memory size */
      " TERM=%s"                 /* TERM environment variable */
      "%s%s",                    /* append */
 #ifdef __arm__
@@ -377,6 +379,8 @@ guestfs___appliance_command_line (guestfs_h *g, const char *appliance_dev,
      g->selinux ? "selinux=1 enforcing=0" : "selinux=0",
      g->verbose ? " guestfs_verbose=1" : "",
      g->enable_network ? " guestfs_network=1" : "",
+     g->enable_shm ? 1 : 0,
+     g->enable_shm ? g->shm.size : -1,
      term ? term : "linux",
      g->append ? " " : "", g->append ? g->append : "");
 

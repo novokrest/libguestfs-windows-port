@@ -35,6 +35,7 @@
 #include <grp.h>
 #include <assert.h>
 #include <string.h>
+#include <sys/mman.h>
 
 #include <pcre.h>
 
@@ -104,6 +105,7 @@ static int qemu_supports (guestfs_h *g, struct backend_direct_data *, const char
 static int qemu_supports_device (guestfs_h *g, struct backend_direct_data *, const char *device_name);
 static int qemu_supports_virtio_scsi (guestfs_h *g, struct backend_direct_data *);
 static char *qemu_escape_param (guestfs_h *g, const char *param);
+static int init_shared_memory (guestfs_h *g);
 
 static char *
 create_cow_overlay_direct (guestfs_h *g, void *datav, struct drive *drv)
@@ -645,9 +647,9 @@ launch_direct (guestfs_h *g, void *datav, const char *arg)
   }
   
   /* Set up ivshmem device */
-  if (true) {
+  if (g->enable_shm) {
     ADD_CMDLINE ("-device");
-    ADD_CMDLINE ("ivshmem,shm=testshm,size=1M");
+    ADD_CMDLINE_PRINTF ("ivshmem,shm=%s,size=%dM", g->shm.name, g->shm.size);
   }
 
   ADD_CMDLINE ("-append");
@@ -882,6 +884,11 @@ launch_direct (guestfs_h *g, void *datav, const char *arg)
 
   if (has_appliance_drive)
     guestfs___add_dummy_appliance_drive (g);
+  
+  if (g->enable_shm && init_shared_memory (g) == -1) {
+    error (g, _("shared memory hasn't been initialized correctly"));
+    goto cleanup1;
+  }
 
   return 0;
 
@@ -1208,6 +1215,32 @@ qemu_escape_param (guestfs_h *g, const char *param)
   *p = '\0';
 
   return ret;
+}
+
+/* Open and mmap shared memory device */
+static int
+init_shared_memory (guestfs_h *g)
+{
+  int fd;
+  void *map = NULL;
+  uint64_t size = g->shm.size * 1024 * 1024;
+
+  if ((fd = shm_open(g->shm.name, O_RDWR | O_CREAT, (mode_t) 0666)) < 0) {
+    error (g, _("couldn't open shared memory device"));
+    return -1;
+  }
+
+  if ((map =
+       mmap(0, size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0)) == (caddr_t) - 1) {
+    error (g, _("couldn't mmap shared memory device"));
+    close(fd);
+    return -1;
+  }
+  
+  g->shm.fd = fd;
+  g->shm.map = map;
+
+  return 0;
 }
 
 static char *
