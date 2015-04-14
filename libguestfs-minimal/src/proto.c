@@ -769,15 +769,20 @@ guestfs___recv_file (guestfs_h *g, const char *filename)
 
   fadvise_sequential (fd);
 
-  /* Receive the file in chunked encoding. */
+  /* Receive the file in chunked encoding.
+   * Not free buf if shared memory are used 
+   * because after receive_file_data_shm @buf is assigned to mmaped memory 
+   */
   while ((r = receive_file_data (g, &buf)) > 0) {
     if (xwrite (fd, buf, r) == -1) {
       perrorf (g, "%s: write", filename);
-      free (buf);
+      if (!g->enable_shm)
+        free (buf);
       close (fd);
       goto cancel;
     }
-    free (buf);
+    if (!g->enable_shm)
+      free (buf);
 
     if (g->user_cancel) {
       close (fd);
@@ -824,10 +829,67 @@ guestfs___recv_file (guestfs_h *g, const char *filename)
   return -1;
 }
 
+static ssize_t
+receive_file_data (guestfs_h *g, void **buf_r)
+{
+  if (g->enable_shm) {
+    return receive_file_data_shm (g, buf_r);
+  }
+  
+  return receive_file_data_sock (g, buf_r);
+}
+
+/* Returns length of data_for_reading from shared memory, buf_r is ignored */
+/* Returned 0 indicates the end of transfer */
+static ssize_t
+receive_file_data_shm (guestfs_h *g, void **buf_r)
+{
+  int r;
+  CLEANUP_FREE void *buf = NULL;
+  uint32_t buflen, len_r;
+  guestfs_protobuf_shm_chunk *shm_chunk;
+
+  r = guestfs___recv_from_daemon (g, &buflen, &buf);
+  if (r == -1)
+    return -1;
+
+  if (buflen != GUESTFS_SHARED_MEMORY_FLAG) {
+    error (g, _("receive_file_data_shm: unexpected flag received when reading file chunks"));
+    return -1;
+  }
+  
+  shm_chunk = guestfs_protobuf_shm_chunk__unpack (NULL, buflen, buf);
+
+  if (!shm_chunk) {
+    error (g, _("failed to parse shm chunk"));
+    return -1;
+  }
+
+  if (shm_chunk->cancel) {
+    if (g->user_cancel) {
+      error (g, _("operation cancelled by user"));
+      g->last_errnum = EINTR;
+    }
+    else
+      error (g, _("file receive cancelled by daemon"));
+    guestfs_protobuf_chunk__free_unpacked (shm_chunk, NULL);
+    return -1;
+  }
+
+  len_r = shm_chunk->len;
+  guestfs_protobuf_shm_chunk__free_unpacked (shm_chunk, NULL);
+  
+  if (buf_r) {
+    *buf_r = g->shm.map;
+  }
+  
+  return len_r;
+}
+
 /* Receive a chunk of file data. */
 /* Returns -1 = error, 0 = EOF, > 0 = more data */
 static ssize_t
-receive_file_data (guestfs_h *g, void **buf_r)
+receive_file_data_sock (guestfs_h *g, void **buf_r)
 {
   int r;
   CLEANUP_FREE void *buf = NULL;
@@ -868,14 +930,14 @@ receive_file_data (guestfs_h *g, void **buf_r)
 
   len = chunk->data.len;
 
-  if (buf_r) {
+  if (len && buf_r) {
     /* Fix (-1 copy): Move data from unpacked chunk without copying */
     *buf_r = chunk->data.data;
     chunk->data.data = NULL;
     chunk->data.len = 0;
   }
+  
   guestfs_protobuf_chunk__free_unpacked (chunk, NULL);
-
   return len;
 }
 

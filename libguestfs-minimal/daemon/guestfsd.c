@@ -340,6 +340,15 @@ main (int argc, char *argv[])
     exit (EXIT_FAILURE);
   }
   
+  if (stat ("/dev/uio0", &statbuf) == 0) {
+    /* uio device is present and this is ivshmem */
+    /* so we must use it */
+    if (init_shm (shm) == -1) {
+      perror ("Failure during ivshmem device init");
+      exit (EXIT_FAILURE);
+    }
+  }
+  
   /* test ivshmem */
   
   char const *IVSHMEM_FILE_NAME = "/dev/uio0"; //"/dev/ivshmem";
@@ -379,6 +388,8 @@ main (int argc, char *argv[])
   /* Enter the main loop, reading and performing actions. */
   main_loop (sock);
 
+  finalize_shm (shm);
+  
   exit (EXIT_SUCCESS);
 }
 

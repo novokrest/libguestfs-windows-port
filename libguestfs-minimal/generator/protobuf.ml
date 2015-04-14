@@ -176,6 +176,7 @@ let generate_protobuf () =
   GUESTFS_PROTOBUF_LAUNCH_FLAG = 0x75f55ff5;
   GUESTFS_PROTOBUF_CANCEL_FLAG = 0x7fffeeee;
   GUESTFS_PROTOBUF_PROGRESS_FLAG = 0x7fff5555;
+  GUESTFS_PROTOBUF_SHARED_MEMORY_FLAG = 0x7fff1331;
 
 ";
   pr "  GUESTFS_PROTOBUF_ERROR_LEN = %d;\n" (64 * 1024);
@@ -232,6 +233,11 @@ message GuestfsProtobufChunk {
   required int32 cancel = 1;     /* if non-zero, transfer is cancelled */
   /* data size is 0 bytes if the transfer has finished successfully */
   required bytes data = 2;
+}
+
+message GuestfsProtobufShmChunk {
+  required int32 cancel = 1;
+  required uint64 len = 2;
 }
 
 /* Progress notifications.  Daemon self-limits these messages to

@@ -107,6 +107,7 @@ let generate_protobuf_typedefs () =
   #define GUESTFS_LAUNCH_FLAG GUESTFS_PROTOBUF_CONST__GUESTFS_PROTOBUF_LAUNCH_FLAG
   #define GUESTFS_CANCEL_FLAG GUESTFS_PROTOBUF_CONST__GUESTFS_PROTOBUF_CANCEL_FLAG
   #define GUESTFS_PROGRESS_FLAG GUESTFS_PROTOBUF_CONST__GUESTFS_PROTOBUF_PROGRESS_FLAG
+  #define GUESTFS_SHARED_MEMORY_FLAG GUESTFS_PROTOBUF_CONST__GUESTFS_PROTOBUF_SHARED_MEMORY_FLAG
 
 ";
   pr "  #define GUESTFS_ERROR_LEN GUESTFS_PROTOBUF_CONST__GUESTFS_PROTOBUF_ERROR_LEN\n";
@@ -142,6 +143,7 @@ typedef enum GuestfsMessageStatus guestfs_message_status;
 typedef GuestfsProtobufMessageError guestfs_protobuf_message_error;
 typedef GuestfsProtobufMessageHeader guestfs_protobuf_message_header;
 typedef GuestfsProtobufChunk guestfs_protobuf_chunk;
+typedef GuestfsProtobufShmChunk guestfs_protobuf_shm_chunk;
 typedef GuestfsProtobufProgress guestfs_protobuf_progress;
 typedef GuestfsProtobufFlagMessage guestfs_protobuf_flag_message;
 

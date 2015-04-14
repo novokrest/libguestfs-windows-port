@@ -126,7 +126,7 @@ exec = generator.exe
 .SUFFIXES: .cmo .cmi .cmx .ml .mli .mll .mly
 .PHONY: all clean
 
-all: $(exec)
+all: clean $(exec)
 
 $(exec): $(objects)
 	$(OCAMLFIND) ocamlc $(OCAMLCFLAGS) -linkpkg $^ -o $@
