@@ -9,3 +9,6 @@ BACK to RAW:
 TODO:
   replace convert_guestfs_int_<struct> to convert_guestfs_<struct>
 
+
+proto.c:
+implement CLEANUP_FREE (receive_file_data -> buf)
