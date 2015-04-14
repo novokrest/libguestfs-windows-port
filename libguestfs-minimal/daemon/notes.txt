@@ -6,3 +6,6 @@ Makefile:
   
 daemon.ml:
   add guestfs_protobuf_free_%s (ret) in returns
+  
+upload.c:
+  implement dma from fd of file to shared memory without temp buf
