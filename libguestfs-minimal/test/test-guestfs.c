@@ -146,6 +146,11 @@ test_guestfs()
         exit(EXIT_FAILURE);
     }
     time(ts + ts_cur++);
+    
+    guestfs_set_shared_memory (g, 1,
+                               GUESTFS_SET_SHARED_MEMORY_SIZE, 512,
+                               GUESTFS_SET_SHARED_MEMORY_NAME, "myshm",
+                               -1);
 
     printf("guestfs_launch()...\n");
     if (guestfs_launch(g) == -1) {
@@ -168,10 +173,11 @@ test_guestfs()
     //    sprintf(buf, "/home/novokrestdeb/test/%u", i);
     //    read_file(g, buf);
     //}
-    download_file(g, "/home/novokrestdeb/ivshmem-test/uio_ivshmem.ko", "smallfile");
+    download_file (g, "/home/novokrestdeb/test/1", "smallfile");
+//    download_file(g, "/home/novokrestdeb/ivshmem-test/ivshmem-write.c", "smallfile");
     time(ts + ts_cur++);
     
-    guestfs_write (g, "/home/novokrestdeb/1.txt", "blablabla!", 10);
+    //guestfs_write (g, "/home/novokrestdeb/1.txt", "blablabla!", 10);
 
     printf("guestfs_close()...\n");
     guestfs_close(g);
