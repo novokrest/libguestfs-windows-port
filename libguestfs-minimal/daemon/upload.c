@@ -148,8 +148,104 @@ check_not_directory (const char *filename, int fd)
 }
 
 /* Has one FileOut parameter. */
+
+static int do_download_shm (const char *filename);
+static int do_download_sock (const char *filename);
+
 int
 do_download (const char *filename)
+{
+  if (enable_shm) {
+    return do_download_shm (filename);
+  }
+  
+  return do_download_sock (filename);
+}
+
+static int
+do_download_shm (const char *filename)
+{
+  int fd, r, is_dev, buflen;
+  void *buf;
+
+  is_dev = STRPREFIX (filename, "/dev/");
+
+  if (!is_dev) CHROOT_IN;
+  fd = open (filename, O_RDONLY|O_CLOEXEC);
+  if (!is_dev) CHROOT_OUT;
+  if (fd == -1) {
+    reply_with_perror ("%s", filename);
+    return -1;
+  }
+
+  if (check_not_directory (filename, fd) == -1) {
+    close (fd);
+    return -1;
+  }
+
+  /* Calculate the size of the file or device for notification messages. */
+  uint64_t total, sent = 0;
+  if (!is_dev) {
+    struct stat statbuf;
+    if (fstat (fd, &statbuf) == -1) {
+      reply_with_perror ("%s", filename);
+      close (fd);
+      return -1;
+    }
+    total = statbuf.st_size;
+  } else {
+    int64_t size = do_blockdev_getsize64 (filename);
+    if (size == -1) {
+      /* do_blockdev_getsize64 has already sent a reply. */
+      close (fd);
+      return -1;
+    }
+    total = (uint64_t) size;
+  }
+
+  /* Now we must send the reply message, before the file contents.  After
+   * this there is no opportunity in the protocol to send any error
+   * message back.  Instead we can only cancel the transfer.
+   */
+  reply (NULL, NULL);
+  
+  buflen = shm->size;
+  buf = shm->map;
+  uint64_t usize = total;
+
+  while ((r = read (fd, buf, usize > buflen ? buflen : usize)) > 0) {
+    if (send_file_write (buf, r) < 0) {
+      close (fd);
+      return -1;
+    }
+
+    sent += r;
+    usize -= r;
+    notify_progress (sent, total);
+  }
+
+  if (r == -1) {
+    fprintf (stderr, "read: %s: %m\n", filename);
+    send_file_end (1);		/* Cancel. */
+    close (fd);
+    return -1;
+  }
+
+  if (close (fd) == -1) {
+    fprintf (stderr, "close: %s: %m\n", filename);
+    send_file_end (1);		/* Cancel. */
+    return -1;
+  }
+
+  if (send_file_end (0))	/* Normal end of file. */
+    return -1;
+
+  return 0;
+}
+
+
+static int
+do_download_sock (const char *filename)
 {
   int fd, r, is_dev;
   char buf[GUESTFS_MAX_CHUNK_SIZE];
@@ -225,8 +321,111 @@ do_download (const char *filename)
 }
 
 /* Has one FileOut parameter. */
+
+static int do_download_offset_shm (const char *filename, int64_t offset, int64_t size);
+static int do_download_offset_sock (const char *filename, int64_t offset, int64_t size);
+
 int
 do_download_offset (const char *filename, int64_t offset, int64_t size)
+{
+  if (enable_shm) {
+    return do_download_offset_shm (filename, offset, size);
+  }
+  
+  return do_download_offset_sock (filename, offset, size);
+}
+
+static int
+do_download_offset_shm (const char *filename, int64_t offset, int64_t size)
+{
+  int fd, r, is_dev;
+  void *buf;
+  uint64_t buflen;
+
+  if (offset < 0) {
+    reply_with_perror ("%s: offset in file is negative", filename);
+    return -1;
+  }
+
+  if (size < 0) {
+    reply_with_perror ("%s: size is negative", filename);
+    return -1;
+  }
+  uint64_t usize = (uint64_t) size;
+
+  is_dev = STRPREFIX (filename, "/dev/");
+
+  if (!is_dev) CHROOT_IN;
+  fd = open (filename, O_RDONLY|O_CLOEXEC);
+  if (!is_dev) CHROOT_OUT;
+  if (fd == -1) {
+    reply_with_perror ("%s", filename);
+    return -1;
+  }
+
+  if (check_not_directory (filename, fd) == -1) {
+    close (fd);
+    return -1;
+  }
+
+  if (offset) {
+    if (lseek (fd, offset, SEEK_SET) == -1) {
+      reply_with_perror ("lseek: %s", filename);
+      close (fd);
+      return -1;
+    }
+  }
+  
+  buflen = shm->size;
+  buf = shm->map;
+
+  uint64_t total = usize, sent = 0;
+
+  /* Now we must send the reply message, before the file contents.  After
+   * this there is no opportunity in the protocol to send any error
+   * message back.  Instead we can only cancel the transfer.
+   */
+  reply (NULL, NULL);
+
+  while (usize > 0) {
+    r = read (fd, buf, usize > buflen ? buflen : usize);
+    if (r == -1) {
+      fprintf (stderr, "read: %s: %m\n", filename);
+      send_file_end (1);        /* Cancel. */
+      close (fd);
+      return -1;
+    }
+
+    if (r == 0)
+      /* The documentation leaves this case undefined.  Currently we
+       * just read fewer bytes than requested.
+       */
+      break;
+
+    if (send_file_write (buf, r) < 0) {
+      close (fd);
+      return -1;
+    }
+
+    sent += r;
+    usize -= r;
+    notify_progress (sent, total);
+  }
+
+  if (close (fd) == -1) {
+    fprintf (stderr, "close: %s: %m\n", filename);
+    send_file_end (1);		/* Cancel. */
+    return -1;
+  }
+
+  if (send_file_end (0))	/* Normal end of file. */
+    return -1;
+
+  return 0;
+}
+
+static int
+do_download_offset_sock (const char *filename, int64_t offset, int64_t size)
 {
   int fd, r, is_dev;
   char buf[GUESTFS_MAX_CHUNK_SIZE];

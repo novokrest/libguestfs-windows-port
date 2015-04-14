@@ -37,10 +37,21 @@ typedef struct {
   char *volume;
 } mountable_t;
 
+/* Shared memory */
+
+typedef struct {
+  uint64_t size;
+  int fd;
+  void *map;
+} shared_memory;
+
 /*-- in guestfsd.c --*/
 extern int verbose;
 
 extern int enable_network;
+
+extern int enable_shm;
+extern shared_memory *shm;
 
 extern int autosync_umount;
 

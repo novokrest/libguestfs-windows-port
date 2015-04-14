@@ -81,6 +81,11 @@ static dev_t root_device = 0;
 
 int verbose = 0;
 int enable_network = 0;
+int enable_shm = 0;
+shared_memory *shm = NULL;
+
+static int init_shm (shared_memory *shm, int size_M); /* size_M is specified in MB */
+static int finalize_shm (shared_memory *shm);
 
 static void makeraw (const char *channel, int fd);
 static int print_shell_quote (FILE *stream, const struct printf_info *info, const void *const *args);
@@ -144,6 +149,7 @@ main (int argc, char *argv[])
   };
   int c;
   char *cmdline;
+  shared_memory sshm;
 
   ignore_value (chdir ("/"));
 
@@ -308,6 +314,23 @@ main (int argc, char *argv[])
    */
   if (STRPREFIX (channel, "/dev/ttyS"))
     makeraw (channel, sock);
+  
+  enable_shm = (cmdline && strstr (cmdline, "guestfs_shm=1"))
+               || (stat ("/dev/uio0", &statbuf) == 0);
+  
+  if (enable_shm) {
+    int shm_size = 512;
+    char *p;
+    if (cmdline && (p = strstr (cmdline, "guestfs_shm_size=")) != NULL) {
+      p += 17;
+      shm_size = atoi (p);
+    }
+    if (init_shm (&sshm, shm_size) == -1) {
+      perror ("Failure during init_shm ()");
+      exit (EXIT_FAILURE);
+    }
+    shm = &sshm;
+  }
 
   /* cmdline, channel not used after this point */
   free (cmdline);
@@ -339,56 +362,16 @@ main (int argc, char *argv[])
     perror ("xwrite");
     exit (EXIT_FAILURE);
   }
-  
-  if (stat ("/dev/uio0", &statbuf) == 0) {
-    /* uio device is present and this is ivshmem */
-    /* so we must use it */
-    if (init_shm (shm) == -1) {
-      perror ("Failure during ivshmem device init");
-      exit (EXIT_FAILURE);
-    }
-  }
-  
-  /* test ivshmem */
-  
-  char const *IVSHMEM_FILE_NAME = "/dev/uio0"; //"/dev/ivshmem";
-  size_t const IVSHMEM_SIZE = 0x100000;
-  char const *msg = "OHOHOHOHO";
-  
-  int fd;
-  void *map = NULL;
-
-  printf ("Open ivshmem: %s\n", IVSHMEM_FILE_NAME);
-  if ((fd = open (IVSHMEM_FILE_NAME, O_RDWR)) < 0) {
-    fprintf (stderr, "Failure to open %s: %s\n", IVSHMEM_FILE_NAME, strerror (errno));
-    exit (EXIT_FAILURE);
-  }
-
-  printf ("Map ivshmem: %s\n", IVSHMEM_FILE_NAME);
-  if ((map = mmap (0, IVSHMEM_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 1 * getpagesize())) == MAP_FAILED) {
-    fprintf (stderr, "Failure to map ivshmem %s: %s \n", IVSHMEM_FILE_NAME, strerror (errno));
-    close (fd);
-    exit (EXIT_FAILURE);
-  }
-
-  printf ("Write msg: %s\n", msg);
-  strcpy ((char *) map, msg);
-
-  printf ("Unmap ivshmem: %s\n", IVSHMEM_FILE_NAME);
-  if ((munmap (map, IVSHMEM_SIZE)) < 0) {
-    fprintf (stderr, "Failure during unmap: %s\n", IVSHMEM_FILE_NAME);
-    exit (EXIT_FAILURE);
-  }
-
-  printf ("Close ivshmem: %s\n", IVSHMEM_FILE_NAME);
-  close (fd);
-
-  /* end of test ivshmem */
 
   /* Enter the main loop, reading and performing actions. */
   main_loop (sock);
 
-  finalize_shm (shm);
+  if (enable_shm) {
+    if (finalize_shm (&sshm)) {
+      perror ("Failure during finalize_shm()");
+      exit (EXIT_FAILURE);
+    }
+  }
   
   exit (EXIT_SUCCESS);
 }
@@ -1579,3 +1562,45 @@ cleanup_aug_close (void *ptr)
   if (aug != NULL)
     aug_close (aug);
 }
+
+static int
+init_shm (shared_memory *shm, int size_M)
+{
+  int fd;
+  void *map = NULL;
+  uint64_t size = size_M * 1024 * 1024;
+
+  if ((fd = open ("/dev/uio0", O_RDWR)) < 0) {
+    perror ("Failure to open uio device");
+    return -1;
+  }
+
+  if ((map = mmap (0, size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 1 * getpagesize())) == MAP_FAILED) {
+    perror ("Failure to map ivshmem");
+    close (fd);
+    return -1;
+  }
+
+  shm->size = size;
+  shm->fd = fd;
+  shm->map = map;
+
+  return 0;
+}
+
+static int
+finalize_shm (shared_memory *shm)
+{
+  if ((munmap (shm->map, shm->size)) < 0) {
+    fprintf (stderr, "Failure to unmap ivshmem: %s\n", strerror (errno));
+    return -1;
+  }
+
+  if (close (shm->fd)) {
+    fprintf (stderr, "Failure to close shm: %s\n", strerror (errno));
+    return -1;
+  }
+  
+  return 0;
+}
+

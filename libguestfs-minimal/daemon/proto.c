@@ -510,11 +510,56 @@ cancel_receive (void)
 }
 
 static int check_for_library_cancellation (void);
-static int send_chunk (const guestfs_protobuf_chunk *);
+static int send_chunk (const void *opaque);
+static int send_chunk_shm (const guestfs_protobuf_shm_chunk *opaque);
+static int send_chunk_sock (const guestfs_protobuf_chunk *opaque);
+
+static int send_file_write_shm (const void *buf, size_t len);
+static int send_file_write_sock (const void *buf, size_t len);
 
 /* Also check if the library sends us a cancellation message. */
 int
 send_file_write (const void *buf, size_t len)
+{
+  if (shm) {
+    return send_file_write_shm (buf, len);
+  }
+  
+  return send_file_write_sock (buf, len);
+}
+
+static int
+send_file_write_shm (const void *buf, size_t len)
+{
+  guestfs_protobuf_shm_chunk chunk = GUESTFS_PROTOBUF_SHM_CHUNK__INIT;
+  int cancel;
+
+  if (len > shm->size) {
+    fprintf (stderr, "guestfsd: send_file_write_shm: len (%zu) > shm_size (%lu)\n",
+             len, shm->size);
+    return -1;
+  }
+
+  cancel = check_for_library_cancellation ();
+
+  if (cancel) {
+    chunk.cancel = 1;
+    chunk.len = 0;
+  } else {
+    chunk.cancel = 0;
+    chunk.len = len;
+    memcpy (shm->map, buf, len);
+  }
+
+  if (send_chunk (&chunk) == -1)
+    return -1;
+
+  if (cancel) return -2;
+  return 0;
+}
+
+static int
+send_file_write_sock (const void *buf, size_t len)
 {
   guestfs_protobuf_chunk chunk = GUESTFS_PROTOBUF_CHUNK__INIT;
   int cancel;
@@ -584,8 +629,32 @@ check_for_library_cancellation (void)
   return 1;
 }
 
+static int send_file_end_shm (int cancel);
+static int send_file_end_sock (int cancel);
+
 int
 send_file_end (int cancel)
+{
+  if (shm) {
+    return send_file_end_shm (cancel);
+  }
+  
+  return send_file_end_sock (cancel);
+}
+
+static int
+send_file_end_shm (int cancel)
+{
+  guestfs_protobuf_shm_chunk shm_chunk = GUESTFS_PROTOBUF_SHM_CHUNK__INIT;
+  
+  shm_chunk.cancel = cancel;
+  shm_chunk.len = 0;
+  
+  return send_chunk_shm (&shm_chunk);
+}
+
+static int
+send_file_end_sock (int cancel)
 {
   guestfs_protobuf_chunk chunk = GUESTFS_PROTOBUF_CHUNK__INIT;
 
@@ -596,7 +665,52 @@ send_file_end (int cancel)
 }
 
 static int
-send_chunk (const guestfs_protobuf_chunk *chunk)
+send_chunk (const void *opaque)
+{
+  if (shm) {
+    return send_chunk_shm ((const guestfs_protobuf_shm_chunk *) opaque);
+  }
+  
+  return send_chunk_sock ((const guestfs_protobuf_chunk *) opaque);
+}
+
+static int
+send_chunk_shm (const guestfs_protobuf_shm_chunk *chunk)
+{
+  char *buf;
+  char flagbuf[PROTOBUF_FLAG_MESSAGE_SIZE];
+  guestfs_protobuf_flag_message flagmsg;
+  uint32_t len,flaglen;
+  
+  buf = malloc (guestfs_protobuf_shm_chunk__get_packed_size (chunk));
+  if (!buf) {
+    fprintf (stderr, "guestfsd: send_chunk_shm: failed to malloc buf\n");
+    return -1;
+  }
+  len = guestfs_protobuf_shm_chunk__pack (chunk, buf);
+  if (!len) {
+    fprintf (stderr, "guestfsd: send_chunk_shm: failed to encode chunk\n");
+    free (buf);
+    return -1;
+  }
+
+  guestfs_protobuf_flag_message__init (&flagmsg);
+  flagmsg.val = len;
+  flaglen = guestfs_protobuf_flag_message__pack (&flagmsg, flagbuf);
+  assert (flaglen == PROTOBUF_FLAG_MESSAGE_SIZE);
+
+  int err = (xwrite (sock, flagbuf, PROTOBUF_FLAG_MESSAGE_SIZE) == 0
+             && xwrite (sock, buf, len) == 0 ? 0 : -1);
+  if (err) {
+    fprintf (stderr, "guestfsd: send_chunk: write failed\n");
+    exit (EXIT_FAILURE);
+  }
+
+  return err;
+}
+
+static int
+send_chunk_sock (const guestfs_protobuf_chunk *chunk)
 {
   char buf[GUESTFS_MAX_CHUNK_SIZE + 48];
   char lenbuf[PROTOBUF_FLAG_MESSAGE_SIZE];
