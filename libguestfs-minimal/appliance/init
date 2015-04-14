@@ -134,8 +134,7 @@ if ! grep -sq guestfs_rescue=1 /proc/cmdline; then
   fi
 
   # Run guestfsd, under valgrind if asked.
-  modprobe uio
-  insmod /lib/modules/3.16.0-31-generic/kernel/drivers/uio/uio_ivshmem.ko
+  modprobe uio_ivshmem
   echo "Modules loaded"
   $vg guestfsd
   if [ $? -eq 119 ]; then
