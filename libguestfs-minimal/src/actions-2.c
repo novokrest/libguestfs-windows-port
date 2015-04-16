@@ -414,6 +414,68 @@ guestfs_inspect_get_arch (guestfs_h *g,
 }
 
 GUESTFS_DLL_PUBLIC int
+guestfs_set_shared_memory_argv (guestfs_h *g,
+                                int enable,
+                                const struct guestfs_set_shared_memory_argv *optargs)
+{
+  struct guestfs_set_shared_memory_argv optargs_null;
+  if (!optargs) {
+    optargs_null.bitmask = 0;
+    optargs = &optargs_null;
+  }
+
+  int trace_flag = g->trace;
+  struct trace_buffer trace_buffer;
+  int r;
+
+  guestfs___call_callbacks_message (g, GUESTFS_EVENT_ENTER,
+                                    "set_shared_memory", 17);
+  if ((optargs->bitmask & GUESTFS_SET_SHARED_MEMORY_NAME_BITMASK) &&
+      optargs->name == NULL) {
+    error (g, "%s: %s: optional parameter cannot be NULL",
+           "set_shared_memory", "name");
+    return -1;
+  }
+
+  if (optargs->bitmask & UINT64_C(0xfffffffffffffffc)) {
+    error (g, "%s: unknown option in guestfs_%s_argv->bitmask (this can happen if a program is compiled against a newer version of libguestfs, then dynamically linked to an older version)",
+           "set_shared_memory", "set_shared_memory");
+    return -1;
+  }
+
+  if (trace_flag) {
+    guestfs___trace_open (&trace_buffer);
+    fprintf (trace_buffer.fp, "%s", "set_shared_memory");
+    fputs (enable ? " true" : " false", trace_buffer.fp);
+    if (optargs->bitmask & GUESTFS_SET_SHARED_MEMORY_SIZE_BITMASK) {
+      fprintf (trace_buffer.fp, " \"%s:%d\"", "size", optargs->size);
+    }
+    if (optargs->bitmask & GUESTFS_SET_SHARED_MEMORY_NAME_BITMASK) {
+      fprintf (trace_buffer.fp, " \"%s:%s\"", "name", optargs->name);
+    }
+    guestfs___trace_send_line (g, &trace_buffer);
+  }
+
+  r = guestfs__set_shared_memory (g, enable, optargs);
+
+  if (r != -1) {
+    if (trace_flag) {
+      guestfs___trace_open (&trace_buffer);
+      fprintf (trace_buffer.fp, "%s = ", "set_shared_memory");
+      fprintf (trace_buffer.fp, "%d", r);
+      guestfs___trace_send_line (g, &trace_buffer);
+    }
+
+  } else {
+    if (trace_flag)
+      guestfs___trace (g, "%s = %s (error)",
+                       "set_shared_memory", "-1");
+  }
+
+  return r;
+}
+
+GUESTFS_DLL_PUBLIC int
 guestfs_add_drive_opts_argv (guestfs_h *g,
                              const char *filename,
                              const struct guestfs_add_drive_opts_argv *optargs)

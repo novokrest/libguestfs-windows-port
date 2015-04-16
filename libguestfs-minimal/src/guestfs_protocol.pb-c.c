@@ -25420,6 +25420,49 @@ void   guestfs_protobuf_chunk__free_unpacked
   assert(message->base.descriptor == &guestfs_protobuf_chunk__descriptor);
   protobuf_c_message_free_unpacked ((ProtobufCMessage*)message, allocator);
 }
+void   guestfs_protobuf_shm_chunk__init
+                     (GuestfsProtobufShmChunk         *message)
+{
+  static GuestfsProtobufShmChunk init_value = GUESTFS_PROTOBUF_SHM_CHUNK__INIT;
+  *message = init_value;
+}
+size_t guestfs_protobuf_shm_chunk__get_packed_size
+                     (const GuestfsProtobufShmChunk *message)
+{
+  assert(message->base.descriptor == &guestfs_protobuf_shm_chunk__descriptor);
+  return protobuf_c_message_get_packed_size ((const ProtobufCMessage*)(message));
+}
+size_t guestfs_protobuf_shm_chunk__pack
+                     (const GuestfsProtobufShmChunk *message,
+                      uint8_t       *out)
+{
+  assert(message->base.descriptor == &guestfs_protobuf_shm_chunk__descriptor);
+  return protobuf_c_message_pack ((const ProtobufCMessage*)message, out);
+}
+size_t guestfs_protobuf_shm_chunk__pack_to_buffer
+                     (const GuestfsProtobufShmChunk *message,
+                      ProtobufCBuffer *buffer)
+{
+  assert(message->base.descriptor == &guestfs_protobuf_shm_chunk__descriptor);
+  return protobuf_c_message_pack_to_buffer ((const ProtobufCMessage*)message, buffer);
+}
+GuestfsProtobufShmChunk *
+       guestfs_protobuf_shm_chunk__unpack
+                     (ProtobufCAllocator  *allocator,
+                      size_t               len,
+                      const uint8_t       *data)
+{
+  return (GuestfsProtobufShmChunk *)
+     protobuf_c_message_unpack (&guestfs_protobuf_shm_chunk__descriptor,
+                                allocator, len, data);
+}
+void   guestfs_protobuf_shm_chunk__free_unpacked
+                     (GuestfsProtobufShmChunk *message,
+                      ProtobufCAllocator *allocator)
+{
+  assert(message->base.descriptor == &guestfs_protobuf_shm_chunk__descriptor);
+  protobuf_c_message_free_unpacked ((ProtobufCMessage*)message, allocator);
+}
 void   guestfs_protobuf_progress__init
                      (GuestfsProtobufProgress         *message)
 {
@@ -55413,6 +55456,57 @@ const ProtobufCMessageDescriptor guestfs_protobuf_chunk__descriptor =
   (ProtobufCMessageInit) guestfs_protobuf_chunk__init,
   NULL,NULL,NULL    /* reserved[123] */
 };
+static const ProtobufCFieldDescriptor guestfs_protobuf_shm_chunk__field_descriptors[2] =
+{
+  {
+    "cancel",
+    1,
+    PROTOBUF_C_LABEL_REQUIRED,
+    PROTOBUF_C_TYPE_INT32,
+    0,   /* quantifier_offset */
+    offsetof(GuestfsProtobufShmChunk, cancel),
+    NULL,
+    NULL,
+    0,             /* flags */
+    0,NULL,NULL    /* reserved1,reserved2, etc */
+  },
+  {
+    "len",
+    2,
+    PROTOBUF_C_LABEL_REQUIRED,
+    PROTOBUF_C_TYPE_UINT64,
+    0,   /* quantifier_offset */
+    offsetof(GuestfsProtobufShmChunk, len),
+    NULL,
+    NULL,
+    0,             /* flags */
+    0,NULL,NULL    /* reserved1,reserved2, etc */
+  },
+};
+static const unsigned guestfs_protobuf_shm_chunk__field_indices_by_name[] = {
+  0,   /* field[0] = cancel */
+  1,   /* field[1] = len */
+};
+static const ProtobufCIntRange guestfs_protobuf_shm_chunk__number_ranges[1 + 1] =
+{
+  { 1, 0 },
+  { 0, 2 }
+};
+const ProtobufCMessageDescriptor guestfs_protobuf_shm_chunk__descriptor =
+{
+  PROTOBUF_C__MESSAGE_DESCRIPTOR_MAGIC,
+  "GuestfsProtobufShmChunk",
+  "GuestfsProtobufShmChunk",
+  "GuestfsProtobufShmChunk",
+  "",
+  sizeof(GuestfsProtobufShmChunk),
+  2,
+  guestfs_protobuf_shm_chunk__field_descriptors,
+  guestfs_protobuf_shm_chunk__field_indices_by_name,
+  1,  guestfs_protobuf_shm_chunk__number_ranges,
+  (ProtobufCMessageInit) guestfs_protobuf_shm_chunk__init,
+  NULL,NULL,NULL    /* reserved[123] */
+};
 static const ProtobufCFieldDescriptor guestfs_protobuf_progress__field_descriptors[4] =
 {
   {
@@ -56378,7 +56472,7 @@ const ProtobufCEnumDescriptor guestfs_protobuf_procedure__descriptor =
   guestfs_protobuf_procedure__value_ranges,
   NULL,NULL,NULL,NULL   /* reserved[1234] */
 };
-static const ProtobufCEnumValue guestfs_protobuf_const__enum_values_by_number[9] =
+static const ProtobufCEnumValue guestfs_protobuf_const__enum_values_by_number[10] =
 {
   { "GUESTFS_PROTOBUF_PROTOCOL_VERSION", "GUESTFS_PROTOBUF_CONST__GUESTFS_PROTOBUF_PROTOCOL_VERSION", 4 },
   { "GUESTFS_PROTOBUF_MAX_PROC_NR", "GUESTFS_PROTOBUF_CONST__GUESTFS_PROTOBUF_MAX_PROC_NR", 423 },
@@ -56387,23 +56481,25 @@ static const ProtobufCEnumValue guestfs_protobuf_const__enum_values_by_number[9]
   { "GUESTFS_PROTOBUF_MESSAGE_MAX", "GUESTFS_PROTOBUF_CONST__GUESTFS_PROTOBUF_MESSAGE_MAX", 4194304 },
   { "GUESTFS_PROTOBUF_PROGRAM", "GUESTFS_PROTOBUF_CONST__GUESTFS_PROTOBUF_PROGRAM", 536933877 },
   { "GUESTFS_PROTOBUF_LAUNCH_FLAG", "GUESTFS_PROTOBUF_CONST__GUESTFS_PROTOBUF_LAUNCH_FLAG", 1979015157 },
+  { "GUESTFS_PROTOBUF_SHARED_MEMORY_FLAG", "GUESTFS_PROTOBUF_CONST__GUESTFS_PROTOBUF_SHARED_MEMORY_FLAG", 2147423025 },
   { "GUESTFS_PROTOBUF_PROGRESS_FLAG", "GUESTFS_PROTOBUF_CONST__GUESTFS_PROTOBUF_PROGRESS_FLAG", 2147439957 },
   { "GUESTFS_PROTOBUF_CANCEL_FLAG", "GUESTFS_PROTOBUF_CONST__GUESTFS_PROTOBUF_CANCEL_FLAG", 2147479278 },
 };
 static const ProtobufCIntRange guestfs_protobuf_const__value_ranges[] = {
-{4, 0},{423, 1},{8192, 2},{65536, 3},{4194304, 4},{536933877, 5},{1979015157, 6},{2147439957, 7},{2147479278, 8},{0, 9}
+{4, 0},{423, 1},{8192, 2},{65536, 3},{4194304, 4},{536933877, 5},{1979015157, 6},{2147423025, 7},{2147439957, 8},{2147479278, 9},{0, 10}
 };
-static const ProtobufCEnumValueIndex guestfs_protobuf_const__enum_values_by_name[9] =
+static const ProtobufCEnumValueIndex guestfs_protobuf_const__enum_values_by_name[10] =
 {
-  { "GUESTFS_PROTOBUF_CANCEL_FLAG", 8 },
+  { "GUESTFS_PROTOBUF_CANCEL_FLAG", 9 },
   { "GUESTFS_PROTOBUF_ERROR_LEN", 3 },
   { "GUESTFS_PROTOBUF_LAUNCH_FLAG", 6 },
   { "GUESTFS_PROTOBUF_MAX_CHUNK_SIZE", 2 },
   { "GUESTFS_PROTOBUF_MAX_PROC_NR", 1 },
   { "GUESTFS_PROTOBUF_MESSAGE_MAX", 4 },
   { "GUESTFS_PROTOBUF_PROGRAM", 5 },
-  { "GUESTFS_PROTOBUF_PROGRESS_FLAG", 7 },
+  { "GUESTFS_PROTOBUF_PROGRESS_FLAG", 8 },
   { "GUESTFS_PROTOBUF_PROTOCOL_VERSION", 0 },
+  { "GUESTFS_PROTOBUF_SHARED_MEMORY_FLAG", 7 },
 };
 const ProtobufCEnumDescriptor guestfs_protobuf_const__descriptor =
 {
@@ -56412,11 +56508,11 @@ const ProtobufCEnumDescriptor guestfs_protobuf_const__descriptor =
   "GuestfsProtobufConst",
   "GuestfsProtobufConst",
   "",
-  9,
+  10,
   guestfs_protobuf_const__enum_values_by_number,
-  9,
+  10,
   guestfs_protobuf_const__enum_values_by_name,
-  9,
+  10,
   guestfs_protobuf_const__value_ranges,
   NULL,NULL,NULL,NULL   /* reserved[1234] */
 };

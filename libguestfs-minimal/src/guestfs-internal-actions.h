@@ -99,6 +99,8 @@ extern char **guestfs__inspect_get_mountpoints (guestfs_h *g, const char *root);
 extern char **guestfs__inspect_get_filesystems (guestfs_h *g, const char *root);
 extern int guestfs__set_network (guestfs_h *g, int network);
 extern int guestfs__get_network (guestfs_h *g);
+extern int guestfs__get_shared_memory (guestfs_h *g);
+extern int guestfs__set_shared_memory (guestfs_h *g, int enable, const struct guestfs_set_shared_memory_argv *optargs);
 extern char **guestfs__list_filesystems (guestfs_h *g);
 extern int guestfs__add_drive_opts (guestfs_h *g, const char *filename, const struct guestfs_add_drive_opts_argv *optargs);
 extern char *guestfs__inspect_get_windows_systemroot (guestfs_h *g, const char *root);
