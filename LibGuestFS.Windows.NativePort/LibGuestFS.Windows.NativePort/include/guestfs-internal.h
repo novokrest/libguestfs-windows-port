@@ -354,6 +354,32 @@ struct error_cb_stack {
   void *                   error_cb_data;
 };
 
+/* IVSHMEM */
+struct shared_memory_ops
+{
+    int (*open) (guestfs_h *g, struct shared_memory *shm);
+    int (*close) (guestfs_h *g, struct shared_memory *shm);
+    int (*get_size) (guestfs_h *g, struct shared_memory *shm);
+    const char *(*get_name) (guestfs_h *g, struct shared_memory *shm);
+    void *(*get_ptr) (guestfs_h *g, struct shared_memory *shm);
+    void (*print) (guestfs_h *g, struct shared_memory *shm, int n);
+};
+
+struct shared_memory {
+    struct shared_memory_ops *ops;
+
+    int size;          /* Size is specified in MB */
+    const char *name;  /* Name of memory-mapped file (object) */
+
+#ifdef _WIN32
+    HANDLE hMapFile;
+    void *pMapView;
+#else
+    int fd;
+    void *map;
+#endif /* _WIN32 */
+};
+
 /* The libguestfs handle. */
 struct guestfs_h
 {
@@ -367,6 +393,7 @@ struct guestfs_h
   bool direct_mode;             /* Direct mode. */
   bool recovery_proc;           /* Create a recovery process. */
   bool enable_network;          /* Enable the network. */
+  bool enable_shm;              /* Enable the shared memory */
   bool selinux;                 /* selinux enabled? */
   bool pgroup;                  /* Create process group for children? */
   bool close_on_exit;           /* Is this handle on the atexit list? */
@@ -474,6 +501,9 @@ struct guestfs_h
   /*** Protocol. ***/
   struct connection *conn;              /* Connection to appliance. */
   int msg_next_serial;
+
+  /*** IVSHMEM ***/
+  struct shared_memory *shm;
 
 #if HAVE_FUSE
   /**** Used by the mount-local APIs. ****/
@@ -707,8 +737,12 @@ extern void guestfs___progress_message_callback(guestfs_h *g, const guestfs_prot
 extern void guestfs___log_message_callback(guestfs_h *g, const char *buf, size_t len);
 
 /* conn-socket.c */
-extern struct connection *guestfs___new_conn_socket_listening (guestfs_h *g, int daemon_accept_sock, int console_sock);
-extern struct connection *guestfs___new_conn_socket_connected (guestfs_h *g, int daemon_sock, int console_sock);
+extern struct connection *guestfs___new_conn_socket_listening (guestfs_h *g, int daemon_accept_sock, HANDLE console_sock);
+extern struct connection *guestfs___new_conn_socket_connected (guestfs_h *g, int daemon_sock, HANDLE console_sock);
+
+/* shared-memory.c */
+extern struct shared_memory *guestfs___new_shared_memory (guestfs_h *g, int size, const char *name);
+extern void guestfs___free_shared_memory(guestfs_h *g);
 
 /* events.c */
 extern void guestfs___call_callbacks_void (guestfs_h *g, uint64_t event);

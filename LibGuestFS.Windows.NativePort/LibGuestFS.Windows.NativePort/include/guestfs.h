@@ -1487,6 +1487,9 @@ extern GUESTFS_DLL_PUBLIC int guestfs_get_recovery_proc (guestfs_h *g);
 #define GUESTFS_HAVE_GET_SELINUX 1
 extern GUESTFS_DLL_PUBLIC int guestfs_get_selinux (guestfs_h *g);
 
+#define GUESTFS_HAVE_GET_SHARED_MEMORY 1
+extern GUESTFS_DLL_PUBLIC int guestfs_get_shared_memory(guestfs_h *g);
+
 #define GUESTFS_HAVE_GET_SMP 1
 extern GUESTFS_DLL_PUBLIC int guestfs_get_smp (guestfs_h *g);
 
@@ -2808,6 +2811,22 @@ extern GUESTFS_DLL_PUBLIC int guestfs_set_recovery_proc (guestfs_h *g, int recov
 #define GUESTFS_HAVE_SET_SELINUX 1
 extern GUESTFS_DLL_PUBLIC int guestfs_set_selinux (guestfs_h *g, int selinux);
 
+#define GUESTFS_HAVE_SET_SHARED_MEMORY 1
+#define GUESTFS_SET_SHARED_MEMORY_SIZE 0
+#define GUESTFS_SET_SHARED_MEMORY_NAME 1
+extern GUESTFS_DLL_PUBLIC int guestfs_set_shared_memory(guestfs_h *g, int enable, ...);
+extern GUESTFS_DLL_PUBLIC int guestfs_set_shared_memory_va(guestfs_h *g, int enable, va_list args);
+
+struct guestfs_set_shared_memory_argv {
+    uint64_t bitmask;
+# define GUESTFS_SET_SHARED_MEMORY_SIZE_BITMASK (UINT64_C(1)<<0)
+    int size;
+# define GUESTFS_SET_SHARED_MEMORY_NAME_BITMASK (UINT64_C(1)<<1)
+    const char *name;
+};
+
+extern GUESTFS_DLL_PUBLIC int guestfs_set_shared_memory_argv(guestfs_h *g, int enable, const struct guestfs_set_shared_memory_argv *optargs);
+
 #define GUESTFS_HAVE_SET_SMP 1
 extern GUESTFS_DLL_PUBLIC int guestfs_set_smp (guestfs_h *g, int smp);
 
@@ -3816,6 +3835,7 @@ extern GUESTFS_DLL_PUBLIC void guestfs_free_internal_mountable_list (struct gues
 #define LIBGUESTFS_HAVE_GET_QEMU 1
 #define LIBGUESTFS_HAVE_GET_RECOVERY_PROC 1
 #define LIBGUESTFS_HAVE_GET_SELINUX 1
+#define LIBGUESTFS_HAVE_GET_SHARED_MEMORY 1
 #define LIBGUESTFS_HAVE_GET_SMP 1
 #define LIBGUESTFS_HAVE_GET_STATE 1
 #define LIBGUESTFS_HAVE_GET_TMPDIR 1
@@ -4094,6 +4114,7 @@ extern GUESTFS_DLL_PUBLIC void guestfs_free_internal_mountable_list (struct gues
 #define LIBGUESTFS_HAVE_SET_QEMU 1
 #define LIBGUESTFS_HAVE_SET_RECOVERY_PROC 1
 #define LIBGUESTFS_HAVE_SET_SELINUX 1
+#define LIBGUESTFS_HAVE_SET_SHARED_MEMORY 1
 #define LIBGUESTFS_HAVE_SET_SMP 1
 #define LIBGUESTFS_HAVE_SET_TMPDIR 1
 #define LIBGUESTFS_HAVE_SET_TRACE 1

@@ -20,6 +20,8 @@ lib_init()
         fprintf(stderr, "ERROR: WSAStartUp\n");
         return -1;
     }
+
+    return 0;
 }
 
 int

@@ -732,7 +732,7 @@ guestfs___recv_discard (guestfs_h *g, const char *fn)
 static int
 xwrite (int fd, const void *v_buf, size_t len)
 {
-  const char *buf = v_buf;
+  const char *buf = (char *) v_buf;
   int r;
 
   while (len > 0) {
@@ -753,7 +753,7 @@ static ssize_t receive_file_data (guestfs_h *g, void **buf);
 int
 guestfs___recv_file (guestfs_h *g, const char *filename)
 {
-  void *buf;
+  void *buf = NULL;
   int fd, r;
 
   g->user_cancel = 0;
@@ -770,11 +770,13 @@ guestfs___recv_file (guestfs_h *g, const char *filename)
   while ((r = receive_file_data (g, &buf)) > 0) {
     if (xwrite (fd, buf, r) == -1) {
       perrorf (g, "%s: write", filename);
-      free (buf);
+      if (!g->enable_shm)
+        free (buf);
       _close (fd);
       goto cancel;
     }
-    free (buf);
+    if (!g->enable_shm)
+      free (buf);
 
     if (g->user_cancel) {
       _close (fd);
@@ -821,58 +823,114 @@ guestfs___recv_file (guestfs_h *g, const char *filename)
   return -1;
 }
 
+static ssize_t receive_file_data_shm(guestfs_h *g, void **buf_r);
+static ssize_t receive_file_data_sock(guestfs_h *g, void **buf_r);
+
+static ssize_t
+receive_file_data(guestfs_h *g, void **buf_r)
+{
+    if (g->enable_shm) {
+        return receive_file_data_shm(g, buf_r);
+    }
+
+    return receive_file_data_sock(g, buf_r);
+}
+
+/* Returns length of data_for_reading from shared memory, buf_r is ignored */
+/* Returned 0 indicates the end of transfer */
+static ssize_t
+receive_file_data_shm(guestfs_h *g, void **buf_r)
+{
+    int r;
+    CLEANUP_FREE void *buf = NULL;
+    uint32_t buflen, len_r;
+    guestfs_protobuf_shm_chunk *shm_chunk;
+
+    r = guestfs___recv_from_daemon(g, &buflen, &buf);
+    if (r == -1)
+        return -1;
+
+    shm_chunk = guestfs_protobuf_shm_chunk__unpack(NULL, buflen, buf);
+
+    if (!shm_chunk) {
+        error(g, _("failed to parse shm chunk"));
+        return -1;
+    }
+
+    if (shm_chunk->cancel) {
+        if (g->user_cancel) {
+            error(g, _("operation cancelled by user"));
+            g->last_errnum = EINTR;
+        }
+        else
+            error(g, _("file receive cancelled by daemon"));
+        guestfs_protobuf_shm_chunk__free_unpacked(shm_chunk, NULL);
+        return -1;
+    }
+
+    len_r = shm_chunk->len;
+    guestfs_protobuf_shm_chunk__free_unpacked(shm_chunk, NULL);
+
+    if (buf_r) {
+        *buf_r = g->shm->ops->get_ptr(g, g->shm);
+    }
+
+    return len_r;
+}
+
 /* Receive a chunk of file data. */
 /* Returns -1 = error, 0 = EOF, > 0 = more data */
 static ssize_t
-receive_file_data (guestfs_h *g, void **buf_r)
+receive_file_data_sock(guestfs_h *g, void **buf_r)
 {
-  int r;
-  CLEANUP_FREE void *buf = NULL;
-  uint32_t len;
-  guestfs_protobuf_chunk *chunk;
+    int r;
+    CLEANUP_FREE void *buf = NULL;
+    uint32_t len;
+    guestfs_protobuf_chunk *chunk;
 
-  r = guestfs___recv_from_daemon (g, &len, &buf);
-  if (r == -1)
-    return -1;
+    r = guestfs___recv_from_daemon(g, &len, &buf);
+    if (r == -1)
+        return -1;
 
-  if (len == GUESTFS_LAUNCH_FLAG || len == GUESTFS_CANCEL_FLAG) {
-    error (g, _("receive_file_data: unexpected flag received when reading file chunks"));
-    return -1;
-  }
-  
-  chunk = guestfs_protobuf_chunk__unpack (NULL, len, buf);
-
-  if (!chunk) {
-    error (g, _("failed to parse file chunk"));
-    return -1;
-  }
-
-  if (chunk->cancel) {
-    if (g->user_cancel) {
-      error (g, _("operation cancelled by user"));
-      g->last_errnum = EINTR;
+    if (len == GUESTFS_LAUNCH_FLAG || len == GUESTFS_CANCEL_FLAG) {
+        error(g, _("receive_file_data: unexpected flag received when reading file chunks"));
+        return -1;
     }
-    else
-      error (g, _("file receive cancelled by daemon"));
-    guestfs_protobuf_chunk__free_unpacked (chunk, NULL);
-    return -1;
-  }
 
-  if (chunk->data.len == 0) { /* end of transfer */
-    guestfs_protobuf_chunk__free_unpacked (chunk, NULL);
-    return 0;
-  }
+    chunk = guestfs_protobuf_chunk__unpack(NULL, len, buf);
 
-  len = chunk->data.len;
+    if (!chunk) {
+        error(g, _("failed to parse file chunk"));
+        return -1;
+    }
 
-  if (buf_r) {
-    //TODO: try mv data.data to buf_r without copying
-    *buf_r = malloc (chunk->data.len);
-    memcpy (*buf_r, chunk->data.data, chunk->data.len);
-  }
-  guestfs_protobuf_chunk__free_unpacked (chunk, NULL);
+    if (chunk->cancel) {
+        if (g->user_cancel) {
+            error(g, _("operation cancelled by user"));
+            g->last_errnum = EINTR;
+        }
+        else
+            error(g, _("file receive cancelled by daemon"));
+        guestfs_protobuf_chunk__free_unpacked(chunk, NULL);
+        return -1;
+    }
 
-  return len;
+    if (chunk->data.len == 0) { /* end of transfer */
+        guestfs_protobuf_chunk__free_unpacked(chunk, NULL);
+        return 0;
+    }
+
+    len = chunk->data.len;
+
+    if (len && buf_r) {
+        /* Fix (-1 copy): Move data from unpacked chunk without copying */
+        *buf_r = chunk->data.data;
+        chunk->data.data = NULL;
+        chunk->data.len = 0;
+    }
+
+    guestfs_protobuf_chunk__free_unpacked(chunk, NULL);
+    return len;
 }
 
 int

@@ -2980,6 +2980,60 @@ guestfs_set_e2attrs_va (guestfs_h *g,
 }
 
 int
+guestfs_set_shared_memory(guestfs_h *g,
+int enable,
+...)
+{
+    va_list optargs;
+
+    int r;
+
+    va_start(optargs, enable);
+    r = guestfs_set_shared_memory_va(g, enable, optargs);
+    va_end(optargs);
+
+    return r;
+}
+
+int
+guestfs_set_shared_memory_va(guestfs_h *g,
+int enable,
+va_list args)
+{
+    struct guestfs_set_shared_memory_argv optargs_s;
+    struct guestfs_set_shared_memory_argv *optargs = &optargs_s;
+    int i;
+    uint64_t i_mask;
+
+    optargs_s.bitmask = 0;
+
+    while ((i = va_arg(args, int)) >= 0) {
+        switch (i) {
+        case GUESTFS_SET_SHARED_MEMORY_SIZE:
+            optargs_s.size = va_arg(args, int);
+            break;
+        case GUESTFS_SET_SHARED_MEMORY_NAME:
+            optargs_s.name = va_arg(args, const char *);
+            break;
+        default:
+            error(g, "%s: unknown option %d (this can happen if a program is compiled against a newer version of libguestfs, then dynamically linked to an older version)",
+                "set_shared_memory", i);
+            return -1;
+        }
+
+        i_mask = UINT64_C(1) << i;
+        if (optargs_s.bitmask & i_mask) {
+            error(g, "%s: same optional argument specified more than once",
+                "set_shared_memory");
+            return -1;
+        }
+        optargs_s.bitmask |= i_mask;
+    }
+
+    return guestfs_set_shared_memory_argv(g, enable, optargs);
+}
+
+int
 guestfs_syslinux (guestfs_h *g,
                   const char *device,
                   ...)

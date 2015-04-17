@@ -264,10 +264,11 @@ launch_direct (guestfs_h *g, void *datav, const char *arg)
 {
   struct backend_direct_data *data = datav;
   CLEANUP_FREE_STRINGSBUF DECLARE_STRINGSBUF (cmdline);
-  SOCKET daemon_accept_sock = INVALID_SOCKET, console_sock = INVALID_SOCKET;
+  SOCKET daemon_accept_sock = INVALID_SOCKET;
   int r;
   int flags;
-  int sv[2];
+  HANDLE hConsole_Rd = NULL, hConsole_Wr = NULL;
+  SECURITY_ATTRIBUTES saConsoleAttr;
   char guestfsd_sock[256];
   struct addrinfo *addr = NULL, hints;
   char* port = DIRECT_PORT;
@@ -284,6 +285,8 @@ launch_direct (guestfs_h *g, void *datav, const char *arg)
   bool has_kvm;
   int force_tcg;
   const char *cpu_model;
+
+  g->direct_mode = true;
 
   /* At present you must add drives before starting the appliance.  In
    * future when we enable hotplugging you won't need to do this.
@@ -359,12 +362,22 @@ launch_direct (guestfs_h *g, void *datav, const char *arg)
     goto cleanup0;
   }
 
-  //if (!g->direct_mode) {
-  //  if (socketpair (AF_LOCAL, SOCK_STREAM|SOCK_CLOEXEC, 0, sv) == -1) {
-  //    perrorf (g, "socketpair");
-  //    goto cleanup0;
-  //  }
-  //}
+  if (!g->direct_mode) {
+    ZeroMemory(&saConsoleAttr, sizeof(saConsoleAttr));
+    saConsoleAttr.nLength = sizeof(saConsoleAttr);
+    saConsoleAttr.bInheritHandle = TRUE;
+    saConsoleAttr.lpSecurityDescriptor = NULL;
+    
+    if (!CreatePipe(&hConsole_Rd, &hConsole_Wr, &saConsoleAttr, 0)) {
+      perrorf_win(g, "CreatePipe");
+      goto cleanup0;
+    }
+
+    if (!SetHandleInformation(hConsole_Rd, HANDLE_FLAG_INHERIT, 0)) {
+        perrorf_win(g, "SetHandleInformation");
+        goto cleanup0;
+    }
+  }
 
   if (g->verbose)
     guestfs___print_timestamped_message (g, "finished testing qemu features");
@@ -651,6 +664,12 @@ launch_direct (guestfs_h *g, void *datav, const char *arg)
     ADD_CMDLINE (VIRTIO_NET ",netdev=usernet");
   }
 
+  /* Set up ivshmem device */
+  if (g->enable_shm) {
+    ADD_CMDLINE ("-device");
+    ADD_CMDLINE_PRINTF("ivshmem,size=%dM,shm=%s", g->shm->size, g->shm->name);
+  }
+
   ADD_CMDLINE ("-append");
   flags = 0;
   if (!has_kvm || force_tcg)
@@ -680,138 +699,40 @@ launch_direct (guestfs_h *g, void *datav, const char *arg)
   /* Finish off the command line. */
   guestfs___end_stringsbuf (g, &cmdline);
 
-  DWORD dwFlags;
-  STARTUPINFO siStartInfo;
-  PROCESS_INFORMATION piProcInfo;
+  if (create_process_with_redirected_output(g, g->hv, &cmdline, hConsole_Wr, hConsole_Wr, &data->piQemuProc) == -1) {
+      if (!g->direct_mode) {
+        CloseHandle(hConsole_Wr);
+        hConsole_Wr = NULL;
+      }
+      goto cleanup0;
+  }
 
-  ZeroMemory(&siStartInfo, sizeof(STARTUPINFO));
-  ZeroMemory(&piProcInfo, sizeof(PROCESS_INFORMATION));
+  if (!g->direct_mode) {
+    CloseHandle(hConsole_Wr);
+    hConsole_Wr = NULL;
+  }
 
-  siStartInfo.cb = sizeof(STARTUPINFO);
-  //siStartInfo.dwFlags |= STARTF_USESTDHANDLES;
+  if (g->verbose)
+    print_qemu_command_line (g, cmdline.argv);
 
-  char* hv_quoted = safe_malloc(g, strlen(g->hv) + 3);
-  hv_quoted[0] = '\"';
-  strcpy(hv_quoted + 1, g->hv);
-  hv_quoted[strlen(hv_quoted)] = '\"';
-
-  char* cmd = guestfs___join_strings(" ", cmdline.argv);
-
-  //cmd = "C:/cygwin64/usr/qemu/qemu-system-x86_64.exe" \
+  //cmd = QEMU \
+  //    " -display none" 
   //    " -m 500" \
   //    " -no-reboot" \
   //    " -rtc driftfix=slew" \
   //    " -no-kvm-pit-reinjection" \
-  //    " -kernel C:/cygwin64/var/tmp/.guestfs-1000/appliance.d/kernel" \
-  //    " -initrd C:/cygwin64/var/tmp/.guestfs-1000/appliance.d/initrd" \
-  //    " -drive file=C:/cygwin64/home/novokrestWin/Master/guest_fs/test_data/appliance.d/disk.img,cache=writeback,format=raw,id=hd0,if=none" \
+  //    " -kernel C:/GuestFS/appliance/kernel " \
+  //    " -initrd C:/GuestFS/appliance/initrd " \
+  //    " -drive file=C:/GuestFS/appliance/disk.img,cache=writeback,format=raw,id=hd0,if=none" \
   //    " -device virtio-blk-pci,drive=hd0" \
-  //    " -drive file=C:/cygwin64/var/tmp/.guestfs-1000/appliance.d/root,snapshot=on,id=appliance,cache=unsafe,if=none" \
+  //    " -drive file=C:/GuestFS/appliance/root,snapshot=on,id=appliance,cache=unsafe,if=none" \
   //    " -device virtio-blk-pci,drive=appliance" \
   //    " -device virtio-serial-pci" \
   //    " -serial stdio" \
   //    " -chardev socket,host=localhost,port=7777,id=channel0" \
   //    " -device virtserialport,chardev=channel0,name=org.libguestfs.channel.0" \
-  //    " -append \"panic=1 console=ttyS0 udevtimeout=6000 udev.event-timeout=6000 no_timer_check acpi=off printk.time=1 cgroup_disable=memory root=/dev/vdb selinux=0 guestfs_verbose=1 TERM=xterm\"";
-
-  cmd = "C:/cygwin64/usr/qemu/qemu-system-x86_64.exe" \
-      " -display none" \
-      " -m 500" \
-      " -no-reboot" \
-      " -rtc driftfix=slew" \
-      " -no-kvm-pit-reinjection" \
-      " -kernel C:/GuestFS/appliance/kernel " \
-      " -initrd C:/GuestFS/appliance/initrd " \
-      " -drive file=C:/GuestFS/appliance/disk.img,cache=writeback,format=raw,id=hd0,if=none" \
-      " -device virtio-blk-pci,drive=hd0" \
-      " -drive file=C:/GuestFS/appliance/root,snapshot=on,id=appliance,cache=unsafe,if=none" \
-      " -device virtio-blk-pci,drive=appliance" \
-      " -device virtio-serial-pci" \
-      " -serial stdio" \
-      " -chardev socket,host=localhost,port=7777,id=channel0" \
-      " -device virtserialport,chardev=channel0,name=org.libguestfs.channel.0" \
-      " -append \"panic=1 console=ttyS0 udevtimeout=6000 udev.event-timeout=6000 no_timer_check acpi=off printk.time=1 cgroup_disable=memory root=/dev/vdb selinux=0 guestfs_verbose=1 TERM=xterm\"";
-
-
-  CreateProcess(NULL,
-      cmd,
-      NULL,
-      NULL,
-      TRUE,
-      0,
-      NULL,
-      NULL,
-      &siStartInfo,
-      &piProcInfo);
-
-  //r = fork ();
-  //if (r == -1) {
-  //  perrorf (g, "fork");
-  //  if (!g->direct_mode) {
-  //    close (sv[0]);
-  //    close (sv[1]);
-  //  }
-  //  goto cleanup0;
-  //}
-
-  //if (r == 0) {			/* Child (qemu). */
-  //  if (!g->direct_mode) {
-  //    /* Set up stdin, stdout, stderr. */
-  //    close (0);
-  //    close (1);
-  //    close (sv[0]);
-
-  //    /* We set the FD_CLOEXEC flag on the socket above, but now (in
-  //     * the child) it's safe to unset this flag so qemu can use the
-  //     * socket.
-  //     */
-  //    set_cloexec_flag (sv[1], 0);
-
-  //    /* Stdin. */
-  //    if (dup (sv[1]) == -1) {
-  //    dup_failed:
-  //      perror ("dup failed");
-  //      _exit (EXIT_FAILURE);
-  //    }
-  //    /* Stdout. */
-  //    if (dup (sv[1]) == -1)
-  //      goto dup_failed;
-
-  //    /* Particularly since qemu 0.15, qemu spews all sorts of debug
-  //     * information on stderr.  It is useful to both capture this and
-  //     * not confuse casual users, so send stderr to the pipe as well.
-  //     */
-  //    close (2);
-  //    if (dup (sv[1]) == -1)
-  //      goto dup_failed;
-
-  //    close (sv[1]);
-
-  //    /* Close any other file descriptors that we don't want to pass
-  //     * to qemu.  This prevents file descriptors which didn't have
-  //     * O_CLOEXEC set properly from leaking into the subprocess.  See
-  //     * RHBZ#1123007.
-  //     */
-  //    close_file_descriptors (fd > 2);
-  //  }
-
-  //  /* Dump the command line (after setting up stderr above). */
-  //  if (g->verbose)
-  //    print_qemu_command_line (g, cmdline.argv);
-
-  //  /* Put qemu in a new process group. */
-  //  if (g->pgroup)
-  //    setpgid (0, 0);
-
-  //  setenv ("LC_ALL", "C", 1);
-  //  setenv ("QEMU_AUDIO_DRV", "none", 1); /* Prevents qemu opening /dev/dsp */
-
-  //  TRACE0 (launch_run_qemu);
-
-  //  execv (g->hv, cmdline.argv); /* Run qemu. */
-  //  perror (g->hv);
-  //  _exit (EXIT_FAILURE);
-  //}
+  //    " -device ivshmem,size=128,shm=Global\\GuestfsShm"
+  //    " -append \"panic=1 console=ttyS0 udevtimeout=6000 udev.event-timeout=6000 no_timer_check acpi=off printk.time=1 cgroup_disable=memory root=/dev/vdb selinux=0 guestfs_verbose=1 guestfs_shm=1 guestfs_shm_size=128 TERM=xterm\"";
 
   ///* Parent (library). */
   //data->pid = r;
@@ -880,27 +801,21 @@ launch_direct (guestfs_h *g, void *datav, const char *arg)
   //  data->recoverypid = r;
   //}
 
-  //if (!g->direct_mode) {
-  //  /* Close the other end of the socketpair. */
-  //  close (sv[1]);
-
-  //  console_sock = sv[0];       /* stdin of child */
-  //  sv[0] = -1;
-  //}
-
   g->state = LAUNCHING;
 
   /* Wait for qemu to start and to connect back to us via
    * virtio-serial and send the GUESTFS_LAUNCH_FLAG message.
    */
   g->conn =
-    guestfs___new_conn_socket_listening (g, daemon_accept_sock, console_sock);
+    guestfs___new_conn_socket_listening (g, daemon_accept_sock, hConsole_Rd);
   if (!g->conn)
     goto cleanup1;
 
   /* g->conn now owns these sockets. */
-  daemon_accept_sock = console_sock = -1;
+  daemon_accept_sock = -1;
+  hConsole_Rd = NULL;
 
+  printf("accept connection...\n");
   r = g->conn->ops->accept_connection (g, g->conn);
   if (r == -1)
     goto cleanup1;
@@ -948,18 +863,28 @@ launch_direct (guestfs_h *g, void *datav, const char *arg)
   if (has_appliance_drive)
     guestfs___add_dummy_appliance_drive (g);
 
+  if (g->enable_shm && g->shm->ops->open(g, g->shm) == -1) {
+    error (g, _("failure to open shared memory"));
+    goto cleanup1;
+  }
+
   return 0;
 
- cleanup1:
-  //if (!g->direct_mode && sv[0] >= 0)
-  //  close (sv[0]);
-  //if (data->pid > 0) kill (data->pid, 9);
-  //if (data->recoverypid > 0) kill (data->recoverypid, 9);
-  //if (data->pid > 0) waitpid (data->pid, NULL, 0);
-  //if (data->recoverypid > 0) waitpid (data->recoverypid, NULL, 0);
-  //data->pid = 0;
-  //data->recoverypid = 0;
-  //memset (&g->launch_t, 0, sizeof g->launch_t);
+cleanup1:
+  if (!g->direct_mode && hConsole_Wr)
+      CloseHandle(hConsole_Wr);
+  if (data->piQemuProc.hProcess)
+      TerminateProcess(data->piQemuProc.hProcess, 1);
+  if (data->piRecoveryProc.hProcess)
+      TerminateProcess(data->piRecoveryProc.hProcess, 1);
+  if (data->piQemuProc.hProcess)
+      WaitForSingleObject(data->piQemuProc.hProcess, INFINITE);
+  if (data->piRecoveryProc.hProcess)
+      WaitForSingleObject(data->piRecoveryProc.hProcess, INFINITE);
+  
+  ZeroMemory(&data->piQemuProc, sizeof(data->piQemuProc));
+  ZeroMemory(&data->piRecoveryProc, sizeof(data->piQemuProc));
+  memset (&g->launch_t, 0, sizeof g->launch_t);
 
  cleanup0:
   if (addr) {
@@ -967,14 +892,73 @@ launch_direct (guestfs_h *g, void *datav, const char *arg)
   }
   if (daemon_accept_sock != INVALID_SOCKET)
     closesocket (daemon_accept_sock);
-  if (console_sock != INVALID_SOCKET)
-    closesocket (console_sock);
+  if (hConsole_Rd)
+    CloseHandle(hConsole_Rd);
   if (g->conn) {
     g->conn->ops->free_connection (g, g->conn);
     g->conn = NULL;
   }
   g->state = CONFIG;
   return -1;
+}
+
+static int
+create_process_with_redirected_output(guestfs_h *g,
+                                      char *name, struct stringsbuf *cmd, HANDLE hStdOut, HANDLE hStdErr, 
+                                      PROCESS_INFORMATION *piProcInfo)
+{
+  STARTUPINFO siStartInfo;
+  BOOL bSuccess;
+  char *cmdline;
+  int i;
+  int needs_quote;
+  struct stringsbuf quoted_sb;
+
+  ZeroMemory(piProcInfo, sizeof(PROCESS_INFORMATION));
+
+  ZeroMemory(&siStartInfo, sizeof(siStartInfo));
+  siStartInfo.cb = sizeof(siStartInfo);
+  if (hStdOut || hStdErr) {
+    siStartInfo.hStdOutput = hStdOut;
+    siStartInfo.hStdError = hStdErr;
+    siStartInfo.dwFlags |= STARTF_USESTDHANDLES;
+  }
+
+  //for (i = 0; i < cmd->size; ++i) {
+  //    needs_quote = strcspn(cmd->argv[i], " ") != strlen(cmd->argv[i]);
+  //    guestfs___add_string(g, &quoted_sb, );
+  //}
+
+  //for (arg = cmd->argv; *arg; ++arg) {
+  //    needs_quote = strcspn(*arg, " ") != strlen(*arg);
+  //    guestfs___add_string(g, &quoted_sb, *arg);
+  //}
+
+  cmdline = guestfs___join_strings(" ", cmd->argv);
+
+  //cmdline = "C:/MinGW/msys/1.0/home/novokrestWin/qemu-windows-ivshmem/build/qemu-system-x86_64.exe -global virtio-blk-pci.scsi=off -nodefconfig -nodefaults -display none -machine accel=kvm:tcg -m 500 -no-reboot -rtc driftfix=slew -no-hpet -global kvm-pit.lost_tick_policy=discard -kernel C:/GuestFS/appliance/kernel -initrd C:/GuestFS/appliance/initrd -device virtio-scsi-pci,id=scsi -drive file=C:/GuestFS/appliance/disk.img,cache=writeback,format=raw,id=hd0,if=none -device scsi-hd,drive=hd0 -drive file=C:/GuestFS/appliance/root,snapshot=on,id=appliance,cache=unsafe,if=none -device scsi-hd,drive=appliance -device virtio-serial-pci -serial stdio -device sga -chardev socket,host=localhost,port=7777,id=channel0 -device virtserialport,chardev=channel0,name=org.libguestfs.channel.0 -device ivshmem,size=1M,shm=GuestfsShm3 -append \"panic=1 console=ttyS0 udevtimeout=6000 udev.event-timeout=6000 no_timer_check acpi=off printk.time=1 cgroup_disable=memory root=/dev/sdb selinux=0 guestfs_verbose=1 guestfs_shm=GuestfsShm3 guestfs_shm_size=1 TERM=linux\"";
+  // C:/MinGW/msys/1.0/home/novokrestWin/qemu-windows-ivshmem/build/qemu-system-x86_64.exe -global virtio-blk-pci.scsi=off -nodefconfig -nodefaults -display none -machine accel=kvm:tcg -m 500 -no-reboot -rtc driftfix=slew -no-hpet -global kvm-pit.lost_tick_policy=discard -kernel C:/GuestFS/appliance/kernel -initrd C:/GuestFS/appliance/initrd -device virtio-scsi-pci,id=scsi -drive file=C:/GuestFS/appliance/disk.img,cache=writeback,format=raw,id=hd0,if=none -device scsi-hd,drive=hd0 -drive file=C:/GuestFS/appliance/root,snapshot=on,id=appliance,cache=unsafe,if=none -device scsi-hd,drive=appliance -device virtio-serial-pci -serial stdio -device sga -chardev socket,host=localhost,port=7777,id=channel0 -device virtserialport,chardev=channel0,name=org.libguestfs.channel.0 -device ivshmem,size=1M,shm=GuestfsShm3 -append "panic=1 console=ttyS0 udevtimeout=6000 udev.event-timeout=6000 no_timer_check acpi=off printk.time=1 cgroup_disable=memory root=/dev/sdb selinux=0 guestfs_verbose=1 guestfs_shm=GuestfsShm3 guestfs_shm_size=1 TERM=linux"
+
+  printf("Launch QEMU: %s\n", cmdline);
+
+  bSuccess = CreateProcess(
+      name,
+      cmdline,
+      NULL,
+      NULL,
+      TRUE,
+      0,
+      NULL,
+      NULL,
+      &siStartInfo,
+      piProcInfo);
+
+    if (!bSuccess) {
+        perrorf_win(g, "CreateProcess failed");
+        return -1;
+    }
+
+    return 0;
 }
 
 /* Calculate the appliance device name.
@@ -1072,6 +1056,9 @@ test_qemu (guestfs_h *g, struct backend_direct_data *data)
   guestfs___cmd_add_arg (cmd1, "-help");
   guestfs___cmd_set_stdout_callback (cmd1, read_all, &data->qemu_help,
                                      CMD_STDOUT_FLAG_WHOLE_BUFFER);
+  guestfs___cmd_clear_capture_errors(cmd1);
+  guestfs___cmd_set_stderr_to_stdout(cmd1);
+
   r = guestfs___cmd_run (cmd1);
   if (r == -1)
     goto error;
@@ -1082,6 +1069,9 @@ test_qemu (guestfs_h *g, struct backend_direct_data *data)
   guestfs___cmd_add_arg (cmd2, "-version");
   guestfs___cmd_set_stdout_callback (cmd2, read_all, &data->qemu_version,
                                      CMD_STDOUT_FLAG_WHOLE_BUFFER);
+  guestfs___cmd_clear_capture_errors(cmd2);
+  guestfs___cmd_set_stderr_to_stdout(cmd2);
+
   r = guestfs___cmd_run (cmd2);
   if (r == -1)
     goto error;
@@ -1103,6 +1093,9 @@ test_qemu (guestfs_h *g, struct backend_direct_data *data)
   guestfs___cmd_set_stderr_to_stdout (cmd3);
   guestfs___cmd_set_stdout_callback (cmd3, read_all, &data->qemu_devices,
                                      CMD_STDOUT_FLAG_WHOLE_BUFFER);
+  guestfs___cmd_clear_capture_errors(cmd3);
+  guestfs___cmd_set_stderr_to_stdout(cmd3);
+
   r = guestfs___cmd_run (cmd3);
   if (r == -1)
     goto error;

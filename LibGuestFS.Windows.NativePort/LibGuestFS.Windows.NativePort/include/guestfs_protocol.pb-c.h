@@ -606,6 +606,7 @@ typedef struct _GuestfsProtobufInternalLstatnslistRet GuestfsProtobufInternalLst
 typedef struct _GuestfsProtobufMessageError GuestfsProtobufMessageError;
 typedef struct _GuestfsProtobufMessageHeader GuestfsProtobufMessageHeader;
 typedef struct _GuestfsProtobufChunk GuestfsProtobufChunk;
+typedef struct _GuestfsProtobufShmChunk GuestfsProtobufShmChunk;
 typedef struct _GuestfsProtobufProgress GuestfsProtobufProgress;
 typedef struct _GuestfsProtobufFlagMessage GuestfsProtobufFlagMessage;
 
@@ -1041,6 +1042,7 @@ typedef enum _GuestfsProtobufConst {
   GUESTFS_PROTOBUF_CONST__GUESTFS_PROTOBUF_LAUNCH_FLAG = 1979015157,
   GUESTFS_PROTOBUF_CONST__GUESTFS_PROTOBUF_CANCEL_FLAG = 2147479278,
   GUESTFS_PROTOBUF_CONST__GUESTFS_PROTOBUF_PROGRESS_FLAG = 2147439957,
+  GUESTFS_PROTOBUF_CONST__GUESTFS_PROTOBUF_SHARED_MEMORY_FLAG = 2147423025,
   GUESTFS_PROTOBUF_CONST__GUESTFS_PROTOBUF_ERROR_LEN = 65536,
   GUESTFS_PROTOBUF_CONST__GUESTFS_PROTOBUF_MAX_PROC_NR = 423,
   GUESTFS_PROTOBUF_CONST__GUESTFS_PROTOBUF_MESSAGE_MAX = 4194304
@@ -7669,6 +7671,17 @@ struct  _GuestfsProtobufChunk
 #define GUESTFS_PROTOBUF_CHUNK__INIT \
  { PROTOBUF_C_MESSAGE_INIT (&guestfs_protobuf_chunk__descriptor) \
     , 0, {0,NULL} }
+
+
+struct  _GuestfsProtobufShmChunk
+{
+  ProtobufCMessage base;
+  int32_t cancel;
+  uint64_t len;
+};
+#define GUESTFS_PROTOBUF_SHM_CHUNK__INIT \
+ { PROTOBUF_C_MESSAGE_INIT (&guestfs_protobuf_shm_chunk__descriptor) \
+    , 0, 0 }
 
 
 /*
@@ -18948,6 +18961,25 @@ GuestfsProtobufChunk *
 void   guestfs_protobuf_chunk__free_unpacked
                      (GuestfsProtobufChunk *message,
                       ProtobufCAllocator *allocator);
+/* GuestfsProtobufShmChunk methods */
+void   guestfs_protobuf_shm_chunk__init
+                     (GuestfsProtobufShmChunk         *message);
+size_t guestfs_protobuf_shm_chunk__get_packed_size
+                     (const GuestfsProtobufShmChunk   *message);
+size_t guestfs_protobuf_shm_chunk__pack
+                     (const GuestfsProtobufShmChunk   *message,
+                      uint8_t             *out);
+size_t guestfs_protobuf_shm_chunk__pack_to_buffer
+                     (const GuestfsProtobufShmChunk   *message,
+                      ProtobufCBuffer     *buffer);
+GuestfsProtobufShmChunk *
+       guestfs_protobuf_shm_chunk__unpack
+                     (ProtobufCAllocator  *allocator,
+                      size_t               len,
+                      const uint8_t       *data);
+void   guestfs_protobuf_shm_chunk__free_unpacked
+                     (GuestfsProtobufShmChunk *message,
+                      ProtobufCAllocator *allocator);
 /* GuestfsProtobufProgress methods */
 void   guestfs_protobuf_progress__init
                      (GuestfsProtobufProgress         *message);
@@ -20761,6 +20793,9 @@ typedef void (*GuestfsProtobufMessageHeader_Closure)
 typedef void (*GuestfsProtobufChunk_Closure)
                  (const GuestfsProtobufChunk *message,
                   void *closure_data);
+typedef void (*GuestfsProtobufShmChunk_Closure)
+                 (const GuestfsProtobufShmChunk *message,
+                  void *closure_data);
 typedef void (*GuestfsProtobufProgress_Closure)
                  (const GuestfsProtobufProgress *message,
                   void *closure_data);
@@ -21368,6 +21403,7 @@ extern const ProtobufCMessageDescriptor guestfs_protobuf_internal_lstatnslist_re
 extern const ProtobufCMessageDescriptor guestfs_protobuf_message_error__descriptor;
 extern const ProtobufCMessageDescriptor guestfs_protobuf_message_header__descriptor;
 extern const ProtobufCMessageDescriptor guestfs_protobuf_chunk__descriptor;
+extern const ProtobufCMessageDescriptor guestfs_protobuf_shm_chunk__descriptor;
 extern const ProtobufCMessageDescriptor guestfs_protobuf_progress__descriptor;
 extern const ProtobufCMessageDescriptor guestfs_protobuf_flag_message__descriptor;
 

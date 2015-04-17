@@ -2263,7 +2263,7 @@
 /* #undef PTRDIFF_T_SUFFIX */
 
 /* Location of qemu binary. */
-#define QEMU "C:/cygwin64/usr/qemu/qemu-system-x86_64.exe"
+#define QEMU "C:/MinGW/msys/1.0/home/novokrestWin/qemu-windows-ivshmem/build/qemu-system-x86_64.exe"
 
 /* Extra options for qemu command line. */
 #define QEMU_OPTIONS ""

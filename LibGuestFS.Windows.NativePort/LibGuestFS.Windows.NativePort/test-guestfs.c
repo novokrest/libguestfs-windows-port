@@ -133,10 +133,10 @@ test_guestfs()
     printf("backend is direct\n");
 
     const char* disk_image_path = "C:/GuestFS/appliance/disk.img";
-    if (!check_file_exists(disk_image_path)) {
-        printf("disk_image doesn't exist: %s\n", disk_image_path);
-        exit(EXIT_FAILURE);
-    }
+    //if (!check_file_exists(disk_image_path)) {
+    //    printf("disk_image doesn't exist: %s\n", disk_image_path);
+    //    exit(EXIT_FAILURE);
+    //}
 
     if (guestfs_add_drive_opts(g, disk_image_path,
         GUESTFS_ADD_DRIVE_OPTS_FORMAT, "raw",
@@ -146,6 +146,13 @@ test_guestfs()
         exit(EXIT_FAILURE);
     }
     time(ts + ts_cur++);
+
+    guestfs_set_shared_memory(g, 1,
+                              GUESTFS_SET_SHARED_MEMORY_SIZE, 64,
+                              GUESTFS_SET_SHARED_MEMORY_NAME, "GuestfsShm3",
+                              -1);
+
+    guestfs_set_recovery_proc(g, 0);
 
     printf("guestfs_launch()...\n");
     if (guestfs_launch(g) == -1) {
@@ -160,15 +167,15 @@ test_guestfs()
     }
     time(ts + ts_cur++);
 
-    download_file(g, "/home/novokrestdeb/test/bigfile", "bigfile");
+    //download_file(g, "/home/novokrestdeb/test/bigfile", "bigfile");
     time(ts + ts_cur++);
 
-    for (size_t i = 0; i < 10000; ++i) {
-        char buf[50];
-        sprintf(buf, "/home/novokrestdeb/test/%u", i);
-        read_file(g, buf);
-    }
-    //download_file(g, "/home/novokrestdeb/test/1", "smallfile");
+    //for (size_t i = 0; i < 10000; ++i) {
+    //    char buf[50];
+    //    sprintf(buf, "/home/novokrestdeb/test/%u", i);
+    //    read_file(g, buf);
+    //}
+    download_file(g, "/home/novokrestdeb/subdisk.img", "subdisk.img");
     time(ts + ts_cur++);
 
     printf("guestfs_close()...\n");

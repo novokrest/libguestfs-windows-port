@@ -440,6 +440,41 @@ guestfs_get_selinux (guestfs_h *g)
   return r;
 }
 
+GUESTFS_DLL_PUBLIC int
+guestfs_get_shared_memory(guestfs_h *g)
+{
+    int trace_flag = g->trace;
+    struct trace_buffer trace_buffer;
+    int r;
+
+    guestfs___call_callbacks_message(g, GUESTFS_EVENT_ENTER,
+        "get_shared_memory", 17);
+    if (trace_flag) {
+        guestfs___trace_open(&trace_buffer);
+        fprintf(trace_buffer.fp, "%s", "get_shared_memory");
+        guestfs___trace_send_line(g, &trace_buffer);
+    }
+
+    r = guestfs__get_shared_memory(g);
+
+    if (r != -1) {
+        if (trace_flag) {
+            guestfs___trace_open(&trace_buffer);
+            fprintf(trace_buffer.fp, "%s = ", "get_shared_memory");
+            fprintf(trace_buffer.fp, "%d", r);
+            guestfs___trace_send_line(g, &trace_buffer);
+        }
+
+    }
+    else {
+        if (trace_flag)
+            guestfs___trace(g, "%s = %s (error)",
+            "get_shared_memory", "-1");
+    }
+
+    return r;
+}
+
 GUESTFS_DLL_PUBLIC char *
 guestfs_inspect_get_hostname (guestfs_h *g,
                               const char *root)

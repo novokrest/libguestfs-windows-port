@@ -1801,14 +1801,12 @@ guestfs_download (guestfs_h *g,
     return -1;
   }
 
-  printf ("Before recv_file\n");
   if (guestfs___recv_file (g, filename) == -1) {
     if (trace_flag)
       guestfs___trace (g, "%s = %s (error)",
                        "download", "-1");
     return -1;
   }
-  printf ("After recv__file\n");
 
   ret_v = 0;
   if (trace_flag) {
