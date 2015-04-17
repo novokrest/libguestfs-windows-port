@@ -40,7 +40,7 @@
 struct connection_socket {
   const struct connection_ops *ops;
 
-  SOCKET console_sock;          /* Appliance console (for debug info). */
+  HANDLE hConsole;          /* Appliance console (for debug info). On Windows: it is 'read' end of anonymous pipe*/
   SOCKET daemon_sock;           /* Daemon communications socket. */
 
   /* Socket for accepting a connection from the daemon.  Only used
@@ -71,14 +71,11 @@ accept_connection (guestfs_h *g, struct connection *connv)
     fd_set readfds;
     int nfds = 1;
     int r;
+    BOOL bSuccess;
+    DWORD cbConsoleAvail;
 
     FD_ZERO(&readfds);
     FD_SET(conn->daemon_accept_sock, &readfds);
-
-    if (conn->console_sock != INVALID_SOCKET) {
-        FD_SET(conn->console_sock, &readfds);
-        nfds++;
-    }
 
     time (&now_t);
     timeout_ms.tv_sec = APPLIANCE_TIMEOUT - (now_t - start_t);
@@ -98,10 +95,13 @@ accept_connection (guestfs_h *g, struct connection *connv)
     }
 
     /* Log message? */
-    if (nfds > 1 && FD_ISSET(conn->console_sock, &readfds)) {
-      r = handle_log_message (g, conn);
-      if (r <= 0)
-        return r;
+    if (conn->hConsole) {
+      bSuccess = PeekNamedPipe(conn->hConsole, NULL, 0, NULL, &cbConsoleAvail, NULL);
+      if (bSuccess && cbConsoleAvail > 0) {
+        r = handle_log_message(g, conn);
+        if (r <= 0)
+            return r;
+      }
     }
 
     /* Accept on socket? */
@@ -149,14 +149,11 @@ read_data (guestfs_h *g, struct connection *connv, void *bufv, size_t len)
     fd_set readfds;
     int nfds = 1;
     int r;
+    BOOL bSuccess;
+    DWORD cbConsoleAvail;
 
     FD_ZERO(&readfds);
     FD_SET(conn->daemon_sock, &readfds);
-
-    if (conn->console_sock != INVALID_SOCKET) {
-        FD_SET(conn->console_sock, &readfds);
-        nfds++;
-    }
 
     r = select(0, &readfds, NULL, NULL, NULL);
     if (r == SOCKET_ERROR) {
@@ -167,10 +164,13 @@ read_data (guestfs_h *g, struct connection *connv, void *bufv, size_t len)
     }
 
     /* Log message? */
-    if (nfds > 1 && FD_ISSET(conn->console_sock, &readfds)) {
-      r = handle_log_message (g, conn);
-      if (r <= 0)
-        return r;
+    if (conn->hConsole) {
+      bSuccess = PeekNamedPipe(conn->hConsole, NULL, 0, NULL, &cbConsoleAvail, NULL);
+      if (bSuccess && cbConsoleAvail > 0) {
+        r = handle_log_message(g, conn);
+        if (r <= 0)
+          return r;
+      }
     }
 
     /* Read data on daemon socket? */
@@ -190,7 +190,7 @@ read_data (guestfs_h *g, struct connection *connv, void *bufv, size_t len)
          * messages in the console socket buffer in the kernel.  Read
          * them out here.
          */
-        if (g->verbose && conn->console_sock != INVALID_SOCKET) {
+        if (g->verbose && conn->hConsole) {
           while (handle_log_message (g, conn) == 1)
             ;
         }
@@ -249,16 +249,13 @@ write_data (guestfs_h *g, struct connection *connv,
     fd_set readfds, writefds;
     int nfds = 1;
     int r;
+    BOOL bSuccess;
+    DWORD cbConsoleAvail;
 
     FD_ZERO(&readfds);
     FD_ZERO(&writefds);
 
     FD_SET(conn->daemon_sock, &writefds);
-
-    if (conn->console_sock != INVALID_SOCKET) {
-        FD_SET(conn->console_sock, &readfds);
-        nfds++;
-    }
 
     r = select(0, &readfds, &writefds, NULL, NULL);
     if (r == SOCKET_ERROR) {
@@ -269,10 +266,13 @@ write_data (guestfs_h *g, struct connection *connv,
     }
 
     /* Log message? */
-    if (nfds > 1 && FD_ISSET(conn->console_sock, &readfds)) {
-      r = handle_log_message (g, conn);
-      if (r <= 0)
-        return r;
+    if (conn->hConsole) {
+      bSuccess = PeekNamedPipe(conn->hConsole, NULL, 0, NULL, &cbConsoleAvail, NULL);
+      if (bSuccess && cbConsoleAvail > 0) {
+        r = handle_log_message(g, conn);
+        if (r <= 0)
+          return r;
+      }
     }
 
     /* Can write data on daemon socket? */
@@ -308,8 +308,9 @@ static int
 handle_log_message (guestfs_h *g,
                     struct connection_socket *conn)
 {
-  char buf[BUFSIZ];
-  ssize_t n;
+  CHAR buf[BUFSIZ];
+  DWORD dwRead;
+  BOOL bSuccess;
 
   /* Carried over from ancient proto.c code.  The comment there was:
    *
@@ -325,20 +326,21 @@ handle_log_message (guestfs_h *g,
    */
   Sleep(1);
 
-  n = recv(conn->console_sock, buf, sizeof buf, 0);
-  if (n == 0)
-    return 0;
+  bSuccess = ReadFile(conn->hConsole, buf, BUFSIZ, &dwRead, NULL);
 
-  if (n == SOCKET_ERROR) {
-    if (WSAGetLastError() == WSAEINTR || WSAGetLastError() == WSAEWOULDBLOCK)
-      return 1; /* not an error */
+  if (!bSuccess) {
+      if (GetLastError() == ERROR_BROKEN_PIPE) /* write end of pipe has been closed */
+          return 0; /* not an error */
 
-    perrorf_wsa (g, _("error reading console messages from the appliance"));
-    return -1;
+      perrorf_wsa(g, _("error reading console messages from the appliance"));
+      return -1;
   }
 
+  if (dwRead == 0)
+    return 0;
+
   /* It's an actual log message, send it upwards. */
-  guestfs___log_message_callback (g, buf, n);
+  guestfs___log_message_callback (g, buf, dwRead);
 
 #ifdef VALGRIND_DAEMON
   /* Find the canary printed by appliance/init if valgrinding of the
@@ -368,8 +370,8 @@ free_conn_socket (guestfs_h *g, struct connection *connv)
 {
   struct connection_socket *conn = (struct connection_socket *) connv;
 
-  if (conn->console_sock != INVALID_SOCKET)
-    closesocket (conn->console_sock);
+  if (conn->hConsole)
+    CloseHandle (conn->hConsole);
   if (conn->daemon_sock != INVALID_SOCKET)
     closesocket (conn->daemon_sock);
   if (conn->daemon_accept_sock != INVALID_SOCKET)
@@ -398,7 +400,7 @@ static struct connection_ops ops = {
 struct connection *
 guestfs___new_conn_socket_listening (guestfs_h *g,
                                      int daemon_accept_sock,
-                                     int console_sock)
+                                     HANDLE console_sock)
 {
   struct connection_socket *conn;
   u_long ulMode = 1;
@@ -410,20 +412,13 @@ guestfs___new_conn_socket_listening (guestfs_h *g,
     return NULL;
   }
 
-  if (console_sock != INVALID_SOCKET) {
-    if (ioctlsocket(console_sock, FIONBIO, &ulMode) == SOCKET_ERROR) {
-      perrorf_wsa(g, "new_conn_socket_listening: fcntl");
-      return NULL;
-    }
-  }
-
   conn = safe_malloc (g, sizeof *conn);
 
   /* Set the operations. */
   conn->ops = &ops;
 
   /* Set the internal state. */
-  conn->console_sock = console_sock;
+  conn->hConsole = console_sock;
   conn->daemon_sock = INVALID_SOCKET;
   conn->daemon_accept_sock = daemon_accept_sock;
 
@@ -438,7 +433,7 @@ guestfs___new_conn_socket_listening (guestfs_h *g,
 struct connection *
 guestfs___new_conn_socket_connected (guestfs_h *g,
                                      int daemon_sock,
-                                     int console_sock)
+                                     HANDLE console_sock)
 {
   struct connection_socket *conn;
   u_long ulMode = 1;
@@ -450,21 +445,13 @@ guestfs___new_conn_socket_connected (guestfs_h *g,
     return NULL;
   }
 
-  if (console_sock != INVALID_SOCKET) {
-    if (ioctlsocket(console_sock, FIONBIO, &ulMode) == SOCKET_ERROR) {
-      perrorf_wsa(g, "new_conn_socket_connected: ioctlsocket");
-      return NULL;
-    }
-  }
-
-
   conn = safe_malloc (g, sizeof *conn);
 
   /* Set the operations. */
   conn->ops = &ops;
 
   /* Set the internal state. */
-  conn->console_sock = console_sock;
+  conn->hConsole = console_sock;
   conn->daemon_sock = daemon_sock;
   conn->daemon_accept_sock = INVALID_SOCKET;
 
