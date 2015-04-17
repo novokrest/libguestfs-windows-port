@@ -1,0 +1,29 @@
+open
+close
+strdup
+write
+read
+snprintf _snprintf
+strcmpcase
+strncmpcase
+_S_IFREG
+utimes -> _utime
+
+generated:
+S_ISREG (progress_stat.st_mode))
+
+create.c:
+S_ISBLK
+
+!WIFEXITED (r) || WEXITSTATUS (r) 
+
+mingw: 
+	has dirent.h?
+	has endian.h?
+
+%zu => %Iu
+
+TODO:
+guestfs_shm_size=%d -> guestfs_shm_size=%dM
+GetLastError -> errno_win
+conn-socket.c: read console_sock before daemon_sock because buffer overhead and qemu hangs
