@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -188,6 +188,7 @@
     <ClCompile Include="src\match.c" />
     <ClCompile Include="src\osinfo.c" />
     <ClCompile Include="src\proto.c" />
+    <ClCompile Include="src\shared-memory.c" />
     <ClCompile Include="src\stringsbuf.c" />
     <ClCompile Include="src\structs-free.c" />
     <ClCompile Include="src\tmpdirs.c" />
@@ -244,6 +245,11 @@
     <ClInclude Include="include\win-port.h" />
     <ClInclude Include="include\win-unistd.h" />
     <ClInclude Include="include\xdr.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="..\deprecated.txt" />
+    <Text Include="smallfile.txt" />
+    <Text Include="tmp.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
