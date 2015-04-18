@@ -6,6 +6,11 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
     {
         /* equivalent of __attribute__((constructor))... */
 
+        WSADATA wsData;
+        if (WSAStartup(MAKEWORD(2, 2), &wsData) != 0) {
+            return FALSE;
+        }
+
         dll_init_libguestfs();
         dll_init_backend_direct();
         //dll_init_backend_uml();
@@ -25,6 +30,8 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
     else if (fdwReason == DLL_PROCESS_DETACH)
     {
         /* equivalent of __attribute__((destructor))... */
+
+        WSACleanup();
 
         dll_free_regexps_launch_direct();
         dll_free_regexps_inspect_fs();
