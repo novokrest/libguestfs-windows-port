@@ -776,7 +776,7 @@ guestfs___recv_file (guestfs_h *g, const char *filename)
 
   g->user_cancel = 0;
 
-  fd = _open (filename, O_WRONLY|O_CREAT|O_TRUNC, S_IWRITE);
+  fd = _open (filename, O_WRONLY|O_CREAT|O_TRUNC|O_BINARY, S_IWRITE);
   if (fd == -1) {
     perrorf (g, "open: %s", filename);
     goto cancel;
