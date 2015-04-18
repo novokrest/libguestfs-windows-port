@@ -240,6 +240,7 @@ guestfs___send (guestfs_h *g, int proc_nr,
   assert (hdr_len == PROTOBUF_MESSAGE_HEADER_SIZE);
   if (!hdr_len) {
     error (g, _("protobuf-c's guestfs_message_header__pack failed"));
+    free (msg_out);
     return -1;
   }
 
@@ -250,6 +251,7 @@ guestfs___send (guestfs_h *g, int proc_nr,
     pack_len = pb_pack ((ProtobufCMessage*) args, msg_out + PROTOBUF_FLAG_MESSAGE_SIZE + PROTOBUF_MESSAGE_HEADER_SIZE);
     if (!pack_len) {
       error (g, _("dispatch failed to marshal args"));
+      free(msg_out);
       return -1;
     }
   }
@@ -272,24 +274,31 @@ guestfs___send (guestfs_h *g, int proc_nr,
    */
   r = check_daemon_socket (g);
   /* r == -2 (cancellation) is ignored */
-  if (r == -1)
+  if (r == -1) {
+    free(msg_out);
     return -1;
+  }
   if (r == 0) {
     guestfs___unexpected_close_error (g);
     child_cleanup (g);
+    free(msg_out);
     return -1;
   }
 
   /* Send the message. */
   r = g->conn->ops->write_data (g, g->conn, msg_out, msg_out_size);
-  if (r == -1)
+  if (r == -1) {
+    free(msg_out);
     return -1;
+  }
   if (r == 0) {
     guestfs___unexpected_close_error (g);
     child_cleanup (g);
+    free(msg_out);
     return -1;
   }
 
+  free(msg_out);
   return serial;
 }
 
@@ -430,6 +439,7 @@ send_file_chunk (guestfs_h *g, int cancel, const char *buf, size_t buflen)
   if (!len) {
     error (g, _("protobuf-c's guestfs_chunk_pack failed (buf = %p, buflen = %zu)"),
            buf, buflen);
+    free (msg_out);
     return -1;
   }
 
@@ -446,26 +456,34 @@ send_file_chunk (guestfs_h *g, int cancel, const char *buf, size_t buflen)
   r = check_daemon_socket (g);
   if (r == -2) {
     debug (g, "got daemon cancellation");
+    free(msg_out);
     return -2;
   }
-  if (r == -1)
+  if (r == -1) {
+    free(msg_out);
     return -1;
+  }
   if (r == 0) {
     guestfs___unexpected_close_error (g);
     child_cleanup (g);
+    free(msg_out);
     return -1;
   }
 
   /* Send the chunk. */
   r = g->conn->ops->write_data (g, g->conn, msg_out, msg_out_size);
-  if (r == -1)
+  if (r == -1) {
+    free(msg_out);
     return -1;
+  }
   if (r == 0) {
     guestfs___unexpected_close_error (g);
     child_cleanup (g);
+    free(msg_out);
     return -1;
   }
 
+  free(msg_out);
   return 0;
 }
 
