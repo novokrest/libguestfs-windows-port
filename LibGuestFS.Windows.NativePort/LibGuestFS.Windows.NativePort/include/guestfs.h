@@ -61,6 +61,10 @@ extern "C" {
 
 #if defined(__GNUC__) && GUESTFS_GCC_VERSION >= 40000 /* gcc >= 4.0 */
 # define GUESTFS_DLL_PUBLIC __attribute__((visibility ("default")))
+#elif defined _WIN32 && GUESTFS_LIBRARY
+# define GUESTFS_DLL_PUBLIC __declspec(dllexport)
+#elif defined _WIN32
+# define GUESTFS_DLL_PUBLIC __declspec(dllimport)
 #else
 # define GUESTFS_DLL_PUBLIC
 #endif
