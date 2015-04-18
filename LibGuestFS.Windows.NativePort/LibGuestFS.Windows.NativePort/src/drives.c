@@ -29,6 +29,7 @@
 #include <string.h>
 #include <inttypes.h>
 #include <win-unistd.h>
+#include <win-dll.h>
 #include <fcntl.h>
 //#include <netdb.h>
 //#include <arpa/inet.h>
@@ -77,7 +78,8 @@ static pcre *re_hostname_port;
 static void compile_regexps (void) __attribute__((constructor));
 static void free_regexps (void) __attribute__((destructor));
 
-INITIALIZER(compile_regexps_drives)
+static void
+compile_regexps(void)
 {
   const char *err;
   int offset;
@@ -99,6 +101,22 @@ free_regexps (void)
 {
   pcre_free (re_hostname_port);
 }
+
+#ifdef WIN32
+
+void
+dll_compile_regexps_drives(void)
+{
+    compile_regexps();
+}
+
+void
+dll_free_regexps_drives(void)
+{
+    free_regexps();
+}
+
+#endif /* WIN32 */
 
 static void free_drive_struct (struct drive *drv);
 static void free_drive_source (struct drive_source *src);

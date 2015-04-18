@@ -365,16 +365,8 @@
     <ClInclude Include="include\xdr.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="..\deprecated.txt">
-      <Filter>Resource Files</Filter>
-    </Text>
-    <Text Include="smallfile.txt">
-      <Filter>Resource Files</Filter>
-    </Text>
-    <Text Include="tmp.txt">
-      <Filter>Resource Files</Filter>
-    </Text>
+    <ClInclude Include="include\win-dll.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

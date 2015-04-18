@@ -4,17 +4,43 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 {
     if (fdwReason == DLL_PROCESS_ATTACH)
     {
-        // equivalent of __attribute__((constructor))...
+        /* equivalent of __attribute__((constructor))... */
 
-        // return TRUE if succeeded, FALSE if you failed to initialize properly
-        return TRUE; // I'm assuming you succeeded.
+        WSADATA wsData;
+        if (WSAStartup(MAKEWORD(2, 2), &wsData) != 0) {
+            return FALSE;
+        }
+
+        dll_init_libguestfs();
+        dll_init_backend_direct();
+        //dll_init_backend_uml();
+        //dll_init_backend_unix();
+        //dll_init_backend_libvirt();
+
+        dll_compile_regexps_launch_direct();
+        dll_compile_regexps_inspect_fs();
+        dll_compile_regexps_inspect_fs_unix();
+        dll_compile_regexps_inspect_fs_windows();
+        dll_compile_regexps_osinfo();
+        dll_compile_regexps_drives();
+        //dll_compile_regexps_filearch();
+
+        return TRUE;
     }
     else if (fdwReason == DLL_PROCESS_DETACH)
     {
-        // equivalent of __attribute__((destructor))...
+        /* equivalent of __attribute__((destructor))... */
+
+        WSACleanup();
+
+        dll_free_regexps_launch_direct();
+        dll_free_regexps_inspect_fs();
+        dll_free_regexps_inspect_fs_unix();
+        dll_free_regexps_inspect_fs_windows();
+        dll_free_regexps_osinfo();
+        dll_free_regexps_drives();
+        //dll_free_regexps_filearch();
     }
 
-    // Return value is ignored when fdwReason isn't DLL_PROCESS_ATTACH, so we'll
-    // just return TRUE.
     return TRUE;
 }

@@ -31,7 +31,7 @@ lib_close()
     WSACleanup();
 }
 
-int main(int args, char* argv[])
+int old_main(int args, char* argv[])
 {
     time_t t_start, t_end;
     if (lib_init() == -1) {

@@ -51,6 +51,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <win-unistd.h>
+#include <win-dll.h>
 #include <errno.h>
 #include <win-dirent.h>
 #include <assert.h>
@@ -72,7 +73,8 @@ static pcre *re_major_minor;
 static void compile_regexps (void) __attribute__((constructor));
 static void free_regexps (void) __attribute__((destructor));
 
-INITIALIZER(compile_regexps_osinfo)
+static void
+compile_regexps(void)
 {
   const char *err;
   int offset;
@@ -94,6 +96,22 @@ free_regexps (void)
 {
   pcre_free (re_major_minor);
 }
+
+#ifdef WIN32
+
+void
+dll_compile_regexps_osinfo(void)
+{
+    compile_regexps();
+}
+
+void
+dll_free_regexps_osinfo(void)
+{
+    free_regexps();
+}
+
+#endif
 
 gl_lock_define_initialized (static, osinfo_db_lock);
 static ssize_t osinfo_db_size = 0; /* 0 = unread, -1 = error, >= 1 = #records */
