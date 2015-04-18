@@ -24,6 +24,7 @@
 #include <stdint.h>
 #include <inttypes.h>
 #include <win-unistd.h>
+#include <win-dll.h>
 #include <errno.h>
 #include <fcntl.h>
 #include <sys/types.h>
@@ -61,7 +62,8 @@ static pcre *re_major_minor;
 static void compile_regexps (void) __attribute__((constructor));
 static void free_regexps (void) __attribute__((destructor));
 
-INITIALIZER(compile_regexps_launch_direct)
+static void
+compile_regexps(void)
 {
   const char *err;
   int offset;
@@ -83,6 +85,23 @@ free_regexps (void)
 {
   pcre_free (re_major_minor);
 }
+
+#ifdef WIN32
+
+void
+dll_compile_regexps_launch_direct(void)
+{
+    compile_regexps();
+}
+
+void
+dll_free_regexps_launch_direct(void)
+{
+    free_regexps();
+}
+
+#endif /* WIN32 */
+
 
 /* Per-handle data. */
 struct backend_direct_data {
@@ -1648,7 +1667,18 @@ static struct backend_ops backend_direct_ops = {
 };
 
 static void init_backend (void) __attribute__((constructor));
-INITIALIZER(init_backend)
+static void
+init_backend(void)
 {
   guestfs___register_backend ("direct", &backend_direct_ops);
 }
+
+#ifdef WIN32
+
+void
+dll_init_backend_direct(void)
+{
+    init_backend();
+}
+
+#endif /* WIN32 */
