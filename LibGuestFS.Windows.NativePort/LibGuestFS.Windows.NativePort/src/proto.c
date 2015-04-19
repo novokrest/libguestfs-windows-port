@@ -34,9 +34,6 @@
 //#include <sys/wait.h>
 #include <assert.h>
 
-#include <rpc/types.h>
-#include <rpc/xdr.h>
-
 #include "c-ctype.h"
 #include "glthread/lock.h"
 #include "ignore-value.h"
@@ -46,8 +43,6 @@
 #include "guestfs-internal-actions.h"
 #include "guestfs_protocol.h"
 
-/* Size of guestfs_progress message on the wire. */
-#define PROGRESS_MESSAGE_SIZE 24
 
 /* This is the code used to send and receive RPC messages and (for
  * certain types of message) to perform file transfers.  This code is
@@ -109,7 +104,7 @@ child_cleanup (guestfs_h *g)
 /* Convenient wrapper to generate a progress message callback. */
 void
 guestfs___progress_message_callback (guestfs_h *g,
-                                     const guestfs_progress *message)
+                                     const guestfs_protobuf_progress *message)
 {
   uint64_t array[4];
 
@@ -160,10 +155,10 @@ guestfs___log_message_callback (guestfs_h *g, const char *buf, size_t len)
 static ssize_t
 check_daemon_socket (guestfs_h *g)
 {
-  char buf[4];
+  char buf[PROTOBUF_FLAG_MESSAGE_SIZE];
   ssize_t n;
   uint32_t flag;
-  XDR xdr;
+  guestfs_protobuf_flag_message *flag_msg;
 
   assert (g->conn); /* callers must check this */
 
@@ -171,28 +166,26 @@ check_daemon_socket (guestfs_h *g)
   if (! g->conn->ops->can_read_data (g, g->conn))
     return 1;
 
-  n = g->conn->ops->read_data (g, g->conn, buf, 4);
+  n = g->conn->ops->read_data (g, g->conn, buf, PROTOBUF_FLAG_MESSAGE_SIZE);
   if (n <= 0) /* 0 or -1 */
     return n;
 
-  xdrmem_create (&xdr, buf, 4, XDR_DECODE);
-  xdr_uint32_t (&xdr, &flag);
-  xdr_destroy (&xdr);
+  flag_msg = guestfs_protobuf_flag_message__unpack (NULL, PROTOBUF_FLAG_MESSAGE_SIZE, buf);
+  flag = flag_msg->val;
+  guestfs_protobuf_flag_message__free_unpacked (flag_msg, NULL);
 
   /* Read and process progress messages that happen during FileIn. */
   if (flag == GUESTFS_PROGRESS_FLAG) {
-    char buf[PROGRESS_MESSAGE_SIZE];
-    guestfs_progress message;
+    char buf[PROTOBUF_PROGRESS_MESSAGE_SIZE];
+    guestfs_protobuf_progress *message;
 
-    n = g->conn->ops->read_data (g, g->conn, buf, PROGRESS_MESSAGE_SIZE);
+    n = g->conn->ops->read_data (g, g->conn, buf, PROTOBUF_PROGRESS_MESSAGE_SIZE);
     if (n <= 0) /* 0 or -1 */
       return n;
 
-    xdrmem_create (&xdr, buf, PROGRESS_MESSAGE_SIZE, XDR_DECODE);
-    xdr_guestfs_progress (&xdr, &message);
-    xdr_destroy (&xdr);
-
-    guestfs___progress_message_callback (g, &message);
+    message = guestfs_protobuf_progress__unpack (NULL, PROTOBUF_PROGRESS_MESSAGE_SIZE, (uint8_t *) buf);
+    guestfs___progress_message_callback (g, message);
+    guestfs_protobuf_progress__free_unpacked (message, NULL);
 
     goto again;
   }
@@ -209,11 +202,11 @@ check_daemon_socket (guestfs_h *g)
 int
 guestfs___send (guestfs_h *g, int proc_nr,
                 uint64_t progress_hint, uint64_t optargs_bitmask,
-                xdrproc_t xdrp, char *args)
+                protobuf_proc_pack pb_pack, char *args)
 {
-  struct guestfs_message_header hdr;
-  XDR xdr;
-  uint32_t len;
+  guestfs_protobuf_message_header hdr;
+  guestfs_protobuf_flag_message len_msg;
+  uint32_t len, flag_len, hdr_len, pack_len = 0;
   int serial = g->msg_next_serial++;
   ssize_t r;
   CLEANUP_FREE char *msg_out = NULL;
@@ -230,10 +223,10 @@ guestfs___send (guestfs_h *g, int proc_nr,
    * we have quite limited stack space available, notably when
    * running in the JVM.
    */
-  msg_out = safe_malloc (g, GUESTFS_MESSAGE_MAX + 4);
-  xdrmem_create (&xdr, msg_out + 4, GUESTFS_MESSAGE_MAX, XDR_ENCODE);
+  msg_out = safe_malloc (g, GUESTFS_MESSAGE_MAX + PROTOBUF_FLAG_MESSAGE_SIZE);
 
   /* Serialize the header. */
+  guestfs_protobuf_message_header__init (&hdr);
   hdr.prog = GUESTFS_PROGRAM;
   hdr.vers = GUESTFS_PROTOCOL_VERSION;
   hdr.proc = proc_nr;
@@ -243,17 +236,22 @@ guestfs___send (guestfs_h *g, int proc_nr,
   hdr.progress_hint = progress_hint;
   hdr.optargs_bitmask = optargs_bitmask;
 
-  if (!xdr_guestfs_message_header (&xdr, &hdr)) {
-    error (g, _("xdr_guestfs_message_header failed"));
+  hdr_len = guestfs_protobuf_message_header__pack (&hdr, (uint8_t *) msg_out + PROTOBUF_FLAG_MESSAGE_SIZE);
+  assert (hdr_len == PROTOBUF_MESSAGE_HEADER_SIZE);
+  if (!hdr_len) {
+    error (g, _("protobuf-c's guestfs_message_header__pack failed"));
+    free (msg_out);
     return -1;
   }
 
   /* Serialize the args.  If any, because some message types
    * have no parameters.
    */
-  if (xdrp) {
-    if (!(*xdrp) (&xdr, args)) {
+  if (pb_pack) {
+    pack_len = pb_pack ((ProtobufCMessage*) args, msg_out + PROTOBUF_FLAG_MESSAGE_SIZE + PROTOBUF_MESSAGE_HEADER_SIZE);
+    if (!pack_len) {
       error (g, _("dispatch failed to marshal args"));
+      free(msg_out);
       return -1;
     }
   }
@@ -261,38 +259,46 @@ guestfs___send (guestfs_h *g, int proc_nr,
   /* Get the actual length of the message, resize the buffer to match
    * the actual length, and write the length word at the beginning.
    */
-  len = xdr_getpos (&xdr);
-  xdr_destroy (&xdr);
+  len = hdr_len + pack_len;
 
-  msg_out = safe_realloc (g, msg_out, len + 4);
-  msg_out_size = len + 4;
+  msg_out = safe_realloc (g, msg_out, len + PROTOBUF_FLAG_MESSAGE_SIZE);
+  msg_out_size = len + PROTOBUF_FLAG_MESSAGE_SIZE;
 
-  xdrmem_create (&xdr, msg_out, 4, XDR_ENCODE);
-  xdr_uint32_t (&xdr, &len);
-
+  guestfs_protobuf_flag_message__init (&len_msg);
+  len_msg.val = len;
+  flag_len = guestfs_protobuf_flag_message__pack (&len_msg, (uint8_t *) msg_out);
+  assert (flag_len == PROTOBUF_FLAG_MESSAGE_SIZE);
+  
   /* Look for stray daemon cancellation messages from earlier calls
    * and ignore them.
    */
   r = check_daemon_socket (g);
   /* r == -2 (cancellation) is ignored */
-  if (r == -1)
+  if (r == -1) {
+    free(msg_out);
     return -1;
+  }
   if (r == 0) {
     guestfs___unexpected_close_error (g);
     child_cleanup (g);
+    free(msg_out);
     return -1;
   }
 
   /* Send the message. */
   r = g->conn->ops->write_data (g, g->conn, msg_out, msg_out_size);
-  if (r == -1)
+  if (r == -1) {
+    free(msg_out);
     return -1;
+  }
   if (r == 0) {
     guestfs___unexpected_close_error (g);
     child_cleanup (g);
+    free(msg_out);
     return -1;
   }
 
+  free(msg_out);
   return serial;
 }
 
@@ -411,65 +417,73 @@ send_file_complete (guestfs_h *g)
 static int
 send_file_chunk (guestfs_h *g, int cancel, const char *buf, size_t buflen)
 {
-  uint32_t len;
+  uint32_t len, flag_len;
   ssize_t r;
-  guestfs_chunk chunk;
-  XDR xdr;
+  guestfs_protobuf_flag_message len_msg;
+  guestfs_protobuf_chunk chunk;
   CLEANUP_FREE char *msg_out = NULL;
   size_t msg_out_size;
 
   /* Allocate the chunk buffer.  Don't use the stack to avoid
    * excessive stack usage and unnecessary copies.
    */
-  msg_out = safe_malloc (g, GUESTFS_MAX_CHUNK_SIZE + 4 + 48);
-  xdrmem_create (&xdr, msg_out + 4, GUESTFS_MAX_CHUNK_SIZE + 48, XDR_ENCODE);
+  msg_out = safe_malloc (g, GUESTFS_MAX_CHUNK_SIZE + PROTOBUF_FLAG_MESSAGE_SIZE + 48);
 
   /* Serialize the chunk. */
+  guestfs_protobuf_chunk__init (&chunk);
   chunk.cancel = cancel;
-  chunk.data.data_len = buflen;
-  chunk.data.data_val = (char *) buf;
+  chunk.data.len = buflen;
+  chunk.data.data = (uint8_t *) buf;
 
-  if (!xdr_guestfs_chunk (&xdr, &chunk)) {
-    error (g, _("xdr_guestfs_chunk failed (buf = %p, buflen = %Iu)"),
+  len = guestfs_protobuf_chunk__pack (&chunk, (uint8_t *) msg_out + PROTOBUF_FLAG_MESSAGE_SIZE);
+  if (!len) {
+    error (g, _("protobuf-c's guestfs_chunk_pack failed (buf = %p, buflen = %zu)"),
            buf, buflen);
-    xdr_destroy (&xdr);
+    free (msg_out);
     return -1;
   }
 
-  len = xdr_getpos (&xdr);
-  xdr_destroy (&xdr);
-
   /* Reduce the size of the outgoing message buffer to the real length. */
-  msg_out = safe_realloc (g, msg_out, len + 4);
-  msg_out_size = len + 4;
+  msg_out = safe_realloc (g, msg_out, len + PROTOBUF_FLAG_MESSAGE_SIZE);
+  msg_out_size = len + PROTOBUF_FLAG_MESSAGE_SIZE;
 
-  xdrmem_create (&xdr, msg_out, 4, XDR_ENCODE);
-  xdr_uint32_t (&xdr, &len);
+  guestfs_protobuf_flag_message__init (&len_msg);
+  len_msg.val = len;
+  flag_len = guestfs_protobuf_flag_message__pack (&len_msg, (uint8_t *) msg_out);
+  assert (flag_len == PROTOBUF_FLAG_MESSAGE_SIZE);
 
   /* Did the daemon send a cancellation message? */
   r = check_daemon_socket (g);
   if (r == -2) {
     debug (g, "got daemon cancellation");
+    free(msg_out);
     return -2;
   }
-  if (r == -1)
+  if (r == -1) {
+    free(msg_out);
     return -1;
+  }
   if (r == 0) {
     guestfs___unexpected_close_error (g);
     child_cleanup (g);
+    free(msg_out);
     return -1;
   }
 
   /* Send the chunk. */
   r = g->conn->ops->write_data (g, g->conn, msg_out, msg_out_size);
-  if (r == -1)
+  if (r == -1) {
+    free(msg_out);
     return -1;
+  }
   if (r == 0) {
     guestfs___unexpected_close_error (g);
     child_cleanup (g);
+    free(msg_out);
     return -1;
   }
 
+  free(msg_out);
   return 0;
 }
 
@@ -494,9 +508,9 @@ send_file_chunk (guestfs_h *g, int cancel, const char *buf, size_t buflen)
 static int
 recv_from_daemon (guestfs_h *g, uint32_t *size_rtn, void **buf_rtn)
 {
-  char lenbuf[4];
+  char lenbuf[PROTOBUF_FLAG_MESSAGE_SIZE];
+  guestfs_protobuf_flag_message *lenmsg;
   ssize_t n;
-  XDR xdr;
   size_t message_size;
 
   *size_rtn = 0;
@@ -512,7 +526,7 @@ recv_from_daemon (guestfs_h *g, uint32_t *size_rtn, void **buf_rtn)
   }
 
   /* Read the 4 byte size / flag. */
-  n = g->conn->ops->read_data (g, g->conn, lenbuf, 4);
+  n = g->conn->ops->read_data (g, g->conn, lenbuf, PROTOBUF_FLAG_MESSAGE_SIZE);
   if (n == -1)
     return -1;
   if (n == 0) {
@@ -521,10 +535,10 @@ recv_from_daemon (guestfs_h *g, uint32_t *size_rtn, void **buf_rtn)
     return -1;
   }
 
-  xdrmem_create (&xdr, lenbuf, 4, XDR_DECODE);
-  xdr_uint32_t (&xdr, size_rtn);
-  xdr_destroy (&xdr);
-
+  lenmsg = guestfs_protobuf_flag_message__unpack (NULL, PROTOBUF_FLAG_MESSAGE_SIZE, (uint8_t *) lenbuf);
+  *size_rtn = lenmsg->val;
+  guestfs_protobuf_flag_message__free_unpacked (lenmsg, NULL);
+  
   if (*size_rtn == GUESTFS_LAUNCH_FLAG) {
     if (g->state != LAUNCHING)
       error (g, _("received magic signature from guestfsd, but in state %d"),
@@ -553,7 +567,7 @@ recv_from_daemon (guestfs_h *g, uint32_t *size_rtn, void **buf_rtn)
 
   /* Calculate the message size. */
   message_size =
-    *size_rtn != GUESTFS_PROGRESS_FLAG ? *size_rtn : PROGRESS_MESSAGE_SIZE;
+    *size_rtn != GUESTFS_PROGRESS_FLAG ? *size_rtn : PROTOBUF_PROGRESS_MESSAGE_SIZE;
 
   /* Allocate the complete buffer, size now known. */
   *buf_rtn = safe_malloc (g, message_size);
@@ -613,14 +627,11 @@ guestfs___recv_from_daemon (guestfs_h *g, uint32_t *size_rtn, void **buf_rtn)
     return -1;
 
   if (*size_rtn == GUESTFS_PROGRESS_FLAG) {
-    guestfs_progress message;
-    XDR xdr;
+    guestfs_protobuf_progress *message;
 
-    xdrmem_create (&xdr, *buf_rtn, PROGRESS_MESSAGE_SIZE, XDR_DECODE);
-    xdr_guestfs_progress (&xdr, &message);
-    xdr_destroy (&xdr);
-
-    guestfs___progress_message_callback (g, &message);
+    message = guestfs_protobuf_progress__unpack (NULL, PROTOBUF_PROGRESS_MESSAGE_SIZE, *buf_rtn);
+    guestfs___progress_message_callback (g, message);
+    guestfs_protobuf_progress__free_unpacked (message, NULL);
 
     free (*buf_rtn);
     *buf_rtn = NULL;
@@ -641,11 +652,13 @@ guestfs___recv_from_daemon (guestfs_h *g, uint32_t *size_rtn, void **buf_rtn)
 /* Receive a reply. */
 int
 guestfs___recv (guestfs_h *g, const char *fn,
-                guestfs_message_header *hdr,
-                guestfs_message_error *err,
-                xdrproc_t xdrp, char *ret)
+                guestfs_protobuf_message_header **hdr,
+                guestfs_protobuf_message_error **err,
+                protobuf_proc_unpack pb_unpack, ProtobufCMessage **ret)
 {
-  XDR xdr;
+  guestfs_protobuf_message_header *tmphdr;
+  guestfs_protobuf_message_error *tmperr;
+  ProtobufCMessage *tmpret;
   CLEANUP_FREE void *buf = NULL;
   uint32_t size;
   int r;
@@ -666,28 +679,35 @@ guestfs___recv (guestfs_h *g, const char *fn,
     error (g, "%s: received unexpected launch flag from daemon when expecting reply", fn);
     return -1;
   }
-
-  xdrmem_create (&xdr, buf, size, XDR_DECODE);
-
-  if (!xdr_guestfs_message_header (&xdr, hdr)) {
+  
+  tmphdr = guestfs_protobuf_message_header__unpack (NULL, PROTOBUF_MESSAGE_HEADER_SIZE, (uint8_t *) buf);
+  if (!tmphdr) {
     error (g, "%s: failed to parse reply header", fn);
-    xdr_destroy (&xdr);
     return -1;
   }
-  if (hdr->status == GUESTFS_STATUS_ERROR) {
-    if (!xdr_guestfs_message_error (&xdr, err)) {
+  *hdr = tmphdr;
+//  convert_guestfs_message_header_protobuf_to_xdr (tmphdr, hdr);
+//  guestfs_message_header__free_unpacked (tmphdr, NULL);
+
+  if (tmphdr->status == GUESTFS_STATUS_ERROR) {
+    tmperr = guestfs_protobuf_message_error__unpack (NULL, size - PROTOBUF_MESSAGE_HEADER_SIZE, (uint8_t *) buf + PROTOBUF_MESSAGE_HEADER_SIZE);
+    if (!tmperr) {
       error (g, "%s: failed to parse reply error", fn);
-      xdr_destroy (&xdr);
       return -1;
     }
+    *err = tmperr;
+//    convert_guestfs_message_error_protobuf_to_xdr (tmperr, err);
+//    guestfs_message_error__free_unpacked (tmperr, NULL);
   } else {
-    if (xdrp && ret && !xdrp (&xdr, ret)) {
-      error (g, "%s: failed to parse reply", fn);
-      xdr_destroy (&xdr);
-      return -1;
-    }
+    if (pb_unpack && ret) {
+      tmpret = pb_unpack (NULL, size - PROTOBUF_MESSAGE_HEADER_SIZE, (uint8_t *) buf + PROTOBUF_MESSAGE_HEADER_SIZE);
+      if (tmpret == NULL) {
+        error (g, "%s: failed to parse reply", fn);
+        return -1;
+      }
+      *ret = tmpret;
+    } 
   }
-  xdr_destroy (&xdr);
 
   return 0;
 }
@@ -730,7 +750,7 @@ guestfs___recv_discard (guestfs_h *g, const char *fn)
 static int
 xwrite (int fd, const void *v_buf, size_t len)
 {
-  const char *buf = v_buf;
+  const char *buf = (char *) v_buf;
   int r;
 
   while (len > 0) {
@@ -751,12 +771,12 @@ static ssize_t receive_file_data (guestfs_h *g, void **buf);
 int
 guestfs___recv_file (guestfs_h *g, const char *filename)
 {
-  void *buf;
+  void *buf = NULL;
   int fd, r;
 
   g->user_cancel = 0;
 
-  fd = _open (filename, O_WRONLY|O_CREAT|O_TRUNC, _S_IWRITE);
+  fd = _open (filename, O_WRONLY|O_CREAT|O_TRUNC|O_BINARY, S_IWRITE);
   if (fd == -1) {
     perrorf (g, "open: %s", filename);
     goto cancel;
@@ -768,11 +788,13 @@ guestfs___recv_file (guestfs_h *g, const char *filename)
   while ((r = receive_file_data (g, &buf)) > 0) {
     if (xwrite (fd, buf, r) == -1) {
       perrorf (g, "%s: write", filename);
-      free (buf);
+      if (!g->enable_shm)
+        free (buf);
       _close (fd);
       goto cancel;
     }
-    free (buf);
+    if (!g->enable_shm)
+      free (buf);
 
     if (g->user_cancel) {
       _close (fd);
@@ -796,18 +818,19 @@ guestfs___recv_file (guestfs_h *g, const char *filename)
   /* Send cancellation message to daemon, then wait until it
    * cancels (just throwing away data).
    */
-  XDR xdr;
-  char fbuf[4];
-  uint32_t flag = GUESTFS_CANCEL_FLAG;
+  guestfs_protobuf_flag_message flagmsg;
+  char flagbuf[PROTOBUF_FLAG_MESSAGE_SIZE];
+  uint32_t flag = GUESTFS_CANCEL_FLAG, flaglen;
 
   debug (g, "%s: waiting for daemon to acknowledge cancellation",
          __FUNCTION__);
 
-  xdrmem_create (&xdr, fbuf, sizeof fbuf, XDR_ENCODE);
-  xdr_uint32_t (&xdr, &flag);
-  xdr_destroy (&xdr);
+  guestfs_protobuf_flag_message__init (&flagmsg);
+  flagmsg.val = flag;
+  flaglen = guestfs_protobuf_flag_message__pack (&flagmsg, (uint8_t *) flagbuf);
+  assert (flaglen == PROTOBUF_FLAG_MESSAGE_SIZE);
 
-  if (g->conn->ops->write_data (g, g->conn, fbuf, sizeof fbuf) == -1) {
+  if (g->conn->ops->write_data (g, g->conn, flagbuf, sizeof flagbuf) == -1) {
     perrorf (g, _("write to daemon socket"));
     return -1;
   }
@@ -818,55 +841,114 @@ guestfs___recv_file (guestfs_h *g, const char *filename)
   return -1;
 }
 
+static ssize_t receive_file_data_shm(guestfs_h *g, void **buf_r);
+static ssize_t receive_file_data_sock(guestfs_h *g, void **buf_r);
+
+static ssize_t
+receive_file_data(guestfs_h *g, void **buf_r)
+{
+    if (g->enable_shm) {
+        return receive_file_data_shm(g, buf_r);
+    }
+
+    return receive_file_data_sock(g, buf_r);
+}
+
+/* Returns length of data_for_reading from shared memory, buf_r is ignored */
+/* Returned 0 indicates the end of transfer */
+static ssize_t
+receive_file_data_shm(guestfs_h *g, void **buf_r)
+{
+    int r;
+    CLEANUP_FREE void *buf = NULL;
+    uint32_t buflen, len_r;
+    guestfs_protobuf_shm_chunk *shm_chunk;
+
+    r = guestfs___recv_from_daemon(g, &buflen, &buf);
+    if (r == -1)
+        return -1;
+
+    shm_chunk = guestfs_protobuf_shm_chunk__unpack(NULL, buflen, buf);
+
+    if (!shm_chunk) {
+        error(g, _("failed to parse shm chunk"));
+        return -1;
+    }
+
+    if (shm_chunk->cancel) {
+        if (g->user_cancel) {
+            error(g, _("operation cancelled by user"));
+            g->last_errnum = EINTR;
+        }
+        else
+            error(g, _("file receive cancelled by daemon"));
+        guestfs_protobuf_shm_chunk__free_unpacked(shm_chunk, NULL);
+        return -1;
+    }
+
+    len_r = shm_chunk->len;
+    guestfs_protobuf_shm_chunk__free_unpacked(shm_chunk, NULL);
+
+    if (buf_r) {
+        *buf_r = g->shm->ops->get_ptr(g, g->shm);
+    }
+
+    return len_r;
+}
+
 /* Receive a chunk of file data. */
 /* Returns -1 = error, 0 = EOF, > 0 = more data */
 static ssize_t
-receive_file_data (guestfs_h *g, void **buf_r)
+receive_file_data_sock(guestfs_h *g, void **buf_r)
 {
-  int r;
-  CLEANUP_FREE void *buf = NULL;
-  uint32_t len;
-  XDR xdr;
-  guestfs_chunk chunk;
+    int r;
+    CLEANUP_FREE void *buf = NULL;
+    uint32_t len;
+    guestfs_protobuf_chunk *chunk;
 
-  r = guestfs___recv_from_daemon (g, &len, &buf);
-  if (r == -1)
-    return -1;
+    r = guestfs___recv_from_daemon(g, &len, &buf);
+    if (r == -1)
+        return -1;
 
-  if (len == GUESTFS_LAUNCH_FLAG || len == GUESTFS_CANCEL_FLAG) {
-    error (g, _("receive_file_data: unexpected flag received when reading file chunks"));
-    return -1;
-  }
-
-  memset (&chunk, 0, sizeof chunk);
-
-  xdrmem_create (&xdr, buf, len, XDR_DECODE);
-  if (!xdr_guestfs_chunk (&xdr, &chunk)) {
-    error (g, _("failed to parse file chunk"));
-    return -1;
-  }
-  xdr_destroy (&xdr);
-
-  if (chunk.cancel) {
-    if (g->user_cancel) {
-      error (g, _("operation cancelled by user"));
-      g->last_errnum = EINTR;
+    if (len == GUESTFS_LAUNCH_FLAG || len == GUESTFS_CANCEL_FLAG) {
+        error(g, _("receive_file_data: unexpected flag received when reading file chunks"));
+        return -1;
     }
-    else
-      error (g, _("file receive cancelled by daemon"));
-    free (chunk.data.data_val);
-    return -1;
-  }
 
-  if (chunk.data.data_len == 0) { /* end of transfer */
-    free (chunk.data.data_val);
-    return 0;
-  }
+    chunk = guestfs_protobuf_chunk__unpack(NULL, len, buf);
 
-  if (buf_r) *buf_r = chunk.data.data_val;
-  else free (chunk.data.data_val); /* else caller frees */
+    if (!chunk) {
+        error(g, _("failed to parse file chunk"));
+        return -1;
+    }
 
-  return chunk.data.data_len;
+    if (chunk->cancel) {
+        if (g->user_cancel) {
+            error(g, _("operation cancelled by user"));
+            g->last_errnum = EINTR;
+        }
+        else
+            error(g, _("file receive cancelled by daemon"));
+        guestfs_protobuf_chunk__free_unpacked(chunk, NULL);
+        return -1;
+    }
+
+    if (chunk->data.len == 0) { /* end of transfer */
+        guestfs_protobuf_chunk__free_unpacked(chunk, NULL);
+        return 0;
+    }
+
+    len = chunk->data.len;
+
+    if (len && buf_r) {
+        /* Fix (-1 copy): Move data from unpacked chunk without copying */
+        *buf_r = chunk->data.data;
+        chunk->data.data = NULL;
+        chunk->data.len = 0;
+    }
+
+    guestfs_protobuf_chunk__free_unpacked(chunk, NULL);
+    return len;
 }
 
 int

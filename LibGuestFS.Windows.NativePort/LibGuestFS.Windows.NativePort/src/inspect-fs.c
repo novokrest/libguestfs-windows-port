@@ -23,6 +23,7 @@
 #include <stdint.h>
 #include <inttypes.h>
 #include <win-unistd.h>
+#include <win-dll.h>
 #include <fcntl.h>
 #include <string.h>
 #include <sys/stat.h>
@@ -35,6 +36,7 @@
 #include <pcre.h>
 
 #include <win-gcc-attribute-constructor.h>
+#include <win-dll.h>
 
 #include "ignore-value.h"
 #include "xstrtol.h"
@@ -55,7 +57,8 @@ static pcre *re_major_minor;
 static void compile_regexps (void) __attribute__((constructor));
 static void free_regexps (void) __attribute__((destructor));
 
-INITIALIZER(compile_regexps)
+static void
+compile_regexps(void)
 {
   const char *err;
   int offset;
@@ -79,6 +82,22 @@ free_regexps (void)
   pcre_free (re_first_partition);
   pcre_free (re_major_minor);
 }
+
+#ifdef WIN32
+
+void
+dll_compile_regexps_inspect_fs(void)
+{
+    compile_regexps();
+}
+
+void
+dll_free_regexps_inspect_fs(void)
+{
+    free_regexps();
+}
+
+#endif
 
 static int check_filesystem (guestfs_h *g, const char *mountable,
                              const struct guestfs_internal_mountable *m,
@@ -577,7 +596,7 @@ guestfs___first_line_of_file (guestfs_h *g, const char *filename)
   int64_t size;
   char *ret;
 
-  /* Don't trust guestfs_head_n not to break with very large files.
+  /* Don't trust guestfs_head_nn not to break with very large files.
    * Check the file size is something reasonable first.
    */
   size = guestfs_filesize (g, filename);
@@ -590,7 +609,7 @@ guestfs___first_line_of_file (guestfs_h *g, const char *filename)
     return NULL;
   }
 
-  lines = guestfs_head_n (g, 1, filename);
+  lines = guestfs_head_nn (g, 1, filename);
   if (lines == NULL)
     return NULL;
   if (lines[0] == NULL) {

@@ -1,0 +1,5 @@
+/lib/lsb/*
+/usr/share/augeas/lenses/*.aug
+/usr/lib/libprotobuf*
+/usr/lib/libaugeas*
+/usr/lib/libfa*

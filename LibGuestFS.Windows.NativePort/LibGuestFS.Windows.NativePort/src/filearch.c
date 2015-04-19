@@ -23,6 +23,7 @@
 #include <stdint.h>
 #include <inttypes.h>
 #include <win-unistd.h>
+#include <win-dll.h>
 #include <string.h>
 #include <sys/stat.h>
 //#include <sys/wait.h>
@@ -74,6 +75,22 @@ free_regexps (void)
   pcre_free (re_file_elf);
   pcre_free (re_elf_ppc64);
 }
+
+#ifdef WIN32
+
+void
+dll_compile_regexps_filearch(void)
+{
+    compile_regexps();
+}
+
+void
+dll_free_regexps_filearch(void)
+{
+    compile_regexps();
+}
+
+#endif /* WIN32 */
 
 /* Convert output from 'file' command on ELF files to the canonical
  * architecture string.  Caller must free the result.

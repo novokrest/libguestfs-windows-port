@@ -23,6 +23,7 @@
 #include <stdint.h>
 #include <inttypes.h>
 #include <win-unistd.h>
+#include <win-dll.h>
 #include <fcntl.h>
 #include <string.h>
 #include <sys/stat.h>
@@ -85,7 +86,8 @@ static pcre *re_hurd_dev;
 static void compile_regexps (void) __attribute__((constructor));
 static void free_regexps (void) __attribute__((destructor));
 
-INITIALIZER(compile_regexps_inspect_unix)
+static void
+compile_regexps(void)
 {
   const char *err;
   int offset;
@@ -175,6 +177,22 @@ free_regexps (void)
   pcre_free (re_minix);
   pcre_free (re_hurd_dev);
 }
+
+#ifdef WIN32
+
+void
+dll_compile_regexps_inspect_fs_unix(void)
+{
+    compile_regexps();
+}
+
+void
+dll_free_regexps_inspect_fs_unix(void)
+{
+    free_regexps();
+}
+
+#endif
 
 static void check_architecture (guestfs_h *g, struct inspect_fs *fs);
 static int check_hostname_unix (guestfs_h *g, struct inspect_fs *fs);
@@ -274,7 +292,7 @@ parse_lsb_release (guestfs_h *g, struct inspect_fs *fs)
     return -1;
   }
 
-  lines = guestfs_head_n (g, 10, filename);
+  lines = guestfs_head_nn (g, 10, filename);
   if (lines == NULL)
     return -1;
 
@@ -356,7 +374,7 @@ parse_suse_release (guestfs_h *g, struct inspect_fs *fs, const char *filename)
     return -1;
   }
 
-  lines = guestfs_head_n (g, 10, filename);
+  lines = guestfs_head_nn (g, 10, filename);
   if (lines == NULL)
     return -1;
 

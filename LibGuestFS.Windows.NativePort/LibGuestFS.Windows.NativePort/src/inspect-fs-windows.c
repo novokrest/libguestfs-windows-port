@@ -23,6 +23,7 @@
 #include <stdint.h>
 #include <inttypes.h>
 #include <win-unistd.h>
+#include <win-dll.h>
 #include <fcntl.h>
 #include <string.h>
 #include <sys/stat.h>
@@ -61,7 +62,8 @@ static pcre *re_boot_ini_os;
 static void compile_regexps (void) __attribute__((constructor));
 static void free_regexps (void) __attribute__((destructor));
 
-INITIALIZER(compile_regexps_inspect_windows)
+static void
+compile_regexps(void)
 {
   const char *err;
   int offset;
@@ -87,6 +89,22 @@ free_regexps (void)
   pcre_free (re_boot_ini_os_header);
   pcre_free (re_boot_ini_os);
 }
+
+#ifdef WIN32
+
+void
+dll_compile_regexps_inspect_fs_windows(void)
+{
+    compile_regexps();
+}
+
+void
+dll_free_regexps_inspect_fs_windows(void)
+{
+    free_regexps();
+}
+
+#endif
 
 static int check_windows_arch (guestfs_h *g, struct inspect_fs *fs);
 static int check_windows_software_registry (guestfs_h *g, struct inspect_fs *fs);

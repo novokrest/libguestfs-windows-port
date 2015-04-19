@@ -1,0 +1,340 @@
+=======================
+t_created: 0.000000
+t_drive_added: 0.000000
+t_launched: 29.000000
+t_mounted: 1.000000
+t_big_readed: 0.000000
+t_smalls_readed: 0.000000
+t_closed: 0.000000
+total_time: 30.000000
+=======================
+=======================
+t_created: 0.000000
+t_drive_added: 0.000000
+t_launched: 31.000000
+t_mounted: 1.000000
+t_big_readed: 0.000000
+t_smalls_readed: 0.000000
+t_closed: 0.000000
+total_time: 32.000000
+=======================
+=======================
+t_created: 0.000000
+t_drive_added: 0.000000
+t_launched: 26.000000
+t_mounted: 0.000000
+t_big_readed: 0.000000
+t_smalls_readed: 0.000000
+t_closed: 0.000000
+total_time: 26.000000
+=======================
+=======================
+t_created: 0.000000
+t_drive_added: 0.000000
+t_launched: 28.000000
+t_mounted: 1.000000
+t_big_readed: 0.000000
+t_smalls_readed: 0.000000
+t_closed: 0.000000
+total_time: 29.000000
+=======================
+=======================
+t_created: 0.000000
+t_drive_added: 0.000000
+t_launched: 26.000000
+t_mounted: 1.000000
+t_big_readed: 0.000000
+t_smalls_readed: 0.000000
+t_closed: 0.000000
+total_time: 27.000000
+=======================
+=======================
+t_created: 0.000000
+t_drive_added: 0.000000
+t_launched: 27.000000
+t_mounted: 0.000000
+t_big_readed: 0.000000
+t_smalls_readed: 0.000000
+t_closed: 0.000000
+total_time: 27.000000
+=======================
+=======================
+t_created: 0.000000
+t_drive_added: 0.000000
+t_launched: 30.000000
+t_mounted: 1.000000
+t_big_readed: 0.000000
+t_smalls_readed: 0.000000
+t_closed: 0.000000
+total_time: 31.000000
+=======================
+=======================
+t_created: 0.000000
+t_drive_added: 0.000000
+t_launched: 25.000000
+t_mounted: 0.000000
+t_big_readed: 0.000000
+t_smalls_readed: 0.000000
+t_closed: 0.000000
+total_time: 25.000000
+=======================
+=======================
+t_created: 0.000000
+t_drive_added: 0.000000
+t_launched: 30.000000
+t_mounted: 0.000000
+t_big_readed: 0.000000
+t_smalls_readed: 0.000000
+t_closed: 0.000000
+total_time: 30.000000
+=======================
+=======================
+t_created: 0.000000
+t_drive_added: 0.000000
+t_launched: 32.000000
+t_mounted: 0.000000
+t_big_readed: 0.000000
+t_smalls_readed: 0.000000
+t_closed: 0.000000
+total_time: 32.000000
+=======================
+=======================
+t_created: 0.000000
+t_drive_added: 0.000000
+t_launched: 29.000000
+t_mounted: 0.000000
+t_big_readed: 0.000000
+t_smalls_readed: 0.000000
+t_closed: 0.000000
+total_time: 29.000000
+=======================
+=======================
+t_created: 0.000000
+t_drive_added: 0.000000
+t_launched: 28.000000
+t_mounted: 0.000000
+t_big_readed: 0.000000
+t_smalls_readed: 0.000000
+t_closed: 0.000000
+total_time: 28.000000
+=======================
+=======================
+t_created: 0.000000
+t_drive_added: 0.000000
+t_launched: 31.000000
+t_mounted: 1.000000
+t_big_readed: 0.000000
+t_smalls_readed: 0.000000
+t_closed: 0.000000
+total_time: 32.000000
+=======================
+=======================
+t_created: 0.000000
+t_drive_added: 0.000000
+t_launched: 29.000000
+t_mounted: 1.000000
+t_big_readed: 0.000000
+t_smalls_readed: 0.000000
+t_closed: 0.000000
+total_time: 30.000000
+=======================
+=======================
+t_created: 0.000000
+t_drive_added: 0.000000
+t_launched: 29.000000
+t_mounted: 25.000000
+t_big_readed: 25.000000
+t_smalls_readed: 0.000000
+t_closed: 0.000000
+total_time: 79.000000
+=======================
+=======================
+t_created: 0.000000
+t_drive_added: 0.000000
+t_launched: 32.000000
+t_mounted: 31.000000
+t_big_readed: 0.000000
+t_smalls_readed: 1.000000
+t_closed: 0.000000
+total_time: 64.000000
+=======================
+=======================
+t_created: 0.000000
+t_drive_added: 0.000000
+t_launched: 33.000000
+t_mounted: 36.000000
+t_big_readed: 0.000000
+t_smalls_readed: 1.000000
+t_closed: 0.000000
+total_time: 70.000000
+=======================
+=======================
+t_created: 0.000000
+t_drive_added: 0.000000
+t_launched: 37.000000
+t_mounted: 9.000000
+t_big_readed: 0.000000
+t_smalls_readed: 0.000000
+t_closed: 0.000000
+total_time: 46.000000
+=======================
+=======================
+t_created: 0.000000
+t_drive_added: 0.000000
+t_launched: 3.000000
+t_mounted: 0.000000
+t_big_readed: 0.000000
+t_smalls_readed: 0.000000
+t_closed: 0.000000
+total_time: 3.000000
+=======================
+=======================
+t_created: 0.000000
+t_drive_added: 0.000000
+t_launched: 2.000000
+t_mounted: 1.000000
+t_big_readed: 0.000000
+t_smalls_readed: 0.000000
+t_closed: 0.000000
+total_time: 3.000000
+=======================
+=======================
+t_created: 0.000000
+t_drive_added: 0.000000
+t_launched: 2.000000
+t_mounted: 1.000000
+t_big_readed: 0.000000
+t_smalls_readed: 0.000000
+t_closed: 0.000000
+total_time: 3.000000
+=======================
+=======================
+t_created: 0.000000
+t_drive_added: 0.000000
+t_launched: 3.000000
+t_mounted: 0.000000
+t_big_readed: 0.000000
+t_smalls_readed: 0.000000
+t_closed: 1.000000
+total_time: 4.000000
+=======================
+=======================
+t_created: 0.000000
+t_drive_added: 0.000000
+t_launched: 3.000000
+t_mounted: 0.000000
+t_big_readed: 0.000000
+t_smalls_readed: 0.000000
+t_closed: 0.000000
+total_time: 3.000000
+=======================
+=======================
+t_created: 0.000000
+t_drive_added: 0.000000
+t_launched: 2.000000
+t_mounted: 1.000000
+t_big_readed: 0.000000
+t_smalls_readed: 0.000000
+t_closed: 0.000000
+total_time: 3.000000
+=======================
+=======================
+t_created: 0.000000
+t_drive_added: 0.000000
+t_launched: 2.000000
+t_mounted: 1.000000
+t_big_readed: 0.000000
+t_smalls_readed: 0.000000
+t_closed: 0.000000
+total_time: 3.000000
+=======================
+=======================
+t_created: 0.000000
+t_drive_added: 0.000000
+t_launched: 2.000000
+t_mounted: 1.000000
+t_big_readed: 0.000000
+t_smalls_readed: 0.000000
+t_closed: 0.000000
+total_time: 3.000000
+=======================
+=======================
+t_created: 0.000000
+t_drive_added: 0.000000
+t_launched: 5.000000
+t_mounted: 0.000000
+t_big_readed: 0.000000
+t_smalls_readed: 0.000000
+t_closed: 1.000000
+total_time: 6.000000
+=======================
+=======================
+t_created: 0.000000
+t_drive_added: 0.000000
+t_launched: 2.000000
+t_mounted: 1.000000
+t_big_readed: 0.000000
+t_smalls_readed: 0.000000
+t_closed: 0.000000
+total_time: 3.000000
+=======================
+=======================
+t_created: 0.000000
+t_drive_added: 0.000000
+t_launched: 3.000000
+t_mounted: 0.000000
+t_big_readed: 0.000000
+t_smalls_readed: 0.000000
+t_closed: 0.000000
+total_time: 3.000000
+=======================
+=======================
+t_created: 0.000000
+t_drive_added: 0.000000
+t_launched: 5.000000
+t_mounted: 1.000000
+t_big_readed: 0.000000
+t_smalls_readed: 0.000000
+t_closed: 0.000000
+total_time: 6.000000
+=======================
+=======================
+t_created: 0.000000
+t_drive_added: 0.000000
+t_launched: 40.000000
+t_mounted: 25.000000
+t_big_readed: 0.000000
+t_smalls_readed: 0.000000
+t_closed: 1.000000
+total_time: 66.000000
+=======================
+=======================
+t_created: 0.000000
+t_drive_added: 0.000000
+t_launched: 15.000000
+t_mounted: 15.000000
+t_big_readed: 0.000000
+t_smalls_readed: 0.000000
+t_closed: 0.000000
+total_time: 30.000000
+=======================
+=======================
+t_created: 0.000000
+t_drive_added: 0.000000
+t_launched: 16.000000
+t_mounted: 19.000000
+t_big_readed: 0.000000
+t_smalls_readed: 0.000000
+t_closed: 1.000000
+total_time: 36.000000
+=======================
+=======================
+t_created: 0.000000
+t_drive_added: 0.000000
+t_launched: 17.000000
+t_mounted: 15.000000
+t_big_readed: 0.000000
+t_smalls_readed: 0.000000
+t_closed: 0.000000
+total_time: 32.000000
+=======================

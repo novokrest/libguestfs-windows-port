@@ -1,0 +1,3429 @@
+/* libguestfs generated file -*- c -*-
+ * WARNING: THIS FILE IS GENERATED FROM:
+ *   generator/ *.ml
+ * ANY CHANGES YOU MAKE TO THIS FILE WILL BE LOST.
+ *
+ * Copyright (C) 2009-2015 Red Hat Inc.
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
+ */
+
+/* This file defines the protocol used between the library and
+ * the appliance/daemon.  For more information see the COMMUNICATION
+ * PROTOCOL section in guestfs(3).  Note this protocol is internal
+ * to libguestfs and may change at any time.
+ */
+
+/* Internal structures. */
+
+message GuestfsProtobufIntIntBool {
+  required int32 i = 1;
+  required int32 b = 2;
+}
+
+message GuestfsProtobufIntIntBoolList {
+  repeated GuestfsProtobufIntIntBool vals = 1;}
+
+message GuestfsProtobufIntLvmPv {
+  required string pv_name = 1;
+  required bytes pv_uuid = 2;
+  required string pv_fmt = 3;
+  required int64 pv_size = 4;
+  required int64 dev_size = 5;
+  required int64 pv_free = 6;
+  required int64 pv_used = 7;
+  required string pv_attr = 8;
+  required int64 pv_pe_count = 9;
+  required int64 pv_pe_alloc_count = 10;
+  required string pv_tags = 11;
+  required int64 pe_start = 12;
+  required int64 pv_mda_count = 13;
+  required int64 pv_mda_free = 14;
+}
+
+message GuestfsProtobufIntLvmPvList {
+  repeated GuestfsProtobufIntLvmPv vals = 1;}
+
+message GuestfsProtobufIntLvmVg {
+  required string vg_name = 1;
+  required bytes vg_uuid = 2;
+  required string vg_fmt = 3;
+  required string vg_attr = 4;
+  required int64 vg_size = 5;
+  required int64 vg_free = 6;
+  required string vg_sysid = 7;
+  required int64 vg_extent_size = 8;
+  required int64 vg_extent_count = 9;
+  required int64 vg_free_count = 10;
+  required int64 max_lv = 11;
+  required int64 max_pv = 12;
+  required int64 pv_count = 13;
+  required int64 lv_count = 14;
+  required int64 snap_count = 15;
+  required int64 vg_seqno = 16;
+  required string vg_tags = 17;
+  required int64 vg_mda_count = 18;
+  required int64 vg_mda_free = 19;
+}
+
+message GuestfsProtobufIntLvmVgList {
+  repeated GuestfsProtobufIntLvmVg vals = 1;}
+
+message GuestfsProtobufIntLvmLv {
+  required string lv_name = 1;
+  required bytes lv_uuid = 2;
+  required string lv_attr = 3;
+  required int64 lv_major = 4;
+  required int64 lv_minor = 5;
+  required int64 lv_kernel_major = 6;
+  required int64 lv_kernel_minor = 7;
+  required int64 lv_size = 8;
+  required int64 seg_count = 9;
+  required string origin = 10;
+  required float snap_percent = 11;
+  required float copy_percent = 12;
+  required string move_pv = 13;
+  required string lv_tags = 14;
+  required string mirror_log = 15;
+  required string modules = 16;
+}
+
+message GuestfsProtobufIntLvmLvList {
+  repeated GuestfsProtobufIntLvmLv vals = 1;}
+
+message GuestfsProtobufIntStat {
+  required int64 dev = 1;
+  required int64 ino = 2;
+  required int64 mode = 3;
+  required int64 nlink = 4;
+  required int64 uid = 5;
+  required int64 gid = 6;
+  required int64 rdev = 7;
+  required int64 size = 8;
+  required int64 blksize = 9;
+  required int64 blocks = 10;
+  required int64 atime = 11;
+  required int64 mtime = 12;
+  required int64 ctime = 13;
+}
+
+message GuestfsProtobufIntStatList {
+  repeated GuestfsProtobufIntStat vals = 1;}
+
+message GuestfsProtobufIntStatns {
+  required int64 st_dev = 1;
+  required int64 st_ino = 2;
+  required int64 st_mode = 3;
+  required int64 st_nlink = 4;
+  required int64 st_uid = 5;
+  required int64 st_gid = 6;
+  required int64 st_rdev = 7;
+  required int64 st_size = 8;
+  required int64 st_blksize = 9;
+  required int64 st_blocks = 10;
+  required int64 st_atime_sec = 11;
+  required int64 st_atime_nsec = 12;
+  required int64 st_mtime_sec = 13;
+  required int64 st_mtime_nsec = 14;
+  required int64 st_ctime_sec = 15;
+  required int64 st_ctime_nsec = 16;
+  required int64 st_spare1 = 17;
+  required int64 st_spare2 = 18;
+  required int64 st_spare3 = 19;
+  required int64 st_spare4 = 20;
+  required int64 st_spare5 = 21;
+  required int64 st_spare6 = 22;
+}
+
+message GuestfsProtobufIntStatnsList {
+  repeated GuestfsProtobufIntStatns vals = 1;}
+
+message GuestfsProtobufIntStatvfs {
+  required int64 bsize = 1;
+  required int64 frsize = 2;
+  required int64 blocks = 3;
+  required int64 bfree = 4;
+  required int64 bavail = 5;
+  required int64 files = 6;
+  required int64 ffree = 7;
+  required int64 favail = 8;
+  required int64 fsid = 9;
+  required int64 flag = 10;
+  required int64 namemax = 11;
+}
+
+message GuestfsProtobufIntStatvfsList {
+  repeated GuestfsProtobufIntStatvfs vals = 1;}
+
+message GuestfsProtobufIntDirent {
+  required int64 ino = 1;
+  required int32 ftyp = 2;
+  required string name = 3;
+}
+
+message GuestfsProtobufIntDirentList {
+  repeated GuestfsProtobufIntDirent vals = 1;}
+
+message GuestfsProtobufIntVersion {
+  required int64 major = 1;
+  required int64 minor = 2;
+  required int64 release = 3;
+  required string extra = 4;
+}
+
+message GuestfsProtobufIntVersionList {
+  repeated GuestfsProtobufIntVersion vals = 1;}
+
+message GuestfsProtobufIntXattr {
+  required string attrname = 1;
+  required bytes attrval = 2;
+}
+
+message GuestfsProtobufIntXattrList {
+  repeated GuestfsProtobufIntXattr vals = 1;}
+
+message GuestfsProtobufIntInotifyEvent {
+  required int64 in_wd = 1;
+  required uint32 in_mask = 2;
+  required uint32 in_cookie = 3;
+  required string in_name = 4;
+}
+
+message GuestfsProtobufIntInotifyEventList {
+  repeated GuestfsProtobufIntInotifyEvent vals = 1;}
+
+message GuestfsProtobufIntPartition {
+  required int32 part_num = 1;
+  required int64 part_start = 2;
+  required int64 part_end = 3;
+  required int64 part_size = 4;
+}
+
+message GuestfsProtobufIntPartitionList {
+  repeated GuestfsProtobufIntPartition vals = 1;}
+
+message GuestfsProtobufIntApplication {
+  required string app_name = 1;
+  required string app_display_name = 2;
+  required int32 app_epoch = 3;
+  required string app_version = 4;
+  required string app_release = 5;
+  required string app_install_path = 6;
+  required string app_trans_path = 7;
+  required string app_publisher = 8;
+  required string app_url = 9;
+  required string app_source_package = 10;
+  required string app_summary = 11;
+  required string app_description = 12;
+}
+
+message GuestfsProtobufIntApplicationList {
+  repeated GuestfsProtobufIntApplication vals = 1;}
+
+message GuestfsProtobufIntApplication2 {
+  required string app2_name = 1;
+  required string app2_display_name = 2;
+  required int32 app2_epoch = 3;
+  required string app2_version = 4;
+  required string app2_release = 5;
+  required string app2_arch = 6;
+  required string app2_install_path = 7;
+  required string app2_trans_path = 8;
+  required string app2_publisher = 9;
+  required string app2_url = 10;
+  required string app2_source_package = 11;
+  required string app2_summary = 12;
+  required string app2_description = 13;
+  required string app2_spare1 = 14;
+  required string app2_spare2 = 15;
+  required string app2_spare3 = 16;
+  required string app2_spare4 = 17;
+}
+
+message GuestfsProtobufIntApplication2List {
+  repeated GuestfsProtobufIntApplication2 vals = 1;}
+
+message GuestfsProtobufIntIsoinfo {
+  required string iso_system_id = 1;
+  required string iso_volume_id = 2;
+  required uint32 iso_volume_space_size = 3;
+  required uint32 iso_volume_set_size = 4;
+  required uint32 iso_volume_sequence_number = 5;
+  required uint32 iso_logical_block_size = 6;
+  required string iso_volume_set_id = 7;
+  required string iso_publisher_id = 8;
+  required string iso_data_preparer_id = 9;
+  required string iso_application_id = 10;
+  required string iso_copyright_file_id = 11;
+  required string iso_abstract_file_id = 12;
+  required string iso_bibliographic_file_id = 13;
+  required int64 iso_volume_creation_t = 14;
+  required int64 iso_volume_modification_t = 15;
+  required int64 iso_volume_expiration_t = 16;
+  required int64 iso_volume_effective_t = 17;
+}
+
+message GuestfsProtobufIntIsoinfoList {
+  repeated GuestfsProtobufIntIsoinfo vals = 1;}
+
+message GuestfsProtobufIntMdstat {
+  required string mdstat_device = 1;
+  required int32 mdstat_index = 2;
+  required string mdstat_flags = 3;
+}
+
+message GuestfsProtobufIntMdstatList {
+  repeated GuestfsProtobufIntMdstat vals = 1;}
+
+message GuestfsProtobufIntBtrfssubvolume {
+  required uint64 btrfssubvolume_id = 1;
+  required uint64 btrfssubvolume_top_level_id = 2;
+  required string btrfssubvolume_path = 3;
+}
+
+message GuestfsProtobufIntBtrfssubvolumeList {
+  repeated GuestfsProtobufIntBtrfssubvolume vals = 1;}
+
+message GuestfsProtobufIntXfsinfo {
+  required string xfs_mntpoint = 1;
+  required uint32 xfs_inodesize = 2;
+  required uint32 xfs_agcount = 3;
+  required uint32 xfs_agsize = 4;
+  required uint32 xfs_sectsize = 5;
+  required uint32 xfs_attr = 6;
+  required uint32 xfs_blocksize = 7;
+  required uint64 xfs_datablocks = 8;
+  required uint32 xfs_imaxpct = 9;
+  required uint32 xfs_sunit = 10;
+  required uint32 xfs_swidth = 11;
+  required uint32 xfs_dirversion = 12;
+  required uint32 xfs_dirblocksize = 13;
+  required uint32 xfs_cimode = 14;
+  required string xfs_logname = 15;
+  required uint32 xfs_logblocksize = 16;
+  required uint32 xfs_logblocks = 17;
+  required uint32 xfs_logversion = 18;
+  required uint32 xfs_logsectsize = 19;
+  required uint32 xfs_logsunit = 20;
+  required uint32 xfs_lazycount = 21;
+  required string xfs_rtname = 22;
+  required uint32 xfs_rtextsize = 23;
+  required uint64 xfs_rtblocks = 24;
+  required uint64 xfs_rtextents = 25;
+}
+
+message GuestfsProtobufIntXfsinfoList {
+  repeated GuestfsProtobufIntXfsinfo vals = 1;}
+
+message GuestfsProtobufIntUtsname {
+  required string uts_sysname = 1;
+  required string uts_release = 2;
+  required string uts_version = 3;
+  required string uts_machine = 4;
+}
+
+message GuestfsProtobufIntUtsnameList {
+  repeated GuestfsProtobufIntUtsname vals = 1;}
+
+message GuestfsProtobufIntHivexNode {
+  required int64 hivex_node_h = 1;
+}
+
+message GuestfsProtobufIntHivexNodeList {
+  repeated GuestfsProtobufIntHivexNode vals = 1;}
+
+message GuestfsProtobufIntHivexValue {
+  required int64 hivex_value_h = 1;
+}
+
+message GuestfsProtobufIntHivexValueList {
+  repeated GuestfsProtobufIntHivexValue vals = 1;}
+
+message GuestfsProtobufIntInternalMountable {
+  required int32 im_type = 1;
+  required string im_device = 2;
+  required string im_volume = 3;
+}
+
+message GuestfsProtobufIntInternalMountableList {
+  repeated GuestfsProtobufIntInternalMountable vals = 1;}
+
+/* Function arguments and return values. */
+
+message GuestfsProtobufMountArgs {
+  required string mountable = 1;
+  required string mountpoint = 2;
+}
+
+message GuestfsProtobufTouchArgs {
+  required string path = 1;
+}
+
+message GuestfsProtobufLlArgs {
+  required string directory = 1;
+}
+
+message GuestfsProtobufLlRet {
+  required string listing = 1;
+}
+
+message GuestfsProtobufListDevicesRet {
+  repeated string devices = 1;
+}
+
+message GuestfsProtobufListPartitionsRet {
+  repeated string partitions = 1;
+}
+
+message GuestfsProtobufPvsRet {
+  repeated string physvols = 1;
+}
+
+message GuestfsProtobufVgsRet {
+  repeated string volgroups = 1;
+}
+
+message GuestfsProtobufLvsRet {
+  repeated string logvols = 1;
+}
+
+message GuestfsProtobufPvsFullRet {
+  required GuestfsProtobufIntLvmPvList physvols = 1;
+}
+
+message GuestfsProtobufVgsFullRet {
+  required GuestfsProtobufIntLvmVgList volgroups = 1;
+}
+
+message GuestfsProtobufLvsFullRet {
+  required GuestfsProtobufIntLvmLvList logvols = 1;
+}
+
+message GuestfsProtobufAugInitArgs {
+  required string root = 1;
+  required int32 flags = 2;
+}
+
+message GuestfsProtobufAugDefvarArgs {
+  required string name = 1;
+  repeated string expr = 2;
+}
+
+message GuestfsProtobufAugDefvarRet {
+  required int32 nrnodes = 1;
+}
+
+message GuestfsProtobufAugDefnodeArgs {
+  required string name = 1;
+  required string expr = 2;
+  required string val = 3;
+}
+
+message GuestfsProtobufAugDefnodeRet {
+  required GuestfsProtobufIntIntBool nrnodescreated = 1;
+}
+
+message GuestfsProtobufAugGetArgs {
+  required string augpath = 1;
+}
+
+message GuestfsProtobufAugGetRet {
+  required string val = 1;
+}
+
+message GuestfsProtobufAugSetArgs {
+  required string augpath = 1;
+  required string val = 2;
+}
+
+message GuestfsProtobufAugInsertArgs {
+  required string augpath = 1;
+  required string label = 2;
+  required bool before = 3;
+}
+
+message GuestfsProtobufAugRmArgs {
+  required string augpath = 1;
+}
+
+message GuestfsProtobufAugRmRet {
+  required int32 nrnodes = 1;
+}
+
+message GuestfsProtobufAugMvArgs {
+  required string src = 1;
+  required string dest = 2;
+}
+
+message GuestfsProtobufAugMatchArgs {
+  required string augpath = 1;
+}
+
+message GuestfsProtobufAugMatchRet {
+  repeated string matches = 1;
+}
+
+message GuestfsProtobufAugLsArgs {
+  required string augpath = 1;
+}
+
+message GuestfsProtobufAugLsRet {
+  repeated string matches = 1;
+}
+
+message GuestfsProtobufRmArgs {
+  required string path = 1;
+}
+
+message GuestfsProtobufRmdirArgs {
+  required string path = 1;
+}
+
+message GuestfsProtobufRmRfArgs {
+  required string path = 1;
+}
+
+message GuestfsProtobufMkdirArgs {
+  required string path = 1;
+}
+
+message GuestfsProtobufMkdirPpArgs {
+  required string path = 1;
+}
+
+message GuestfsProtobufChmodArgs {
+  required int32 mode = 1;
+  required string path = 2;
+}
+
+message GuestfsProtobufChownArgs {
+  required int32 owner = 1;
+  required int32 group = 2;
+  required string path = 3;
+}
+
+message GuestfsProtobufExistsArgs {
+  required string path = 1;
+}
+
+message GuestfsProtobufExistsRet {
+  required bool existsflag = 1;
+}
+
+message GuestfsProtobufIsFileArgs {
+  required string path = 1;
+  required bool followsymlinks = 2;
+}
+
+message GuestfsProtobufIsFileRet {
+  required bool fileflag = 1;
+}
+
+message GuestfsProtobufIsDirArgs {
+  required string path = 1;
+  required bool followsymlinks = 2;
+}
+
+message GuestfsProtobufIsDirRet {
+  required bool dirflag = 1;
+}
+
+message GuestfsProtobufPvcreateArgs {
+  required string device = 1;
+}
+
+message GuestfsProtobufVgcreateArgs {
+  required string volgroup = 1;
+  repeated string physvols = 2;
+}
+
+message GuestfsProtobufLvcreateArgs {
+  required string logvol = 1;
+  required string volgroup = 2;
+  required int32 mbytes = 3;
+}
+
+message GuestfsProtobufSfdiskArgs {
+  required string device = 1;
+  required int32 cyls = 2;
+  required int32 heads = 3;
+  required int32 sectors = 4;
+  repeated string lines = 5;
+}
+
+message GuestfsProtobufWriteFileArgs {
+  required string path = 1;
+  required string content = 2;
+  required int32 size = 3;
+}
+
+message GuestfsProtobufUmountArgs {
+  required string pathordevice = 1;
+  required bool force = 2;
+  required bool lazyunmount = 3;
+}
+
+message GuestfsProtobufMountsRet {
+  repeated string devices = 1;
+}
+
+message GuestfsProtobufFileArgs {
+  required string path = 1;
+}
+
+message GuestfsProtobufFileRet {
+  required string description = 1;
+}
+
+message GuestfsProtobufCommandArgs {
+  repeated string arguments = 1;
+}
+
+message GuestfsProtobufCommandRet {
+  required string output = 1;
+}
+
+message GuestfsProtobufCommandLinesArgs {
+  repeated string arguments = 1;
+}
+
+message GuestfsProtobufCommandLinesRet {
+  repeated string lines = 1;
+}
+
+message GuestfsProtobufStatvfsArgs {
+  required string path = 1;
+}
+
+message GuestfsProtobufStatvfsRet {
+  required GuestfsProtobufIntStatvfs statbuf = 1;
+}
+
+message GuestfsProtobufTune2fsLlArgs {
+  required string device = 1;
+}
+
+message GuestfsProtobufTune2fsLlRet {
+  repeated string superblock = 1;
+}
+
+message GuestfsProtobufBlockdevSetroArgs {
+  required string device = 1;
+}
+
+message GuestfsProtobufBlockdevSetrwArgs {
+  required string device = 1;
+}
+
+message GuestfsProtobufBlockdevGetroArgs {
+  required string device = 1;
+}
+
+message GuestfsProtobufBlockdevGetroRet {
+  required bool ro = 1;
+}
+
+message GuestfsProtobufBlockdevGetssArgs {
+  required string device = 1;
+}
+
+message GuestfsProtobufBlockdevGetssRet {
+  required int32 sectorsize = 1;
+}
+
+message GuestfsProtobufBlockdevGetbszArgs {
+  required string device = 1;
+}
+
+message GuestfsProtobufBlockdevGetbszRet {
+  required int32 blocksize = 1;
+}
+
+message GuestfsProtobufBlockdevSetbszArgs {
+  required string device = 1;
+  required int32 blocksize = 2;
+}
+
+message GuestfsProtobufBlockdevGetszArgs {
+  required string device = 1;
+}
+
+message GuestfsProtobufBlockdevGetszRet {
+  required int64 sizeinsectors = 1;
+}
+
+message GuestfsProtobufBlockdevGetsize64Args {
+  required string device = 1;
+}
+
+message GuestfsProtobufBlockdevGetsize64Ret {
+  required int64 sizeinbytes = 1;
+}
+
+message GuestfsProtobufBlockdevFlushbufsArgs {
+  required string device = 1;
+}
+
+message GuestfsProtobufBlockdevRereadptArgs {
+  required string device = 1;
+}
+
+message GuestfsProtobufUploadArgs {
+  required string remotefilename = 1;
+}
+
+message GuestfsProtobufDownloadArgs {
+  required string remotefilename = 1;
+}
+
+message GuestfsProtobufChecksumArgs {
+  required string csumtype = 1;
+  required string path = 2;
+}
+
+message GuestfsProtobufChecksumRet {
+  required string checksum = 1;
+}
+
+message GuestfsProtobufTarInArgs {
+  required string directory = 1;
+  required string compress = 2;
+}
+
+message GuestfsProtobufTarOutArgs {
+  required string directory = 1;
+  required string compress = 2;
+  required bool numericowner = 3;
+  repeated string excludes = 4;
+}
+
+message GuestfsProtobufTgzInArgs {
+  required string directory = 1;
+}
+
+message GuestfsProtobufTgzOutArgs {
+  required string directory = 1;
+}
+
+message GuestfsProtobufMountRoArgs {
+  required string mountable = 1;
+  required string mountpoint = 2;
+}
+
+message GuestfsProtobufMountOptionsArgs {
+  required string options = 1;
+  required string mountable = 2;
+  required string mountpoint = 3;
+}
+
+message GuestfsProtobufMountVfsArgs {
+  required string options = 1;
+  required string vfstype = 2;
+  required string mountable = 3;
+  required string mountpoint = 4;
+}
+
+message GuestfsProtobufDebugArgs {
+  required string subcmd = 1;
+  repeated string extraargs = 2;
+}
+
+message GuestfsProtobufDebugRet {
+  required string result = 1;
+}
+
+message GuestfsProtobufLvremoveArgs {
+  required string device = 1;
+}
+
+message GuestfsProtobufVgremoveArgs {
+  required string vgname = 1;
+}
+
+message GuestfsProtobufPvremoveArgs {
+  required string device = 1;
+}
+
+message GuestfsProtobufSetE2labelArgs {
+  required string device = 1;
+  required string label = 2;
+}
+
+message GuestfsProtobufGetE2labelArgs {
+  required string device = 1;
+}
+
+message GuestfsProtobufGetE2labelRet {
+  required string label = 1;
+}
+
+message GuestfsProtobufSetE2uuidArgs {
+  required string device = 1;
+  required string uuid = 2;
+}
+
+message GuestfsProtobufGetE2uuidArgs {
+  required string device = 1;
+}
+
+message GuestfsProtobufGetE2uuidRet {
+  required string uuid = 1;
+}
+
+message GuestfsProtobufFsckArgs {
+  required string fstype = 1;
+  required string device = 2;
+}
+
+message GuestfsProtobufFsckRet {
+  required int32 status = 1;
+}
+
+message GuestfsProtobufZeroArgs {
+  required string device = 1;
+}
+
+message GuestfsProtobufGrubInstallArgs {
+  required string root = 1;
+  required string device = 2;
+}
+
+message GuestfsProtobufCpArgs {
+  required string src = 1;
+  required string dest = 2;
+}
+
+message GuestfsProtobufCpAaArgs {
+  required string src = 1;
+  required string dest = 2;
+}
+
+message GuestfsProtobufMvArgs {
+  required string src = 1;
+  required string dest = 2;
+}
+
+message GuestfsProtobufDropCachesArgs {
+  required int32 whattodrop = 1;
+}
+
+message GuestfsProtobufDmesgRet {
+  required string kmsgs = 1;
+}
+
+message GuestfsProtobufEqualArgs {
+  required string file1 = 1;
+  required string file2 = 2;
+}
+
+message GuestfsProtobufEqualRet {
+  required bool equality = 1;
+}
+
+message GuestfsProtobufStringsArgs {
+  required string path = 1;
+}
+
+message GuestfsProtobufStringsRet {
+  repeated string stringsout = 1;
+}
+
+message GuestfsProtobufStringsEeArgs {
+  required string encoding = 1;
+  required string path = 2;
+}
+
+message GuestfsProtobufStringsEeRet {
+  repeated string stringsout = 1;
+}
+
+message GuestfsProtobufHexdumpArgs {
+  required string path = 1;
+}
+
+message GuestfsProtobufHexdumpRet {
+  required string dump = 1;
+}
+
+message GuestfsProtobufZerofreeArgs {
+  required string device = 1;
+}
+
+message GuestfsProtobufPvresizeArgs {
+  required string device = 1;
+}
+
+message GuestfsProtobufSfdiskNnArgs {
+  required string device = 1;
+  required int32 partnum = 2;
+  required int32 cyls = 3;
+  required int32 heads = 4;
+  required int32 sectors = 5;
+  required string line = 6;
+}
+
+message GuestfsProtobufSfdiskLlArgs {
+  required string device = 1;
+}
+
+message GuestfsProtobufSfdiskLlRet {
+  required string partitions = 1;
+}
+
+message GuestfsProtobufSfdiskKernelGeometryArgs {
+  required string device = 1;
+}
+
+message GuestfsProtobufSfdiskKernelGeometryRet {
+  required string partitions = 1;
+}
+
+message GuestfsProtobufSfdiskDiskGeometryArgs {
+  required string device = 1;
+}
+
+message GuestfsProtobufSfdiskDiskGeometryRet {
+  required string partitions = 1;
+}
+
+message GuestfsProtobufVgActivateAllArgs {
+  required bool activate = 1;
+}
+
+message GuestfsProtobufVgActivateArgs {
+  required bool activate = 1;
+  repeated string volgroups = 2;
+}
+
+message GuestfsProtobufLvresizeArgs {
+  required string device = 1;
+  required int32 mbytes = 2;
+}
+
+message GuestfsProtobufResize2fsArgs {
+  required string device = 1;
+}
+
+message GuestfsProtobufE2fsckFfArgs {
+  required string device = 1;
+}
+
+message GuestfsProtobufSleepArgs {
+  required int32 secs = 1;
+}
+
+message GuestfsProtobufNtfs3gProbeArgs {
+  required bool rw = 1;
+  required string device = 2;
+}
+
+message GuestfsProtobufNtfs3gProbeRet {
+  required int32 status = 1;
+}
+
+message GuestfsProtobufShArgs {
+  required string command = 1;
+}
+
+message GuestfsProtobufShRet {
+  required string output = 1;
+}
+
+message GuestfsProtobufShLinesArgs {
+  required string command = 1;
+}
+
+message GuestfsProtobufShLinesRet {
+  repeated string lines = 1;
+}
+
+message GuestfsProtobufGlobExpandArgs {
+  required string pattern = 1;
+}
+
+message GuestfsProtobufGlobExpandRet {
+  repeated string paths = 1;
+}
+
+message GuestfsProtobufScrubDeviceArgs {
+  required string device = 1;
+}
+
+message GuestfsProtobufScrubFileArgs {
+  required string file = 1;
+}
+
+message GuestfsProtobufScrubFreespaceArgs {
+  required string dir = 1;
+}
+
+message GuestfsProtobufMkdtempArgs {
+  required string tmpl = 1;
+}
+
+message GuestfsProtobufMkdtempRet {
+  required string dir = 1;
+}
+
+message GuestfsProtobufWcLlArgs {
+  required string path = 1;
+}
+
+message GuestfsProtobufWcLlRet {
+  required int32 lines = 1;
+}
+
+message GuestfsProtobufWcWwArgs {
+  required string path = 1;
+}
+
+message GuestfsProtobufWcWwRet {
+  required int32 words = 1;
+}
+
+message GuestfsProtobufWcCcArgs {
+  required string path = 1;
+}
+
+message GuestfsProtobufWcCcRet {
+  required int32 chars = 1;
+}
+
+message GuestfsProtobufHeadArgs {
+  required string path = 1;
+}
+
+message GuestfsProtobufHeadRet {
+  repeated string lines = 1;
+}
+
+message GuestfsProtobufHeadNnArgs {
+  required int32 nrlines = 1;
+  required string path = 2;
+}
+
+message GuestfsProtobufHeadNnRet {
+  repeated string lines = 1;
+}
+
+message GuestfsProtobufTailArgs {
+  required string path = 1;
+}
+
+message GuestfsProtobufTailRet {
+  repeated string lines = 1;
+}
+
+message GuestfsProtobufTailNnArgs {
+  required int32 nrlines = 1;
+  required string path = 2;
+}
+
+message GuestfsProtobufTailNnRet {
+  repeated string lines = 1;
+}
+
+message GuestfsProtobufDfRet {
+  required string output = 1;
+}
+
+message GuestfsProtobufDfHhRet {
+  required string output = 1;
+}
+
+message GuestfsProtobufDuArgs {
+  required string path = 1;
+}
+
+message GuestfsProtobufDuRet {
+  required int64 sizekb = 1;
+}
+
+message GuestfsProtobufInitrdListArgs {
+  required string path = 1;
+}
+
+message GuestfsProtobufInitrdListRet {
+  repeated string filenames = 1;
+}
+
+message GuestfsProtobufMountLoopArgs {
+  required string file = 1;
+  required string mountpoint = 2;
+}
+
+message GuestfsProtobufMkswapArgs {
+  required string device = 1;
+  required string label = 2;
+  required string uuid = 3;
+}
+
+message GuestfsProtobufMkswapLlArgs {
+  required string label = 1;
+  required string device = 2;
+}
+
+message GuestfsProtobufMkswapUuArgs {
+  required string uuid = 1;
+  required string device = 2;
+}
+
+message GuestfsProtobufMknodArgs {
+  required int32 mode = 1;
+  required int32 devmajor = 2;
+  required int32 devminor = 3;
+  required string path = 4;
+}
+
+message GuestfsProtobufMkfifoArgs {
+  required int32 mode = 1;
+  required string path = 2;
+}
+
+message GuestfsProtobufMknodBbArgs {
+  required int32 mode = 1;
+  required int32 devmajor = 2;
+  required int32 devminor = 3;
+  required string path = 4;
+}
+
+message GuestfsProtobufMknodCcArgs {
+  required int32 mode = 1;
+  required int32 devmajor = 2;
+  required int32 devminor = 3;
+  required string path = 4;
+}
+
+message GuestfsProtobufUmaskArgs {
+  required int32 mask = 1;
+}
+
+message GuestfsProtobufUmaskRet {
+  required int32 oldmask = 1;
+}
+
+message GuestfsProtobufReaddirArgs {
+  required string dir = 1;
+}
+
+message GuestfsProtobufReaddirRet {
+  required GuestfsProtobufIntDirentList entries = 1;
+}
+
+message GuestfsProtobufSfdiskmArgs {
+  required string device = 1;
+  repeated string lines = 2;
+}
+
+message GuestfsProtobufZfileArgs {
+  required string meth = 1;
+  required string path = 2;
+}
+
+message GuestfsProtobufZfileRet {
+  required string description = 1;
+}
+
+message GuestfsProtobufGetxattrsArgs {
+  required string path = 1;
+}
+
+message GuestfsProtobufGetxattrsRet {
+  required GuestfsProtobufIntXattrList xattrs = 1;
+}
+
+message GuestfsProtobufLgetxattrsArgs {
+  required string path = 1;
+}
+
+message GuestfsProtobufLgetxattrsRet {
+  required GuestfsProtobufIntXattrList xattrs = 1;
+}
+
+message GuestfsProtobufSetxattrArgs {
+  required string xattr = 1;
+  required string val = 2;
+  required int32 vallen = 3;
+  required string path = 4;
+}
+
+message GuestfsProtobufLsetxattrArgs {
+  required string xattr = 1;
+  required string val = 2;
+  required int32 vallen = 3;
+  required string path = 4;
+}
+
+message GuestfsProtobufRemovexattrArgs {
+  required string xattr = 1;
+  required string path = 2;
+}
+
+message GuestfsProtobufLremovexattrArgs {
+  required string xattr = 1;
+  required string path = 2;
+}
+
+message GuestfsProtobufMountpointsRet {
+  repeated string mps = 1;
+}
+
+message GuestfsProtobufMkmountpointArgs {
+  required string exemptpath = 1;
+}
+
+message GuestfsProtobufRmmountpointArgs {
+  required string exemptpath = 1;
+}
+
+message GuestfsProtobufGrepArgs {
+  required string regex = 1;
+  required string path = 2;
+  required bool extended = 3;
+  required bool fixed = 4;
+  required bool insensitive = 5;
+  required bool compressed = 6;
+}
+
+message GuestfsProtobufGrepRet {
+  repeated string lines = 1;
+}
+
+message GuestfsProtobufEgrepArgs {
+  required string regex = 1;
+  required string path = 2;
+}
+
+message GuestfsProtobufEgrepRet {
+  repeated string lines = 1;
+}
+
+message GuestfsProtobufFgrepArgs {
+  required string pattern = 1;
+  required string path = 2;
+}
+
+message GuestfsProtobufFgrepRet {
+  repeated string lines = 1;
+}
+
+message GuestfsProtobufGrepiArgs {
+  required string regex = 1;
+  required string path = 2;
+}
+
+message GuestfsProtobufGrepiRet {
+  repeated string lines = 1;
+}
+
+message GuestfsProtobufEgrepiArgs {
+  required string regex = 1;
+  required string path = 2;
+}
+
+message GuestfsProtobufEgrepiRet {
+  repeated string lines = 1;
+}
+
+message GuestfsProtobufFgrepiArgs {
+  required string pattern = 1;
+  required string path = 2;
+}
+
+message GuestfsProtobufFgrepiRet {
+  repeated string lines = 1;
+}
+
+message GuestfsProtobufZgrepArgs {
+  required string regex = 1;
+  required string path = 2;
+}
+
+message GuestfsProtobufZgrepRet {
+  repeated string lines = 1;
+}
+
+message GuestfsProtobufZegrepArgs {
+  required string regex = 1;
+  required string path = 2;
+}
+
+message GuestfsProtobufZegrepRet {
+  repeated string lines = 1;
+}
+
+message GuestfsProtobufZfgrepArgs {
+  required string pattern = 1;
+  required string path = 2;
+}
+
+message GuestfsProtobufZfgrepRet {
+  repeated string lines = 1;
+}
+
+message GuestfsProtobufZgrepiArgs {
+  required string regex = 1;
+  required string path = 2;
+}
+
+message GuestfsProtobufZgrepiRet {
+  repeated string lines = 1;
+}
+
+message GuestfsProtobufZegrepiArgs {
+  required string regex = 1;
+  required string path = 2;
+}
+
+message GuestfsProtobufZegrepiRet {
+  repeated string lines = 1;
+}
+
+message GuestfsProtobufZfgrepiArgs {
+  required string pattern = 1;
+  required string path = 2;
+}
+
+message GuestfsProtobufZfgrepiRet {
+  repeated string lines = 1;
+}
+
+message GuestfsProtobufRealpathArgs {
+  required string path = 1;
+}
+
+message GuestfsProtobufRealpathRet {
+  required string rpath = 1;
+}
+
+message GuestfsProtobufLnArgs {
+  required string target = 1;
+  required string linkname = 2;
+}
+
+message GuestfsProtobufLnFfArgs {
+  required string target = 1;
+  required string linkname = 2;
+}
+
+message GuestfsProtobufLnSsArgs {
+  required string target = 1;
+  required string linkname = 2;
+}
+
+message GuestfsProtobufLnSfArgs {
+  required string target = 1;
+  required string linkname = 2;
+}
+
+message GuestfsProtobufReadlinkArgs {
+  required string path = 1;
+}
+
+message GuestfsProtobufReadlinkRet {
+  required string link = 1;
+}
+
+message GuestfsProtobufFallocateArgs {
+  required string path = 1;
+  required int32 len = 2;
+}
+
+message GuestfsProtobufSwaponDeviceArgs {
+  required string device = 1;
+}
+
+message GuestfsProtobufSwapoffDeviceArgs {
+  required string device = 1;
+}
+
+message GuestfsProtobufSwaponFileArgs {
+  required string file = 1;
+}
+
+message GuestfsProtobufSwapoffFileArgs {
+  required string file = 1;
+}
+
+message GuestfsProtobufSwaponLabelArgs {
+  required string label = 1;
+}
+
+message GuestfsProtobufSwapoffLabelArgs {
+  required string label = 1;
+}
+
+message GuestfsProtobufSwaponUuidArgs {
+  required string uuid = 1;
+}
+
+message GuestfsProtobufSwapoffUuidArgs {
+  required string uuid = 1;
+}
+
+message GuestfsProtobufMkswapFileArgs {
+  required string path = 1;
+}
+
+message GuestfsProtobufInotifyInitArgs {
+  required int32 maxevents = 1;
+}
+
+message GuestfsProtobufInotifyAddWatchArgs {
+  required string path = 1;
+  required int32 mask = 2;
+}
+
+message GuestfsProtobufInotifyAddWatchRet {
+  required int64 wd = 1;
+}
+
+message GuestfsProtobufInotifyRmWatchArgs {
+  required int32 wd = 1;
+}
+
+message GuestfsProtobufInotifyReadRet {
+  required GuestfsProtobufIntInotifyEventList events = 1;
+}
+
+message GuestfsProtobufInotifyFilesRet {
+  repeated string paths = 1;
+}
+
+message GuestfsProtobufSetconArgs {
+  required string context = 1;
+}
+
+message GuestfsProtobufGetconRet {
+  required string context = 1;
+}
+
+message GuestfsProtobufMkfsBbArgs {
+  required string fstype = 1;
+  required int32 blocksize = 2;
+  required string device = 3;
+}
+
+message GuestfsProtobufMke2journalArgs {
+  required int32 blocksize = 1;
+  required string device = 2;
+}
+
+message GuestfsProtobufMke2journalLlArgs {
+  required int32 blocksize = 1;
+  required string label = 2;
+  required string device = 3;
+}
+
+message GuestfsProtobufMke2journalUuArgs {
+  required int32 blocksize = 1;
+  required string uuid = 2;
+  required string device = 3;
+}
+
+message GuestfsProtobufMke2fsJjArgs {
+  required string fstype = 1;
+  required int32 blocksize = 2;
+  required string device = 3;
+  required string journal = 4;
+}
+
+message GuestfsProtobufMke2fsJlArgs {
+  required string fstype = 1;
+  required int32 blocksize = 2;
+  required string device = 3;
+  required string label = 4;
+}
+
+message GuestfsProtobufMke2fsJuArgs {
+  required string fstype = 1;
+  required int32 blocksize = 2;
+  required string device = 3;
+  required string uuid = 4;
+}
+
+message GuestfsProtobufModprobeArgs {
+  required string modulename = 1;
+}
+
+message GuestfsProtobufEchoDaemonArgs {
+  repeated string words = 1;
+}
+
+message GuestfsProtobufEchoDaemonRet {
+  required string output = 1;
+}
+
+message GuestfsProtobufFind0Args {
+  required string directory = 1;
+}
+
+message GuestfsProtobufCaseSensitivePathArgs {
+  required string path = 1;
+}
+
+message GuestfsProtobufCaseSensitivePathRet {
+  required string rpath = 1;
+}
+
+message GuestfsProtobufVfsTypeArgs {
+  required string mountable = 1;
+}
+
+message GuestfsProtobufVfsTypeRet {
+  required string fstype = 1;
+}
+
+message GuestfsProtobufTruncateArgs {
+  required string path = 1;
+}
+
+message GuestfsProtobufTruncateSizeArgs {
+  required string path = 1;
+  required int64 size = 2;
+}
+
+message GuestfsProtobufUtimensArgs {
+  required string path = 1;
+  required int64 atsecs = 2;
+  required int64 atnsecs = 3;
+  required int64 mtsecs = 4;
+  required int64 mtnsecs = 5;
+}
+
+message GuestfsProtobufMkdirModeArgs {
+  required string path = 1;
+  required int32 mode = 2;
+}
+
+message GuestfsProtobufLchownArgs {
+  required int32 owner = 1;
+  required int32 group = 2;
+  required string path = 3;
+}
+
+message GuestfsProtobufInternalLxattrlistArgs {
+  required string path = 1;
+  repeated string names = 2;
+}
+
+message GuestfsProtobufInternalLxattrlistRet {
+  required GuestfsProtobufIntXattrList xattrs = 1;
+}
+
+message GuestfsProtobufInternalReadlinklistArgs {
+  required string path = 1;
+  repeated string names = 2;
+}
+
+message GuestfsProtobufInternalReadlinklistRet {
+  repeated string links = 1;
+}
+
+message GuestfsProtobufPreadArgs {
+  required string path = 1;
+  required int32 count = 2;
+  required int64 offset = 3;
+}
+
+message GuestfsProtobufPreadRet {
+  required bytes content = 1;
+}
+
+message GuestfsProtobufPartInitArgs {
+  required string device = 1;
+  required string parttype = 2;
+}
+
+message GuestfsProtobufPartAddArgs {
+  required string device = 1;
+  required string prlogex = 2;
+  required int64 startsect = 3;
+  required int64 endsect = 4;
+}
+
+message GuestfsProtobufPartDiskArgs {
+  required string device = 1;
+  required string parttype = 2;
+}
+
+message GuestfsProtobufPartSetBootableArgs {
+  required string device = 1;
+  required int32 partnum = 2;
+  required bool bootable = 3;
+}
+
+message GuestfsProtobufPartSetNameArgs {
+  required string device = 1;
+  required int32 partnum = 2;
+  required string name = 3;
+}
+
+message GuestfsProtobufPartListArgs {
+  required string device = 1;
+}
+
+message GuestfsProtobufPartListRet {
+  required GuestfsProtobufIntPartitionList partitions = 1;
+}
+
+message GuestfsProtobufPartGetParttypeArgs {
+  required string device = 1;
+}
+
+message GuestfsProtobufPartGetParttypeRet {
+  required string parttype = 1;
+}
+
+message GuestfsProtobufFillArgs {
+  required int32 c = 1;
+  required int32 len = 2;
+  required string path = 3;
+}
+
+message GuestfsProtobufAvailableArgs {
+  repeated string groups = 1;
+}
+
+message GuestfsProtobufDdArgs {
+  required string src = 1;
+  required string dest = 2;
+}
+
+message GuestfsProtobufFilesizeArgs {
+  required string file = 1;
+}
+
+message GuestfsProtobufFilesizeRet {
+  required int64 size = 1;
+}
+
+message GuestfsProtobufLvrenameArgs {
+  required string logvol = 1;
+  required string newlogvol = 2;
+}
+
+message GuestfsProtobufVgrenameArgs {
+  required string volgroup = 1;
+  required string newvolgroup = 2;
+}
+
+message GuestfsProtobufInitrdCatArgs {
+  required string initrdpath = 1;
+  required string filename = 2;
+}
+
+message GuestfsProtobufInitrdCatRet {
+  required bytes content = 1;
+}
+
+message GuestfsProtobufPvuuidArgs {
+  required string device = 1;
+}
+
+message GuestfsProtobufPvuuidRet {
+  required string uuid = 1;
+}
+
+message GuestfsProtobufVguuidArgs {
+  required string vgname = 1;
+}
+
+message GuestfsProtobufVguuidRet {
+  required string uuid = 1;
+}
+
+message GuestfsProtobufLvuuidArgs {
+  required string device = 1;
+}
+
+message GuestfsProtobufLvuuidRet {
+  required string uuid = 1;
+}
+
+message GuestfsProtobufVgpvuuidsArgs {
+  required string vgname = 1;
+}
+
+message GuestfsProtobufVgpvuuidsRet {
+  repeated string uuids = 1;
+}
+
+message GuestfsProtobufVglvuuidsArgs {
+  required string vgname = 1;
+}
+
+message GuestfsProtobufVglvuuidsRet {
+  repeated string uuids = 1;
+}
+
+message GuestfsProtobufCopySizeArgs {
+  required string src = 1;
+  required string dest = 2;
+  required int64 size = 3;
+}
+
+message GuestfsProtobufZeroDeviceArgs {
+  required string device = 1;
+}
+
+message GuestfsProtobufTxzInArgs {
+  required string directory = 1;
+}
+
+message GuestfsProtobufTxzOutArgs {
+  required string directory = 1;
+}
+
+message GuestfsProtobufPartDelArgs {
+  required string device = 1;
+  required int32 partnum = 2;
+}
+
+message GuestfsProtobufPartGetBootableArgs {
+  required string device = 1;
+  required int32 partnum = 2;
+}
+
+message GuestfsProtobufPartGetBootableRet {
+  required bool bootable = 1;
+}
+
+message GuestfsProtobufPartGetMbrIdArgs {
+  required string device = 1;
+  required int32 partnum = 2;
+}
+
+message GuestfsProtobufPartGetMbrIdRet {
+  required int32 idbyte = 1;
+}
+
+message GuestfsProtobufPartSetMbrIdArgs {
+  required string device = 1;
+  required int32 partnum = 2;
+  required int32 idbyte = 3;
+}
+
+message GuestfsProtobufChecksumDeviceArgs {
+  required string csumtype = 1;
+  required string device = 2;
+}
+
+message GuestfsProtobufChecksumDeviceRet {
+  required string checksum = 1;
+}
+
+message GuestfsProtobufLvresizeFreeArgs {
+  required string lv = 1;
+  required int32 percent = 2;
+}
+
+message GuestfsProtobufAugClearArgs {
+  required string augpath = 1;
+}
+
+message GuestfsProtobufGetUmaskRet {
+  required int32 mask = 1;
+}
+
+message GuestfsProtobufDebugUploadArgs {
+  required string tmpname = 1;
+  required int32 mode = 2;
+}
+
+message GuestfsProtobufBase64InArgs {
+  required string filename = 1;
+}
+
+message GuestfsProtobufBase64OutArgs {
+  required string filename = 1;
+}
+
+message GuestfsProtobufChecksumsOutArgs {
+  required string csumtype = 1;
+  required string directory = 2;
+}
+
+message GuestfsProtobufFillPatternArgs {
+  required string pattern = 1;
+  required int32 len = 2;
+  required string path = 3;
+}
+
+message GuestfsProtobufInternalWriteArgs {
+  required string path = 1;
+  required bytes content = 2;
+}
+
+message GuestfsProtobufPwriteArgs {
+  required string path = 1;
+  required bytes content = 2;
+  required int64 offset = 3;
+}
+
+message GuestfsProtobufPwriteRet {
+  required int32 nbytes = 1;
+}
+
+message GuestfsProtobufResize2fsSizeArgs {
+  required string device = 1;
+  required int64 size = 2;
+}
+
+message GuestfsProtobufPvresizeSizeArgs {
+  required string device = 1;
+  required int64 size = 2;
+}
+
+message GuestfsProtobufNtfsresizeSizeArgs {
+  required string device = 1;
+  required int64 size = 2;
+}
+
+message GuestfsProtobufAvailableAllGroupsRet {
+  repeated string groups = 1;
+}
+
+message GuestfsProtobufFallocate64Args {
+  required string path = 1;
+  required int64 len = 2;
+}
+
+message GuestfsProtobufVfsLabelArgs {
+  required string mountable = 1;
+}
+
+message GuestfsProtobufVfsLabelRet {
+  required string label = 1;
+}
+
+message GuestfsProtobufVfsUuidArgs {
+  required string mountable = 1;
+}
+
+message GuestfsProtobufVfsUuidRet {
+  required string uuid = 1;
+}
+
+message GuestfsProtobufLvmSetFilterArgs {
+  repeated string devices = 1;
+}
+
+message GuestfsProtobufLuksOpenArgs {
+  required string device = 1;
+  required string key = 2;
+  required string mapname = 3;
+}
+
+message GuestfsProtobufLuksOpenRoArgs {
+  required string device = 1;
+  required string key = 2;
+  required string mapname = 3;
+}
+
+message GuestfsProtobufLuksCloseArgs {
+  required string device = 1;
+}
+
+message GuestfsProtobufLuksFormatArgs {
+  required string device = 1;
+  required string key = 2;
+  required int32 keyslot = 3;
+}
+
+message GuestfsProtobufLuksFormatCipherArgs {
+  required string device = 1;
+  required string key = 2;
+  required int32 keyslot = 3;
+  required string cipher = 4;
+}
+
+message GuestfsProtobufLuksAddKeyArgs {
+  required string device = 1;
+  required string key = 2;
+  required string newkey = 3;
+  required int32 keyslot = 4;
+}
+
+message GuestfsProtobufLuksKillSlotArgs {
+  required string device = 1;
+  required string key = 2;
+  required int32 keyslot = 3;
+}
+
+message GuestfsProtobufIsLvArgs {
+  required string device = 1;
+}
+
+message GuestfsProtobufIsLvRet {
+  required bool lvflag = 1;
+}
+
+message GuestfsProtobufFindfsUuidArgs {
+  required string uuid = 1;
+}
+
+message GuestfsProtobufFindfsUuidRet {
+  required string device = 1;
+}
+
+message GuestfsProtobufFindfsLabelArgs {
+  required string label = 1;
+}
+
+message GuestfsProtobufFindfsLabelRet {
+  required string device = 1;
+}
+
+message GuestfsProtobufIsChardevArgs {
+  required string path = 1;
+  required bool followsymlinks = 2;
+}
+
+message GuestfsProtobufIsChardevRet {
+  required bool flag = 1;
+}
+
+message GuestfsProtobufIsBlockdevArgs {
+  required string path = 1;
+  required bool followsymlinks = 2;
+}
+
+message GuestfsProtobufIsBlockdevRet {
+  required bool flag = 1;
+}
+
+message GuestfsProtobufIsFifoArgs {
+  required string path = 1;
+  required bool followsymlinks = 2;
+}
+
+message GuestfsProtobufIsFifoRet {
+  required bool flag = 1;
+}
+
+message GuestfsProtobufIsSymlinkArgs {
+  required string path = 1;
+}
+
+message GuestfsProtobufIsSymlinkRet {
+  required bool flag = 1;
+}
+
+message GuestfsProtobufIsSocketArgs {
+  required string path = 1;
+  required bool followsymlinks = 2;
+}
+
+message GuestfsProtobufIsSocketRet {
+  required bool flag = 1;
+}
+
+message GuestfsProtobufPartToDevArgs {
+  required string partition = 1;
+}
+
+message GuestfsProtobufPartToDevRet {
+  required string device = 1;
+}
+
+message GuestfsProtobufUploadOffsetArgs {
+  required string remotefilename = 1;
+  required int64 offset = 2;
+}
+
+message GuestfsProtobufDownloadOffsetArgs {
+  required string remotefilename = 1;
+  required int64 offset = 2;
+  required int64 size = 3;
+}
+
+message GuestfsProtobufPwriteDeviceArgs {
+  required string device = 1;
+  required bytes content = 2;
+  required int64 offset = 3;
+}
+
+message GuestfsProtobufPwriteDeviceRet {
+  required int32 nbytes = 1;
+}
+
+message GuestfsProtobufPreadDeviceArgs {
+  required string device = 1;
+  required int32 count = 2;
+  required int64 offset = 3;
+}
+
+message GuestfsProtobufPreadDeviceRet {
+  required bytes content = 1;
+}
+
+message GuestfsProtobufLvmCanonicalLvNameArgs {
+  required string lvname = 1;
+}
+
+message GuestfsProtobufLvmCanonicalLvNameRet {
+  required string lv = 1;
+}
+
+message GuestfsProtobufMkfsArgs {
+  required string fstype = 1;
+  required string device = 2;
+  required int32 blocksize = 3;
+  required string features = 4;
+  required int32 inode = 5;
+  required int32 sectorsize = 6;
+}
+
+message GuestfsProtobufGetxattrArgs {
+  required string path = 1;
+  required string name = 2;
+}
+
+message GuestfsProtobufGetxattrRet {
+  required bytes xattr = 1;
+}
+
+message GuestfsProtobufLgetxattrArgs {
+  required string path = 1;
+  required string name = 2;
+}
+
+message GuestfsProtobufLgetxattrRet {
+  required bytes xattr = 1;
+}
+
+message GuestfsProtobufResize2fsMmArgs {
+  required string device = 1;
+}
+
+message GuestfsProtobufIsZeroArgs {
+  required string path = 1;
+}
+
+message GuestfsProtobufIsZeroRet {
+  required bool zeroflag = 1;
+}
+
+message GuestfsProtobufIsZeroDeviceArgs {
+  required string device = 1;
+}
+
+message GuestfsProtobufIsZeroDeviceRet {
+  required bool zeroflag = 1;
+}
+
+message GuestfsProtobufList9pRet {
+  repeated string mounttags = 1;
+}
+
+message GuestfsProtobufMount9pArgs {
+  required string mounttag = 1;
+  required string mountpoint = 2;
+  required string options = 3;
+}
+
+message GuestfsProtobufListDmDevicesRet {
+  repeated string devices = 1;
+}
+
+message GuestfsProtobufNtfsresizeArgs {
+  required string device = 1;
+  required int64 size = 2;
+  required bool force = 3;
+}
+
+message GuestfsProtobufBtrfsFilesystemResizeArgs {
+  required string mountpoint = 1;
+  required int64 size = 2;
+}
+
+message GuestfsProtobufInternalWriteAppendArgs {
+  required string path = 1;
+  required bytes content = 2;
+}
+
+message GuestfsProtobufCompressOutArgs {
+  required string ctype = 1;
+  required string file = 2;
+  required int32 level = 3;
+}
+
+message GuestfsProtobufCompressDeviceOutArgs {
+  required string ctype = 1;
+  required string device = 2;
+  required int32 level = 3;
+}
+
+message GuestfsProtobufPartToPartnumArgs {
+  required string partition = 1;
+}
+
+message GuestfsProtobufPartToPartnumRet {
+  required int32 partnum = 1;
+}
+
+message GuestfsProtobufCopyDeviceToDeviceArgs {
+  required string src = 1;
+  required string dest = 2;
+  required int64 srcoffset = 3;
+  required int64 destoffset = 4;
+  required int64 size = 5;
+  required bool sparse = 6;
+}
+
+message GuestfsProtobufCopyDeviceToFileArgs {
+  required string src = 1;
+  required string dest = 2;
+  required int64 srcoffset = 3;
+  required int64 destoffset = 4;
+  required int64 size = 5;
+  required bool sparse = 6;
+}
+
+message GuestfsProtobufCopyFileToDeviceArgs {
+  required string src = 1;
+  required string dest = 2;
+  required int64 srcoffset = 3;
+  required int64 destoffset = 4;
+  required int64 size = 5;
+  required bool sparse = 6;
+}
+
+message GuestfsProtobufCopyFileToFileArgs {
+  required string src = 1;
+  required string dest = 2;
+  required int64 srcoffset = 3;
+  required int64 destoffset = 4;
+  required int64 size = 5;
+  required bool sparse = 6;
+}
+
+message GuestfsProtobufTune2fsArgs {
+  required string device = 1;
+  required bool force = 2;
+  required int32 maxmountcount = 3;
+  required int32 mountcount = 4;
+  required string errorbehavior = 5;
+  required int64 group = 6;
+  required int32 intervalbetweenchecks = 7;
+  required int32 reservedblockspercentage = 8;
+  required string lastmounteddirectory = 9;
+  required int64 reservedblockscount = 10;
+  required int64 user = 11;
+}
+
+message GuestfsProtobufMdCreateArgs {
+  required string name = 1;
+  repeated string devices = 2;
+  required int64 missingbitmap = 3;
+  required int32 nrdevices = 4;
+  required int32 spare = 5;
+  required int64 chunk = 6;
+  required string level = 7;
+}
+
+message GuestfsProtobufListMdDevicesRet {
+  repeated string devices = 1;
+}
+
+message GuestfsProtobufMdDetailArgs {
+  required string md = 1;
+}
+
+message GuestfsProtobufMdDetailRet {
+  repeated string info = 1;
+}
+
+message GuestfsProtobufMdStopArgs {
+  required string md = 1;
+}
+
+message GuestfsProtobufBlkidArgs {
+  required string device = 1;
+}
+
+message GuestfsProtobufBlkidRet {
+  repeated string info = 1;
+}
+
+message GuestfsProtobufE2fsckArgs {
+  required string device = 1;
+  required bool correct = 2;
+  required bool forceall = 3;
+}
+
+message GuestfsProtobufLlzArgs {
+  required string directory = 1;
+}
+
+message GuestfsProtobufLlzRet {
+  required string listing = 1;
+}
+
+message GuestfsProtobufWipefsArgs {
+  required string device = 1;
+}
+
+message GuestfsProtobufNtfsfixArgs {
+  required string device = 1;
+  required bool clearbadsectors = 2;
+}
+
+message GuestfsProtobufNtfscloneOutArgs {
+  required string device = 1;
+  required bool metadataonly = 2;
+  required bool rescue = 3;
+  required bool ignorefscheck = 4;
+  required bool preservetimestamps = 5;
+  required bool force = 6;
+}
+
+message GuestfsProtobufNtfscloneInArgs {
+  required string device = 1;
+}
+
+message GuestfsProtobufSetLabelArgs {
+  required string mountable = 1;
+  required string label = 2;
+}
+
+message GuestfsProtobufZeroFreeSpaceArgs {
+  required string directory = 1;
+}
+
+message GuestfsProtobufLvcreateFreeArgs {
+  required string logvol = 1;
+  required string volgroup = 2;
+  required int32 percent = 3;
+}
+
+message GuestfsProtobufIsoinfoDeviceArgs {
+  required string device = 1;
+}
+
+message GuestfsProtobufIsoinfoDeviceRet {
+  required GuestfsProtobufIntIsoinfo isodata = 1;
+}
+
+message GuestfsProtobufIsoinfoArgs {
+  required string isofile = 1;
+}
+
+message GuestfsProtobufIsoinfoRet {
+  required GuestfsProtobufIntIsoinfo isodata = 1;
+}
+
+message GuestfsProtobufVgmetaArgs {
+  required string vgname = 1;
+}
+
+message GuestfsProtobufVgmetaRet {
+  required bytes metadata = 1;
+}
+
+message GuestfsProtobufMdStatArgs {
+  required string md = 1;
+}
+
+message GuestfsProtobufMdStatRet {
+  required GuestfsProtobufIntMdstatList devices = 1;
+}
+
+message GuestfsProtobufMkfsBtrfsArgs {
+  repeated string devices = 1;
+  required int64 allocstart = 2;
+  required int64 bytecount = 3;
+  required string datatype = 4;
+  required int32 leafsize = 5;
+  required string label = 6;
+  required string metadata = 7;
+  required int32 nodesize = 8;
+  required int32 sectorsize = 9;
+}
+
+message GuestfsProtobufGetE2attrsArgs {
+  required string file = 1;
+}
+
+message GuestfsProtobufGetE2attrsRet {
+  required string attrs = 1;
+}
+
+message GuestfsProtobufSetE2attrsArgs {
+  required string file = 1;
+  required string attrs = 2;
+  required bool clear = 3;
+}
+
+message GuestfsProtobufGetE2generationArgs {
+  required string file = 1;
+}
+
+message GuestfsProtobufGetE2generationRet {
+  required int64 generation = 1;
+}
+
+message GuestfsProtobufSetE2generationArgs {
+  required string file = 1;
+  required int64 generation = 2;
+}
+
+message GuestfsProtobufBtrfsSubvolumeSnapshotArgs {
+  required string source = 1;
+  required string dest = 2;
+}
+
+message GuestfsProtobufBtrfsSubvolumeDeleteArgs {
+  required string subvolume = 1;
+}
+
+message GuestfsProtobufBtrfsSubvolumeCreateArgs {
+  required string dest = 1;
+}
+
+message GuestfsProtobufBtrfsSubvolumeListArgs {
+  required string fs = 1;
+}
+
+message GuestfsProtobufBtrfsSubvolumeListRet {
+  required GuestfsProtobufIntBtrfssubvolumeList subvolumes = 1;
+}
+
+message GuestfsProtobufBtrfsSubvolumeSetDefaultArgs {
+  required int64 id = 1;
+  required string fs = 2;
+}
+
+message GuestfsProtobufBtrfsFilesystemSyncArgs {
+  required string fs = 1;
+}
+
+message GuestfsProtobufBtrfsFilesystemBalanceArgs {
+  required string fs = 1;
+}
+
+message GuestfsProtobufBtrfsDeviceAddArgs {
+  repeated string devices = 1;
+  required string fs = 2;
+}
+
+message GuestfsProtobufBtrfsDeviceDeleteArgs {
+  repeated string devices = 1;
+  required string fs = 2;
+}
+
+message GuestfsProtobufBtrfsSetSeedingArgs {
+  required string device = 1;
+  required bool seeding = 2;
+}
+
+message GuestfsProtobufBtrfsFsckArgs {
+  required string device = 1;
+  required int64 superblock = 2;
+  required bool repair = 3;
+}
+
+message GuestfsProtobufFilesystemAvailableArgs {
+  required string filesystem = 1;
+}
+
+message GuestfsProtobufFilesystemAvailableRet {
+  required bool fsavail = 1;
+}
+
+message GuestfsProtobufFstrimArgs {
+  required string mountpoint = 1;
+  required int64 offset = 2;
+  required int64 length = 3;
+  required int64 minimumfreeextent = 4;
+}
+
+message GuestfsProtobufDeviceIndexArgs {
+  required string device = 1;
+}
+
+message GuestfsProtobufDeviceIndexRet {
+  required int32 index = 1;
+}
+
+message GuestfsProtobufNrDevicesRet {
+  required int32 nrdisks = 1;
+}
+
+message GuestfsProtobufXfsInfoArgs {
+  required string pathordevice = 1;
+}
+
+message GuestfsProtobufXfsInfoRet {
+  required GuestfsProtobufIntXfsinfo info = 1;
+}
+
+message GuestfsProtobufPvchangeUuidArgs {
+  required string device = 1;
+}
+
+message GuestfsProtobufVgchangeUuidArgs {
+  required string vg = 1;
+}
+
+message GuestfsProtobufUtsnameRet {
+  required GuestfsProtobufIntUtsname uts = 1;
+}
+
+message GuestfsProtobufXfsGrowfsArgs {
+  required string path = 1;
+  required bool datasec = 2;
+  required bool logsec = 3;
+  required bool rtsec = 4;
+  required int64 datasize = 5;
+  required int64 logsize = 6;
+  required int64 rtsize = 7;
+  required int64 rtextsize = 8;
+  required int32 maxpct = 9;
+}
+
+message GuestfsProtobufRsyncArgs {
+  required string src = 1;
+  required string dest = 2;
+  required bool archive = 3;
+  required bool deletedest = 4;
+}
+
+message GuestfsProtobufRsyncInArgs {
+  required string remote = 1;
+  required string dest = 2;
+  required bool archive = 3;
+  required bool deletedest = 4;
+}
+
+message GuestfsProtobufRsyncOutArgs {
+  required string src = 1;
+  required string remote = 2;
+  required bool archive = 3;
+  required bool deletedest = 4;
+}
+
+message GuestfsProtobufLs0Args {
+  required string dir = 1;
+}
+
+message GuestfsProtobufFillDirArgs {
+  required string dir = 1;
+  required int32 nr = 2;
+}
+
+message GuestfsProtobufXfsAdminArgs {
+  required string device = 1;
+  required bool extunwritten = 2;
+  required bool imgfile = 3;
+  required bool v2log = 4;
+  required bool projid32bit = 5;
+  required bool lazycounter = 6;
+  required string label = 7;
+  required string uuid = 8;
+}
+
+message GuestfsProtobufHivexOpenArgs {
+  required string filename = 1;
+  required bool verbose = 2;
+  required bool debug = 3;
+  required bool write = 4;
+}
+
+message GuestfsProtobufHivexRootRet {
+  required int64 nodeh = 1;
+}
+
+message GuestfsProtobufHivexNodeNameArgs {
+  required int64 nodeh = 1;
+}
+
+message GuestfsProtobufHivexNodeNameRet {
+  required string name = 1;
+}
+
+message GuestfsProtobufHivexNodeChildrenArgs {
+  required int64 nodeh = 1;
+}
+
+message GuestfsProtobufHivexNodeChildrenRet {
+  required GuestfsProtobufIntHivexNodeList nodehs = 1;
+}
+
+message GuestfsProtobufHivexNodeGetChildArgs {
+  required int64 nodeh = 1;
+  required string name = 2;
+}
+
+message GuestfsProtobufHivexNodeGetChildRet {
+  required int64 child = 1;
+}
+
+message GuestfsProtobufHivexNodeParentArgs {
+  required int64 nodeh = 1;
+}
+
+message GuestfsProtobufHivexNodeParentRet {
+  required int64 parent = 1;
+}
+
+message GuestfsProtobufHivexNodeValuesArgs {
+  required int64 nodeh = 1;
+}
+
+message GuestfsProtobufHivexNodeValuesRet {
+  required GuestfsProtobufIntHivexValueList valuehs = 1;
+}
+
+message GuestfsProtobufHivexNodeGetValueArgs {
+  required int64 nodeh = 1;
+  required string key = 2;
+}
+
+message GuestfsProtobufHivexNodeGetValueRet {
+  required int64 valueh = 1;
+}
+
+message GuestfsProtobufHivexValueKeyArgs {
+  required int64 valueh = 1;
+}
+
+message GuestfsProtobufHivexValueKeyRet {
+  required string key = 1;
+}
+
+message GuestfsProtobufHivexValueTypeArgs {
+  required int64 valueh = 1;
+}
+
+message GuestfsProtobufHivexValueTypeRet {
+  required int64 datatype = 1;
+}
+
+message GuestfsProtobufHivexValueValueArgs {
+  required int64 valueh = 1;
+}
+
+message GuestfsProtobufHivexValueValueRet {
+  required bytes databuf = 1;
+}
+
+message GuestfsProtobufHivexCommitArgs {
+  repeated string filename = 1;
+}
+
+message GuestfsProtobufHivexNodeAddChildArgs {
+  required int64 parent = 1;
+  required string name = 2;
+}
+
+message GuestfsProtobufHivexNodeAddChildRet {
+  required int64 nodeh = 1;
+}
+
+message GuestfsProtobufHivexNodeDeleteChildArgs {
+  required int64 nodeh = 1;
+}
+
+message GuestfsProtobufHivexNodeSetValueArgs {
+  required int64 nodeh = 1;
+  required string key = 2;
+  required int64 t = 3;
+  required bytes val = 4;
+}
+
+message GuestfsProtobufXfsRepairArgs {
+  required string device = 1;
+  required bool forcelogzero = 2;
+  required bool nomodify = 3;
+  required bool noprefetch = 4;
+  required bool forcegeometry = 5;
+  required int64 maxmem = 6;
+  required int64 ihashsize = 7;
+  required int64 bhashsize = 8;
+  required int64 agstride = 9;
+  required string logdev = 10;
+  required string rtdev = 11;
+}
+
+message GuestfsProtobufXfsRepairRet {
+  required int32 status = 1;
+}
+
+message GuestfsProtobufRmFfArgs {
+  required string path = 1;
+}
+
+message GuestfsProtobufMke2fsArgs {
+  required string device = 1;
+  required int64 blockscount = 2;
+  required int64 blocksize = 3;
+  required int64 fragsize = 4;
+  required int64 blockspergroup = 5;
+  required int64 numberofgroups = 6;
+  required int64 bytesperinode = 7;
+  required int64 inodesize = 8;
+  required int64 journalsize = 9;
+  required int64 numberofinodes = 10;
+  required int64 stridesize = 11;
+  required int64 stripewidth = 12;
+  required int64 maxonlineresize = 13;
+  required int32 reservedblockspercentage = 14;
+  required int32 mmpupdateinterval = 15;
+  required string journaldevice = 16;
+  required string label = 17;
+  required string lastmounteddir = 18;
+  required string creatoros = 19;
+  required string fstype = 20;
+  required string usagetype = 21;
+  required string uuid = 22;
+  required bool forcecreate = 23;
+  required bool writesbandgrouponly = 24;
+  required bool lazyitableinit = 25;
+  required bool lazyjournalinit = 26;
+  required bool testfs = 27;
+  required bool discard = 28;
+  required bool quotatype = 29;
+  required bool extent = 30;
+  required bool filetype = 31;
+  required bool flexbg = 32;
+  required bool hasjournal = 33;
+  required bool journaldev = 34;
+  required bool largefile = 35;
+  required bool quota = 36;
+  required bool resizeinode = 37;
+  required bool sparsesuper = 38;
+  required bool uninitbg = 39;
+}
+
+message GuestfsProtobufListDiskLabelsRet {
+  repeated string labels = 1;
+}
+
+message GuestfsProtobufInternalHotAddDriveArgs {
+  required string label = 1;
+}
+
+message GuestfsProtobufInternalHotRemoveDrivePrecheckArgs {
+  required string label = 1;
+}
+
+message GuestfsProtobufInternalHotRemoveDriveArgs {
+  required string label = 1;
+}
+
+message GuestfsProtobufMktempArgs {
+  required string tmpl = 1;
+  required string suffix = 2;
+}
+
+message GuestfsProtobufMktempRet {
+  required string path = 1;
+}
+
+message GuestfsProtobufMklostAndFoundArgs {
+  required string mountpoint = 1;
+}
+
+message GuestfsProtobufAclGetFileArgs {
+  required string path = 1;
+  required string acltype = 2;
+}
+
+message GuestfsProtobufAclGetFileRet {
+  required string acl = 1;
+}
+
+message GuestfsProtobufAclSetFileArgs {
+  required string path = 1;
+  required string acltype = 2;
+  required string acl = 3;
+}
+
+message GuestfsProtobufAclDeleteDefFileArgs {
+  required string dir = 1;
+}
+
+message GuestfsProtobufCapGetFileArgs {
+  required string path = 1;
+}
+
+message GuestfsProtobufCapGetFileRet {
+  required string cap = 1;
+}
+
+message GuestfsProtobufCapSetFileArgs {
+  required string path = 1;
+  required string cap = 2;
+}
+
+message GuestfsProtobufListLdmVolumesRet {
+  repeated string devices = 1;
+}
+
+message GuestfsProtobufListLdmPartitionsRet {
+  repeated string devices = 1;
+}
+
+message GuestfsProtobufLdmtoolScanRet {
+  repeated string guids = 1;
+}
+
+message GuestfsProtobufLdmtoolScanDevicesArgs {
+  repeated string devices = 1;
+}
+
+message GuestfsProtobufLdmtoolScanDevicesRet {
+  repeated string guids = 1;
+}
+
+message GuestfsProtobufLdmtoolDiskgroupNameArgs {
+  required string diskgroup = 1;
+}
+
+message GuestfsProtobufLdmtoolDiskgroupNameRet {
+  required string name = 1;
+}
+
+message GuestfsProtobufLdmtoolDiskgroupVolumesArgs {
+  required string diskgroup = 1;
+}
+
+message GuestfsProtobufLdmtoolDiskgroupVolumesRet {
+  repeated string volumes = 1;
+}
+
+message GuestfsProtobufLdmtoolDiskgroupDisksArgs {
+  required string diskgroup = 1;
+}
+
+message GuestfsProtobufLdmtoolDiskgroupDisksRet {
+  repeated string disks = 1;
+}
+
+message GuestfsProtobufLdmtoolVolumeTypeArgs {
+  required string diskgroup = 1;
+  required string volume = 2;
+}
+
+message GuestfsProtobufLdmtoolVolumeTypeRet {
+  required string voltype = 1;
+}
+
+message GuestfsProtobufLdmtoolVolumeHintArgs {
+  required string diskgroup = 1;
+  required string volume = 2;
+}
+
+message GuestfsProtobufLdmtoolVolumeHintRet {
+  required string hint = 1;
+}
+
+message GuestfsProtobufLdmtoolVolumePartitionsArgs {
+  required string diskgroup = 1;
+  required string volume = 2;
+}
+
+message GuestfsProtobufLdmtoolVolumePartitionsRet {
+  repeated string partitions = 1;
+}
+
+message GuestfsProtobufPartSetGptTypeArgs {
+  required string device = 1;
+  required int32 partnum = 2;
+  required string guid = 3;
+}
+
+message GuestfsProtobufPartGetGptTypeArgs {
+  required string device = 1;
+  required int32 partnum = 2;
+}
+
+message GuestfsProtobufPartGetGptTypeRet {
+  required string guid = 1;
+}
+
+message GuestfsProtobufRenameArgs {
+  required string oldpath = 1;
+  required string newpath = 2;
+}
+
+message GuestfsProtobufIsWholeDeviceArgs {
+  required string device = 1;
+}
+
+message GuestfsProtobufIsWholeDeviceRet {
+  required bool flag = 1;
+}
+
+message GuestfsProtobufInternalParseMountableArgs {
+  required string mountable = 1;
+}
+
+message GuestfsProtobufInternalParseMountableRet {
+  required GuestfsProtobufIntInternalMountable mountable = 1;
+}
+
+message GuestfsProtobufInternalRhbz914931Args {
+  required int32 count = 1;
+}
+
+message GuestfsProtobufFeatureAvailableArgs {
+  repeated string groups = 1;
+}
+
+message GuestfsProtobufFeatureAvailableRet {
+  required bool isavailable = 1;
+}
+
+message GuestfsProtobufSyslinuxArgs {
+  required string device = 1;
+  required string directory = 2;
+}
+
+message GuestfsProtobufExtlinuxArgs {
+  required string directory = 1;
+}
+
+message GuestfsProtobufCpRrArgs {
+  required string src = 1;
+  required string dest = 2;
+}
+
+message GuestfsProtobufRemountArgs {
+  required string mountpoint = 1;
+  required bool rw = 2;
+}
+
+message GuestfsProtobufSetUuidArgs {
+  required string device = 1;
+  required string uuid = 2;
+}
+
+message GuestfsProtobufJournalOpenArgs {
+  required string directory = 1;
+}
+
+message GuestfsProtobufJournalNextRet {
+  required bool more = 1;
+}
+
+message GuestfsProtobufJournalSkipArgs {
+  required int64 skip = 1;
+}
+
+message GuestfsProtobufJournalSkipRet {
+  required int64 rskip = 1;
+}
+
+message GuestfsProtobufJournalGetDataThresholdRet {
+  required int64 threshold = 1;
+}
+
+message GuestfsProtobufJournalSetDataThresholdArgs {
+  required int64 threshold = 1;
+}
+
+message GuestfsProtobufAugSetmArgs {
+  required string bbase = 1;
+  repeated string sub = 2;
+  required string val = 3;
+}
+
+message GuestfsProtobufAugSetmRet {
+  required int32 nodes = 1;
+}
+
+message GuestfsProtobufAugLabelArgs {
+  required string augpath = 1;
+}
+
+message GuestfsProtobufAugLabelRet {
+  required string label = 1;
+}
+
+message GuestfsProtobufInternalUploadArgs {
+  required string tmpname = 1;
+  required int32 mode = 2;
+}
+
+message GuestfsProtobufCopyAttributesArgs {
+  required string src = 1;
+  required string dest = 2;
+  required bool all = 3;
+  required bool mode = 4;
+  required bool xattributes = 5;
+  required bool ownership = 6;
+}
+
+message GuestfsProtobufPartGetNameArgs {
+  required string device = 1;
+  required int32 partnum = 2;
+}
+
+message GuestfsProtobufPartGetNameRet {
+  required string name = 1;
+}
+
+message GuestfsProtobufBlkdiscardArgs {
+  required string device = 1;
+}
+
+message GuestfsProtobufBlkdiscardzeroesArgs {
+  required string device = 1;
+}
+
+message GuestfsProtobufBlkdiscardzeroesRet {
+  required bool zeroes = 1;
+}
+
+message GuestfsProtobufCpioOutArgs {
+  required string directory = 1;
+  required string format = 2;
+}
+
+message GuestfsProtobufJournalGetRealtimeUsecRet {
+  required int64 usec = 1;
+}
+
+message GuestfsProtobufStatnsArgs {
+  required string path = 1;
+}
+
+message GuestfsProtobufStatnsRet {
+  required GuestfsProtobufIntStatns statbuf = 1;
+}
+
+message GuestfsProtobufLstatnsArgs {
+  required string path = 1;
+}
+
+message GuestfsProtobufLstatnsRet {
+  required GuestfsProtobufIntStatns statbuf = 1;
+}
+
+message GuestfsProtobufInternalLstatnslistArgs {
+  required string path = 1;
+  repeated string names = 2;
+}
+
+message GuestfsProtobufInternalLstatnslistRet {
+  required GuestfsProtobufIntStatnsList statbufs = 1;
+}
+
+/* Table of procedure numbers. */
+enum GuestfsProtobufProcedure {
+  GUESTFS_PROTOBUF_PROC_MOUNT = 1;
+  GUESTFS_PROTOBUF_PROC_SYNC = 2;
+  GUESTFS_PROTOBUF_PROC_TOUCH = 3;
+  GUESTFS_PROTOBUF_PROC_LL = 5;
+  GUESTFS_PROTOBUF_PROC_LIST_DEVICES = 7;
+  GUESTFS_PROTOBUF_PROC_LIST_PARTITIONS = 8;
+  GUESTFS_PROTOBUF_PROC_PVS = 9;
+  GUESTFS_PROTOBUF_PROC_VGS = 10;
+  GUESTFS_PROTOBUF_PROC_LVS = 11;
+  GUESTFS_PROTOBUF_PROC_PVS_FULL = 12;
+  GUESTFS_PROTOBUF_PROC_VGS_FULL = 13;
+  GUESTFS_PROTOBUF_PROC_LVS_FULL = 14;
+  GUESTFS_PROTOBUF_PROC_AUG_INIT = 16;
+  GUESTFS_PROTOBUF_PROC_AUG_CLOSE = 26;
+  GUESTFS_PROTOBUF_PROC_AUG_DEFVAR = 17;
+  GUESTFS_PROTOBUF_PROC_AUG_DEFNODE = 18;
+  GUESTFS_PROTOBUF_PROC_AUG_GET = 19;
+  GUESTFS_PROTOBUF_PROC_AUG_SET = 20;
+  GUESTFS_PROTOBUF_PROC_AUG_INSERT = 21;
+  GUESTFS_PROTOBUF_PROC_AUG_RM = 22;
+  GUESTFS_PROTOBUF_PROC_AUG_MV = 23;
+  GUESTFS_PROTOBUF_PROC_AUG_MATCH = 24;
+  GUESTFS_PROTOBUF_PROC_AUG_SAVE = 25;
+  GUESTFS_PROTOBUF_PROC_AUG_LOAD = 27;
+  GUESTFS_PROTOBUF_PROC_AUG_LS = 28;
+  GUESTFS_PROTOBUF_PROC_RM = 29;
+  GUESTFS_PROTOBUF_PROC_RMDIR = 30;
+  GUESTFS_PROTOBUF_PROC_RM_RF = 31;
+  GUESTFS_PROTOBUF_PROC_MKDIR = 32;
+  GUESTFS_PROTOBUF_PROC_MKDIR_PP = 33;
+  GUESTFS_PROTOBUF_PROC_CHMOD = 34;
+  GUESTFS_PROTOBUF_PROC_CHOWN = 35;
+  GUESTFS_PROTOBUF_PROC_EXISTS = 36;
+  GUESTFS_PROTOBUF_PROC_IS_FILE = 37;
+  GUESTFS_PROTOBUF_PROC_IS_DIR = 38;
+  GUESTFS_PROTOBUF_PROC_PVCREATE = 39;
+  GUESTFS_PROTOBUF_PROC_VGCREATE = 40;
+  GUESTFS_PROTOBUF_PROC_LVCREATE = 41;
+  GUESTFS_PROTOBUF_PROC_SFDISK = 43;
+  GUESTFS_PROTOBUF_PROC_WRITE_FILE = 44;
+  GUESTFS_PROTOBUF_PROC_UMOUNT = 45;
+  GUESTFS_PROTOBUF_PROC_MOUNTS = 46;
+  GUESTFS_PROTOBUF_PROC_UMOUNT_ALL = 47;
+  GUESTFS_PROTOBUF_PROC_LVM_REMOVE_ALL = 48;
+  GUESTFS_PROTOBUF_PROC_FILE = 49;
+  GUESTFS_PROTOBUF_PROC_COMMAND = 50;
+  GUESTFS_PROTOBUF_PROC_COMMAND_LINES = 51;
+  GUESTFS_PROTOBUF_PROC_STATVFS = 54;
+  GUESTFS_PROTOBUF_PROC_TUNE2FS_LL = 55;
+  GUESTFS_PROTOBUF_PROC_BLOCKDEV_SETRO = 56;
+  GUESTFS_PROTOBUF_PROC_BLOCKDEV_SETRW = 57;
+  GUESTFS_PROTOBUF_PROC_BLOCKDEV_GETRO = 58;
+  GUESTFS_PROTOBUF_PROC_BLOCKDEV_GETSS = 59;
+  GUESTFS_PROTOBUF_PROC_BLOCKDEV_GETBSZ = 60;
+  GUESTFS_PROTOBUF_PROC_BLOCKDEV_SETBSZ = 61;
+  GUESTFS_PROTOBUF_PROC_BLOCKDEV_GETSZ = 62;
+  GUESTFS_PROTOBUF_PROC_BLOCKDEV_GETSIZE64 = 63;
+  GUESTFS_PROTOBUF_PROC_BLOCKDEV_FLUSHBUFS = 64;
+  GUESTFS_PROTOBUF_PROC_BLOCKDEV_REREADPT = 65;
+  GUESTFS_PROTOBUF_PROC_UPLOAD = 66;
+  GUESTFS_PROTOBUF_PROC_DOWNLOAD = 67;
+  GUESTFS_PROTOBUF_PROC_CHECKSUM = 68;
+  GUESTFS_PROTOBUF_PROC_TAR_IN = 69;
+  GUESTFS_PROTOBUF_PROC_TAR_OUT = 70;
+  GUESTFS_PROTOBUF_PROC_TGZ_IN = 71;
+  GUESTFS_PROTOBUF_PROC_TGZ_OUT = 72;
+  GUESTFS_PROTOBUF_PROC_MOUNT_RO = 73;
+  GUESTFS_PROTOBUF_PROC_MOUNT_OPTIONS = 74;
+  GUESTFS_PROTOBUF_PROC_MOUNT_VFS = 75;
+  GUESTFS_PROTOBUF_PROC_DEBUG = 76;
+  GUESTFS_PROTOBUF_PROC_LVREMOVE = 77;
+  GUESTFS_PROTOBUF_PROC_VGREMOVE = 78;
+  GUESTFS_PROTOBUF_PROC_PVREMOVE = 79;
+  GUESTFS_PROTOBUF_PROC_SET_E2LABEL = 80;
+  GUESTFS_PROTOBUF_PROC_GET_E2LABEL = 81;
+  GUESTFS_PROTOBUF_PROC_SET_E2UUID = 82;
+  GUESTFS_PROTOBUF_PROC_GET_E2UUID = 83;
+  GUESTFS_PROTOBUF_PROC_FSCK = 84;
+  GUESTFS_PROTOBUF_PROC_ZERO = 85;
+  GUESTFS_PROTOBUF_PROC_GRUB_INSTALL = 86;
+  GUESTFS_PROTOBUF_PROC_CP = 87;
+  GUESTFS_PROTOBUF_PROC_CP_AA = 88;
+  GUESTFS_PROTOBUF_PROC_MV = 89;
+  GUESTFS_PROTOBUF_PROC_DROP_CACHES = 90;
+  GUESTFS_PROTOBUF_PROC_DMESG = 91;
+  GUESTFS_PROTOBUF_PROC_PING_DAEMON = 92;
+  GUESTFS_PROTOBUF_PROC_EQUAL = 93;
+  GUESTFS_PROTOBUF_PROC_STRINGS = 94;
+  GUESTFS_PROTOBUF_PROC_STRINGS_EE = 95;
+  GUESTFS_PROTOBUF_PROC_HEXDUMP = 96;
+  GUESTFS_PROTOBUF_PROC_ZEROFREE = 97;
+  GUESTFS_PROTOBUF_PROC_PVRESIZE = 98;
+  GUESTFS_PROTOBUF_PROC_SFDISK_NN = 99;
+  GUESTFS_PROTOBUF_PROC_SFDISK_LL = 100;
+  GUESTFS_PROTOBUF_PROC_SFDISK_KERNEL_GEOMETRY = 101;
+  GUESTFS_PROTOBUF_PROC_SFDISK_DISK_GEOMETRY = 102;
+  GUESTFS_PROTOBUF_PROC_VG_ACTIVATE_ALL = 103;
+  GUESTFS_PROTOBUF_PROC_VG_ACTIVATE = 104;
+  GUESTFS_PROTOBUF_PROC_LVRESIZE = 105;
+  GUESTFS_PROTOBUF_PROC_RESIZE2FS = 106;
+  GUESTFS_PROTOBUF_PROC_E2FSCK_FF = 108;
+  GUESTFS_PROTOBUF_PROC_SLEEP = 109;
+  GUESTFS_PROTOBUF_PROC_NTFS3G_PROBE = 110;
+  GUESTFS_PROTOBUF_PROC_SH = 111;
+  GUESTFS_PROTOBUF_PROC_SH_LINES = 112;
+  GUESTFS_PROTOBUF_PROC_GLOB_EXPAND = 113;
+  GUESTFS_PROTOBUF_PROC_SCRUB_DEVICE = 114;
+  GUESTFS_PROTOBUF_PROC_SCRUB_FILE = 115;
+  GUESTFS_PROTOBUF_PROC_SCRUB_FREESPACE = 116;
+  GUESTFS_PROTOBUF_PROC_MKDTEMP = 117;
+  GUESTFS_PROTOBUF_PROC_WC_LL = 118;
+  GUESTFS_PROTOBUF_PROC_WC_WW = 119;
+  GUESTFS_PROTOBUF_PROC_WC_CC = 120;
+  GUESTFS_PROTOBUF_PROC_HEAD = 121;
+  GUESTFS_PROTOBUF_PROC_HEAD_NN = 122;
+  GUESTFS_PROTOBUF_PROC_TAIL = 123;
+  GUESTFS_PROTOBUF_PROC_TAIL_NN = 124;
+  GUESTFS_PROTOBUF_PROC_DF = 125;
+  GUESTFS_PROTOBUF_PROC_DF_HH = 126;
+  GUESTFS_PROTOBUF_PROC_DU = 127;
+  GUESTFS_PROTOBUF_PROC_INITRD_LIST = 128;
+  GUESTFS_PROTOBUF_PROC_MOUNT_LOOP = 129;
+  GUESTFS_PROTOBUF_PROC_MKSWAP = 130;
+  GUESTFS_PROTOBUF_PROC_MKSWAP_LL = 131;
+  GUESTFS_PROTOBUF_PROC_MKSWAP_UU = 132;
+  GUESTFS_PROTOBUF_PROC_MKNOD = 133;
+  GUESTFS_PROTOBUF_PROC_MKFIFO = 134;
+  GUESTFS_PROTOBUF_PROC_MKNOD_BB = 135;
+  GUESTFS_PROTOBUF_PROC_MKNOD_CC = 136;
+  GUESTFS_PROTOBUF_PROC_UMASK = 137;
+  GUESTFS_PROTOBUF_PROC_READDIR = 138;
+  GUESTFS_PROTOBUF_PROC_SFDISKM = 139;
+  GUESTFS_PROTOBUF_PROC_ZFILE = 140;
+  GUESTFS_PROTOBUF_PROC_GETXATTRS = 141;
+  GUESTFS_PROTOBUF_PROC_LGETXATTRS = 142;
+  GUESTFS_PROTOBUF_PROC_SETXATTR = 143;
+  GUESTFS_PROTOBUF_PROC_LSETXATTR = 144;
+  GUESTFS_PROTOBUF_PROC_REMOVEXATTR = 145;
+  GUESTFS_PROTOBUF_PROC_LREMOVEXATTR = 146;
+  GUESTFS_PROTOBUF_PROC_MOUNTPOINTS = 147;
+  GUESTFS_PROTOBUF_PROC_MKMOUNTPOINT = 148;
+  GUESTFS_PROTOBUF_PROC_RMMOUNTPOINT = 149;
+  GUESTFS_PROTOBUF_PROC_GREP = 151;
+  GUESTFS_PROTOBUF_PROC_EGREP = 152;
+  GUESTFS_PROTOBUF_PROC_FGREP = 153;
+  GUESTFS_PROTOBUF_PROC_GREPI = 154;
+  GUESTFS_PROTOBUF_PROC_EGREPI = 155;
+  GUESTFS_PROTOBUF_PROC_FGREPI = 156;
+  GUESTFS_PROTOBUF_PROC_ZGREP = 157;
+  GUESTFS_PROTOBUF_PROC_ZEGREP = 158;
+  GUESTFS_PROTOBUF_PROC_ZFGREP = 159;
+  GUESTFS_PROTOBUF_PROC_ZGREPI = 160;
+  GUESTFS_PROTOBUF_PROC_ZEGREPI = 161;
+  GUESTFS_PROTOBUF_PROC_ZFGREPI = 162;
+  GUESTFS_PROTOBUF_PROC_REALPATH = 163;
+  GUESTFS_PROTOBUF_PROC_LN = 164;
+  GUESTFS_PROTOBUF_PROC_LN_FF = 165;
+  GUESTFS_PROTOBUF_PROC_LN_SS = 166;
+  GUESTFS_PROTOBUF_PROC_LN_SF = 167;
+  GUESTFS_PROTOBUF_PROC_READLINK = 168;
+  GUESTFS_PROTOBUF_PROC_FALLOCATE = 169;
+  GUESTFS_PROTOBUF_PROC_SWAPON_DEVICE = 170;
+  GUESTFS_PROTOBUF_PROC_SWAPOFF_DEVICE = 171;
+  GUESTFS_PROTOBUF_PROC_SWAPON_FILE = 172;
+  GUESTFS_PROTOBUF_PROC_SWAPOFF_FILE = 173;
+  GUESTFS_PROTOBUF_PROC_SWAPON_LABEL = 174;
+  GUESTFS_PROTOBUF_PROC_SWAPOFF_LABEL = 175;
+  GUESTFS_PROTOBUF_PROC_SWAPON_UUID = 176;
+  GUESTFS_PROTOBUF_PROC_SWAPOFF_UUID = 177;
+  GUESTFS_PROTOBUF_PROC_MKSWAP_FILE = 178;
+  GUESTFS_PROTOBUF_PROC_INOTIFY_INIT = 179;
+  GUESTFS_PROTOBUF_PROC_INOTIFY_ADD_WATCH = 180;
+  GUESTFS_PROTOBUF_PROC_INOTIFY_RM_WATCH = 181;
+  GUESTFS_PROTOBUF_PROC_INOTIFY_READ = 182;
+  GUESTFS_PROTOBUF_PROC_INOTIFY_FILES = 183;
+  GUESTFS_PROTOBUF_PROC_INOTIFY_CLOSE = 184;
+  GUESTFS_PROTOBUF_PROC_SETCON = 185;
+  GUESTFS_PROTOBUF_PROC_GETCON = 186;
+  GUESTFS_PROTOBUF_PROC_MKFS_BB = 187;
+  GUESTFS_PROTOBUF_PROC_MKE2JOURNAL = 188;
+  GUESTFS_PROTOBUF_PROC_MKE2JOURNAL_LL = 189;
+  GUESTFS_PROTOBUF_PROC_MKE2JOURNAL_UU = 190;
+  GUESTFS_PROTOBUF_PROC_MKE2FS_JJ = 191;
+  GUESTFS_PROTOBUF_PROC_MKE2FS_JL = 192;
+  GUESTFS_PROTOBUF_PROC_MKE2FS_JU = 193;
+  GUESTFS_PROTOBUF_PROC_MODPROBE = 194;
+  GUESTFS_PROTOBUF_PROC_ECHO_DAEMON = 195;
+  GUESTFS_PROTOBUF_PROC_FIND0 = 196;
+  GUESTFS_PROTOBUF_PROC_CASE_SENSITIVE_PATH = 197;
+  GUESTFS_PROTOBUF_PROC_VFS_TYPE = 198;
+  GUESTFS_PROTOBUF_PROC_TRUNCATE = 199;
+  GUESTFS_PROTOBUF_PROC_TRUNCATE_SIZE = 200;
+  GUESTFS_PROTOBUF_PROC_UTIMENS = 201;
+  GUESTFS_PROTOBUF_PROC_MKDIR_MODE = 202;
+  GUESTFS_PROTOBUF_PROC_LCHOWN = 203;
+  GUESTFS_PROTOBUF_PROC_INTERNAL_LXATTRLIST = 205;
+  GUESTFS_PROTOBUF_PROC_INTERNAL_READLINKLIST = 206;
+  GUESTFS_PROTOBUF_PROC_PREAD = 207;
+  GUESTFS_PROTOBUF_PROC_PART_INIT = 208;
+  GUESTFS_PROTOBUF_PROC_PART_ADD = 209;
+  GUESTFS_PROTOBUF_PROC_PART_DISK = 210;
+  GUESTFS_PROTOBUF_PROC_PART_SET_BOOTABLE = 211;
+  GUESTFS_PROTOBUF_PROC_PART_SET_NAME = 212;
+  GUESTFS_PROTOBUF_PROC_PART_LIST = 213;
+  GUESTFS_PROTOBUF_PROC_PART_GET_PARTTYPE = 214;
+  GUESTFS_PROTOBUF_PROC_FILL = 215;
+  GUESTFS_PROTOBUF_PROC_AVAILABLE = 216;
+  GUESTFS_PROTOBUF_PROC_DD = 217;
+  GUESTFS_PROTOBUF_PROC_FILESIZE = 218;
+  GUESTFS_PROTOBUF_PROC_LVRENAME = 219;
+  GUESTFS_PROTOBUF_PROC_VGRENAME = 220;
+  GUESTFS_PROTOBUF_PROC_INITRD_CAT = 221;
+  GUESTFS_PROTOBUF_PROC_PVUUID = 222;
+  GUESTFS_PROTOBUF_PROC_VGUUID = 223;
+  GUESTFS_PROTOBUF_PROC_LVUUID = 224;
+  GUESTFS_PROTOBUF_PROC_VGPVUUIDS = 225;
+  GUESTFS_PROTOBUF_PROC_VGLVUUIDS = 226;
+  GUESTFS_PROTOBUF_PROC_COPY_SIZE = 227;
+  GUESTFS_PROTOBUF_PROC_ZERO_DEVICE = 228;
+  GUESTFS_PROTOBUF_PROC_TXZ_IN = 229;
+  GUESTFS_PROTOBUF_PROC_TXZ_OUT = 230;
+  GUESTFS_PROTOBUF_PROC_VGSCAN = 232;
+  GUESTFS_PROTOBUF_PROC_PART_DEL = 233;
+  GUESTFS_PROTOBUF_PROC_PART_GET_BOOTABLE = 234;
+  GUESTFS_PROTOBUF_PROC_PART_GET_MBR_ID = 235;
+  GUESTFS_PROTOBUF_PROC_PART_SET_MBR_ID = 236;
+  GUESTFS_PROTOBUF_PROC_CHECKSUM_DEVICE = 237;
+  GUESTFS_PROTOBUF_PROC_LVRESIZE_FREE = 238;
+  GUESTFS_PROTOBUF_PROC_AUG_CLEAR = 239;
+  GUESTFS_PROTOBUF_PROC_GET_UMASK = 240;
+  GUESTFS_PROTOBUF_PROC_DEBUG_UPLOAD = 241;
+  GUESTFS_PROTOBUF_PROC_BASE64_IN = 242;
+  GUESTFS_PROTOBUF_PROC_BASE64_OUT = 243;
+  GUESTFS_PROTOBUF_PROC_CHECKSUMS_OUT = 244;
+  GUESTFS_PROTOBUF_PROC_FILL_PATTERN = 245;
+  GUESTFS_PROTOBUF_PROC_INTERNAL_WRITE = 246;
+  GUESTFS_PROTOBUF_PROC_PWRITE = 247;
+  GUESTFS_PROTOBUF_PROC_RESIZE2FS_SIZE = 248;
+  GUESTFS_PROTOBUF_PROC_PVRESIZE_SIZE = 249;
+  GUESTFS_PROTOBUF_PROC_NTFSRESIZE_SIZE = 250;
+  GUESTFS_PROTOBUF_PROC_AVAILABLE_ALL_GROUPS = 251;
+  GUESTFS_PROTOBUF_PROC_FALLOCATE64 = 252;
+  GUESTFS_PROTOBUF_PROC_VFS_LABEL = 253;
+  GUESTFS_PROTOBUF_PROC_VFS_UUID = 254;
+  GUESTFS_PROTOBUF_PROC_LVM_SET_FILTER = 255;
+  GUESTFS_PROTOBUF_PROC_LVM_CLEAR_FILTER = 256;
+  GUESTFS_PROTOBUF_PROC_LUKS_OPEN = 257;
+  GUESTFS_PROTOBUF_PROC_LUKS_OPEN_RO = 258;
+  GUESTFS_PROTOBUF_PROC_LUKS_CLOSE = 259;
+  GUESTFS_PROTOBUF_PROC_LUKS_FORMAT = 260;
+  GUESTFS_PROTOBUF_PROC_LUKS_FORMAT_CIPHER = 261;
+  GUESTFS_PROTOBUF_PROC_LUKS_ADD_KEY = 262;
+  GUESTFS_PROTOBUF_PROC_LUKS_KILL_SLOT = 263;
+  GUESTFS_PROTOBUF_PROC_IS_LV = 264;
+  GUESTFS_PROTOBUF_PROC_FINDFS_UUID = 265;
+  GUESTFS_PROTOBUF_PROC_FINDFS_LABEL = 266;
+  GUESTFS_PROTOBUF_PROC_IS_CHARDEV = 267;
+  GUESTFS_PROTOBUF_PROC_IS_BLOCKDEV = 268;
+  GUESTFS_PROTOBUF_PROC_IS_FIFO = 269;
+  GUESTFS_PROTOBUF_PROC_IS_SYMLINK = 270;
+  GUESTFS_PROTOBUF_PROC_IS_SOCKET = 271;
+  GUESTFS_PROTOBUF_PROC_PART_TO_DEV = 272;
+  GUESTFS_PROTOBUF_PROC_UPLOAD_OFFSET = 273;
+  GUESTFS_PROTOBUF_PROC_DOWNLOAD_OFFSET = 274;
+  GUESTFS_PROTOBUF_PROC_PWRITE_DEVICE = 275;
+  GUESTFS_PROTOBUF_PROC_PREAD_DEVICE = 276;
+  GUESTFS_PROTOBUF_PROC_LVM_CANONICAL_LV_NAME = 277;
+  GUESTFS_PROTOBUF_PROC_MKFS = 278;
+  GUESTFS_PROTOBUF_PROC_GETXATTR = 279;
+  GUESTFS_PROTOBUF_PROC_LGETXATTR = 280;
+  GUESTFS_PROTOBUF_PROC_RESIZE2FS_MM = 281;
+  GUESTFS_PROTOBUF_PROC_INTERNAL_AUTOSYNC = 282;
+  GUESTFS_PROTOBUF_PROC_IS_ZERO = 283;
+  GUESTFS_PROTOBUF_PROC_IS_ZERO_DEVICE = 284;
+  GUESTFS_PROTOBUF_PROC_LIST9P = 285;
+  GUESTFS_PROTOBUF_PROC_MOUNT9P = 286;
+  GUESTFS_PROTOBUF_PROC_LIST_DM_DEVICES = 287;
+  GUESTFS_PROTOBUF_PROC_NTFSRESIZE = 288;
+  GUESTFS_PROTOBUF_PROC_BTRFS_FILESYSTEM_RESIZE = 289;
+  GUESTFS_PROTOBUF_PROC_INTERNAL_WRITE_APPEND = 290;
+  GUESTFS_PROTOBUF_PROC_COMPRESS_OUT = 291;
+  GUESTFS_PROTOBUF_PROC_COMPRESS_DEVICE_OUT = 292;
+  GUESTFS_PROTOBUF_PROC_PART_TO_PARTNUM = 293;
+  GUESTFS_PROTOBUF_PROC_COPY_DEVICE_TO_DEVICE = 294;
+  GUESTFS_PROTOBUF_PROC_COPY_DEVICE_TO_FILE = 295;
+  GUESTFS_PROTOBUF_PROC_COPY_FILE_TO_DEVICE = 296;
+  GUESTFS_PROTOBUF_PROC_COPY_FILE_TO_FILE = 297;
+  GUESTFS_PROTOBUF_PROC_TUNE2FS = 298;
+  GUESTFS_PROTOBUF_PROC_MD_CREATE = 299;
+  GUESTFS_PROTOBUF_PROC_LIST_MD_DEVICES = 300;
+  GUESTFS_PROTOBUF_PROC_MD_DETAIL = 301;
+  GUESTFS_PROTOBUF_PROC_MD_STOP = 302;
+  GUESTFS_PROTOBUF_PROC_BLKID = 303;
+  GUESTFS_PROTOBUF_PROC_E2FSCK = 304;
+  GUESTFS_PROTOBUF_PROC_LLZ = 305;
+  GUESTFS_PROTOBUF_PROC_WIPEFS = 306;
+  GUESTFS_PROTOBUF_PROC_NTFSFIX = 307;
+  GUESTFS_PROTOBUF_PROC_NTFSCLONE_OUT = 308;
+  GUESTFS_PROTOBUF_PROC_NTFSCLONE_IN = 309;
+  GUESTFS_PROTOBUF_PROC_SET_LABEL = 310;
+  GUESTFS_PROTOBUF_PROC_ZERO_FREE_SPACE = 311;
+  GUESTFS_PROTOBUF_PROC_LVCREATE_FREE = 312;
+  GUESTFS_PROTOBUF_PROC_ISOINFO_DEVICE = 313;
+  GUESTFS_PROTOBUF_PROC_ISOINFO = 314;
+  GUESTFS_PROTOBUF_PROC_VGMETA = 315;
+  GUESTFS_PROTOBUF_PROC_MD_STAT = 316;
+  GUESTFS_PROTOBUF_PROC_MKFS_BTRFS = 317;
+  GUESTFS_PROTOBUF_PROC_GET_E2ATTRS = 318;
+  GUESTFS_PROTOBUF_PROC_SET_E2ATTRS = 319;
+  GUESTFS_PROTOBUF_PROC_GET_E2GENERATION = 320;
+  GUESTFS_PROTOBUF_PROC_SET_E2GENERATION = 321;
+  GUESTFS_PROTOBUF_PROC_BTRFS_SUBVOLUME_SNAPSHOT = 322;
+  GUESTFS_PROTOBUF_PROC_BTRFS_SUBVOLUME_DELETE = 323;
+  GUESTFS_PROTOBUF_PROC_BTRFS_SUBVOLUME_CREATE = 324;
+  GUESTFS_PROTOBUF_PROC_BTRFS_SUBVOLUME_LIST = 325;
+  GUESTFS_PROTOBUF_PROC_BTRFS_SUBVOLUME_SET_DEFAULT = 326;
+  GUESTFS_PROTOBUF_PROC_BTRFS_FILESYSTEM_SYNC = 327;
+  GUESTFS_PROTOBUF_PROC_BTRFS_FILESYSTEM_BALANCE = 328;
+  GUESTFS_PROTOBUF_PROC_BTRFS_DEVICE_ADD = 329;
+  GUESTFS_PROTOBUF_PROC_BTRFS_DEVICE_DELETE = 330;
+  GUESTFS_PROTOBUF_PROC_BTRFS_SET_SEEDING = 331;
+  GUESTFS_PROTOBUF_PROC_BTRFS_FSCK = 332;
+  GUESTFS_PROTOBUF_PROC_FILESYSTEM_AVAILABLE = 333;
+  GUESTFS_PROTOBUF_PROC_FSTRIM = 334;
+  GUESTFS_PROTOBUF_PROC_DEVICE_INDEX = 335;
+  GUESTFS_PROTOBUF_PROC_NR_DEVICES = 336;
+  GUESTFS_PROTOBUF_PROC_XFS_INFO = 337;
+  GUESTFS_PROTOBUF_PROC_PVCHANGE_UUID = 338;
+  GUESTFS_PROTOBUF_PROC_PVCHANGE_UUID_ALL = 339;
+  GUESTFS_PROTOBUF_PROC_VGCHANGE_UUID = 340;
+  GUESTFS_PROTOBUF_PROC_VGCHANGE_UUID_ALL = 341;
+  GUESTFS_PROTOBUF_PROC_UTSNAME = 342;
+  GUESTFS_PROTOBUF_PROC_XFS_GROWFS = 343;
+  GUESTFS_PROTOBUF_PROC_RSYNC = 344;
+  GUESTFS_PROTOBUF_PROC_RSYNC_IN = 345;
+  GUESTFS_PROTOBUF_PROC_RSYNC_OUT = 346;
+  GUESTFS_PROTOBUF_PROC_LS0 = 347;
+  GUESTFS_PROTOBUF_PROC_FILL_DIR = 348;
+  GUESTFS_PROTOBUF_PROC_XFS_ADMIN = 349;
+  GUESTFS_PROTOBUF_PROC_HIVEX_OPEN = 350;
+  GUESTFS_PROTOBUF_PROC_HIVEX_CLOSE = 351;
+  GUESTFS_PROTOBUF_PROC_HIVEX_ROOT = 352;
+  GUESTFS_PROTOBUF_PROC_HIVEX_NODE_NAME = 353;
+  GUESTFS_PROTOBUF_PROC_HIVEX_NODE_CHILDREN = 354;
+  GUESTFS_PROTOBUF_PROC_HIVEX_NODE_GET_CHILD = 355;
+  GUESTFS_PROTOBUF_PROC_HIVEX_NODE_PARENT = 356;
+  GUESTFS_PROTOBUF_PROC_HIVEX_NODE_VALUES = 357;
+  GUESTFS_PROTOBUF_PROC_HIVEX_NODE_GET_VALUE = 358;
+  GUESTFS_PROTOBUF_PROC_HIVEX_VALUE_KEY = 359;
+  GUESTFS_PROTOBUF_PROC_HIVEX_VALUE_TYPE = 360;
+  GUESTFS_PROTOBUF_PROC_HIVEX_VALUE_VALUE = 361;
+  GUESTFS_PROTOBUF_PROC_HIVEX_COMMIT = 362;
+  GUESTFS_PROTOBUF_PROC_HIVEX_NODE_ADD_CHILD = 363;
+  GUESTFS_PROTOBUF_PROC_HIVEX_NODE_DELETE_CHILD = 364;
+  GUESTFS_PROTOBUF_PROC_HIVEX_NODE_SET_VALUE = 365;
+  GUESTFS_PROTOBUF_PROC_XFS_REPAIR = 366;
+  GUESTFS_PROTOBUF_PROC_RM_FF = 367;
+  GUESTFS_PROTOBUF_PROC_MKE2FS = 368;
+  GUESTFS_PROTOBUF_PROC_LIST_DISK_LABELS = 369;
+  GUESTFS_PROTOBUF_PROC_INTERNAL_HOT_ADD_DRIVE = 370;
+  GUESTFS_PROTOBUF_PROC_INTERNAL_HOT_REMOVE_DRIVE_PRECHECK = 371;
+  GUESTFS_PROTOBUF_PROC_INTERNAL_HOT_REMOVE_DRIVE = 372;
+  GUESTFS_PROTOBUF_PROC_MKTEMP = 373;
+  GUESTFS_PROTOBUF_PROC_MKLOST_AND_FOUND = 374;
+  GUESTFS_PROTOBUF_PROC_ACL_GET_FILE = 375;
+  GUESTFS_PROTOBUF_PROC_ACL_SET_FILE = 376;
+  GUESTFS_PROTOBUF_PROC_ACL_DELETE_DEF_FILE = 377;
+  GUESTFS_PROTOBUF_PROC_CAP_GET_FILE = 378;
+  GUESTFS_PROTOBUF_PROC_CAP_SET_FILE = 379;
+  GUESTFS_PROTOBUF_PROC_LIST_LDM_VOLUMES = 380;
+  GUESTFS_PROTOBUF_PROC_LIST_LDM_PARTITIONS = 381;
+  GUESTFS_PROTOBUF_PROC_LDMTOOL_CREATE_ALL = 382;
+  GUESTFS_PROTOBUF_PROC_LDMTOOL_REMOVE_ALL = 383;
+  GUESTFS_PROTOBUF_PROC_LDMTOOL_SCAN = 384;
+  GUESTFS_PROTOBUF_PROC_LDMTOOL_SCAN_DEVICES = 385;
+  GUESTFS_PROTOBUF_PROC_LDMTOOL_DISKGROUP_NAME = 386;
+  GUESTFS_PROTOBUF_PROC_LDMTOOL_DISKGROUP_VOLUMES = 387;
+  GUESTFS_PROTOBUF_PROC_LDMTOOL_DISKGROUP_DISKS = 388;
+  GUESTFS_PROTOBUF_PROC_LDMTOOL_VOLUME_TYPE = 389;
+  GUESTFS_PROTOBUF_PROC_LDMTOOL_VOLUME_HINT = 390;
+  GUESTFS_PROTOBUF_PROC_LDMTOOL_VOLUME_PARTITIONS = 391;
+  GUESTFS_PROTOBUF_PROC_PART_SET_GPT_TYPE = 392;
+  GUESTFS_PROTOBUF_PROC_PART_GET_GPT_TYPE = 393;
+  GUESTFS_PROTOBUF_PROC_RENAME = 394;
+  GUESTFS_PROTOBUF_PROC_IS_WHOLE_DEVICE = 395;
+  GUESTFS_PROTOBUF_PROC_INTERNAL_PARSE_MOUNTABLE = 396;
+  GUESTFS_PROTOBUF_PROC_INTERNAL_RHBZ914931 = 397;
+  GUESTFS_PROTOBUF_PROC_FEATURE_AVAILABLE = 398;
+  GUESTFS_PROTOBUF_PROC_SYSLINUX = 399;
+  GUESTFS_PROTOBUF_PROC_EXTLINUX = 400;
+  GUESTFS_PROTOBUF_PROC_CP_RR = 401;
+  GUESTFS_PROTOBUF_PROC_REMOUNT = 402;
+  GUESTFS_PROTOBUF_PROC_SET_UUID = 403;
+  GUESTFS_PROTOBUF_PROC_JOURNAL_OPEN = 404;
+  GUESTFS_PROTOBUF_PROC_JOURNAL_CLOSE = 405;
+  GUESTFS_PROTOBUF_PROC_JOURNAL_NEXT = 406;
+  GUESTFS_PROTOBUF_PROC_JOURNAL_SKIP = 407;
+  GUESTFS_PROTOBUF_PROC_INTERNAL_JOURNAL_GET = 408;
+  GUESTFS_PROTOBUF_PROC_JOURNAL_GET_DATA_THRESHOLD = 409;
+  GUESTFS_PROTOBUF_PROC_JOURNAL_SET_DATA_THRESHOLD = 410;
+  GUESTFS_PROTOBUF_PROC_AUG_SETM = 411;
+  GUESTFS_PROTOBUF_PROC_AUG_LABEL = 412;
+  GUESTFS_PROTOBUF_PROC_INTERNAL_UPLOAD = 413;
+  GUESTFS_PROTOBUF_PROC_INTERNAL_EXIT = 414;
+  GUESTFS_PROTOBUF_PROC_COPY_ATTRIBUTES = 415;
+  GUESTFS_PROTOBUF_PROC_PART_GET_NAME = 416;
+  GUESTFS_PROTOBUF_PROC_BLKDISCARD = 417;
+  GUESTFS_PROTOBUF_PROC_BLKDISCARDZEROES = 418;
+  GUESTFS_PROTOBUF_PROC_CPIO_OUT = 419;
+  GUESTFS_PROTOBUF_PROC_JOURNAL_GET_REALTIME_USEC = 420;
+  GUESTFS_PROTOBUF_PROC_STATNS = 421;
+  GUESTFS_PROTOBUF_PROC_LSTATNS = 422;
+  GUESTFS_PROTOBUF_PROC_INTERNAL_LSTATNSLIST = 423;
+}
+
+enum GuestfsProtobufConst {
+  
+  GUESTFS_PROTOBUF_PROGRAM = 0x2000F5F5;
+  GUESTFS_PROTOBUF_PROTOCOL_VERSION = 4;
+  GUESTFS_PROTOBUF_MAX_CHUNK_SIZE = 8192;
+
+/* These constants must be larger than any possible message length. */
+  GUESTFS_PROTOBUF_LAUNCH_FLAG = 0x75f55ff5;
+  GUESTFS_PROTOBUF_CANCEL_FLAG = 0x7fffeeee;
+  GUESTFS_PROTOBUF_PROGRESS_FLAG = 0x7fff5555;
+  GUESTFS_PROTOBUF_SHARED_MEMORY_FLAG = 0x7fff1331;
+
+  GUESTFS_PROTOBUF_ERROR_LEN = 65536;
+
+  GUESTFS_PROTOBUF_MAX_PROC_NR = 423;
+
+/* The remote procedure call protocol. */
+
+  GUESTFS_PROTOBUF_MESSAGE_MAX = 4194304;
+
+}
+
+enum GuestfsProtobufMessageDirection {
+  GUESTFS_PROTOBUF_DIRECTION_CALL = 0;         /* client -> daemon */
+  GUESTFS_PROTOBUF_DIRECTION_REPLY = 1;        /* daemon -> client */
+}
+
+enum GuestfsProtobufMessageStatus {
+  GUESTFS_PROTOBUF_STATUS_OK = 0;
+  GUESTFS_PROTOBUF_STATUS_ERROR = 1;
+}
+
+message GuestfsProtobufMessageError {
+  required string errno_string = 1;           /* errno eg. "EINVAL", empty string
+                                                 if errno not available */
+  required string error_message = 2;
+}
+
+message GuestfsProtobufMessageHeader {
+  required fixed32 prog = 1;                         /* GUESTFS_PROGRAM */
+  required fixed32 vers = 2;                         /* GUESTFS_PROTOCOL_VERSION */
+  required sfixed32 proc = 3;                        /* GUESTFS_PROC_x */
+  required sfixed32 direction = 4;
+  required fixed32 serial = 5;                       /* message serial number */
+  required fixed64 progress_hint = 6;                /* upload hint for progress bar */
+  required fixed64 optargs_bitmask = 7;              /* bitmask for optional args */
+  required sfixed32 status = 8;
+}
+
+message GuestfsProtobufChunk {
+  required int32 cancel = 1;     /* if non-zero, transfer is cancelled */
+  /* data size is 0 bytes if the transfer has finished successfully */
+  required bytes data = 2;
+}
+
+message GuestfsProtobufShmChunk {
+  required int32 cancel = 1;
+  required uint64 len = 2;
+}
+
+/* Progress notifications.  Daemon self-limits these messages to
+ * at most one per second.  The daemon can send these messages
+ * at any time, and the caller should discard unexpected messages.
+ * 'position' and 'total' have undefined units; however they may
+ * have meaning for some calls.
+ *
+ * Notes:
+ *
+ * (1) guestfs___recv_from_daemon assumes the XDR-encoded
+ * structure is 24 bytes long.
+ *
+ * (2) daemon/proto.c:async_safe_send_pulse assumes the progress
+ * message is laid out precisely in this way.  So if you change
+ * this then you'd better change that function as well.
+ */
+message GuestfsProtobufProgress {
+  required sfixed32 proc = 1;                    /* @0:  GUESTFS_PROTOBUF_PROC_x */
+  required fixed32 serial = 2;                   /* @4:  message serial number */
+  required fixed64 position = 3;                 /* @8:  0 <= position <= total */
+  required fixed64 total = 4;                    /* @16: total size of operation */
+                                                 /* @24: size of structure */
+}
+
+message GuestfsProtobufFlagMessage {
+  required fixed32 val = 1;
+}

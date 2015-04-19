@@ -120,8 +120,7 @@ struct command
 
   /* Capture errors to the error log (defaults to true). */
   bool capture_errors;
-  HANDLE hStdErr_Rd;
-  HANDLE hStdErr_Wr;
+  HANDLE hStdErr;
 
   /* Close file descriptors (defaults to true). */
   bool close_files;
@@ -129,8 +128,8 @@ struct command
   /* Supply a callback to receive stdout. */
   cmd_stdout_callback stdout_callback;
   void *stdout_data;
-  HANDLE hStdOut_Rd;
-  HANDLE hStdOut_Wr;
+  HANDLE hStdOut;
+
   struct buffering outbuf;
 
   /* For programs that send output to stderr.  Hello qemu. */
@@ -150,10 +149,8 @@ guestfs___new_command (guestfs_h *g)
   cmd->g = g;
   cmd->capture_errors = true;
   cmd->close_files = true;
-  cmd->hStdErr_Rd = INVALID_HANDLE_VALUE;
-  cmd->hStdErr_Wr = INVALID_HANDLE_VALUE;
-  cmd->hStdOut_Rd = INVALID_HANDLE_VALUE;
-  cmd->hStdOut_Wr = INVALID_HANDLE_VALUE;
+  cmd->hStdErr = NULL;
+  cmd->hStdOut = NULL;
   ZeroMemory(&cmd->piProcInfo, sizeof(PROCESS_INFORMATION));
 
   return cmd;
@@ -370,6 +367,7 @@ debug_command (struct command *cmd)
 static int
 run_command (struct command *cmd)
 {
+    HANDLE hStdOut_Wr = NULL, hStdOut_Rd = NULL, hStdErr_Rd = NULL, hStdErr_Wr = NULL;
     SECURITY_ATTRIBUTES saAttr;
     STARTUPINFO siStartInfo;
     char *cmdline = NULL;
@@ -380,7 +378,7 @@ run_command (struct command *cmd)
 
   /* Set up a pipe to capture command output and send it to the error log. */
   if (cmd->capture_errors) {
-      if (!CreatePipe(&cmd->hStdErr_Rd, &cmd->hStdErr_Wr, &saAttr, 0) || !SetHandleInformation(cmd->hStdErr_Rd, HANDLE_FLAG_INHERIT, 0)) {
+      if (!CreatePipe(&hStdErr_Rd, &hStdOut_Wr, &saAttr, 0) || !SetHandleInformation(hStdErr_Rd, HANDLE_FLAG_INHERIT, 0)) {
           perrorf_win(cmd->g, "CreatePipe");
           goto error;
       }
@@ -388,21 +386,24 @@ run_command (struct command *cmd)
 
   /* Set up a pipe to capture stdout for the callback. */
   if (cmd->stdout_callback) {
-      if (!CreatePipe(&cmd->hStdOut_Rd, &cmd->hStdOut_Wr, &saAttr, 0) || !SetHandleInformation(cmd->hStdOut_Rd, HANDLE_FLAG_INHERIT, 0)) {
+      if (!CreatePipe(&hStdOut_Rd, &hStdOut_Wr, &saAttr, 0) || !SetHandleInformation(hStdOut_Rd, HANDLE_FLAG_INHERIT, 0)) {
           perrorf_win(cmd->g, "CreatePipe");
           goto error;
       }
   }
 
+  cmd->hStdOut = hStdOut_Rd;
+  cmd->hStdErr = hStdErr_Rd;
+
   ZeroMemory(&siStartInfo, sizeof(STARTUPINFO));
   siStartInfo.cb = sizeof(STARTUPINFO);
   if (cmd->stderr_to_stdout) {
-      siStartInfo.hStdError = cmd->hStdOut_Wr;
+      siStartInfo.hStdError = hStdOut_Wr;
   }
   else {
-      siStartInfo.hStdError = cmd->hStdErr_Wr;
+      siStartInfo.hStdError = hStdErr_Wr;
   }
-  siStartInfo.hStdOutput = cmd->hStdOut_Wr;
+  siStartInfo.hStdOutput = hStdOut_Wr;
   siStartInfo.dwFlags |= STARTF_USESTDHANDLES;
 
   switch (cmd->style) {
@@ -430,26 +431,23 @@ run_command (struct command *cmd)
       NULL,
       &siStartInfo,
       &cmd->piProcInfo)) {
-      perrorf_win(cmd->g, "fork");
+      perrorf_win(cmd->g, "CreateProcess");
       goto error;
   }
 
-  CloseHandle(cmd->hStdErr_Wr);
-  cmd->hStdErr_Wr = INVALID_HANDLE_VALUE;
-  CloseHandle(cmd->hStdOut_Wr);
-  cmd->hStdOut_Wr = INVALID_HANDLE_VALUE;
+  CloseHandle(hStdErr_Wr);
+  CloseHandle(hStdOut_Wr);
 
   return 0;
 
 error:
-  if (cmd->hStdErr_Rd != INVALID_HANDLE_VALUE)
-      CloseHandle(cmd->hStdErr_Rd);
-  if (cmd->hStdErr_Wr != INVALID_HANDLE_VALUE)
-      CloseHandle(cmd->hStdErr_Wr);
-  if (cmd->hStdOut_Rd != INVALID_HANDLE_VALUE)
-      CloseHandle(cmd->hStdOut_Rd);
-  if (cmd->hStdOut_Wr != INVALID_HANDLE_VALUE)
-      CloseHandle(cmd->hStdOut_Wr);
+  cmd->hStdErr = NULL;
+  cmd->hStdOut = NULL;
+
+  CloseHandle(hStdErr_Rd);
+  CloseHandle(hStdErr_Wr);
+  CloseHandle(hStdOut_Rd);
+  CloseHandle(hStdOut_Wr);
 
   return -1;
 }
@@ -465,50 +463,51 @@ loop (struct command *cmd)
     BOOL bSuccess = FALSE;
     size_t n_hdls = 0;
 
-    if (cmd->hStdErr_Rd != INVALID_HANDLE_VALUE) {
+    if (cmd->hStdErr) {
         ++n_hdls;
     }
 
-    if (cmd->hStdOut_Rd != INVALID_HANDLE_VALUE) {
+    if (cmd->hStdOut) {
         ++n_hdls;
     }
 
     while (n_hdls > 0) {
-        if (cmd->hStdErr_Rd != INVALID_HANDLE_VALUE) {
-            bSuccess = ReadFile(cmd->hStdErr_Rd, buf, BUFSIZ, &dwRead, NULL);
-            if (!bSuccess) {
+        if (cmd->hStdErr) {
+            bSuccess = ReadFile(cmd->hStdErr, buf, BUFSIZ, &dwRead, NULL);
+            if (!bSuccess && GetLastError() != ERROR_BROKEN_PIPE) {
                 perrorf_win(cmd->g, "read: errorfd");
-                CloseHandle(cmd->hStdErr_Rd);
-                cmd->hStdErr_Rd = INVALID_HANDLE_VALUE;
+                CloseHandle(cmd->hStdErr);
+                cmd->hStdErr = NULL;
+                --n_hdls;
+            }
+            /* If anonymous pipe is closed (child returns) than GetLastError() == ERROR_BROKEN_PIPE */
+            else if ((!bSuccess && GetLastError() == ERROR_BROKEN_PIPE) || dwRead == 0) {
+                CloseHandle(cmd->hStdErr);
+                cmd->hStdErr = NULL;
                 --n_hdls;
             }
             else if (dwRead > 0) {
                 guestfs___call_callbacks_message(cmd->g, GUESTFS_EVENT_APPLIANCE, buf, dwRead);
             }
-            else if (dwRead == 0) {
-                CloseHandle(cmd->hStdErr_Rd);
-                cmd->hStdErr_Rd = INVALID_HANDLE_VALUE;
-                --n_hdls;
-            }
         }
 
-        if (cmd->hStdOut_Rd != INVALID_HANDLE_VALUE) {
-            bSuccess = ReadFile(cmd->hStdOut_Rd, buf, BUFSIZ, &dwRead, NULL);
-            if (!bSuccess) {
+        if (cmd->hStdOut) {
+            bSuccess = ReadFile(cmd->hStdOut, buf, BUFSIZ, &dwRead, NULL);
+            if (!bSuccess && GetLastError() != ERROR_BROKEN_PIPE) {
                 perrorf_win(cmd->g, "read: outfd");
-                CloseHandle(cmd->hStdOut_Rd);
-                cmd->hStdOut_Rd = INVALID_HANDLE_VALUE;
+                CloseHandle(cmd->hStdOut);
+                cmd->hStdOut = NULL;
                 --n_hdls;
             }
             else if (dwRead > 0) {
                 if (cmd->outbuf.add_data)
                     cmd->outbuf.add_data(cmd, buf, dwRead);
             }
-            else if (dwRead == 0) {
+            else if ((!bSuccess && GetLastError == ERROR_BROKEN_PIPE) || dwRead == 0) {
                 if (cmd->outbuf.close_data)
                     cmd->outbuf.close_data(cmd);
-                CloseHandle(cmd->hStdOut_Rd);
-                cmd->hStdOut_Rd = INVALID_HANDLE_VALUE;
+                CloseHandle(cmd->hStdOut);
+                cmd->hStdOut = NULL;
                 --n_hdls;
             }
         }
@@ -585,11 +584,11 @@ guestfs___cmd_close (struct command *cmd)
     break;
   }
 
-  if (cmd->hStdErr_Rd != INVALID_HANDLE_VALUE)
-      CloseHandle(cmd->hStdErr_Rd);
+  if (cmd->hStdErr)
+      CloseHandle(cmd->hStdErr);
 
-  if (cmd->hStdOut_Rd != INVALID_HANDLE_VALUE)
-      CloseHandle(cmd->hStdOut_Rd);
+  if (cmd->hStdOut)
+      CloseHandle(cmd->hStdOut);
 
   free(cmd->outbuf.buffer);
 

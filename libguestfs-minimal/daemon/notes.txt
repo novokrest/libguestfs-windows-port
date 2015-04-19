@@ -1,0 +1,11 @@
+inotify.c: 
+  must delete #include "guestfs-free-mock.h"
+
+Makefile:
+  must delete from SOURCES guestfs-free-mock.h
+  
+daemon.ml:
+  add guestfs_protobuf_free_%s (ret) in returns
+  
+upload.c:
+  implement dma from fd of file to shared memory without temp buf

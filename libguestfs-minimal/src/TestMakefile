@@ -1,0 +1,5 @@
+all:
+	@echo "GUESTFS(SRC) Test Makefile"
+
+clean:
+	@echo "Clean GUESTFS Test Makefile"

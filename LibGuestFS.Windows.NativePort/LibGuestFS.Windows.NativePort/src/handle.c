@@ -21,6 +21,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <win-unistd.h>
+#include <win-dll.h>
 #include <string.h>
 #include <errno.h>
 
@@ -55,11 +56,10 @@ gl_lock_define_initialized (static, init_lock);
  * multiple threads.  Hence this constructor function which is called
  * when libguestfs is first loaded.
  */
-//static void init_libguestfs (void) __attribute__((constructor));
+static void init_libguestfs (void) __attribute__((constructor));
 
-//static void
-//init_libguestfs (void)
-INITIALIZER(init_libguestfs)
+static void
+init_libguestfs (void)
 {
   gl_lock_lock (init_lock);
 
@@ -72,6 +72,16 @@ INITIALIZER(init_libguestfs)
 
   gl_lock_unlock (init_lock);
 }
+
+#ifdef WIN32
+
+void
+dll_init_libguestfs(void)
+{
+    init_libguestfs();
+}
+
+#endif /* WIN32 */
 
 guestfs_h *
 guestfs_create (void)
@@ -90,6 +100,9 @@ guestfs_create_flags (unsigned flags, ...)
   g->state = CONFIG;
 
   g->conn = NULL;
+
+  g->enable_shm = false;
+  g->shm = NULL;
 
   guestfs___init_error_handler (g);
   g->abort_cb = abort;
@@ -439,6 +452,11 @@ shutdown_backend (guestfs_h *g, int check_for_errors)
   if (g->conn) {
     g->conn->ops->free_connection (g, g->conn);
     g->conn = NULL;
+  }
+
+  /* Close shared memory */
+  if (g->enable_shm) {
+      guestfs___free_shared_memory(g);
   }
 
   guestfs___free_drives (g);
