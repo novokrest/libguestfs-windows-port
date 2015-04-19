@@ -273,10 +273,12 @@ print_sizes ()
 
 int main (int argc, char **argv)
 {
+  char *s = strdup (NULL);
+  printf ("s: %s\n", s);
 //  test2();
 //  test3();
 //  test4();
-  print_sizes ();
+//  print_sizes ();
 
   return 0;
 }

@@ -362,7 +362,6 @@ struct shared_memory {
   void *map;
 };
 
-
 /* The libguestfs handle. */
 struct guestfs_h
 {
