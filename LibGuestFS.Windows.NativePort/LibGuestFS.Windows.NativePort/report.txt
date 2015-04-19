@@ -718,3 +718,124 @@ GUESTFS_TEST
 
 =======================
 
+=======================
+
+GUESTFS_TEST
+
+[ 0.000000 ]: guestfs handle has been created
+[ 22.000000 ]: guestfs has been launched
+[ 34.000000 ]: disk is mounted
+[ 34.000000 ]: start reading files
+[ 34.000000 ]: read: /home/novokrestdeb/test/0
+[ 34.000000 ]: read: /home/novokrestdeb/test/1
+[ 34.000000 ]: read: /home/novokrestdeb/test/2
+[ 34.000000 ]: read: /home/novokrestdeb/test/3
+[ 34.000000 ]: read: /home/novokrestdeb/test/4
+[ 34.000000 ]: read: /home/novokrestdeb/test/5
+[ 35.000000 ]: read: /home/novokrestdeb/test/6
+[ 35.000000 ]: read: /home/novokrestdeb/test/7
+[ 35.000000 ]: read: /home/novokrestdeb/test/8
+[ 35.000000 ]: read: /home/novokrestdeb/test/9
+[ 35.000000 ]: read: /home/novokrestdeb/test/10
+[ 35.000000 ]: read: /home/novokrestdeb/test/11
+[ 35.000000 ]: read: /home/novokrestdeb/test/12
+[ 35.000000 ]: read: /home/novokrestdeb/test/13
+[ 35.000000 ]: read: /home/novokrestdeb/test/14
+[ 35.000000 ]: read: /home/novokrestdeb/test/15
+[ 35.000000 ]: read: /home/novokrestdeb/test/16
+[ 35.000000 ]: read: /home/novokrestdeb/test/17
+[ 35.000000 ]: read: /home/novokrestdeb/test/18
+[ 35.000000 ]: read: /home/novokrestdeb/test/19
+[ 35.000000 ]: read: /home/novokrestdeb/test/20
+[ 35.000000 ]: read: /home/novokrestdeb/test/21
+[ 35.000000 ]: read: /home/novokrestdeb/test/22
+[ 35.000000 ]: read: /home/novokrestdeb/test/23
+[ 35.000000 ]: read: /home/novokrestdeb/test/24
+[ 35.000000 ]: read: /home/novokrestdeb/test/25
+[ 35.000000 ]: read: /home/novokrestdeb/test/26
+[ 35.000000 ]: read: /home/novokrestdeb/test/27
+[ 35.000000 ]: read: /home/novokrestdeb/test/28
+[ 35.000000 ]: read: /home/novokrestdeb/test/29
+[ 35.000000 ]: read: /home/novokrestdeb/test/30
+[ 35.000000 ]: read: /home/novokrestdeb/test/31
+[ 35.000000 ]: read: /home/novokrestdeb/test/32
+[ 35.000000 ]: read: /home/novokrestdeb/test/33
+[ 35.000000 ]: read: /home/novokrestdeb/test/34
+[ 35.000000 ]: read: /home/novokrestdeb/test/35
+[ 35.000000 ]: read: /home/novokrestdeb/test/36
+[ 35.000000 ]: read: /home/novokrestdeb/test/37
+[ 35.000000 ]: read: /home/novokrestdeb/test/38
+[ 35.000000 ]: read: /home/novokrestdeb/test/39
+[ 35.000000 ]: read: /home/novokrestdeb/test/40
+[ 35.000000 ]: read: /home/novokrestdeb/test/41
+[ 35.000000 ]: read: /home/novokrestdeb/test/42
+[ 35.000000 ]: read: /home/novokrestdeb/test/43
+[ 35.000000 ]: read: /home/novokrestdeb/test/44
+[ 35.000000 ]: read: /home/novokrestdeb/test/45
+[ 35.000000 ]: read: /home/novokrestdeb/test/46
+[ 35.000000 ]: read: /home/novokrestdeb/test/47
+[ 35.000000 ]: read: /home/novokrestdeb/test/48
+[ 35.000000 ]: read: /home/novokrestdeb/test/49
+[ 36.000000 ]: read: /home/novokrestdeb/test/50
+[ 36.000000 ]: read: /home/novokrestdeb/test/51
+[ 36.000000 ]: read: /home/novokrestdeb/test/52
+[ 36.000000 ]: read: /home/novokrestdeb/test/53
+[ 36.000000 ]: read: /home/novokrestdeb/test/54
+[ 36.000000 ]: read: /home/novokrestdeb/test/55
+[ 36.000000 ]: read: /home/novokrestdeb/test/56
+[ 36.000000 ]: read: /home/novokrestdeb/test/57
+[ 36.000000 ]: read: /home/novokrestdeb/test/58
+[ 36.000000 ]: read: /home/novokrestdeb/test/59
+[ 36.000000 ]: read: /home/novokrestdeb/test/60
+[ 36.000000 ]: read: /home/novokrestdeb/test/61
+[ 36.000000 ]: read: /home/novokrestdeb/test/62
+[ 36.000000 ]: read: /home/novokrestdeb/test/63
+[ 36.000000 ]: read: /home/novokrestdeb/test/64
+[ 36.000000 ]: read: /home/novokrestdeb/test/65
+[ 36.000000 ]: read: /home/novokrestdeb/test/66
+[ 36.000000 ]: read: /home/novokrestdeb/test/67
+[ 36.000000 ]: read: /home/novokrestdeb/test/68
+[ 36.000000 ]: read: /home/novokrestdeb/test/69
+[ 36.000000 ]: read: /home/novokrestdeb/test/70
+[ 36.000000 ]: read: /home/novokrestdeb/test/71
+[ 36.000000 ]: read: /home/novokrestdeb/test/72
+[ 36.000000 ]: read: /home/novokrestdeb/test/73
+[ 36.000000 ]: read: /home/novokrestdeb/test/74
+[ 36.000000 ]: read: /home/novokrestdeb/test/75
+[ 36.000000 ]: read: /home/novokrestdeb/test/76
+[ 36.000000 ]: read: /home/novokrestdeb/test/77
+[ 36.000000 ]: read: /home/novokrestdeb/test/78
+[ 36.000000 ]: read: /home/novokrestdeb/test/79
+[ 36.000000 ]: read: /home/novokrestdeb/test/80
+[ 36.000000 ]: read: /home/novokrestdeb/test/81
+[ 36.000000 ]: read: /home/novokrestdeb/test/82
+[ 36.000000 ]: read: /home/novokrestdeb/test/83
+[ 36.000000 ]: read: /home/novokrestdeb/test/84
+[ 36.000000 ]: read: /home/novokrestdeb/test/85
+[ 36.000000 ]: read: /home/novokrestdeb/test/86
+[ 36.000000 ]: read: /home/novokrestdeb/test/87
+[ 36.000000 ]: read: /home/novokrestdeb/test/88
+[ 36.000000 ]: read: /home/novokrestdeb/test/89
+[ 36.000000 ]: read: /home/novokrestdeb/test/90
+[ 36.000000 ]: read: /home/novokrestdeb/test/91
+[ 36.000000 ]: read: /home/novokrestdeb/test/92
+[ 36.000000 ]: read: /home/novokrestdeb/test/93
+[ 36.000000 ]: read: /home/novokrestdeb/test/94
+[ 36.000000 ]: read: /home/novokrestdeb/test/95
+[ 36.000000 ]: read: /home/novokrestdeb/test/96
+[ 36.000000 ]: read: /home/novokrestdeb/test/97
+[ 36.000000 ]: read: /home/novokrestdeb/test/98
+[ 36.000000 ]: read: /home/novokrestdeb/test/99
+[ 36.000000 ]: finish reading files from guest
+[ 36.000000 ]: start writing files to guest
+[ 66.000000 ]: uploaded: from subdisk.img to /home/novokrestdeb/subdisk.img
+[ 67.000000 ]: uploaded: from video.mp4 to /home/novokrestdeb/video.mp4
+[ 67.000000 ]: finish writing files to guest
+[ 67.000000 ]: start downloading files from guest
+[ 77.000000 ]: downloaded: from /home/novokrestdeb/subdisk.img to subdisk1.img
+[ 78.000000 ]: downloaded: from /home/novokrestdeb/video.mp4 to video1.mp4
+[ 78.000000 ]: finish downloading files from guest
+[ 80.000000 ]: guestfs has been closed
+
+=======================
+
