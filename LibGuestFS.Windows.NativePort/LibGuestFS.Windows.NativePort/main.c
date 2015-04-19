@@ -3,7 +3,11 @@
 #include <time.h>
 #include "test-guestfs.h"
 
+#ifdef _WIN32
 #define DISK_IMG "C:/GuestFS/appliance/disk.img"
+#else
+#define DISK_IMG "disk.img"
+#endif /* _WIN32 */
 #define SMALL_FILES_COUNT 100
 #define SHARED_MEMORY_SIZE 256
 #define SHARED_MEMORY_NAME "MyShm"
@@ -75,14 +79,15 @@ main(int args, char* argv[])
     test->protocol = PROTOBUF;
     test->ops->set_shared_memory(test, 1, SHARED_MEMORY_SIZE, SHARED_MEMORY_NAME);
     test->ops->add_drive(test, DISK_IMG);
-    
-    test->ops->add_download(test, "/home/novokrestdeb/subdisk.img", "subdisk.img");
-    test->ops->add_download(test, "/home/novokrestdeb/video.mp4", "video.mp4");
 
-    test->ops->add_upload(test, "video.mp4", "/home/novokrestdeb/video1.mp4");
+    test->ops->add_upload(test, "subdisk.img", "/home/novokrestdeb/subdisk.img");
+    test->ops->add_upload(test, "video.mp4", "/home/novokrestdeb/video.mp4");
+
+    test->ops->add_download(test, "/home/novokrestdeb/subdisk.img", "subdisk1.img");
+    test->ops->add_download(test, "/home/novokrestdeb/video.mp4", "video1.mp4");
     
     for (i = 0; i < SMALL_FILES_COUNT; ++i) {
-        sprintf(buf, "/home/novokrestdeb/%d", i);
+        sprintf(buf, "/home/novokrestdeb/test/%d", i);
         test->ops->add_read(test, buf, NULL);
     }
 

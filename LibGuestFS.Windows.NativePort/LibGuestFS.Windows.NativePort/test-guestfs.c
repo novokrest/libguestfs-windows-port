@@ -67,7 +67,7 @@ int mount_disks(guestfs_h* gfs)
         qsort(mountpoints, count_strings(mountpoints) / 2, 2 * sizeof(char*), compare_keys_len);
         for (int i = 0; mountpoints[i] != NULL; i += 2) {
             /* Ignore failures from this call, since bogus entries can appear in the guest's /etc/fstab.*/
-            guestfs_mount_ro (gfs, mountpoints[i+1], mountpoints[i]);
+            guestfs_mount (gfs, mountpoints[i+1], mountpoints[i]);
             free (mountpoints[i]);
             free (mountpoints[i+1]);
         }
@@ -129,7 +129,7 @@ start_report(struct report *report)
 }
 
 static int
-add_entry (struct report *report, char *msg)
+add_entry (struct report *report, const char *msg)
 {
     time_t t;
     report_entry_t *entry;
@@ -186,21 +186,21 @@ set_protocol(struct test_guestfs *test, protocol_t protocol)
 }
 
 static int
-set_shared_memory(struct test_guestfs *test, int enable, int size, char *name)
+set_shared_memory(struct test_guestfs *test, int enable, int size, const char *name)
 {
     test->enable_shared_memory = !!enable;
     test->shared_memory.size = size;
-    test->shared_memory.name = name;
+    test->shared_memory.name = strdup (name);
 }
 
 static int
-add_drive(struct test_guestfs *test, char *drive)
+add_drive(struct test_guestfs *test, const char *drive)
 {
     test->drive = drive;
 }
 
 static int
-add_read (struct test_guestfs *test, const char *src_remote_path, const char *dest_local_path)
+add_read (struct test_guestfs *test, const const char *src_remote_path, const char *dest_local_path)
 {
     file_t *file = malloc(sizeof(file_t));
     if (!file) {
@@ -222,7 +222,7 @@ add_read (struct test_guestfs *test, const char *src_remote_path, const char *de
 }
 
 static int
-add_download(struct test_guestfs *test, char *src_remote_path, char *dest_local_path)
+add_download(struct test_guestfs *test, const char *src_remote_path, const char *dest_local_path)
 {
     file_t *file = malloc(sizeof(file_t));
     if (!file) {
@@ -244,7 +244,7 @@ add_download(struct test_guestfs *test, char *src_remote_path, char *dest_local_
 }
 
 static int
-add_upload(struct test_guestfs *test, char *src_local_path, char *dest_remote_path)
+add_upload(struct test_guestfs *test, const char *src_local_path, const char *dest_remote_path)
 {
     file_t *file = malloc(sizeof(file_t));
     if (!file) {
@@ -267,7 +267,7 @@ add_upload(struct test_guestfs *test, char *src_local_path, char *dest_remote_pa
 }
 
 static int
-set_report(struct test_guestfs *test, char *path, char *name, int enable_overwrite)
+set_report(struct test_guestfs *test, const char *path, const char *name, int enable_overwrite)
 {
     test->report->path = path;
     test->report->name = name;
@@ -353,14 +353,6 @@ run_test(struct test_guestfs *test)
     }
     report->ops->add_entry(report, "finish reading files from guest");
 
-    report->ops->add_entry(report, "start downloading files from guest");
-    for (i = 0; i < test->nb_downloads; ++i) {
-        download_file(g, test->downloads[i]->remote_path, test->downloads[i]->local_path);
-        sprintf(msg, "downloaded: from %s to %s", test->downloads[i]->remote_path, test->downloads[i]->local_path);
-        report->ops->add_entry(report, msg);
-    }
-    report->ops->add_entry(report, "finish downloading files from guest");
-
     report->ops->add_entry(report, "start writing files to guest");
     for (i = 0; i < test->nb_uploads; ++i) {
         upload_file(g, test->uploads[i]->local_path, test->uploads[i]->remote_path);
@@ -368,6 +360,14 @@ run_test(struct test_guestfs *test)
         report->ops->add_entry(report, msg);
     }
     report->ops->add_entry(report, "finish writing files to guest");
+
+    report->ops->add_entry(report, "start downloading files from guest");
+    for (i = 0; i < test->nb_downloads; ++i) {
+        download_file(g, test->downloads[i]->remote_path, test->downloads[i]->local_path);
+        sprintf(msg, "downloaded: from %s to %s", test->downloads[i]->remote_path, test->downloads[i]->local_path);
+        report->ops->add_entry(report, msg);
+    }
+    report->ops->add_entry(report, "finish downloading files from guest");
 
     printf("guestfs_close()...\n");
     guestfs_close(g);

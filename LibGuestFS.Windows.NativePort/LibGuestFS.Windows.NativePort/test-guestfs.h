@@ -18,7 +18,7 @@ typedef struct {
 typedef struct report_entry
 {
     time_t time;
-    char *msg;
+    const char *msg;
 } report_entry_t;
 
 struct report;
@@ -26,15 +26,15 @@ struct report;
 struct report_ops
 {
     int (*start) (struct report *report);
-    int (*add_entry) (struct report *report, char *msg);
+    int (*add_entry) (struct report *report, const char *msg);
     int (*print) (struct report *report);
 };
 
 typedef struct report {
     struct report_ops *ops;
 
-    char *path;
-    char *name;
+    const char *path;
+    const char *name;
     bool overwrite;
 
     time_t start;
@@ -47,12 +47,12 @@ struct test_guestfs;
 
 struct test_guestfs_ops {
     int (*set_protocol) (struct test_guestfs *test, protocol_t protocol);
-    int (*set_shared_memory) (struct test_guestfs *test, int enable, int size, int name);
-    int (*add_drive) (struct test_guestfs *test, char *drive);
-    int (*add_read) (struct test_guestfs *test, char *src_remote_path, char *dest_local_path);
-    int (*add_download) (struct test_guestfs *test, char *src_remote_path, char *dest_local_path);
-    int (*add_upload) (struct test_guestfs *test, char *src_local_path, char *dest_remote_path);
-    int (*set_report) (struct test_guestfs *test, char *path, char *name, int enable_overwirite);
+    int (*set_shared_memory) (struct test_guestfs *test, int enable, int size, const char *name);
+    int (*add_drive) (struct test_guestfs *test, const char *drive);
+    int (*add_read) (struct test_guestfs *test, const char *src_remote_path, const char *dest_local_path);
+    int (*add_download) (struct test_guestfs *test, const char *src_remote_path, const char *dest_local_path);
+    int (*add_upload) (struct test_guestfs *test, const char *src_local_path, const char *dest_remote_path);
+    int (*set_report) (struct test_guestfs *test, const char *path, const char *name, int enable_overwirite);
     int (*run) (struct test_guestfs *test);
 };
 
@@ -65,7 +65,7 @@ typedef struct test_guestfs
     bool enable_shared_memory;
     shared_memory_t shared_memory;
 
-    char *drive;
+    const char *drive;
 
     file_t **reads;
     int nb_reads;
