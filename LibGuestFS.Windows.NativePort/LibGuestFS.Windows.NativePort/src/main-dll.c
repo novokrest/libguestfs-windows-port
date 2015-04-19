@@ -1,4 +1,22 @@
 #include <windows.h>
+#include <win-dll.h>
+
+int
+dll_wsa_init()
+{
+    WSADATA wsData;
+    if (WSAStartup(MAKEWORD(2, 2), &wsData) != 0) {
+        return -1;
+    }
+
+    return 0;
+}
+
+void
+dll_wsa_close()
+{
+    WSACleanup();
+}
 
 BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 {
@@ -6,8 +24,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
     {
         /* equivalent of __attribute__((constructor))... */
 
-        WSADATA wsData;
-        if (WSAStartup(MAKEWORD(2, 2), &wsData) != 0) {
+        if (dll_wsa_init() == -1) {
             return FALSE;
         }
 
@@ -31,7 +48,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
     {
         /* equivalent of __attribute__((destructor))... */
 
-        WSACleanup();
+        dll_wsa_close();
 
         dll_free_regexps_launch_direct();
         dll_free_regexps_inspect_fs();

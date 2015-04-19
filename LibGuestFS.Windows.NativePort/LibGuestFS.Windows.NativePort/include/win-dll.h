@@ -1,6 +1,9 @@
 #ifndef WIN_DLL_H
 #define WIN_DLL_H
 
+extern int dll_wsa_init();
+extern void dll_wsa_close();
+
 extern void dll_init_libguestfs();                         /* handle.c */
 extern void dll_init_backend_direct();                     /* launch-direct.c */
 //extern void dll_init_backend_uml();                        /* launch-uml.c */
