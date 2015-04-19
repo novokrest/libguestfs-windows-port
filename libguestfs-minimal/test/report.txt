@@ -450,3 +450,62 @@ GUESTFS_TEST
 
 =======================
 
+=======================
+
+GUESTFS_TEST
+
+[ 0.000000 ]: guestfs handle has been created
+[ 17.000000 ]: guestfs has been launched
+[ 24.000000 ]: disk is mounted
+[ 24.000000 ]: start reading files
+[ 24.000000 ]: finish reading files from guest
+[ 24.000000 ]: start downloading files from guest
+[ 37.000000 ]: downloaded: from /home/novokrestdeb/subdisk.img to subdisk.img
+[ 37.000000 ]: downloaded: from /home/novokrestdeb/video.mp4 to video.mp4
+[ 37.000000 ]: finish downloading files from guest
+[ 37.000000 ]: start writing files to guest
+[ 37.000000 ]: finish writing files to guest
+[ 38.000000 ]: guestfs has been closed
+
+=======================
+
+=======================
+
+GUESTFS_TEST
+
+[ 0.000000 ]: guestfs handle has been created
+[ 8.000000 ]: guestfs has been launched
+[ 14.000000 ]: disk is mounted
+[ 14.000000 ]: start reading files
+[ 14.000000 ]: finish reading files from guest
+[ 14.000000 ]: start downloading files from guest
+[ 26.000000 ]: downloaded: from /home/novokrestdeb/subdisk.img to subdisk1.img
+[ 26.000000 ]: downloaded: from /home/novokrestdeb/video.mp4 to video1.mp4
+[ 26.000000 ]: finish downloading files from guest
+[ 26.000000 ]: start writing files to guest
+[ 44.000000 ]: uploaded: from subdisk.img to /home/novokrestdeb/subdisk.img
+[ 45.000000 ]: uploaded: from video.mp4 to /home/novokrestdeb/video.mp4
+[ 45.000000 ]: finish writing files to guest
+[ 46.000000 ]: guestfs has been closed
+
+=======================
+
+=======================
+
+GUESTFS_TEST
+
+[ 0.000000 ]: guestfs handle has been created
+[ 8.000000 ]: guestfs has been launched
+[ 14.000000 ]: disk is mounted
+[ 14.000000 ]: start reading files
+[ 14.000000 ]: finish reading files from guest
+[ 14.000000 ]: start downloading files from guest
+[ 24.000000 ]: downloaded: from /home/novokrestdeb/subdisk.img to subdisk1.img
+[ 24.000000 ]: downloaded: from /home/novokrestdeb/video.mp4 to video1.mp4
+[ 24.000000 ]: finish downloading files from guest
+[ 24.000000 ]: start writing files to guest
+[ 24.000000 ]: finish writing files to guest
+[ 25.000000 ]: guestfs has been closed
+
+=======================
+

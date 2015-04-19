@@ -66,7 +66,7 @@ main(int args, char* argv[])
 #endif /* _WIN32 */
 
     int i = 0;
-    char buf[256];
+    char buf[128];
     char *path;
     struct test_guestfs *test;
 
@@ -80,15 +80,15 @@ main(int args, char* argv[])
     test->ops->set_shared_memory(test, 1, SHARED_MEMORY_SIZE, SHARED_MEMORY_NAME);
     test->ops->add_drive(test, DISK_IMG);
     
-    test->ops->add_download(test, "/home/novokrestdeb/subdisk.img", "subdisk.img");
-    test->ops->add_download(test, "/home/novokrestdeb/video.mp4", "video.mp4");
+    test->ops->add_download(test, "/home/novokrestdeb/subdisk.img", "subdisk1.img");
+    test->ops->add_download(test, "/home/novokrestdeb/video.mp4", "video1.mp4");
 
     test->ops->add_upload(test, "subdisk.img", "/home/novokrestdeb/subdisk.img");
     test->ops->add_upload(test, "video.mp4", "/home/novokrestdeb/video.mp4");
     
     for (i = 0; i < SMALL_FILES_COUNT; ++i) {
         sprintf(buf, "/home/novokrestdeb/%d", i);
-        test->ops->add_read(test, buf, NULL);
+        test->ops->add_read(test, buf, "");
     }
 
     test->ops->set_report(test, REPORT_FILENAME, "GUESTFS_TEST", false);
