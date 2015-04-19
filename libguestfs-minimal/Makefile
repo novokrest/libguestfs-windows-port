@@ -5,11 +5,12 @@ generator_dir = generator
 guestfs_dir = src
 daemon_dir = daemon
 appliance_dir = appliance
+shmem_dir = ivshmem
 
 #test = -f TestMakefile
 test = 
 
-all: generator guestfs daemon appliance
+all: generator guestfs daemon appliance shmem
 
 guestfs: generator
 	$(MAKE) -C $(guestfs_dir) $(test)
@@ -24,10 +25,14 @@ generator:
 appliance:
 	$(MAKE) -C $(appliance_dir) $(test)
 
+shmem:
+	$(MAKE) -C $(shmem_dir) $(test)
+
 clean:
 	$(MAKE) -C $(generator_dir) clean $(test)
 	$(MAKE) -C $(guestfs_dir) clean $(test)
 	$(MAKE) -C $(daemon_dir) clean $(test)
 	$(MAKE) -C $(appliance_dir) clean $(test)
+	$(MAKE) -C $(shmem_dir) clean $(test)
 
-.PHONY: all clean generator guestfs daemon appliance
+.PHONY: all clean generator guestfs daemon appliance shmem

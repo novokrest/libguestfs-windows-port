@@ -83,6 +83,10 @@ main_loop (int _sock)
   guestfs_protobuf_message_header *hdr;
 
   sock = _sock;
+  
+  if (shm && shm->size > 0) {
+    fprintf (stderr, "guestfsd: shared memory is used: %d\n", shm->fd);
+  }
 
   for (;;) {
     /* Read the length word. */
