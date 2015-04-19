@@ -83,7 +83,7 @@ main(int args, char* argv[])
     test->ops->add_download(test, "/home/novokrestdeb/subdisk.img", "subdisk.img");
     test->ops->add_download(test, "/home/novokrestdeb/video.mp4", "video.mp4");
 
-    test->ops->add_download(test, "subdisk.img", "/home/novokrestdeb/subdisk.img");
+    test->ops->add_upload(test, "subdisk.img", "/home/novokrestdeb/subdisk.img");
     test->ops->add_upload(test, "video.mp4", "/home/novokrestdeb/video.mp4");
     
     for (i = 0; i < SMALL_FILES_COUNT; ++i) {
