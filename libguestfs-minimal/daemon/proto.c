@@ -403,8 +403,110 @@ reply (protobuf_proc_pack pb_pack, char *ret)
 }
 
 /* Receive file chunks, repeatedly calling 'cb'. */
+static int receive_file_sock (receive_cb cb, void *opaque);
+static int receive_file_shm (receive_cb cb, void *opaque);
+
 int
 receive_file (receive_cb cb, void *opaque)
+{
+  if (shm) {
+    return receive_file_shm (cb, opaque);
+  }
+  
+  return receive_file_sock (cb, opaque);
+}
+
+static int
+receive_file_shm (receive_cb cb, void *opaque)
+{
+  guestfs_protobuf_shm_chunk *chunk;
+  guestfs_protobuf_flag_message *flagmsg;
+  char lenbuf[PROTOBUF_FLAG_MESSAGE_SIZE];
+  int r;
+  uint32_t len;
+
+  for (;;) {
+    CLEANUP_FREE char *buf = NULL;
+
+    if (verbose)
+      fprintf (stderr, "guestfsd: receive_file: reading length word\n");
+
+    /* Read the length word. */
+    if (xread (sock, lenbuf, PROTOBUF_FLAG_MESSAGE_SIZE) == -1)
+      exit (EXIT_FAILURE);
+
+    flagmsg = guestfs_protobuf_flag_message__unpack (NULL, PROTOBUF_FLAG_MESSAGE_SIZE, lenbuf);
+    len = flagmsg->val;
+    guestfs_protobuf_flag_message__free_unpacked (flagmsg, NULL);
+
+    if (len == GUESTFS_CANCEL_FLAG)
+      continue;			/* Just ignore it. */
+
+    if (len > GUESTFS_MESSAGE_MAX) {
+      fprintf (stderr, "guestfsd: incoming message is too long (%u bytes)\n",
+               len);
+      exit (EXIT_FAILURE);
+    }
+
+    buf = malloc (len);
+    if (!buf) {
+      perror ("malloc");
+      return -1;
+    }
+
+    if (xread (sock, buf, len) == -1)
+      exit (EXIT_FAILURE);
+
+    chunk = guestfs_protobuf_shm_chunk__unpack (NULL, len, buf);
+    if (!chunk) {
+      return -1;
+    }
+
+    if (verbose)
+      fprintf (stderr,
+               "guestfsd: receive_file: got shm_chunk: cancel = 0x%x, len = %zd\n",
+               chunk->cancel, chunk->len);
+
+    if (chunk->cancel != 0 && chunk->cancel != 1) {
+      fprintf (stderr,
+               "guestfsd: receive_file: chunk.cancel != [0|1] ... "
+               "continuing even though we have probably lost synchronization with the library\n");
+      guestfs_protobuf_shm_chunk__free_unpacked (chunk, NULL);
+      return -1;
+    }
+
+    if (chunk->cancel) {
+      if (verbose)
+        fprintf (stderr,
+	  "guestfsd: receive_file: received cancellation from library\n");
+      guestfs_protobuf_shm_chunk__free_unpacked (chunk, NULL);
+      return -2;
+    }
+    if (chunk->len == 0) {
+      if (verbose)
+        fprintf (stderr,
+		 "guestfsd: receive_file: end of file, leaving function\n");
+      guestfs_protobuf_shm_chunk__free_unpacked (chunk, NULL);
+      return 0;			/* end of file */
+    }
+
+    /* Note that the callback can generate progress messages. */
+    if (cb)
+      r = cb (opaque, shm->map, chunk->len);
+    else
+      r = 0;
+
+    guestfs_protobuf_shm_chunk__free_unpacked (chunk, NULL);
+    if (r == -1) {		/* write error */
+      if (verbose)
+        fprintf (stderr, "guestfsd: receive_file: write error\n");
+      return -1;
+    }
+  }
+}
+
+static int
+receive_file_sock (receive_cb cb, void *opaque)
 {
   guestfs_protobuf_chunk *chunk;
   guestfs_protobuf_flag_message *flagmsg;
@@ -458,6 +560,7 @@ receive_file (receive_cb cb, void *opaque)
       fprintf (stderr,
                "guestfsd: receive_file: chunk.cancel != [0|1] ... "
                "continuing even though we have probably lost synchronization with the library\n");
+      guestfs_protobuf_chunk__free_unpacked (chunk, NULL);
       return -1;
     }
 

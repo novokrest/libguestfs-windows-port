@@ -339,11 +339,17 @@ guestfs___send_file (guestfs_h *g, const char *filename)
 
   /* Send file in chunked encoding. */
   while (!g->user_cancel) {
-    r = read (fd, buf, sizeof buf);
+    if (g->enable_shm)
+      r = read (fd, g->shm.map, g->shm.size * 1024 * 1024);
+    else
+      r = read (fd, buf, sizeof buf);
     if (r == -1 && (errno == EINTR || errno == EAGAIN))
       continue;
     if (r <= 0) break;
-    err = send_file_data (g, buf, r);
+    if (g->enable_shm)
+      err = send_file_data (g, g->shm.map, r);
+    else
+      err = send_file_data (g, buf, r);
     if (err < 0) {
       if (err == -2)		/* daemon sent cancellation */
         send_file_cancellation (g);
@@ -408,8 +414,86 @@ send_file_complete (guestfs_h *g)
   return send_file_chunk (g, 0, buf, 0);
 }
 
+static int send_file_chunk_shm (guestfs_h *g, int cancel, const char *buf, size_t buflen);
+static int send_file_chunk_sock (guestfs_h *g, int cancel, const char *buf, size_t buflen);
+
 static int
 send_file_chunk (guestfs_h *g, int cancel, const char *buf, size_t buflen)
+{
+  if (g->enable_shm) {
+    return send_file_chunk_shm (g, cancel, buf, buflen);
+  }
+  else {
+    return send_file_chunk_sock (g, cancel, buf, buflen);
+  }
+}
+
+static int
+send_file_chunk_shm (guestfs_h *g, int cancel, const char *buf, size_t buflen)
+{
+  uint32_t len, flag_len;
+  ssize_t r;
+  guestfs_protobuf_flag_message len_msg;
+  guestfs_protobuf_shm_chunk chunk;
+  CLEANUP_FREE char *msg_out = NULL;
+  size_t msg_out_size;
+
+  /* Serialize the chunk. */
+  guestfs_protobuf_shm_chunk__init (&chunk);
+  chunk.cancel = cancel;
+  chunk.len = buflen;
+  
+  /* Allocate the chunk buffer.  Don't use the stack to avoid
+   * excessive stack usage and unnecessary copies.
+   */
+  len = guestfs_protobuf_shm_chunk__get_packed_size (&chunk);
+  msg_out = safe_malloc (g, len + PROTOBUF_FLAG_MESSAGE_SIZE);
+
+  len = guestfs_protobuf_shm_chunk__pack (&chunk, (uint8_t *) msg_out + PROTOBUF_FLAG_MESSAGE_SIZE);
+  if (!len) {
+    error (g, _("protobuf-c's guestfs_chunk_pack failed (buf = %p, buflen = %zu)"),
+           buf, buflen);
+    return -1;
+  }
+
+  /* Reduce the size of the outgoing message buffer to the real length. */
+  msg_out = safe_realloc (g, msg_out, len + PROTOBUF_FLAG_MESSAGE_SIZE);
+  msg_out_size = len + PROTOBUF_FLAG_MESSAGE_SIZE;
+
+  guestfs_protobuf_flag_message__init (&len_msg);
+  len_msg.val = len;
+  flag_len = guestfs_protobuf_flag_message__pack (&len_msg, (uint8_t *) msg_out);
+  assert (flag_len == PROTOBUF_FLAG_MESSAGE_SIZE);
+
+  /* Did the daemon send a cancellation message? */
+  r = check_daemon_socket (g);
+  if (r == -2) {
+    debug (g, "got daemon cancellation");
+    return -2;
+  }
+  if (r == -1)
+    return -1;
+  if (r == 0) {
+    guestfs___unexpected_close_error (g);
+    child_cleanup (g);
+    return -1;
+  }
+
+  /* Send the chunk. */
+  r = g->conn->ops->write_data (g, g->conn, msg_out, msg_out_size);
+  if (r == -1)
+    return -1;
+  if (r == 0) {
+    guestfs___unexpected_close_error (g);
+    child_cleanup (g);
+    return -1;
+  }
+
+  return 0;
+}
+
+static int
+send_file_chunk_sock (guestfs_h *g, int cancel, const char *buf, size_t buflen)
 {
   uint32_t len, flag_len;
   ssize_t r;
