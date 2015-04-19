@@ -110,7 +110,11 @@ download_file(guestfs_h *g, const char *remote_filepath, const char *filepath)
 static int
 upload_file(guestfs_h *g, const char *local_filepath, const char *remote_filepath)
 {
-    //TODO: implement me
+    if (guestfs_upload(g, local_filepath, remote_filepath) == -1) {
+        printf("ERROR: guestfs_upload()\n");
+        return -1;
+    }
+    printf("File has been uploaded to '%s'\n", remote_filepath);
 
     return 0;
 }

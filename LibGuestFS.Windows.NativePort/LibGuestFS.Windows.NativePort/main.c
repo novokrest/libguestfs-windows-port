@@ -73,11 +73,13 @@ main(int args, char* argv[])
     }
 
     test->protocol = PROTOBUF;
-    test->ops->set_shared_memory(test, 0, SHARED_MEMORY_SIZE, SHARED_MEMORY_NAME);
+    test->ops->set_shared_memory(test, 1, SHARED_MEMORY_SIZE, SHARED_MEMORY_NAME);
     test->ops->add_drive(test, DISK_IMG);
     
     test->ops->add_download(test, "/home/novokrestdeb/subdisk.img", "subdisk.img");
     test->ops->add_download(test, "/home/novokrestdeb/video.mp4", "video.mp4");
+
+    test->ops->add_upload(test, "video.mp4", "/home/novokrestdeb/video1.mp4");
     
     for (i = 0; i < SMALL_FILES_COUNT; ++i) {
         sprintf(buf, "/home/novokrestdeb/%d", i);
