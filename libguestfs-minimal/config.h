@@ -2265,8 +2265,8 @@
 /* #undef PTRDIFF_T_SUFFIX */
 
 /* Location of qemu binary. */
-//#define QEMU "/usr/bin/qemu-system-x86_64"
-#define QEMU "/tmp/qemu-system-x86_64"
+#define QEMU "/usr/bin/qemu-system-x86_64"
+//#define QEMU "/tmp/qemu-system-x86_64"
 
 /* Extra options for qemu command line. */
 #define QEMU_OPTIONS ""
