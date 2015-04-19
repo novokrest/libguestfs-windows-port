@@ -1,3 +1,5 @@
+#ifdef GUESTFS_EXEC
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdbool.h>
@@ -473,3 +475,5 @@ free_test_guestfs(struct test_guestfs *test)
 
     free_report(test->report);
 }
+
+#endif /* GUESTFS_EXEC */

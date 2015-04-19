@@ -63,6 +63,8 @@ extern "C" {
 # define GUESTFS_DLL_PUBLIC __attribute__((visibility ("default")))
 #elif defined _WIN32 && GUESTFS_LIBRARY
 # define GUESTFS_DLL_PUBLIC __declspec(dllexport)
+#elif defined _WIN32 && GUESTFS_EXEC
+# define GUESTFS_DLL_PUBLIC 
 #elif defined _WIN32
 # define GUESTFS_DLL_PUBLIC __declspec(dllimport)
 #else

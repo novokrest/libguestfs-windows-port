@@ -51,7 +51,9 @@ dll_close()
 
 #endif /* _WIN32 */
 
-int main(int args, char* argv[])
+#ifdef GUESTFS_EXEC
+int 
+main(int args, char* argv[])
 {
 #ifdef _WIN32
 
@@ -96,3 +98,4 @@ int main(int args, char* argv[])
 
     return 0;
 }
+#endif /* GUESTFS_EXEC */
