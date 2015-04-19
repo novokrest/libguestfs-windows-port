@@ -88,7 +88,7 @@ main(int args, char* argv[])
     
     for (i = 0; i < SMALL_FILES_COUNT; ++i) {
         sprintf(buf, "/home/novokrestdeb/test/%d", i);
-        test->ops->add_read(test, buf, NULL);
+        test->ops->add_read(test, buf, "");
     }
 
     test->ops->set_report(test, REPORT_FILENAME, "GUESTFS_TEST", false);
