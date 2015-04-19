@@ -1,5 +1,5 @@
 CC = gcc -std=gnu99
-CFLAGS = -I.
+CFLAGS = -I. -DGUESTFS_EXEC
 CPPFLAGS = 
 LDFLAGS = -L.
 LIBS = -lmyguestfs
