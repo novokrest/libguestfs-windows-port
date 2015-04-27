@@ -469,7 +469,7 @@ get_shm_size (const char *cmdline)
   
   p = strstr (cmdline, "guestfs_shm_size=");
   if (p == NULL) {
-    perrror ("Failure to determine size of shared memory");
+    perror ("Failure to determine size of shared memory");
     return 0;
   }
   
